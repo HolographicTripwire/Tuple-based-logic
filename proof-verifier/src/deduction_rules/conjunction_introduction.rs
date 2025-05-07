@@ -49,5 +49,5 @@ fn verify_conjunction_right(assumptions: &Vec<Proposition>, conclusion: &Proposi
             { return Err(VerificationError::InvalidStepSpecification) }
     } else { return Err(VerificationError::InvalidStepSpecification) }
 
-    Ok(())
+    return Ok(())
 }
