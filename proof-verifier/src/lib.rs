@@ -5,9 +5,9 @@ use std::collections::HashSet;
 use deduction_rules::*;
 use shared::{proof::{Proof, ProofStep}, proposition::Proposition};
 
-pub fn verify(axioms: &HashSet<Proposition>, proof: &Proof) -> Result<(),(usize,VerificationError)> {
+pub fn verify_proof(assumptions: &HashSet<Proposition>, proof: &Proof) -> Result<(),(usize,VerificationError)> {
     // Create a list of [Proposition] objects which are considered at this time to be true
-    let proved = axioms.clone();
+    let proved = assumptions.clone();
     // Verify each step of the process, throwing an error if any of them fail
     for (i, step) in proof.steps.iter().enumerate() {
         if let Err(err) = verify_proof_step(&proved, step)
