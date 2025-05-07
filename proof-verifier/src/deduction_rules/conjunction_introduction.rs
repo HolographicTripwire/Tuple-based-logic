@@ -9,15 +9,15 @@ pub fn verify_conjunction_introduction(assumptions: &Vec<Proposition>, conclusio
     // Throw an error if there are not three entities in the conclusion
     if conclusion.len() != 3 { return Err(VerificationError::InvalidStepSpecification) }
 
-    verify_conjunction_head()?;
-    verify_conjunction_left()?;
-    verify_conjunction_right()?;
+    verify_conjunction_head(conclusion)?;
+    verify_conjunction_left(assumptions,conclusion)?;
+    verify_conjunction_right(assumptions,conclusion)?;
 
     // If none of the errors were triggered, then this step was successfully verified
     return Ok(())
 }
 
-fn verify_conjunction_head() -> Result<(),VerificationError> {
+fn verify_conjunction_head(conclusion: &Proposition) -> Result<(),VerificationError> {
     // Panic if the conclusion does not have a first term
     if let PropositionTerm::Entity(entity_id) = conclusion.get_term(0).expect("Conclusion had no first term") {
         // Throw an error if the head is not [BuiltInEntity::Conjunction]
@@ -28,7 +28,7 @@ fn verify_conjunction_head() -> Result<(),VerificationError> {
     return Ok(());
 }
 
-fn verify_conjunction_left() -> Result<(),VerificationError> {
+fn verify_conjunction_left(assumptions: &Vec<Proposition>, conclusion: &Proposition) -> Result<(),VerificationError> {
     // Throw an error if a proposition cannot be constructed by the first term
     if let Ok(conjunction_left) = conclusion.proposition_from_term(1) { 
         // Panic if there is no first assumption
@@ -40,7 +40,7 @@ fn verify_conjunction_left() -> Result<(),VerificationError> {
     return Ok(());
 }
 
-fn verify_conjunction_right() -> Result<(),VerificationError> {
+fn verify_conjunction_right(assumptions: &Vec<Proposition>, conclusion: &Proposition) -> Result<(),VerificationError> {
     // Throw an error if a proposition cannot be constructed by the second term
     if let Ok(conjunction_right) = conclusion.proposition_from_term(2) { 
         // Panic if there is no second assumption
