@@ -3,7 +3,7 @@ pub mod deduction_rules;
 use std::collections::HashSet;
 
 use deduction_rules::*;
-use shared::{proof::{Proof, ProofStep, ProofStepType}, proposition::Proposition};
+use shared::{proof::{Proof, ProofStep}, proposition::Proposition};
 
 pub fn verify(axioms: &HashSet<Proposition>, proof: &Proof) -> Result<(),(usize,VerificationError)> {
     // Create a list of [Proposition] objects which are considered at this time to be true
@@ -19,12 +19,7 @@ pub fn verify(axioms: &HashSet<Proposition>, proof: &Proof) -> Result<(),(usize,
 
 fn verify_proof_step(assumptions: &HashSet<Proposition>, step: &ProofStep) -> Result<(),VerificationError> {
     // Check whether the step is a valid instance of the type of step it claims to be
-    let step_result = match step.step_type {
-        ProofStepType::ConjunctionIntroduction => verify_conjunction_introduction(&step.assumptions, &step.conclusion),
-        ProofStepType::ImplicationElimination => verify_implication_elimination(&step.assumptions, &step.conclusion),
-        ProofStepType::UniversalInstantiation => verify_universal_instantiation(&step.assumptions, &step.conclusion),
-        ProofStepType::TupleAppendation => verify_tuple_appendation(&step.assumptions, &step.conclusion),
-    };
+    let step_result = verify_proof_step_by_type(&step.step_type, &step.assumptions, &step.conclusion);
     // If it's not a valid instance, throw an Error
     if let Err(err) = step_result { return Err(err) }
     
