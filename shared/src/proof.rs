@@ -7,7 +7,7 @@ pub struct Proof {
 pub enum ProofStepType {
     ConjunctionIntroduction,
     ImplicationElimination,
-    UniversalInstantiation,
+    UniversalSubstitution,
     TupleAppendation,
 }
 
