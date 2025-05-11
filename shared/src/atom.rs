@@ -2,25 +2,30 @@ use std::num::TryFromIntError;
 
 use ids::{Id16, IdImpl, Identifier};
 
+use crate::term::Term;
+
 /// Atoms which are built in to Tuple-Based Logic, and will appear in all axiomatic systems in Tuple-Based Logic
-pub enum BuiltinAtom {
+pub enum BuiltInAtom {
     Conjunction,
     Implication,
     UniversalQuantifier,
     Identity,
     TupleAppend,
 }
-impl Into<AtomId> for BuiltinAtom {
+impl Into<AtomId> for BuiltInAtom {
     fn into(self) -> AtomId {
         let id = match self {
-            BuiltinAtom::Conjunction => 0,
-            BuiltinAtom::Implication => 1,
-            BuiltinAtom::UniversalQuantifier => 2,
-            BuiltinAtom::Identity => 3,
-            BuiltinAtom::TupleAppend => 4,
+            BuiltInAtom::Conjunction => 0,
+            BuiltInAtom::Implication => 1,
+            BuiltInAtom::UniversalQuantifier => 2,
+            BuiltInAtom::Identity => 3,
+            BuiltInAtom::TupleAppend => 4,
         };
         AtomId(Id16(id))
     }
+}
+impl Into<Term> for BuiltInAtom {
+    fn into(self) -> Term { Term::Atomic(self.into()) }
 }
 
 /// An [Identifier] used for Atom objects
