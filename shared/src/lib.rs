@@ -1,3 +1,3 @@
-pub mod entity;
-pub mod proposition;
+pub mod atom;
+pub mod term;
 pub mod proof;

@@ -10,8 +10,8 @@ pub enum BuiltinEntity {
     Identity,
     TupleAppend,
 }
-impl Into<EntityId> for BuiltinEntity {
-    fn into(self) -> EntityId {
+impl Into<AtomId> for BuiltinEntity {
+    fn into(self) -> AtomId {
         let id = match self {
             BuiltinEntity::Conjunction => 0,
             BuiltinEntity::Implication => 1,
@@ -19,24 +19,24 @@ impl Into<EntityId> for BuiltinEntity {
             BuiltinEntity::Identity => 3,
             BuiltinEntity::TupleAppend => 4,
         };
-        EntityId(Id16(id))
+        AtomId(Id16(id))
     }
 }
 
 /// An [Identifier] used for Entity objects
 #[derive(Clone, Copy, PartialEq, Eq, Debug, Hash)]
-pub struct EntityId(Id16);
-impl Identifier for EntityId {
+pub struct AtomId(Id16);
+impl Identifier for AtomId {
     fn first() -> Self { Self(Id16::first()) }
     fn next(self) -> Self { Self(self.0.next().expect("Out of term ids")) }
 }
-impl TryFrom<usize> for EntityId {
+impl TryFrom<usize> for AtomId {
     type Error = TryFromIntError;
     fn try_from(value: usize) -> Result<Self, Self::Error>
-        { Ok(EntityId(Id16::try_from(value)?)) }
+        { Ok(AtomId(Id16::try_from(value)?)) }
 }
-impl TryFrom<EntityId> for usize {
+impl TryFrom<AtomId> for usize {
     type Error = TryFromIntError;
-    fn try_from(value: EntityId) -> Result<Self, Self::Error>
+    fn try_from(value: AtomId) -> Result<Self, Self::Error>
         { Ok(usize::try_from(value.0)?) }
 }

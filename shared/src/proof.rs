@@ -1,4 +1,4 @@
-use crate::proposition::Proposition;
+use crate::term::Term;
 
 pub struct Proof {
     pub steps: Vec<ProofStep>
@@ -13,6 +13,6 @@ pub enum ProofStepType {
 
 pub struct ProofStep {
     pub step_type: ProofStepType,
-    pub assumptions: Vec<Proposition>,
-    pub conclusion: Proposition
+    pub assumptions: Vec<Term>,
+    pub conclusion: Term
 }
