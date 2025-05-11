@@ -33,3 +33,11 @@ impl Term {
         }
     }
 }
+
+impl From<AtomId> for Term {
+    fn from(id: AtomId) -> Self { Self::Atomic(id) }
+}
+
+impl From<Vec<Term>> for Term {
+    fn from(terms: Vec<Term>) -> Self { Self::Tuple(terms) }
+}

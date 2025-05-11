@@ -24,9 +24,6 @@ impl Into<AtomId> for BuiltInAtom {
         AtomId(Id16(id))
     }
 }
-impl Into<Term> for BuiltInAtom {
-    fn into(self) -> Term { Term::Atomic(self.into()) }
-}
 
 /// An [Identifier] used for Atom objects
 #[derive(Clone, Copy, PartialEq, Eq, Debug, Hash)]
