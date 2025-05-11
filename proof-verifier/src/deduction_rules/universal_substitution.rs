@@ -20,6 +20,11 @@ pub fn verify_universal_substitution(assumptions: &Vec<Proposition>, conclusion:
     return Ok(())
 }
 
+
+/// Ensure that the verification_term is what the find_term would be, if all instances of the replace_term were substituted for some value.
+/// # Returns
+/// - The value that the replace_term was replaced with, if one can be found
+/// - An error if such a replacement could not be verified to have taken place.
 fn substitution_comparison(find_term: &Term, replace_term: &Term, verify_term: &Term) -> Result<Option<Term>,VerificationError> {
     // If the find term is the replace term, then it must have been replaced with the verify term so return that
     if find_term == replace_term { return Ok(Some(verify_term.clone())) }
