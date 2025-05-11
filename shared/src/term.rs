@@ -1,4 +1,4 @@
-use crate::atom::AtomId;
+use crate::atom::{AtomId, BuiltInAtom};
 
 /// Components used in the construction of [Proposition] objects
 #[derive(Debug,Clone,PartialEq,Eq,Hash)]
@@ -40,4 +40,7 @@ impl From<AtomId> for Term {
 
 impl From<Vec<Term>> for Term {
     fn from(terms: Vec<Term>) -> Self { Self::Tuple(terms) }
+}
+impl From<BuiltInAtom> for Term {
+    fn from(atom: BuiltInAtom) -> Self { Self::from(AtomId::from(atom.into())) }
 }
