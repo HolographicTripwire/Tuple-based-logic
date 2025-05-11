@@ -2,28 +2,28 @@ use std::num::TryFromIntError;
 
 use ids::{Id16, IdImpl, Identifier};
 
-/// Entities which are built in to Tuple-Based Logic, and will appear in all axiomatic systems in Tuple-Based Logic
-pub enum BuiltinEntity {
+/// Atoms which are built in to Tuple-Based Logic, and will appear in all axiomatic systems in Tuple-Based Logic
+pub enum BuiltinAtom {
     Conjunction,
     Implication,
     UniversalQuantifier,
     Identity,
     TupleAppend,
 }
-impl Into<AtomId> for BuiltinEntity {
+impl Into<AtomId> for BuiltinAtom {
     fn into(self) -> AtomId {
         let id = match self {
-            BuiltinEntity::Conjunction => 0,
-            BuiltinEntity::Implication => 1,
-            BuiltinEntity::UniversalQuantifier => 2,
-            BuiltinEntity::Identity => 3,
-            BuiltinEntity::TupleAppend => 4,
+            BuiltinAtom::Conjunction => 0,
+            BuiltinAtom::Implication => 1,
+            BuiltinAtom::UniversalQuantifier => 2,
+            BuiltinAtom::Identity => 3,
+            BuiltinAtom::TupleAppend => 4,
         };
         AtomId(Id16(id))
     }
 }
 
-/// An [Identifier] used for Entity objects
+/// An [Identifier] used for Atom objects
 #[derive(Clone, Copy, PartialEq, Eq, Debug, Hash)]
 pub struct AtomId(Id16);
 impl Identifier for AtomId {

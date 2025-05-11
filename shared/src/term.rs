@@ -8,7 +8,7 @@ pub enum Term {
 }
 
 impl Term {
-    // If this term is an Entity, get its id. Otherwise throw an error
+    // If this term is an Atom, get its id. Otherwise throw an error
     pub fn as_entity(&self) -> Result<AtomId,()> {
         match &self {
             Term::Atomic(entity_id) => Ok(*entity_id),
@@ -25,7 +25,7 @@ impl Term {
     }
 
     /// Get the term within this term at the provided index if it exists, otherwise throw an error.
-    pub fn get_term(&self, index: usize) -> Result<&Term,()> {
+    pub fn get_subterm(&self, index: usize) -> Result<&Term,()> {
         let terms= self.as_terms()?;
         match terms.get(index) {
             Some(term) => Ok(term),
