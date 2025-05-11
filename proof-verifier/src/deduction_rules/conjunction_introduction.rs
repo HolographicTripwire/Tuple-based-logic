@@ -2,12 +2,11 @@ use shared::{atom::BuiltInAtom, proposition::Proposition};
 
 use crate::VerificationError;
 
-/// Verify that the propositions and the conclusion form a valid instance of conjunction
+/// Verify that the propositions and the conclusion form a valid instance of conjunction introduction
 pub fn verify_conjunction_introduction(assumptions: &Vec<Proposition>, conclusion: &Proposition) -> Result<(),VerificationError> {
     // Throw an error if there are not two assumptions
     let [assumption_left, assumption_right] = assumptions.as_slice() else { return Err(VerificationError::InvalidStepSpecification) };
 
-    
     // Throw an error if the conclusion is not a tuple
     let conclusion_terms = conclusion.0.as_tuple().or(Err(VerificationError::InvalidStepSpecification))?;
     // Throw an error if there are not three terms in the conclusion

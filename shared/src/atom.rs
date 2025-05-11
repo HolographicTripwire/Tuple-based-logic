@@ -2,8 +2,6 @@ use std::num::TryFromIntError;
 
 use ids::{Id16, IdImpl, Identifier};
 
-use crate::term::Term;
-
 /// Atoms which are built in to Tuple-Based Logic, and will appear in all axiomatic systems in Tuple-Based Logic
 pub enum BuiltInAtom {
     Conjunction,

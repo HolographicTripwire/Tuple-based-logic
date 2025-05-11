@@ -1,7 +1,8 @@
-use shared::{atom::BuiltInAtom, proposition::Proposition, term::Term};
+use shared::{atom::BuiltInAtom, proposition::Proposition};
 
 use crate::VerificationError;
 
+/// Verify that the propositions and the conclusion form a valid instance of implication elimination
 pub fn verify_implication_elimination(assumptions: &Vec<Proposition>, conclusion: &Proposition) -> Result<(), VerificationError> {
     // Throw an error if there are not two assumptions
     let [prior, implication] = assumptions.as_slice() else { return Err(VerificationError::InvalidStepSpecification) };
