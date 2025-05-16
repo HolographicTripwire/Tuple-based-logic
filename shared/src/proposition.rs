@@ -29,6 +29,12 @@ impl PropositionSet {
     } 
 }
 
+impl From<&Proposition> for PropositionSet {
+    fn from(proposition: &Proposition) -> Self {
+        Self(HashSet::from_iter(vec![proposition.clone()].iter().cloned()))
+    }
+}
+
 impl From<&Vec<Proposition>> for PropositionSet {
     fn from(starting_propositions: &Vec<Proposition>) -> Self {
         Self(HashSet::from_iter(starting_propositions.iter().cloned()))
