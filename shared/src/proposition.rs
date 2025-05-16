@@ -8,10 +8,6 @@ pub struct Proposition(pub Term);
 pub struct PropositionSet(HashSet<Proposition>);
 
 impl PropositionSet {
-    pub fn new(starting_propositions: &Vec<Proposition>) -> Self {
-        Self(HashSet::from_iter(starting_propositions.iter().cloned()))
-    }
-
     pub fn merge(&mut self, other: &Self) {
         self.0.extend(other.0.iter().cloned());
     }
@@ -31,4 +27,16 @@ impl PropositionSet {
     pub fn contains(&self, proposition: &Proposition) -> bool {
         self.0.contains(proposition)
     } 
+}
+
+impl From<&Vec<Proposition>> for PropositionSet {
+    fn from(starting_propositions: &Vec<Proposition>) -> Self {
+        Self(HashSet::from_iter(starting_propositions.iter().cloned()))
+    }
+}
+
+impl From<&HashSet<Proposition>> for PropositionSet {
+    fn from(starting_propositions: &HashSet<Proposition>) -> Self {
+        Self(starting_propositions.clone())
+    }
 }
