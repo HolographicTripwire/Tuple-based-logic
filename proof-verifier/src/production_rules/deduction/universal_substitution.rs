@@ -2,6 +2,7 @@ use shared::{atom::BuiltInAtom, proposition::Proposition, term::Term};
 
 use crate::VerificationError;
 
+/// Verify that the assumptions and the conclusion form a valid instance of universal substitution ("for all x, P(x)" entails "P(y)" for any y)
 pub fn verify_universal_substitution(assumptions: &Vec<Proposition>, conclusion: &Proposition) -> Result<(), VerificationError> {
     // Throw an error if there is not one assumptions
     let [substitution] = assumptions.as_slice() else { return Err(VerificationError::InvalidStepSpecification) };
