@@ -1,4 +1,34 @@
+use std::collections::HashSet;
+
 use crate::term::Term;
 
 #[derive(Hash,PartialEq,Eq,Debug,Clone)]
 pub struct Proposition(pub Term);
+
+pub struct PropositionSet(HashSet<Proposition>);
+
+impl PropositionSet {
+    pub fn new(starting_propositions: &Vec<Proposition>) -> Self {
+        Self(HashSet::from_iter(starting_propositions.iter().cloned()))
+    }
+
+    pub fn merge(&mut self, other: &Self) {
+        self.0.extend(other.0.iter().cloned());
+    }
+
+    pub fn merged(&self, other: &Self) -> Self {
+        Self(HashSet::from_iter(self.0.iter().chain(other.0.iter()).cloned()))
+    }
+
+    pub fn extend(&mut self, vec: &Vec<Proposition>) {
+        self.0.extend(vec.iter().cloned());
+    }
+
+    pub fn extended(&self, vec: &Vec<Proposition>) -> Self {
+        Self(HashSet::from_iter(self.0.iter().chain(vec).cloned()))
+    }
+
+    pub fn contains(&self, proposition: &Proposition) -> bool {
+        self.0.contains(proposition)
+    } 
+}
