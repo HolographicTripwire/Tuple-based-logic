@@ -13,9 +13,13 @@ pub enum Subproof<'a> {
 }
 
 pub enum ProofStepType {
+    // Deduction rules
     ConjunctionIntroduction,
     ImplicationElimination,
     UniversalSubstitution,
+    // Verbatim rules
+    AtomicityAssertion,
+    AtomDifferentiation,
     TupleAppendation,
 }
 

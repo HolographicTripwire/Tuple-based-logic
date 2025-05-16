@@ -1,8 +1,8 @@
-pub mod deduction_rules;
+pub mod production_rules;
 
 use std::collections::HashSet;
 
-use deduction_rules::*;
+use production_rules::*;
 use shared::{proof::{Proof, ProofStep}, proposition::Proposition};
 
 /// Verify that the provided proof is sound under Tuple-Based logic, given some set of starting assumptions
