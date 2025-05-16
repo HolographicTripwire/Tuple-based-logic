@@ -9,7 +9,7 @@ pub struct Proof<G: ProofGenerator<G>> {
 pub enum Subproof<G: ProofGenerator<G>> {
     Atomic(ProofStep),
     Composite(Proof<G>),
-    Generator(G)
+    Generator(G,Vec<Proposition>)
 }
 
 pub enum ProofStepType {
