@@ -1,9 +1,9 @@
-use crate::proposition::Proposition;
+use crate::proposition::{Proposition, PropositionSet};
 
 pub struct Proof<G: ProofGenerator<G>> {
     pub premises: Vec<Proposition>,
     pub subproofs: Vec<Subproof<G>>,
-    pub conclusions: Vec<Proposition>
+    pub conclusions: PropositionSet
 }
 
 pub enum Subproof<G: ProofGenerator<G>> {
