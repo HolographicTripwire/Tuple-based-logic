@@ -4,20 +4,31 @@ use ids::{Id16, IdImpl, Identifier};
 
 /// Atoms which are built in to Tuple-Based Logic, and will appear in all axiomatic systems in Tuple-Based Logic
 pub enum BuiltInAtom {
+    // Deduction
     Conjunction,
     Implication,
     UniversalQuantifier,
+    // Verbatim
+    Verbatim,
+    Atomic,
     Identity,
+    NonIdentity,
     TupleAppend,
 }
 impl Into<AtomId> for BuiltInAtom {
     fn into(self) -> AtomId {
         let id = match self {
+            // Deduction
             BuiltInAtom::Conjunction => 0,
             BuiltInAtom::Implication => 1,
             BuiltInAtom::UniversalQuantifier => 2,
+            // Identity
             BuiltInAtom::Identity => 3,
-            BuiltInAtom::TupleAppend => 4,
+            BuiltInAtom::NonIdentity => 4,
+            // Verbatim
+            BuiltInAtom::Verbatim => 5,
+            BuiltInAtom::Atomic => 6,
+            BuiltInAtom::TupleAppend => 7,
         };
         AtomId(Id16(id))
     }
