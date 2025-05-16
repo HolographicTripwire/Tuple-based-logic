@@ -26,7 +26,13 @@ impl PropositionSet {
 
     pub fn contains(&self, proposition: &Proposition) -> bool {
         self.0.contains(proposition)
-    } 
+    }
+
+    pub fn subset_of(&self, other: &PropositionSet) -> bool {
+        for proposition in &self.0 {
+            if !other.contains(&proposition) { return false; }
+        } return true;
+    }
 }
 
 impl From<&Proposition> for PropositionSet {
