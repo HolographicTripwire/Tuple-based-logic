@@ -1,7 +1,15 @@
 use crate::proposition::Proposition;
 
-pub struct Proof {
-    pub steps: Vec<ProofStep>
+pub struct Proof<'a> {
+    pub premises: Vec<Proposition>,
+    pub subproofs: Vec<Subproof<'a>>,
+    pub conclusions: Vec<Proposition>
+}
+
+pub enum Subproof<'a> {
+    Atomic(ProofStep),
+    Composite(Proof<'a>),
+    Generator(&'a dyn Fn(Vec<Proposition>) -> Proof<'a>)
 }
 
 pub enum ProofStepType {
