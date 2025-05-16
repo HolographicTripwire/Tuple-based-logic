@@ -36,6 +36,8 @@ impl PropositionSet {
         self.0.contains(proposition)
     }
 
+    pub fn len(&self) -> usize { self.0.len() }
+
     pub fn subset_of(&self, other: &PropositionSet) -> bool {
         for proposition in &self.0 {
             if !other.contains(&proposition) { return false; }
