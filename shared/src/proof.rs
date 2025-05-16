@@ -30,5 +30,5 @@ pub struct ProofStep {
 }
 
 pub trait ProofGenerator<G: ProofGenerator<G>> {
-    fn generate(conclusions: Vec<Proposition>) -> Result<Proof<G>,()>;
+    fn generate(&self, conclusions: Vec<Proposition>) -> Result<Proof<G>,()>;
 }
