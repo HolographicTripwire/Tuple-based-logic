@@ -1,16 +1,14 @@
 use shared::{atom::BuiltInAtom, proposition::Proposition, term::Term};
 
-use crate::VerificationError;
+use crate::{production_rules::TupleOrError, VerificationError};
 
 /// Verify that the assumptions and the conclusion form a valid instance of universal substitution ("for all x, P(x)" entails "P(y)" for any y)
 pub fn verify_universal_substitution(assumptions: &Vec<Proposition>, conclusion: &Proposition) -> Result<(), VerificationError> {
     // Throw an error if there is not one assumptions
     let [substitution] = assumptions.as_slice() else { return Err(VerificationError::InvalidStepSpecification) };
 
-    // Throw an error if the assumption is not a tuple
-    let substitution_terms = substitution.0.as_tuple().or(Err(VerificationError::InvalidStepSpecification))?;
     // Throw an error if there are not three terms in the conclusion
-    let [substitution_head, term_to_replace, term_to_replace_within] = substitution_terms.as_slice() else { return Err(VerificationError::InvalidStepSpecification) };
+    let [substitution_head, term_to_replace, term_to_replace_within] = TupleOrError::prop_as_slice(substitution)? else { return Err(VerificationError::InvalidStepSpecification) };
 
     // Throw an error if the head of the substitution is incorrect
     if substitution_head != &BuiltInAtom::UniversalQuantifier.into() { return Err(VerificationError::InvalidStepSpecification) }
@@ -31,8 +29,8 @@ fn substitution_comparison(find_term: &Term, replace_term: &Term, verify_term: &
     if find_term == replace_term { return Ok(Some(verify_term.clone())) }
     
     // Throw an error if find_term or verify_term is not a tuple
-    let find_terms = find_term.as_tuple().or(Err(VerificationError::InvalidStepSpecification))?;
-    let verify_terms = verify_term.as_tuple().or(Err(VerificationError::InvalidStepSpecification))?;
+    let find_terms = TupleOrError::term_as_tuple(find_term)?;
+    let verify_terms = TupleOrError::term_as_tuple(verify_term)?;
     // Throw an error if the find term and verify terms are of different lengths (a substitution would not resolve this)
     if find_terms.len() != verify_terms.len() { return Err(VerificationError::InvalidStepSpecification) }
     

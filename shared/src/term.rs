@@ -24,6 +24,13 @@ impl Term {
         }
     }
 
+    pub fn as_slice(&self) -> Result<&[Term], ()> {
+        match &self {
+            Term::Atomic(_) => Err(()),
+            Term::Tuple(proposition_terms) => Ok(proposition_terms.as_slice()),
+        }
+    }
+
     /// Get the term within this term at the provided index if it exists, otherwise throw an error.
     pub fn get_subterm(&self, index: usize) -> Result<&Term,()> {
         let terms= self.as_tuple()?;
