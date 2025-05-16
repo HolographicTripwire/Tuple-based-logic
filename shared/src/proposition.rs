@@ -24,6 +24,14 @@ impl PropositionSet {
         Self(HashSet::from_iter(self.0.iter().chain(vec).cloned()))
     }
 
+    pub fn subtract(&mut self, other: &PropositionSet) {
+        self.0 = self.0.difference(&other.0).cloned().collect();
+    }
+
+    pub fn subtracted(&self, other: &PropositionSet) -> Self {
+        Self(self.0.difference(&other.0).cloned().collect())
+    }
+
     pub fn contains(&self, proposition: &Proposition) -> bool {
         self.0.contains(proposition)
     }
@@ -33,6 +41,7 @@ impl PropositionSet {
             if !other.contains(&proposition) { return false; }
         } return true;
     }
+
 }
 
 impl From<&Proposition> for PropositionSet {
