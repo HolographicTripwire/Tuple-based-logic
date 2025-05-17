@@ -1,7 +1,7 @@
 use shared::proposition::PropositionSet;
 
 #[derive(Clone)]
-pub enum VerificationError {
+pub enum ProofVerificationError {
     AssumptionsNotFound(PropositionSet),
     ConclusionsNotFound(PropositionSet),
     InvalidStepSpecification,

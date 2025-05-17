@@ -5,10 +5,32 @@ mod tuple_or_error;
 use deduction::*;
 use verbatim::*;
 
-use shared::{proof::{ProofStep, ProofStepType}, proposition::Proposition, term::Term};
+use shared::{proof::{error::ErrorInProof, Proof, ProofStep, ProofStepType, SubProof}, proposition::Proposition};
 
 
 use crate::ProofVerificationError;
+
+/// Check if all deduction rules in the proof are correct
+pub fn verify_rules_in_proof(proof: &Proof) -> Result<(),ErrorInProof<ProofVerificationError>> {
+    // Iterate through all steps in the proof
+    for (i, subproof) in proof.subproofs.iter().enumerate() {
+        match subproof { 
+            SubProof::Atomic(proof_step) => {
+                // Verify that an atomic proof represents a step that correctly applies our production rules
+                match verify_rules_in_proof_step(proof_step) {
+                    Ok(()) => Ok(()),
+                    Err(err) => Err(ErrorInProof::<ProofVerificationError>::new( i,err)),
+                }},
+            SubProof::Composite(proof) => {
+                // Verify that a composite proof is valid
+                match verify_rules_in_proof(proof) {
+                    Ok(()) => Ok(()),
+                    Err(located_err) => Err(located_err.add_step(i)),
+                }},
+        }?
+    }
+    Ok(())
+}
 
 pub fn verify_rules_in_proof_step(step: &ProofStep) -> Result<(),ProofVerificationError> {
     let verifier = get_proof_step_verifier_by_type(&step.step_type);
