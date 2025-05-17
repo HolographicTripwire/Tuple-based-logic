@@ -1,4 +1,4 @@
-use crate::proposition::{Proposition, PropositionSet};
+use crate::proposition::Proposition;
 
 use super::{error::ErrorInProof, Proof, SubProof};
 
@@ -10,7 +10,7 @@ pub trait ProofGenerator<G: ProofGenerator<G>>: Clone {
 pub struct ProofPromise<G: ProofGenerator<G>> {
     pub premises: Vec<Proposition>,
     pub subproofs: Vec<SubProofPromise<G>>,
-    pub conclusions: PropositionSet
+    pub conclusions: Vec<Proposition>
 }
 
 impl <G: ProofGenerator<G>> ProofPromise<G> {
