@@ -1,2 +1,2 @@
 # Tuple-based-logic
-Proof generation and verification for tuple-based logic
+Proof generation, verification, and textualization for tuple-based logic
