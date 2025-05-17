@@ -1,5 +1,5 @@
 [package]
-name = "tuple_based_logic_verifier"
+name = "tuple_based_logic_textualizer"
 version = "0.1.0"
 edition = "2024"
 
