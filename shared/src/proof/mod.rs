@@ -26,7 +26,7 @@ impl SubProof {
 
     pub fn conclusions(&self) -> &Vec<Proposition> {
         match self {
-            SubProof::Atomic(proof_step) => &proof_step.conclusion,
+            SubProof::Atomic(proof_step) => &proof_step.conclusions,
             SubProof::Composite(proof) => &proof.conclusions,
         }
     }
@@ -48,5 +48,5 @@ pub enum ProofStepType {
 pub struct ProofStep {
     pub step_type: ProofStepType,
     pub assumptions: Vec<Proposition>,
-    pub conclusion: Vec<Proposition>
+    pub conclusions: Vec<Proposition>
 }
