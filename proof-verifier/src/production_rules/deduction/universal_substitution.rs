@@ -1,17 +1,17 @@
 use shared::{atom::BuiltInAtom, proposition::Proposition, term::Term};
 
-use crate::{production_rules::TupleOrError, VerificationError};
+use crate::{production_rules::tuple_or_error, ProofVerificationError};
 
 /// Verify that the assumptions and the conclusion form a valid instance of universal substitution ("for all x, P(x)" entails "P(y)" for any y)
-pub fn verify_universal_substitution(assumptions: &Vec<Proposition>, conclusion: &Proposition) -> Result<(), VerificationError> {
+pub fn verify_universal_substitution(assumptions: &Vec<Proposition>, conclusion: &Proposition) -> Result<(), ProofVerificationError> {
     // Throw an error if there is not one assumptions
-    let [substitution] = assumptions.as_slice() else { return Err(VerificationError::InvalidStepSpecification) };
+    let [substitution] = assumptions.as_slice() else { return Err(ProofVerificationError::InvalidStepSpecification) };
 
     // Throw an error if there are not three terms in the conclusion
-    let [substitution_head, term_to_replace, term_to_replace_within] = TupleOrError::prop_as_slice(substitution)? else { return Err(VerificationError::InvalidStepSpecification) };
+    let [substitution_head, term_to_replace, term_to_replace_within] = tuple_or_error::prop_as_slice(substitution)? else { return Err(ProofVerificationError::InvalidStepSpecification) };
 
     // Throw an error if the head of the substitution is incorrect
-    if substitution_head != &BuiltInAtom::UniversalQuantifier.into() { return Err(VerificationError::InvalidStepSpecification) }
+    if substitution_head != &BuiltInAtom::UniversalQuantifier.into() { return Err(ProofVerificationError::InvalidStepSpecification) }
     // Check that remainder of the substitution is correct
     substitution_comparison(term_to_replace_within, term_to_replace, &conclusion.0)?;
     
@@ -24,19 +24,19 @@ pub fn verify_universal_substitution(assumptions: &Vec<Proposition>, conclusion:
 /// # Returns
 /// - The value that the replace_term was replaced with, if one can be found
 /// - An error if such a replacement could not be verified to have taken place.
-fn substitution_comparison(find_term: &Term, replace_term: &Term, verify_term: &Term) -> Result<Option<Term>,VerificationError> {
+fn substitution_comparison(find_term: &Term, replace_term: &Term, verify_term: &Term) -> Result<Option<Term>,ProofVerificationError> {
     // If the find term is the replace term, then it must have been replaced with the verify term so return that
     if find_term == replace_term { return Ok(Some(verify_term.clone())) }
     
     // Throw an error if find_term or verify_term is not a tuple
-    let find_terms = TupleOrError::term_as_tuple(find_term)?;
-    let verify_terms = TupleOrError::term_as_tuple(verify_term)?;
+    let find_terms = tuple_or_error::term_as_tuple(find_term)?;
+    let verify_terms = tuple_or_error::term_as_tuple(verify_term)?;
     // Throw an error if the find term and verify terms are of different lengths (a substitution would not resolve this)
-    if find_terms.len() != verify_terms.len() { return Err(VerificationError::InvalidStepSpecification) }
+    if find_terms.len() != verify_terms.len() { return Err(ProofVerificationError::InvalidStepSpecification) }
     
     // Recurse, performing substitution comparison on each term within the sets of tuples
     let results = find_terms.iter().zip(verify_terms.iter())
-        .map(|(term1, term2)| -> Result<Option<Term>,VerificationError> { substitution_comparison(term1, replace_term, term2) });
+        .map(|(term1, term2)| -> Result<Option<Term>,ProofVerificationError> { substitution_comparison(term1, replace_term, term2) });
     
     // Filter out unwanted results
     let mut filtered_results = Vec::new();
@@ -48,7 +48,7 @@ fn substitution_comparison(find_term: &Term, replace_term: &Term, verify_term: &
 
     if let Some(first_result) = filtered_results.get(0).cloned() {
         // Throw an error if the same replacement was not made on each term within the set of tuples
-        for result in filtered_results { if result != first_result { return Err(VerificationError::InvalidStepSpecification) } }
+        for result in filtered_results { if result != first_result { return Err(ProofVerificationError::InvalidStepSpecification) } }
         // If all of the replacements are the same, then return what they were all replaced with
         return Ok(Some(first_result))
     // If no replacements were made, then return None; the find and verify term are the same
