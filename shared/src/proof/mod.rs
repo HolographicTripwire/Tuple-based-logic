@@ -1,17 +1,21 @@
+pub mod generation;
+
 use crate::proposition::{Proposition, PropositionSet};
 
-pub struct Proof<G: ProofGenerator<G>> {
+#[derive(Clone)]
+pub struct Proof {
     pub premises: Vec<Proposition>,
-    pub subproofs: Vec<Subproof<G>>,
+    pub subproofs: Vec<SubProof>,
     pub conclusions: PropositionSet
 }
 
-pub enum Subproof<G: ProofGenerator<G>> {
+#[derive(Clone)]
+pub enum SubProof {
     Atomic(ProofStep),
-    Composite(Proof<G>),
-    Generator(G,Vec<Proposition>)
+    Composite(Proof)
 }
 
+#[derive(Clone)]
 pub enum ProofStepType {
     // Deduction rules
     ConjunctionIntroduction,
@@ -23,12 +27,9 @@ pub enum ProofStepType {
     TupleAppendation,
 }
 
+#[derive(Clone)]
 pub struct ProofStep {
     pub step_type: ProofStepType,
     pub assumptions: Vec<Proposition>,
     pub conclusion: Proposition
-}
-
-pub trait ProofGenerator<G: ProofGenerator<G>> {
-    fn generate(&self, conclusions: &Vec<Proposition>) -> Result<Proof<G>,()>;
 }
