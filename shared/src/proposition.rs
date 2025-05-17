@@ -37,13 +37,14 @@ impl PropositionSet {
         self.0.contains(proposition)
     }
 
+    pub fn contains_all<'a>(&self, propositions: impl Iterator<Item=&'a Proposition>) -> bool {
+        for proposition in propositions { if !self.contains(proposition) { return false; } }
+        return true;
+    }
+
     pub fn len(&self) -> usize { self.0.len() }
 
-    pub fn subset_of(&self, other: &PropositionSet) -> bool {
-        for proposition in &self.0 {
-            if !other.contains(&proposition) { return false; }
-        } return true;
-    }
+    pub fn subset_of(&self, other: &PropositionSet) -> bool { self.0.is_subset(&other.0) }
 
 }
 
