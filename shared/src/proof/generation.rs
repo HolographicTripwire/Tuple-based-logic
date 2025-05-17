@@ -1,6 +1,6 @@
 use crate::proposition::{Proposition, PropositionSet};
 
-use super::{Proof, SubProof};
+use super::{error::ErrorInProof, Proof, SubProof};
 
 pub trait ProofGenerator<G: ProofGenerator<G>>: Clone {
     fn generate(&self, conclusions: &Vec<Proposition>) -> Result<SubProofPromise<G>,()>;
@@ -14,9 +14,12 @@ pub struct ProofPromise<G: ProofGenerator<G>> {
 }
 
 impl <G: ProofGenerator<G>> ProofPromise<G> {
-    pub fn resolve_once(&self) -> Result<ProofPromise<G>,()> {
+    pub fn resolve_once(&self) -> Result<ProofPromise<G>,ErrorInProof<()>> {
         let mut subproofs = Vec::new();
-        for proof in &self.subproofs { subproofs.push(proof.resolve_once()?) }
+        for (i, proof) in self.subproofs.iter().enumerate() { match proof.resolve_once() {
+            Ok(subproof) => subproofs.push(subproof),
+            Err(err) => return Err(ErrorInProof::new(i, err)),
+        }}
         Ok(ProofPromise { premises: self.premises.clone(), subproofs, conclusions: self.conclusions.clone() })
     }
 

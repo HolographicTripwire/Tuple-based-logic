@@ -1,4 +1,5 @@
 pub mod generation;
+pub mod error;
 
 use crate::proposition::{Proposition, PropositionSet};
 
