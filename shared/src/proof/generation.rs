@@ -3,7 +3,7 @@ use crate::proposition::{Proposition, PropositionSet};
 use super::{error::ErrorInProof, Proof, SubProof};
 
 pub trait ProofGenerator<G: ProofGenerator<G>>: Clone {
-    fn generate(&self, conclusions: &Vec<Proposition>) -> Result<SubProofPromise<G>,()>;
+    fn generate(&self, conclusions: &Vec<Proposition>) -> Result<SubProofPromise<G>,ProofGenerationError>;
 }
 
 #[derive(Clone)]
@@ -14,7 +14,7 @@ pub struct ProofPromise<G: ProofGenerator<G>> {
 }
 
 impl <G: ProofGenerator<G>> ProofPromise<G> {
-    pub fn resolve_once(&self) -> Result<ProofPromise<G>,ErrorInProof<()>> {
+    pub fn resolve_once(&self) -> Result<ProofPromise<G>,ErrorInProof<ProofGenerationError>> {
         let mut subproofs = Vec::new();
         for (i, proof) in self.subproofs.iter().enumerate() { match proof.resolve_once() {
             Ok(subproof) => subproofs.push(subproof),
@@ -23,7 +23,7 @@ impl <G: ProofGenerator<G>> ProofPromise<G> {
         Ok(ProofPromise { premises: self.premises.clone(), subproofs, conclusions: self.conclusions.clone() })
     }
 
-    pub fn resolve(&self) -> Result<Proof,()> {
+    pub fn resolve(&self) -> Result<Proof,ProofGenerationError> {
         let mut subproofs = Vec::new();
         for proof in &self.subproofs { subproofs.push(proof.resolve()?) }
         Ok(Proof { premises: self.premises.clone(), subproofs, conclusions: self.conclusions.clone() })
@@ -38,7 +38,7 @@ pub enum SubProofPromise<G: ProofGenerator<G>> {
 }
 
 impl <G: ProofGenerator<G>> SubProofPromise<G> {
-    pub fn resolve_once(&self) -> Result<SubProofPromise<G>,()> {
+    pub fn resolve_once(&self) -> Result<SubProofPromise<G>,ProofGenerationError> {
         Ok(match self {
             SubProofPromise::Resolved(_) => self.clone(),
             SubProofPromise::Composite(_) => self.clone(),
@@ -46,7 +46,7 @@ impl <G: ProofGenerator<G>> SubProofPromise<G> {
         })
     }
 
-    pub fn resolve(&self) -> Result<SubProof,()> {
+    pub fn resolve(&self) -> Result<SubProof,ProofGenerationError> {
         Ok(match self {
             SubProofPromise::Resolved(sub_proof) => sub_proof.clone(),
             SubProofPromise::Composite(proof_promise) => SubProof::Composite(proof_promise.resolve()?),
@@ -54,3 +54,6 @@ impl <G: ProofGenerator<G>> SubProofPromise<G> {
         })
     }
 }
+
+#[derive(Clone)]
+pub enum ProofGenerationError {}
