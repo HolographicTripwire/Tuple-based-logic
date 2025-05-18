@@ -5,6 +5,4 @@ edition = "2024"
 
 [dependencies]
 ids = { path = "../../ids" }
-
-[dev-dependencies]
 enum-iterator = { version = "2.1.0" }
