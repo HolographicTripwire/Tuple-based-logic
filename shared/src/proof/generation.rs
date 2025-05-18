@@ -18,7 +18,7 @@ impl <G: ProofGenerator<G>> ProofPromise<G> {
         let mut subproofs = Vec::new();
         for (i, proof) in self.subproofs.iter().enumerate() { match proof.resolve_once() {
             Ok(subproof) => subproofs.push(subproof),
-            Err(err) => return Err(ErrorInProof::new(i, err)),
+            Err(err) => return Err(ErrorInProof::new_at_step(i, err)),
         }}
         Ok(ProofPromise { premises: self.premises.clone(), subproofs, conclusions: self.conclusions.clone() })
     }
