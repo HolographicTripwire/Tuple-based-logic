@@ -1,4 +1,4 @@
 pub mod atom;
 pub mod term;
-pub mod proof;
 pub mod proposition;
+pub mod proof;
