@@ -18,7 +18,7 @@ pub fn verify_proof_rules(proof: &Proof) -> Result<(),ErrorInProof<ProofValidati
                 // Verify that an atomic proof represents a step that correctly applies our production rules
                 match verify_rules_in_proof_step(proof_step) {
                     Ok(()) => Ok(()),
-                    Err(err) => Err(ErrorInProof::<ProofValidationError>::new( i,err)),
+                    Err(err) => Err(ErrorInProof::<ProofValidationError>::new_at_step( i,err)),
                 }},
             SubProof::Composite(proof) => {
                 // Verify that a composite proof is valid
