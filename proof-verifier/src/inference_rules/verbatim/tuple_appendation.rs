@@ -1,6 +1,6 @@
 use shared::{atom::BuiltInAtom, proposition::Proposition, term::Term};
 
-use crate::{production_rules::tuple_or_error, ProofValidationError};
+use crate::{inference_rules::tuple_or_error, ProofValidationError};
 
 use super::resolve_verbatim;
 

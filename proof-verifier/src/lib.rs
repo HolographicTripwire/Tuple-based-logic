@@ -1,7 +1,7 @@
-pub mod production_rules;
+pub mod inference_rules;
 pub mod validation_error;
 
-use production_rules::*;
+use inference_rules::*;
 use shared::{proof::{error::{ErrorInProof, ResultInProof}, Proof}, proposition::PropositionSet};
 use validation_error::ProofValidationError;
 
@@ -24,7 +24,7 @@ fn validate_proof(proof: &Proof) -> Result<(),ErrorInProof<ProofValidationError>
     for (i, subproof) in proof.subproofs.iter().enumerate() {
         // Throw an error if th assumptions of this step have not yet been proven
         let assumptions_not_found = proved.subtracted(&PropositionSet::from(subproof.premises()));
-        if assumptions_not_found.len() != 0 { return Err(ErrorInProof::new(ProofValidationError::AssumptionsNotFound(assumptions_not_found))) }
+        if assumptions_not_found.len() != 0 { return Err(ErrorInProof::here(ProofValidationError::AssumptionsNotFound(assumptions_not_found))) }
         
         // Get the new propositions which have been proved by this step in the proof, assuming that the step is valid
         match subproof {
@@ -38,7 +38,7 @@ fn validate_proof(proof: &Proof) -> Result<(),ErrorInProof<ProofValidationError>
 
     // Throw an error if the supposed conclusions of this proof have not been derived
     let conclusions_not_found = PropositionSet::from(&proof.conclusions).subtracted(&proved);
-    if conclusions_not_found.len() != 0 { return Err(ErrorInProof::new(ProofValidationError::ConclusionsNotFound(conclusions_not_found)))}
+    if conclusions_not_found.len() != 0 { return Err(ErrorInProof::here(ProofValidationError::ConclusionsNotFound(conclusions_not_found)))}
 
     // 
     Ok(())

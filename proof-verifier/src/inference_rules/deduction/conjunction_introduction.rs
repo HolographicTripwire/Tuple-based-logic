@@ -1,6 +1,6 @@
 use shared::{atom::BuiltInAtom, proposition::Proposition};
 
-use crate::{production_rules::tuple_or_error, ProofValidationError};
+use crate::{inference_rules::tuple_or_error, ProofValidationError};
 
 /// Verify that the assumptions and the conclusion form a valid instance of conjunction introduction ("a" and "b" entails "a and b")
 pub fn verify_conjunction_introduction(assumptions: &Vec<Proposition>, conclusions: &Vec<Proposition>) -> Result<(),ProofValidationError> {

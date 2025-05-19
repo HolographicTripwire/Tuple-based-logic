@@ -1,15 +1,23 @@
 pub struct ErrorInProof<E: Clone>(Vec<usize>,E);
 
+/// An error that is located at a particular step of a proof
+/// This can even include substeps of substeps
 impl <E: Clone> ErrorInProof<E> {
-    pub fn new_at_step(step: usize, err: E) -> Self { Self(vec![step],err) }
-    pub fn new(err: E) -> Self { Self(vec![],err) }
+    /// Create a new error, which is located at the current step of the proof
+    pub fn here(err: E) -> Self { Self(vec![],err) }
+    /// Create a new error, located at a given substep of the current step of the proof.
+    pub fn at_substep(step: usize, err: E) -> Self { Self(vec![step],err) }
 
-    pub fn add_step(&self, step: usize) -> Self {
-        let mut steps = self.0.clone();
-        steps.insert(step,0);
-        Self(steps,self.1.clone())
+    /// Add a new step to this error and return self
+    /// This should be used for 
+    pub fn add_step(mut self, step: usize) -> Self {
+        self.0.insert(step,0);
+        self
     }
 
+    // Getters and setters
+    /// Get the location in the proof that this error is located at
+    /// For instance, an error at step 1.2.1 would return a Vec containing 1, 2, 1, in that order
     pub fn location(&self) -> &Vec<usize> { &self.0 }
     pub fn err(&self) -> &E { &self.1 }
 }
@@ -21,10 +29,10 @@ pub enum ResultInProof<O,E: Clone> {
 }
 
 impl <O: Clone, E: Clone> ResultInProof<O,E> {
-    pub fn resolve(&self, step: usize) -> Result<O,ErrorInProof<E>> {
+    pub fn resolve(self, step: usize) -> Result<O,ErrorInProof<E>> {
         match self {
             ResultInProof::Ok(ok) => Ok(ok.clone()),
-            ResultInProof::Err(err) => Result::Err(ErrorInProof::new_at_step(step,err.clone())),
+            ResultInProof::Err(err) => Result::Err(ErrorInProof::at_substep(step,err.clone())),
             ResultInProof::ErrNest(error_in_proof) => Result::Err(error_in_proof.add_step(step)),
         }
     }

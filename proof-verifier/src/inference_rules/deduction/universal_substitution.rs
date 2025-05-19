@@ -1,6 +1,6 @@
 use shared::{atom::BuiltInAtom, proposition::Proposition, term::Term};
 
-use crate::{production_rules::tuple_or_error, ProofValidationError};
+use crate::{inference_rules::tuple_or_error, ProofValidationError};
 
 /// Verify that the assumptions and the conclusion form a valid instance of universal substitution ("for all x, P(x)" entails "P(y)" for any y)
 pub fn verify_universal_substitution(assumptions: &Vec<Proposition>, conclusions: &Vec<Proposition>) -> Result<(), ProofValidationError> {
