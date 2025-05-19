@@ -14,15 +14,15 @@ impl PropositionSet {
     }
 
     pub fn merged(&self, other: &Self) -> Self {
-        Self(HashSet::from_iter(self.0.iter().chain(other.0.iter()).cloned()))
+        Self(self.0.iter().chain(other.0.iter()).cloned().collect())
     }
 
-    pub fn extend(&mut self, vec: &Vec<Proposition>) {
+    pub fn extend(&mut self, vec: &[Proposition]) {
         self.0.extend(vec.iter().cloned());
     }
 
-    pub fn extended(&self, vec: &Vec<Proposition>) -> Self {
-        Self(HashSet::from_iter(self.0.iter().chain(vec).cloned()))
+    pub fn extended(&self, vec: &[Proposition]) -> Self {
+        Self(self.0.iter().chain(vec).cloned().collect())
     }
 
     pub fn subtract(&mut self, other: &PropositionSet) {
@@ -39,24 +39,25 @@ impl PropositionSet {
 
     pub fn contains_all<'a>(&self, propositions: impl Iterator<Item=&'a Proposition>) -> bool {
         for proposition in propositions { if !self.contains(proposition) { return false; } }
-        return true;
+        true
     }
-
-    pub fn len(&self) -> usize { self.0.len() }
 
     pub fn subset_of(&self, other: &PropositionSet) -> bool { self.0.is_subset(&other.0) }
 
+    pub fn len(&self) -> usize { self.0.len() }
+
+    pub fn is_empty(&self) -> bool { self.0.is_empty() }
 }
 
 impl From<&Proposition> for PropositionSet {
     fn from(proposition: &Proposition) -> Self {
-        Self(HashSet::from_iter(vec![proposition.clone()].iter().cloned()))
+        Self([proposition.clone()].iter().cloned().collect())
     }
 }
 
 impl From<&Vec<Proposition>> for PropositionSet {
     fn from(starting_propositions: &Vec<Proposition>) -> Self {
-        Self(HashSet::from_iter(starting_propositions.iter().cloned()))
+        Self(starting_propositions.iter().cloned().collect())
     }
 }
 
