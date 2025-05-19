@@ -5,7 +5,7 @@ use ids::{Id16, IdImpl, Identifier};
 
 /// An [Identifier] used for Atom objects, which are used for building tuple objects in Tuple-based logic
 #[derive(Clone, Copy, PartialEq, Eq, Debug, Hash)]
-pub struct AtomId(Id16);
+pub struct AtomId(pub Id16);
 
 impl Identifier for AtomId {
     fn first() -> Self { Self(Id16::first()) }

@@ -24,6 +24,7 @@ impl Term {
         }
     }
 
+    /// If this term is a Tuple, get its terms. Otherwise throw an error 
     pub fn as_slice(&self) -> Result<&[Term], ()> {
         match &self {
             Term::Atomic(_) => Err(()),
@@ -49,4 +50,82 @@ impl From<Vec<Term>> for Term {
 }
 impl From<BuiltInAtom> for Term {
     fn from(atom: BuiltInAtom) -> Self { Self::from(AtomId::from(atom.into())) }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use ids::Id16;
+
+    #[test]
+    fn test_as_atom_on_atom() {
+        for i in 0..10 {
+            let atomic_term = Term::from(AtomId(Id16(i)));
+            assert_eq!(atomic_term.as_atom(), Ok(AtomId(Id16(i))));
+        }
+    }
+
+    #[test]
+    fn test_as_atom_on_tuple() {
+        for i in 0..10 {
+            let atomic_term = Term::from(vec![Term::from(AtomId(Id16(i)))]);
+            assert_eq!(atomic_term.as_atom(), Err(()));
+        }
+    }
+
+    #[test]
+    fn test_as_tuple_on_atom() {
+        for i in 0..10 {
+            let atomic_term = Term::Atomic(AtomId(Id16(i)));
+            assert_eq!(atomic_term.as_tuple(), Err(()));
+        }
+    }
+
+    #[test]
+    fn test_as_tuple_on_tuple() {
+        for i in 0..10 {
+            let atomic_term = Term::from(vec![Term::from(AtomId(Id16(i)))]);
+            assert_eq!(atomic_term.as_tuple(), Ok(&vec![Term::from(AtomId(Id16(i)))]));
+        }
+    }
+
+    #[test]
+    fn test_as_slice_on_atom() {
+        for i in 0..10 {
+            let atomic_term = Term::Atomic(AtomId(Id16(i)));
+            assert_eq!(atomic_term.as_slice(), Err(()));
+        }
+    }
+
+    #[test]
+    fn test_as_slice_on_tuple() {
+        for i in 0..10 {
+            let atomic_term = Term::from(vec![Term::from(AtomId(Id16(i)))]);
+            assert_eq!(atomic_term.as_slice(), Ok(vec![Term::from(AtomId(Id16(i)))].as_slice()));
+        }
+    }
+
+    #[test]
+    fn test_get_subterm_on_atom() {
+        for i in 0..10 {
+            let atomic_term = Term::from(AtomId(Id16(i)));
+            assert_eq!(atomic_term.get_subterm(0), Err(()));
+        }
+    }
+
+    #[test]
+    fn test_get_subterm_on_tuple() {
+        for i in 0..10 {
+            let atomic_term = Term::from(vec![Term::from(AtomId(Id16(i)))]);
+            assert_eq!(atomic_term.get_subterm(0), Ok(&Term::from(AtomId(Id16(i)))));
+        }
+    }
+
+    #[test]
+    fn test_get_subterm_on_short_tuple() {
+        for i in 0..10 {
+            let atomic_term = Term::from(vec![Term::from(AtomId(Id16(i)))]);
+            assert_eq!(atomic_term.get_subterm(1), Err(()));
+        }
+    }
 }
