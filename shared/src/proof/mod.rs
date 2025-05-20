@@ -13,6 +13,10 @@ pub struct Proof {
 }
 
 impl Proof {
+    pub fn new(premises: Vec<Proposition>, subproofs: Vec<SubProof>, conclusions: Vec<Proposition>) -> Self {
+        Self { premises, subproofs, conclusions }
+    }
+
     pub fn subproof_at(&self, mut step: ProofStep) -> Result<&SubProof,()> {
         let Some(incremental_step) = step.pop() else { return Err(()) };
         let Some(subproof) = self.subproofs.get(incremental_step) else { return Err(()) };

@@ -24,7 +24,7 @@ impl <G: ProofGenerator<G>> ProofPromise<G> {
     pub fn resolve(&self) -> Result<Proof,ProofGenerationError> {
         let mut subproofs = Vec::new();
         for proof in &self.subproofs { subproofs.push(proof.resolve()?) }
-        Ok(Proof { premises: self.premises.clone(), subproofs, conclusions: self.conclusions.clone() })
+        Ok(Proof::new(self.premises.clone(), subproofs, self.conclusions.clone()))
     }
 }
 
