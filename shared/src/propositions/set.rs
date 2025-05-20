@@ -1,4 +1,4 @@
-use std::collections::HashSet;
+use std::{collections::{HashMap, HashSet}};
 
 use super::Proposition;
 
@@ -39,6 +39,35 @@ impl PropositionSet {
     pub fn len(&self) -> usize { self.0.len() }
     /// Check if this [`PropositionSet`] contains no [`Proposition`] objects
     pub fn is_empty(&self) -> bool { self.0.is_empty() }
+
+    fn by_negation_level(&self) -> HashMap<usize,HashSet<&Proposition>> {
+        let mut result: HashMap<usize, HashSet<&Proposition>> = HashMap::new();
+        for proposition in self.0.iter() {
+            let negation_level = proposition.0.negation_level();
+            if let Some(set) = result.get_mut(&negation_level) 
+                { set.insert(proposition); }
+            else { 
+                let mut new_set = HashSet::new();
+                new_set.insert(proposition);
+                result.insert(negation_level, new_set);
+            }
+        } result
+    }
+
+    pub fn get_contradictions(&self) -> PropositionSet {
+        let mut result = PropositionSet::new(&[]);
+
+        let by_negation_level = self.by_negation_level();
+        for (level, set_1) in &by_negation_level {
+            let empty_hashset = HashSet::new();
+            let set_2 = by_negation_level.get(&(level-1)).unwrap_or(&empty_hashset);
+            for prop_1 in set_1 {
+                for prop_2 in set_2 {
+                    if prop_1.0.negation_of(&prop_2.0) { result.extend(&[(*prop_2).clone()]) }
+                }
+            }
+        } result
+    }
 }
 
 impl From<&Proposition> for PropositionSet {

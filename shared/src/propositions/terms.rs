@@ -1,5 +1,7 @@
 use crate::atoms::{AtomId, BuiltInAtom};
 
+use super::tuple_or_error::TUPLE_OR_NONE;
+
 /// Components used in the construction of [Proposition] objects
 #[derive(Debug,Clone,PartialEq,Eq,Hash)]
 pub enum Term {
@@ -39,6 +41,18 @@ impl Term {
             Some(term) => Ok(term),
             None => Err(()),
         }
+    }
+
+    pub fn negation_of(&self, other: &Term) -> bool {
+        let Ok([negation_atom, remainder]) = TUPLE_OR_NONE.term_as_slice(self) else { return false; };
+        if negation_atom != &BuiltInAtom::Negation.into() { return false; }
+        else { return remainder == other }
+    }
+
+    pub fn negation_level(&self) -> usize {
+        let Ok([negation_atom, remainder]) = TUPLE_OR_NONE.term_as_slice(self) else { return 0; };
+        if negation_atom != &BuiltInAtom::Negation.into() { return 0; }
+        else { return remainder.negation_level() + 1; }
     }
 }
 

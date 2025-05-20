@@ -1,5 +1,6 @@
 use crate::{propositions::{Proposition, Term}};
 
+pub const TUPLE_OR_NONE: TupleOrError<()> = TupleOrError{ error: () };
 
 pub struct TupleOrError<E: Clone> {
     pub error: E
