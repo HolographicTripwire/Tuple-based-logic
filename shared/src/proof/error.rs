@@ -30,29 +30,21 @@ pub enum ResultInProof<O,E: Clone> {
 }
 
 impl <O: Clone, E: Clone> ResultInProof<O,E> {
-    pub fn resolve(self, step: usize) -> Result<O,ErrorInProof<E>> {
-        match self {
-            ResultInProof::Ok(ok) => Ok(ok.clone()),
-            ResultInProof::Err(err) => Result::Err(ErrorInProof::at_substep(step,err.clone())),
-            ResultInProof::ErrNest(error_in_proof) => Result::Err(error_in_proof.push_step(step)),
-        }
-    }
+    pub fn resolve(self, step: usize) -> Result<O,ErrorInProof<E>> { match self {
+        ResultInProof::Ok(ok) => Ok(ok.clone()),
+        ResultInProof::Err(err) => Result::Err(ErrorInProof::at_substep(step,err.clone())),
+        ResultInProof::ErrNest(error_in_proof) => Result::Err(error_in_proof.push_step(step)),
+    }}
 }
-
 impl <O: Clone, E: Clone> From<Result<O,E>> for ResultInProof<O,E> {
-    fn from(value: Result<O,E>) -> Self {
-        match value {
-            Ok(o) => Self::Ok(o),
-            Err(e) => Self::Err(e),
-        }
-    }
+    fn from(value: Result<O,E>) -> Self { match value {
+        Ok(o) => Self::Ok(o),
+        Err(e) => Self::Err(e),
+    }}
 }
-
 impl <O: Clone, E: Clone> From<Result<O,ErrorInProof<E>>> for ResultInProof<O,E> {
-    fn from(value: Result<O, ErrorInProof<E>>) -> Self {
-        match value {
-            Ok(o) => Self::Ok(o),
-            Err(e) => Self::ErrNest(e),
-        }
-    }
+    fn from(value: Result<O, ErrorInProof<E>>) -> Self { match value {
+        Ok(o) => Self::Ok(o),
+        Err(e) => Self::ErrNest(e),
+    }}
 }
