@@ -29,11 +29,14 @@ pub enum BuiltInAtom {
     Conjunction,
     Implication,
     UniversalQuantifier,
+    // Contradiction
+    Negation,
+    // Identity
+    Identity,
+    NonIdentity,
     // Verbatim
     Verbatim,
     Atomic,
-    Identity,
-    NonIdentity,
     TupleAppend,
 }
 
@@ -45,13 +48,15 @@ impl Into<AtomId> for BuiltInAtom {
             BuiltInAtom::Conjunction => 0,
             BuiltInAtom::Implication => 1,
             BuiltInAtom::UniversalQuantifier => 2,
+            // Contradiction
+            BuiltInAtom::Negation => 3,
             // Identity
-            BuiltInAtom::Identity => 3,
-            BuiltInAtom::NonIdentity => 4,
+            BuiltInAtom::Identity => 4,
+            BuiltInAtom::NonIdentity => 5,
             // Verbatim
-            BuiltInAtom::Verbatim => 5,
-            BuiltInAtom::Atomic => 6,
-            BuiltInAtom::TupleAppend => 7,
+            BuiltInAtom::Verbatim => 6,
+            BuiltInAtom::Atomic => 7,
+            BuiltInAtom::TupleAppend => 8,
         };
         AtomId(Id16(id))
     }
