@@ -14,7 +14,7 @@ impl Proof {
     pub fn subproof_at(&self, mut step: ProofStep) -> Result<&SubProof,()> {
         let Some(incremental_step) = step.pop() else { return Err(()) };
         let Some(subproof) = self.subproofs.get(incremental_step) else { return Err(()) };
-        return subproof.subproof_at(step);
+        subproof.subproof_at(step)
     }
 }
 
@@ -40,7 +40,7 @@ impl SubProof {
     }
 
     pub fn subproof_at(&self, step: ProofStep) -> Result<&SubProof,()> {
-        if step.0.len() == 0 { Ok(self) }
+        if step.0.is_empty() { Ok(self) }
         else { match self {
             SubProof::Atomic(_) => Err(()),
             SubProof::Composite(proof) => proof.subproof_at(step),
@@ -49,12 +49,17 @@ impl SubProof {
 }
 
 #[derive(Clone)]
-/// Identifies a particular step iwthin a [Proof], and can be given to such a [Proof] to retreive the [SubProof] at that step
+/// Identifies a particular step iwthin a [`Proof`], and can be given to such a [`Proof`] to retreive the [`SubProof`] at that step
 pub struct ProofStep(pub Vec<usize>);
 
 impl ProofStep {
+    /// Create a new error, which is located at the current step of the proof
+    pub fn here() -> Self { Self(vec![]) }
+    /// Create a new error, located at a given substep of the current step of the proof.
+    pub fn at_substep(step: usize) -> Self { Self(vec![step]) }
+
     /// Pushes a new step to the list of steps.
-    /// ProofStep behaves like a queue, so the provided step will go to the back of the queue
+    /// [`ProofStep`] behaves like a queue, so the provided step will go to the back of the queue
     pub fn push(&mut self, step: usize) {self.0.insert(0,step)}
     pub fn pop(&mut self) -> Option<usize> { self.0.pop() }
 }

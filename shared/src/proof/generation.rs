@@ -3,7 +3,7 @@ use crate::proposition::Proposition;
 use super::{error::ErrorInProof, Proof, SubProof};
 
 pub trait ProofGenerator<G: ProofGenerator<G>>: Clone {
-    fn generate(&self, conclusions: &Vec<Proposition>) -> Result<SubProofPromise<G>,ProofGenerationError>;
+    fn generate(&self, conclusions: &[Proposition]) -> Result<SubProofPromise<G>,ProofGenerationError>;
 }
 
 #[derive(Clone)]
@@ -40,8 +40,7 @@ pub enum SubProofPromise<G: ProofGenerator<G>> {
 impl <G: ProofGenerator<G>> SubProofPromise<G> {
     pub fn resolve_once(&self) -> Result<SubProofPromise<G>,ProofGenerationError> {
         Ok(match self {
-            SubProofPromise::Resolved(_) => self.clone(),
-            SubProofPromise::Composite(_) => self.clone(),
+            SubProofPromise::Resolved(_) | SubProofPromise::Composite(_) => self.clone(),
             SubProofPromise::Generator(generator, conclusions) => generator.generate(conclusions)?,
         })
     }
