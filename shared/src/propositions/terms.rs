@@ -1,4 +1,4 @@
-use crate::atom::{AtomId, BuiltInAtom};
+use crate::atoms::{AtomId, BuiltInAtom};
 
 /// Components used in the construction of [Proposition] objects
 #[derive(Debug,Clone,PartialEq,Eq,Hash)]

@@ -1,7 +1,7 @@
 pub mod generation;
 pub mod error;
 
-use crate::{inference::Inference, proposition::Proposition};
+use crate::{inference::Inference, propositions::Proposition};
 
 #[derive(Clone)]
 pub struct Proof {

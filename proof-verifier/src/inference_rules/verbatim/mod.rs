@@ -4,7 +4,7 @@ mod tuple_appendation;
 
 pub use atomicity_assertion::verify_atomicity_assertion;
 pub use atom_differentiation::verify_atom_differentiation;
-use shared::{atom::BuiltInAtom, term::Term};
+use shared::{atoms::BuiltInAtom, propositions::Term};
 pub use tuple_appendation::verify_tuple_appendation;
 
 use crate::validation_error::ProofValidationError;

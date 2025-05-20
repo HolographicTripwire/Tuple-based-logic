@@ -1,4 +1,4 @@
-use crate::proposition::Proposition;
+use crate::propositions::Proposition;
 
 use super::{error::ErrorInProof, Proof, SubProof};
 

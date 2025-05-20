@@ -2,7 +2,7 @@ pub mod inference_rules;
 pub mod validation_error;
 
 use inference_rules::*;
-use shared::{proof::{error::{ErrorInProof, ResultInProof}, Proof}, proposition::PropositionSet};
+use shared::{proof::{error::{ErrorInProof, ResultInProof}, Proof}, propositions::PropositionSet};
 use validation_error::ProofValidationError;
 
 /// Verify that the provided proof is sound under Tuple-Based logic, given some set of starting assumptions

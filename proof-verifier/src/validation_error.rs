@@ -1,4 +1,4 @@
-use shared::proposition::PropositionSet;
+use shared::propositions::PropositionSet;
 
 #[derive(Clone)]
 pub enum ProofValidationError {

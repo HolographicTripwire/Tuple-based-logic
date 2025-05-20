@@ -1,5 +1,4 @@
-use crate::proposition::Proposition;
-
+use crate::propositions::Proposition;
 
 #[derive(Clone)]
 pub struct Inference {

@@ -1,5 +1,4 @@
-pub mod atom;
-pub mod term;
-pub mod proposition;
+pub mod atoms;
+pub mod propositions;
 pub mod inference;
 pub mod proof;

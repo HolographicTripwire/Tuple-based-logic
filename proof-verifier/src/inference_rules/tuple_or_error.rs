@@ -1,8 +1,7 @@
-use shared::{proposition::Proposition, term::Term};
+use shared::{propositions::{Proposition, Term}};
 
 use crate::validation_error::ProofValidationError;
 
-#[allow(dead_code)]
 pub fn prop_as_tuple(proposition: &Proposition) -> Result<&Vec<Term>,ProofValidationError> {
     proposition.0.as_tuple().or(Err(ProofValidationError::InvalidStepSpecification))
 }

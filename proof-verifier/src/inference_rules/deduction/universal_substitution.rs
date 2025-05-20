@@ -1,4 +1,4 @@
-use shared::{atom::BuiltInAtom, proposition::Proposition, term::Term};
+use shared::{atoms::BuiltInAtom, propositions::{Proposition, Term}};
 
 use crate::{inference_rules::tuple_or_error, ProofValidationError};
 

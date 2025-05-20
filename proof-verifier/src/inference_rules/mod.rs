@@ -5,7 +5,7 @@ mod tuple_or_error;
 use deduction::*;
 use verbatim::*;
 
-use shared::{inference::{Inference, InferenceRule}, proof::{error::ErrorInProof, Proof, SubProof}, proposition::Proposition};
+use shared::{inference::{Inference, InferenceRule}, proof::{error::ErrorInProof, Proof, SubProof}, propositions::Proposition};
 
 use crate::ProofValidationError;
 
@@ -24,7 +24,7 @@ pub fn verify_proof_rules(proof: &Proof) -> Result<(),ErrorInProof<ProofValidati
                 // Verify that a composite proof is valid
                 match verify_proof_rules(proof) {
                     Ok(()) => Ok(()),
-                    Err(located_err) => Err(located_err.add_step(i)),
+                    Err(located_err) => Err(located_err.push_step(i)),
                 }},
         }?
     }
