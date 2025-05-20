@@ -13,15 +13,15 @@ pub fn verify_proof(proof: &Proof, assumptions: &PropositionSet) -> Result<bool,
 }
 
 pub fn verify_proof_grounding(proof: &Proof, assumptions: &PropositionSet) -> bool {
-    PropositionSet::from(&proof.premises).subset_of(assumptions)
+    PropositionSet::from(proof.premises()).subset_of(assumptions)
 }
 
 fn validate_proof(proof: &Proof) -> Result<(),ErrorInProof<ProofValidationError>> {
     // Create a list of [Proposition] objects which are considered at this time to be true
-    let mut proved = PropositionSet::from(&proof.premises.clone());
+    let mut proved = PropositionSet::from(&proof.premises().clone());
     
     // Iterate through all steps in the proof
-    for (i, subproof) in proof.subproofs.iter().enumerate() {
+    for (i, subproof) in proof.subproofs().iter().enumerate() {
         // Throw an error if th assumptions of this step have not yet been proven
         let assumptions_not_found = proved.subtracted(&PropositionSet::from(subproof.premises()));
         if assumptions_not_found.len() != 0 { return Err(ErrorInProof::here(ProofValidationError::AssumptionsNotFound(assumptions_not_found))) }
@@ -37,7 +37,7 @@ fn validate_proof(proof: &Proof) -> Result<(),ErrorInProof<ProofValidationError>
     }
 
     // Throw an error if the supposed conclusions of this proof have not been derived
-    let conclusions_not_found = PropositionSet::from(&proof.conclusions).subtracted(&proved);
+    let conclusions_not_found = PropositionSet::from(proof.conclusions()).subtracted(&proved);
     if conclusions_not_found.len() != 0 { return Err(ErrorInProof::here(ProofValidationError::ConclusionsNotFound(conclusions_not_found)))}
 
     // 

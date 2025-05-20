@@ -13,7 +13,7 @@ pub (self) const TUPLE_OR_ERROR: TupleOrError<ProofValidationError> = TupleOrErr
 /// Check if all deduction rules in the proof are correct
 pub fn verify_proof_rules(proof: &Proof) -> Result<(),ErrorInProof<ProofValidationError>> {
     // Iterate through all steps in the proof
-    for (i, subproof) in proof.subproofs.iter().enumerate() {
+    for (i, subproof) in proof.subproofs().iter().enumerate() {
         match subproof { 
             SubProof::Atomic(proof_step) => {
                 // Verify that an atomic proof represents a step that correctly applies our production rules

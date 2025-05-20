@@ -3,13 +3,13 @@ pub mod error;
 
 use step::ProofStep;
 
-use crate::{inference::Inference, propositions::Proposition};
+use crate::{inference::Inference, propositions::{Proposition, PropositionSet}};
 
 #[derive(Clone)]
 pub struct Proof {
-    pub premises: Vec<Proposition>,
-    pub subproofs: Vec<SubProof>,
-    pub conclusions: Vec<Proposition>
+    premises: Vec<Proposition>,
+    subproofs: Vec<SubProof>,
+    conclusions: Vec<Proposition>
 }
 
 impl Proof {
@@ -18,6 +18,17 @@ impl Proof {
         let Some(subproof) = self.subproofs.get(incremental_step) else { return Err(()) };
         subproof.subproof_at(step)
     }
+
+    pub fn implicit_conclusions(&self) -> PropositionSet {
+        let mut result = PropositionSet::new(&[]);
+        for subproof in &self.subproofs { result.merge(&subproof.implicit_conclusions()); }
+        result
+    }
+
+    // Getters and setters
+    pub fn premises(&self) -> &Vec<Proposition> { &self.premises }
+    pub fn subproofs(&self) -> &Vec<SubProof> { &self.subproofs }
+    pub fn conclusions(&self) -> &Vec<Proposition> { &self.conclusions }
 }
 
 #[derive(Clone)]
@@ -35,6 +46,11 @@ impl SubProof {
     pub fn conclusions(&self) -> &Vec<Proposition> { match self {
         SubProof::Atomic(proof_step) => &proof_step.conclusions,
         SubProof::Composite(proof) => &proof.conclusions,
+    }}
+
+    pub fn implicit_conclusions(&self) -> PropositionSet { match self {
+        SubProof::Atomic(inference) => PropositionSet::from(&inference.conclusions),
+        SubProof::Composite(proof) => proof.implicit_conclusions(),
     }}
 
     pub fn subproof_at(&self, step: ProofStep) -> Result<&SubProof,()> {
