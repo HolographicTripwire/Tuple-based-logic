@@ -1,6 +1,6 @@
 use shared::{atoms::BuiltInAtom, propositions::Proposition};
 
-use crate::{inference_rules::tuple_or_error, ProofValidationError};
+use crate::{inference_rules::TUPLE_OR_ERROR, ProofValidationError};
 
 use super::resolve_verbatim;
 
@@ -12,7 +12,7 @@ pub fn verify_atom_differentiation(assumptions: &Vec<Proposition>, conclusions: 
     if assumptions.len() != 0 { return Err(ProofValidationError::InvalidStepSpecification) }
     
     // Throw an error if there are not three terms in the conclusion
-    let [nonidentity_head, identity_left, identity_right] = tuple_or_error::prop_as_slice(conclusion)? else { return Err(ProofValidationError::InvalidStepSpecification) };
+    let [nonidentity_head, identity_left, identity_right] = TUPLE_OR_ERROR.prop_as_slice(conclusion)? else { return Err(ProofValidationError::InvalidStepSpecification) };
     
     // Throw an error if the head of the conclusion is incorrect
     if nonidentity_head != &BuiltInAtom::NonIdentity.into() { return Err(ProofValidationError::InvalidStepSpecification) }

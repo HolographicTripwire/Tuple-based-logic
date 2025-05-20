@@ -1,6 +1,6 @@
 use shared::{atoms::BuiltInAtom, propositions::Proposition};
 
-use crate::{inference_rules::tuple_or_error, ProofValidationError};
+use crate::{inference_rules::TUPLE_OR_ERROR, ProofValidationError};
 
 /// Verify that the assumptions and the conclusion form a valid instance of implication elimination ("a" and "a implies b" entails "b")
 pub fn verify_implication_elimination(assumptions: &Vec<Proposition>, conclusions: &Vec<Proposition>) -> Result<(), ProofValidationError> {
@@ -10,7 +10,7 @@ pub fn verify_implication_elimination(assumptions: &Vec<Proposition>, conclusion
     let [prior, implication] = assumptions.as_slice() else { return Err(ProofValidationError::InvalidStepSpecification) };
     
     // Throw an error if the implication does not contain three terms
-    let [implication_head, antecedent, consequent] = tuple_or_error::prop_as_slice(implication)? else { return Err(ProofValidationError::InvalidStepSpecification) };
+    let [implication_head, antecedent, consequent] = TUPLE_OR_ERROR.prop_as_slice(implication)? else { return Err(ProofValidationError::InvalidStepSpecification) };
 
     // Throw an error if the head of the implication is incorrect
     if implication_head != &BuiltInAtom::Implication.into() { return Err(ProofValidationError::InvalidStepSpecification) }

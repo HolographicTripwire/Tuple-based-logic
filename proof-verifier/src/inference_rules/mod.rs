@@ -1,13 +1,14 @@
 mod deduction;
 mod verbatim;
-mod tuple_or_error;
 
 use deduction::*;
 use verbatim::*;
 
-use shared::{inference::{Inference, InferenceRule}, proof::{error::ErrorInProof, Proof, SubProof}, propositions::Proposition};
+use shared::{inference::{Inference, InferenceRule}, proof::{error::ErrorInProof, Proof, SubProof}, propositions::{Proposition,tuple_or_error::TupleOrError}};
 
 use crate::ProofValidationError;
+
+pub (self) const TUPLE_OR_ERROR: TupleOrError<ProofValidationError> = TupleOrError{ error: ProofValidationError::InvalidStepSpecification };
 
 /// Check if all deduction rules in the proof are correct
 pub fn verify_proof_rules(proof: &Proof) -> Result<(),ErrorInProof<ProofValidationError>> {

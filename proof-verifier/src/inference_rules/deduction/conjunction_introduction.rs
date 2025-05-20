@@ -1,6 +1,6 @@
 use shared::{atoms::BuiltInAtom, propositions::Proposition};
 
-use crate::{inference_rules::tuple_or_error, ProofValidationError};
+use crate::{inference_rules::TUPLE_OR_ERROR, ProofValidationError};
 
 /// Verify that the assumptions and the conclusion form a valid instance of conjunction introduction ("a" and "b" entails "a and b")
 pub fn verify_conjunction_introduction(assumptions: &Vec<Proposition>, conclusions: &Vec<Proposition>) -> Result<(),ProofValidationError> {
@@ -10,7 +10,7 @@ pub fn verify_conjunction_introduction(assumptions: &Vec<Proposition>, conclusio
     let [assumption_left, assumption_right] = assumptions.as_slice() else { return Err(ProofValidationError::InvalidStepSpecification) };
 
     // Throw an error if there are not three terms in the conclusion
-    let [conjunction_head, conjunction_left, conjunction_right] = tuple_or_error::prop_as_slice(conclusion)? else { return Err(ProofValidationError::InvalidStepSpecification) };
+    let [conjunction_head, conjunction_left, conjunction_right] = TUPLE_OR_ERROR.prop_as_slice(conclusion)? else { return Err(ProofValidationError::InvalidStepSpecification) };
 
     // Throw an error if the head of the conjunction is incorrect
     if conjunction_head != &BuiltInAtom::Conjunction.into() { return Err(ProofValidationError::InvalidStepSpecification) }

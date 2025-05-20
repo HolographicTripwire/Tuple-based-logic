@@ -1,5 +1,6 @@
 mod terms;
 mod set;
+pub mod tuple_or_error;
 
 pub use terms::Term;
 pub use set::PropositionSet;

@@ -9,10 +9,10 @@ pub use tuple_appendation::verify_tuple_appendation;
 
 use crate::validation_error::ProofValidationError;
 
-use super::tuple_or_error;
+use super::TUPLE_OR_ERROR;
 
 fn resolve_verbatim(verbatim_term: &Term) -> Result<&Term,ProofValidationError>{
-    let [verbatim_head, verbatim_tail] = tuple_or_error::term_as_slice(verbatim_term)? else { return Err(ProofValidationError::InvalidStepSpecification) };
+    let [verbatim_head, verbatim_tail] = TUPLE_OR_ERROR.term_as_slice(verbatim_term)? else { return Err(ProofValidationError::InvalidStepSpecification) };
     if verbatim_head != &BuiltInAtom::Verbatim.into() { return Err(ProofValidationError::InvalidStepSpecification) }
     Ok(verbatim_tail)
 }

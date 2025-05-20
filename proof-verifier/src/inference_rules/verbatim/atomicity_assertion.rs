@@ -1,6 +1,6 @@
 use shared::{atoms::BuiltInAtom, propositions::Proposition};
 
-use crate::{inference_rules::tuple_or_error, ProofValidationError};
+use crate::{inference_rules::{TUPLE_OR_ERROR}, ProofValidationError};
 
 use super::resolve_verbatim;
 
@@ -12,7 +12,7 @@ pub fn verify_atomicity_assertion(assumptions: &Vec<Proposition>, conclusions: &
     if assumptions.len() != 0 { return Err(ProofValidationError::InvalidStepSpecification) }
     
     // Throw an error if there are not three terms in the conclusion
-    let [atomicity_head, verbatim_term] = tuple_or_error::prop_as_slice(conclusion)? else { return Err(ProofValidationError::InvalidStepSpecification) };
+    let [atomicity_head, verbatim_term] = TUPLE_OR_ERROR.prop_as_slice(conclusion)? else { return Err(ProofValidationError::InvalidStepSpecification) };
     
     // Throw an error if the head of the conclusion is incorrect
     if atomicity_head != &BuiltInAtom::Atomic.into() { return Err(ProofValidationError::InvalidStepSpecification) }
