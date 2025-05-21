@@ -4,10 +4,16 @@ use shared::{atoms::AtomId, propositions::Term};
 
 use crate::Textualizer;
 
-pub struct TermTextualizer<> {
+pub struct TermTextualizer {
     atoms: Box<dyn Textualizer<AtomId>>,
     vecs: Box<dyn Textualizer<Vec<String>>>,
     optional_rules: Box<dyn Textualizer<(Vec<Term>,Vec<String>)>>,
+}
+
+impl TermTextualizer {
+    pub fn new(atoms: Box<dyn Textualizer<AtomId>>, vecs: Box<dyn Textualizer<Vec<String>>>, optional_rules: Box<dyn Textualizer<(Vec<Term>,Vec<String>)>>) -> Self {
+        Self {atoms, vecs, optional_rules}
+    }
 }
 
 impl Textualizer<Term> for TermTextualizer {
