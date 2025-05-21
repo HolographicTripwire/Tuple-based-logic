@@ -32,7 +32,7 @@ impl <G: ProofGenerator<G>> ProofPromise<G> {
 pub enum SubProofPromise<G: ProofGenerator<G>> {
     Resolved(SubProof),
     Composite(ProofPromise<G>),
-    Generator(G,Vec<Proposition>)
+    Generator(G,[Proposition])
 }
 
 impl <G: ProofGenerator<G>> SubProofPromise<G> {
