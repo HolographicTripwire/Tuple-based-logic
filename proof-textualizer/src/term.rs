@@ -50,7 +50,12 @@ impl Textualizer<Term> for TermTextualizer {
             let terms: Result<Vec<Term>,()> = strings.iter()
                 .map(|s| -> Result<Term,()> { self.from_text(s) }).collect();
             Ok(Term::Tuple(terms?)) 
-        } else if let Ok((terms, _strings)) = optional_rules_result { Ok(Term::Tuple(terms)) }
+        } else if let Ok((_, strings)) = optional_rules_result {
+            let terms: Result<Vec<Term>,()> = strings.iter()
+                .map(|string| -> Result<Term,()> { self.from_text(string) })
+                .collect();
+            Ok(Term::Tuple(terms?))
+        }
         // Throw an error if this string has no interpretations
         else { Err(()) }
     }
@@ -72,8 +77,17 @@ impl Textualizer<(Vec<Term>,Vec<String>)> for FunctionTextualizer {
             .to_text(function_body)
     }
 
-    fn from_text(&self, s: &String) -> Result<(Vec<Term>,Vec<String>),()> {
-        todo!()
+    fn from_text(&self, string: &String) -> Result<(Vec<Term>,Vec<String>),()> {
+        let interpretations: Vec<(&Term,Vec<String>)> = self.map.iter()
+            .filter_map(|(term, textualizer)| -> Option<(&Term, Vec<String>)> {
+                match textualizer.from_text(string) {
+                    Ok(strings) => Some((term, strings)),
+                    Err(_) => None,
+                }
+            }).collect();
+        if interpretations.len() > 1 { Err(()) }
+        else if let Some((term, strings)) = interpretations.get(0) { Ok((vec![(*term).clone()],strings.clone())) }
+        else { Err(()) }
     }
 }
 
