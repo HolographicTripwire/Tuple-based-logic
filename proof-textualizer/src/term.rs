@@ -48,7 +48,8 @@ impl Textualizer<Term> for TermTextualizer {
         else if let Ok(atom) = atom_result { Ok(Term::Atomic(atom)) }
         else if let Ok(strings) = tuple_result {
             let terms: Result<Vec<Term>,()> = strings.iter()
-                .map(|s| -> Result<Term,()> { self.from_text(s) }).collect();
+                .map(|s| -> Result<Term,()> { self.from_text(s) })
+                .collect();
             Ok(Term::Tuple(terms?)) 
         } else if let Ok((_, strings)) = optional_rules_result {
             let terms: Result<Vec<Term>,()> = strings.iter()
@@ -78,27 +79,28 @@ impl Textualizer<(Vec<Term>,Vec<String>)> for FunctionTextualizer {
     }
 
     fn from_text(&self, string: &String) -> Result<(Vec<Term>,Vec<String>),()> {
+        // Get all valid interpretations
         let interpretations: Vec<(&Term,Vec<String>)> = self.map.iter()
-            .filter_map(|(term, textualizer)| -> Option<(&Term, Vec<String>)> {
+            .filter_map(|(term, textualizer)| -> Option<(&Term, Vec<String>)>{
                 match textualizer.from_text(string) {
                     Ok(strings) => Some((term, strings)),
                     Err(_) => None,
-                }
-            }).collect();
+                }})
+            .collect();
+        
+        // Throw an error if this string has multiple valid interpretations
         if interpretations.len() > 1 { Err(()) }
+        // If there is only a single valid interpretation, use that one
         else if let Some((term, strings)) = interpretations.get(0) { Ok((vec![(*term).clone()],strings.clone())) }
+        // Throw an error if this string has no valid interpretations
         else { Err(()) }
     }
 }
 
+/// A rule textualizer that always returns Err(())
 pub struct NoRulesTextualizer();
 
 impl Textualizer<(Vec<Term>,Vec<String>)> for NoRulesTextualizer {
-    fn to_text(&self, _: &(Vec<Term>,Vec<String>)) -> Result<String,()> {
-        Err(())
-    }
-
-    fn from_text(&self, _: &String) -> Result<(Vec<Term>,Vec<String>),()> {
-        Err(())
-    }
+    fn to_text(&self, _: &(Vec<Term>,Vec<String>)) -> Result<String,()> { Err(()) }
+    fn from_text(&self, _: &String) -> Result<(Vec<Term>,Vec<String>),()> { Err(()) }
 }
