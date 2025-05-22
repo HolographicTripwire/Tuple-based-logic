@@ -29,8 +29,21 @@ impl Textualizer<Term> for TermTextualizer {
         }
     }
 
-    fn from_text(&self, s: &String) -> Result<Term,()> {
-        todo!()
+    fn from_text(&self, string: &String) -> Result<Term,()> {
+        let atom_result = self.atoms.from_text(string);
+        let tuple_result = self.vecs.from_text(string);
+        let optional_rules_result = self.optional_rules.from_text(string);
+        
+        let ok_results = (atom_result.is_ok() as u8) + (tuple_result.is_ok() as u8) + (optional_rules_result.is_ok() as u8);
+        if ok_results < 1 { Err(()) } else if ok_results > 1 { Err(()) }
+        
+        else if let Ok(atom) = atom_result { Ok(Term::Atomic(atom)) }
+        else if let Ok(strings) = tuple_result {
+            let terms: Result<Vec<Term>,()> = strings.iter()
+                .map(|s| -> Result<Term,()> { self.from_text(s) }).collect();
+            Ok(Term::Tuple(terms?)) 
+        } else if let Ok((terms, _strings)) = optional_rules_result { Ok(Term::Tuple(terms)) }
+        else { Err(()) }
     }
 }
 
@@ -58,7 +71,7 @@ impl Textualizer<(Vec<Term>,Vec<String>)> for NoRulesTextualizer {
         Err(())
     }
 
-    fn from_text(&self, s: &String) -> Result<(Vec<Term>,Vec<String>),()> {
-        todo!()
+    fn from_text(&self, _: &String) -> Result<(Vec<Term>,Vec<String>),()> {
+        Err(())
     }
 }
