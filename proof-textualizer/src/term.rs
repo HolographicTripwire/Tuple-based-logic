@@ -54,7 +54,7 @@ impl Textualizer<(Vec<Term>,Vec<String>)> for FunctionTextualizer {
 pub struct NoRulesTextualizer();
 
 impl Textualizer<(Vec<Term>,Vec<String>)> for NoRulesTextualizer {
-    fn to_text(&self, e: &(Vec<Term>,Vec<String>)) -> Result<String,()> {
+    fn to_text(&self, _: &(Vec<Term>,Vec<String>)) -> Result<String,()> {
         Err(())
     }
 

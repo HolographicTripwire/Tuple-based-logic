@@ -2,6 +2,7 @@ use bimap::{BiHashMap};
 use shared::atoms::AtomId;
 use tuple_based_logic_textualizer::{atom::AtomTextualizer, Textualizer};
 
+mod numerical;
 mod plaintext;
 
 pub (self) fn construct_symbols(vec: Vec<(usize,&str)>) -> AtomTextualizer {
