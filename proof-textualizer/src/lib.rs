@@ -1,7 +1,8 @@
 pub mod atom;
-pub mod term;
+pub mod terms;
 
-pub trait Textualizer<E>: Sync + Send {
-    fn to_text(&self, e: &E) -> Result<String,()>;
-    fn from_text(&self, s: &String) -> Result<E,()>;
+/// Types which allow attempting a conversion between Strings and Objects of the template type
+pub trait Textualizer<Object>: Sync + Send {
+    fn to_text(&self, object: &Object) -> Result<String,()>;
+    fn from_text(&self, string: &String) -> Result<Object,()>;
 }

@@ -1,7 +1,7 @@
 use std::{sync::LazyLock};
 
 use shared::atoms::AtomId;
-use tuple_based_logic_textualizer::{term::{NoRulesTextualizer, TermTextualizer}, Textualizer};
+use tuple_based_logic_textualizer::{terms::{NoRulesTextualizer, TermTextualizer}, Textualizer};
 
 use super::{VecTextualizer};
 

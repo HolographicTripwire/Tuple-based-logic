@@ -20,8 +20,8 @@ impl Textualizer<AtomId> for AtomTextualizer {
         }
     }
 
-    fn from_text(&self, s: &String) -> Result<AtomId,()> {
-        match self.symbols.get_by_right(s) {
+    fn from_text(&self, string: &String) -> Result<AtomId,()> {
+        match self.symbols.get_by_right(string) {
             Some(symbol) => Ok(symbol.clone()),
             None => Err(()),
         }
