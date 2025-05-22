@@ -21,28 +21,37 @@ impl Textualizer<Term> for TermTextualizer {
         match term {
             Term::Atomic(atom_id) => self.atoms.to_text(atom_id),
             Term::Tuple(terms) => {
+                // Convert each term in the tuple to a string
                 let strings: Result<Vec<String>,()> = terms.iter().map(|term| -> Result<String,()> { self.to_text(term) }).collect();
+                // Pair terms with strings
                 let term_and_string = (terms.clone(),strings?);
+                
+                // If there are any optional rules, apply them
                 if let Ok(string) = self.optional_rules.to_text(&term_and_string) { Ok(string) }
+                // Otherwise just treat this vec as we would any other vec
                 else { self.vecs.to_text(&term_and_string.1) }
             },
         }
     }
 
     fn from_text(&self, string: &String) -> Result<Term,()> {
+        // Try to interpret the provided string with each of our inner textualizers
         let atom_result = self.atoms.from_text(string);
         let tuple_result = self.vecs.from_text(string);
         let optional_rules_result = self.optional_rules.from_text(string);
-        
+        // Calculate the number of valid interpretations we found
         let ok_results = (atom_result.is_ok() as u8) + (tuple_result.is_ok() as u8) + (optional_rules_result.is_ok() as u8);
-        if ok_results < 1 { Err(()) } else if ok_results > 1 { Err(()) }
         
+        // Throw an error if this string has multiple valid interpretations
+        if ok_results > 1 { Err(()) }
+        // If there is only a single valid interpretation, use that one
         else if let Ok(atom) = atom_result { Ok(Term::Atomic(atom)) }
         else if let Ok(strings) = tuple_result {
             let terms: Result<Vec<Term>,()> = strings.iter()
                 .map(|s| -> Result<Term,()> { self.from_text(s) }).collect();
             Ok(Term::Tuple(terms?)) 
         } else if let Ok((terms, _strings)) = optional_rules_result { Ok(Term::Tuple(terms)) }
+        // Throw an error if this string has no interpretations
         else { Err(()) }
     }
 }
@@ -53,10 +62,14 @@ pub struct FunctionTextualizer {
 
 impl Textualizer<(Vec<Term>,Vec<String>)> for FunctionTextualizer {
     fn to_text(&self, (terms,term_strings): &(Vec<Term>,Vec<String>)) -> Result<String,()> {
+        // If the head of the term is not a function, return an error
         let function_head = terms.get(0).ok_or(())?;
+        // Get all elements in the vec besides the function head
         let function_body = &term_strings.iter().skip(1).cloned().collect();
-        let textualizer = self.map.get(function_head).ok_or(())?;
-        textualizer.to_text(function_body)
+        // Use the function head to textualize the remainder of the function
+        self.map.get(function_head)
+            .ok_or(())?
+            .to_text(function_body)
     }
 
     fn from_text(&self, s: &String) -> Result<(Vec<Term>,Vec<String>),()> {
