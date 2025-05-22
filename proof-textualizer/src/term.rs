@@ -50,3 +50,15 @@ impl Textualizer<(Vec<Term>,Vec<String>)> for FunctionTextualizer {
         todo!()
     }
 }
+
+pub struct NoRulesTextualizer();
+
+impl Textualizer<(Vec<Term>,Vec<String>)> for NoRulesTextualizer {
+    fn to_text(&self, e: &(Vec<Term>,Vec<String>)) -> Result<String,()> {
+        Err(())
+    }
+
+    fn from_text(&self, s: &String) -> Result<(Vec<Term>,Vec<String>),()> {
+        todo!()
+    }
+}

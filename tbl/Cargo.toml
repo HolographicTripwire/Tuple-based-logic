@@ -1,0 +1,12 @@
+[package]
+name = "tuple_based_logic"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+tuple_based_logic_verifier = { path = "../proof-verifier" }
+tuple_based_logic_generator = { path = "../proof-generator" }
+tuple_based_logic_textualizer = { path = "../proof-textualizer" }
+shared = { path = "../shared" }
+
+bimap = { version = "0.6.3" }

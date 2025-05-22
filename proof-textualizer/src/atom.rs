@@ -3,6 +3,7 @@ use shared::atoms::AtomId;
 
 use crate::Textualizer;
 
+#[derive(Clone)]
 pub struct AtomTextualizer {
     symbols: BiMap<AtomId, String>
 }
