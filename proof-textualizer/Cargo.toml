@@ -1,9 +1,0 @@
-[package]
-name = "tuple_based_logic_textualizer"
-version = "0.1.0"
-edition = "2024"
-
-[dependencies]
-shared = { path = "../shared" }
-
-bimap = { version = "0.6.3" }
