@@ -1,7 +1,7 @@
 use std::{sync::LazyLock};
 
-use shared::atoms::AtomId;
-use tuple_based_logic_textualizer::{terms::{NoRulesTextualizer, TermTextualizer}, Textualizer};
+use tbl_structures::atoms::AtomId;
+use tbl_stringification::{terms::{NoRulesTextualizer, TermTextualizer}, Textualizer};
 
 use super::{VecTextualizer};
 
@@ -25,7 +25,7 @@ pub static TERM_TEXTUALIZER: LazyLock<TermTextualizer> = LazyLock::new(|| -> Ter
 
 #[cfg(test)]
 mod tests {
-    use shared::propositions::{Term};
+    use tbl_structures::propositions::{Term};
 
     use super::*;
 

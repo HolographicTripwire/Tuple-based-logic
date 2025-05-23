@@ -1,6 +1,6 @@
 use bimap::{BiHashMap};
-use shared::atoms::AtomId;
-use tuple_based_logic_textualizer::{atom::AtomTextualizer, Textualizer};
+use tbl_structures::atoms::AtomId;
+use tbl_stringification::{atom::AtomTextualizer, Textualizer};
 
 mod numerical;
 mod plaintext;

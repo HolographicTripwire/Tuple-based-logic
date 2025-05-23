@@ -1,6 +1,6 @@
 use std::{sync::LazyLock};
 
-use tuple_based_logic_textualizer::{atom::AtomTextualizer, terms::{NoRulesTextualizer, TermTextualizer}};
+use tbl_stringification::{atom::AtomTextualizer, terms::{NoRulesTextualizer, TermTextualizer}};
 
 use super::{construct_symbols, VecTextualizer};
 
