@@ -1,26 +1,27 @@
 mod functions;
 
-pub use functions::FunctionTextualizer;
+pub use functions::FunctionStringifier;
 
 
 use tbl_structures::{atoms::AtomId, propositions::Term};
 
-use crate::Textualizer;
+use crate::{Destringify, Stringifier, Stringify};
 
 /// A textualizer for Terms which builds up Strings from their atomic parts, while applying rules in special cases
-pub struct TermTextualizer {
-    atoms: Box<dyn Textualizer<AtomId>>,
-    vecs: Box<dyn Textualizer<Vec<String>>>,
-    special_cases: Box<dyn Textualizer<(Vec<Term>,Vec<String>)>>,
+pub struct TermStringifier {
+    atoms: Box<dyn Stringifier<AtomId>>,
+    vecs: Box<dyn Stringifier<Vec<String>>>,
+    special_cases: Box<dyn Stringifier<(Vec<Term>,Vec<String>)>>,
 }
 
-impl TermTextualizer {
-    pub fn new(atoms: Box<dyn Textualizer<AtomId>>, vecs: Box<dyn Textualizer<Vec<String>>>, special_cases: Box<dyn Textualizer<(Vec<Term>,Vec<String>)>>) -> Self {
+impl TermStringifier {
+    pub fn new(atoms: Box<dyn Stringifier<AtomId>>, vecs: Box<dyn Stringifier<Vec<String>>>, special_cases: Box<dyn Stringifier<(Vec<Term>,Vec<String>)>>) -> Self {
         Self {atoms, vecs, special_cases}
     }
 }
 
-impl Textualizer<Term> for TermTextualizer {
+impl Stringifier<Term> for TermStringifier {}
+impl Stringify<Term> for TermStringifier {
     fn to_text(&self, term: &Term) -> Result<String,()> {
         match term {
             Term::Atomic(atom_id) => self.atoms.to_text(atom_id),
@@ -37,7 +38,8 @@ impl Textualizer<Term> for TermTextualizer {
             },
         }
     }
-
+}
+impl Destringify<Term> for TermStringifier {
     fn from_text(&self, string: &String) -> Result<Term,()> {
         // Try to interpret the provided string with each of our inner textualizers
         let atom_result = self.atoms.from_text(string);
@@ -67,9 +69,12 @@ impl Textualizer<Term> for TermTextualizer {
 }
 
 /// A rule textualizer that always returns Err(())
-pub struct NoRulesTextualizer();
+pub struct NoRulesStringifier();
 
-impl Textualizer<(Vec<Term>,Vec<String>)> for NoRulesTextualizer {
+impl Stringifier<(Vec<Term>,Vec<String>)> for NoRulesStringifier {}
+impl Stringify<(Vec<Term>,Vec<String>)> for NoRulesStringifier {
     fn to_text(&self, _: &(Vec<Term>,Vec<String>)) -> Result<String,()> { Err(()) }
+}
+impl Destringify<(Vec<Term>,Vec<String>)> for NoRulesStringifier {
     fn from_text(&self, _: &String) -> Result<(Vec<Term>,Vec<String>),()> { Err(()) }
 }

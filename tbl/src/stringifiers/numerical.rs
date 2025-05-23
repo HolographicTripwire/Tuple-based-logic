@@ -1,26 +1,28 @@
 use std::{sync::LazyLock};
 
 use tbl_structures::atoms::AtomId;
-use tbl_stringification::{terms::{NoRulesTextualizer, TermTextualizer}, Textualizer};
+use tbl_stringification::{terms::{NoRulesStringifier, TermStringifier}, Destringify, Stringifier, Stringify};
 
-use super::{VecTextualizer};
+use super::{VecStringifier};
 
-struct NumAtomTextualizer();
+struct NumAtomStringifier();
 
-impl Textualizer<AtomId> for NumAtomTextualizer {
+impl Stringifier<AtomId> for NumAtomStringifier {}
+impl Stringify<AtomId> for NumAtomStringifier {
     fn to_text(&self, e: &AtomId) -> Result<String,()> {
         Ok(e.0.0.to_string())
     }
-
+}
+impl Destringify<AtomId> for NumAtomStringifier {
     fn from_text(&self, s: &String) -> Result<AtomId,()> {
         todo!()
     }
 }
 
-pub static TERM_TEXTUALIZER: LazyLock<TermTextualizer> = LazyLock::new(|| -> TermTextualizer { TermTextualizer::new(
-    Box::new(NumAtomTextualizer()),
-    Box::new(VecTextualizer()),
-    Box::new(NoRulesTextualizer())
+pub static TERM_STRINGIFIER: LazyLock<TermStringifier> = LazyLock::new(|| -> TermStringifier { TermStringifier::new(
+    Box::new(NumAtomStringifier()),
+    Box::new(VecStringifier()),
+    Box::new(NoRulesStringifier())
 )});
 
 #[cfg(test)]
@@ -32,14 +34,14 @@ mod tests {
     #[test]
     fn test_textualize_atom() {
         let term = Term::from(AtomId::try_from(0).unwrap());
-        assert_eq!(TERM_TEXTUALIZER.to_text(&term),Ok("0".to_string()));
+        assert_eq!(TERM_STRINGIFIER.to_text(&term),Ok("0".to_string()));
     }
 
     #[test]
     fn test_textualize_unary_tuple() {
         let atom_0 = Term::from(AtomId::try_from(0).unwrap());
         let term = Term::from(vec![atom_0]);
-        assert_eq!(TERM_TEXTUALIZER.to_text(&term),Ok("(0)".to_string()));
+        assert_eq!(TERM_STRINGIFIER.to_text(&term),Ok("(0)".to_string()));
     }
 
     #[test]
@@ -47,7 +49,7 @@ mod tests {
         let atom_0 = Term::from(AtomId::try_from(0).unwrap());
         let atom_1 = Term::from(AtomId::try_from(1).unwrap());
         let term = Term::from(vec![atom_0,atom_1]);
-        assert_eq!(TERM_TEXTUALIZER.to_text(&term),Ok("(0, 1)".to_string()));
+        assert_eq!(TERM_STRINGIFIER.to_text(&term),Ok("(0, 1)".to_string()));
     }
 
     #[test]
@@ -55,6 +57,6 @@ mod tests {
         let atom_0 = Term::from(AtomId::try_from(0).unwrap());
         let atom_1 = Term::from(AtomId::try_from(1).unwrap());
         let term = Term::from(vec![Term::from(vec![atom_0]),atom_1]);
-        assert_eq!(TERM_TEXTUALIZER.to_text(&term),Ok("((0), 1)".to_string()));
+        assert_eq!(TERM_STRINGIFIER.to_text(&term),Ok("((0), 1)".to_string()));
     }
 }

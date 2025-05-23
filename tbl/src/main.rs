@@ -1,5 +1,5 @@
 mod axioms;
-mod textualizers;
+mod stringifiers;
 
 fn main() {
     println!("Hello, world!");

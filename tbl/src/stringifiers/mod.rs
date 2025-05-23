@@ -1,12 +1,12 @@
 use bimap::{BiHashMap};
 use tbl_structures::atoms::AtomId;
-use tbl_stringification::{atom::AtomTextualizer, Textualizer};
+use tbl_stringification::{atom::AtomStringifier, Destringify, Stringifier, Stringify};
 
 mod numerical;
 mod plaintext;
 
-pub (self) fn construct_symbols(vec: Vec<(usize,&str)>) -> AtomTextualizer {
-    AtomTextualizer::new(BiHashMap::from_iter(
+pub (self) fn construct_symbols(vec: Vec<(usize,&str)>) -> AtomStringifier {
+    AtomStringifier::new(BiHashMap::from_iter(
         vec.iter()
         .map(|(int,str)| -> (AtomId, String) {
             (AtomId::try_from(*int).expect("Atom id out of range when constructing symbols"), str.to_string())
@@ -14,13 +14,15 @@ pub (self) fn construct_symbols(vec: Vec<(usize,&str)>) -> AtomTextualizer {
     ))
 }
 
-pub struct VecTextualizer();
+pub struct VecStringifier();
 
-impl Textualizer<Vec<String>> for VecTextualizer {
+impl Stringifier<Vec<String>> for VecStringifier {}
+impl Stringify<Vec<String>> for VecStringifier {
     fn to_text(&self, strings: &Vec<String>) -> Result<String,()> {
         Ok("(".to_string() + &strings.join(", ") + ")")
     }
-
+}
+impl Destringify<Vec<String>> for VecStringifier {
     fn from_text(&self, s: &String) -> Result<Vec<String>,()> {
         // Strip the parentheses and return the inner string
         let inner =  { 

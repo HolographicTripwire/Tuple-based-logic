@@ -2,13 +2,14 @@ use std::collections::HashMap;
 
 use tbl_structures::propositions::Term;
 
-use crate::Textualizer;
+use crate::{Destringify, Stringifier, Stringify};
 
-pub struct FunctionTextualizer {
-    map: HashMap<Term,Box<dyn Textualizer<Vec<String>>>>
+
+pub struct FunctionStringifier {
+    map: HashMap<Term,Box<dyn Stringifier<Vec<String>>>>
 }
 
-impl Textualizer<(Vec<Term>,Vec<String>)> for FunctionTextualizer {
+impl Stringify<(Vec<Term>,Vec<String>)> for FunctionStringifier {
     fn to_text(&self, (terms,term_strings): &(Vec<Term>,Vec<String>)) -> Result<String,()> {
         // If the head of the term is not a function, return an error
         let function_head = terms.get(0).ok_or(())?;
@@ -19,7 +20,8 @@ impl Textualizer<(Vec<Term>,Vec<String>)> for FunctionTextualizer {
             .ok_or(())?
             .to_text(function_body)
     }
-
+}
+impl Destringify<(Vec<Term>,Vec<String>)> for FunctionStringifier {
     fn from_text(&self, string: &String) -> Result<(Vec<Term>,Vec<String>),()> {
         // Get all valid interpretations
         let interpretations: Vec<(&Term,Vec<String>)> = self.map.iter()
