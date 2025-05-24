@@ -18,12 +18,12 @@ pub struct VecStringifier();
 
 impl Stringifier<Vec<String>> for VecStringifier {}
 impl Stringify<Vec<String>> for VecStringifier {
-    fn to_text(&self, strings: &Vec<String>) -> Result<String,()> {
+    fn stringify(&self, strings: &Vec<String>) -> Result<String,()> {
         Ok("(".to_string() + &strings.join(", ") + ")")
     }
 }
 impl Destringify<Vec<String>> for VecStringifier {
-    fn from_text(&self, s: &String) -> Result<Vec<String>,()> {
+    fn destringify(&self, s: &String) -> Result<Vec<String>,()> {
         // Strip the parentheses and return the inner string
         let inner =  { 
             if s.starts_with('(') && s.ends_with(')') {

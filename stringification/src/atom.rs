@@ -14,7 +14,7 @@ impl AtomStringifier {
 
 impl Stringifier<AtomId> for AtomStringifier {}
 impl Stringify<AtomId> for AtomStringifier {
-    fn to_text(&self, atom: &AtomId) -> Result<String,()> {
+    fn stringify(&self, atom: &AtomId) -> Result<String,()> {
         match self.symbols.get_by_left(atom) {
             Some(symbol) => Ok(symbol.clone()),
             None => Err(()),
@@ -22,7 +22,7 @@ impl Stringify<AtomId> for AtomStringifier {
     }
 } 
 impl Destringify<AtomId> for AtomStringifier {
-    fn from_text(&self, string: &String) -> Result<AtomId,()> {
+    fn destringify(&self, string: &String) -> Result<AtomId,()> {
         match self.symbols.get_by_right(string) {
             Some(symbol) => Ok(symbol.clone()),
             None => Err(()),

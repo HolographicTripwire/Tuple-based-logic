@@ -1,6 +1,7 @@
 use std::{sync::LazyLock};
 
-use tbl_stringification::{atom::AtomStringifier, terms::{NoRulesStringifier, TermStringifier}};
+use tbl_stringification::{atom::AtomStringifier, terms::{NoSpecialCasesStringifier, TermStringifier}, Stringifier};
+use tbl_structures::propositions::Term;
 
 use super::{construct_symbols, VecStringifier};
 
@@ -8,8 +9,11 @@ static SYMBOL_STRINGIFIER: LazyLock<AtomStringifier> = LazyLock::new(|| -> AtomS
     (0,"")
 ])});
 
-pub static TERM_STRINGIFIER: LazyLock<TermStringifier> = LazyLock::new(|| -> TermStringifier { TermStringifier::new(
-    Box::new(SYMBOL_STRINGIFIER.clone()),
-    Box::new(VecStringifier()),
-    Box::new(NoRulesStringifier())
-)});
+pub static TERM_STRINGIFIER: LazyLock<Box<dyn Stringifier<Term>>> = 
+    LazyLock::new(|| -> Box<dyn Stringifier<Term>> { 
+        Box::new(TermStringifier::new(
+            SYMBOL_STRINGIFIER.clone(),
+            VecStringifier(),
+            NoSpecialCasesStringifier()
+        ))
+    });
