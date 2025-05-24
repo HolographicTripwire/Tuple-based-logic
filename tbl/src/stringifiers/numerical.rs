@@ -15,7 +15,9 @@ impl Stringify<AtomId> for NumAtomStringifier {
 }
 impl Destringify<AtomId> for NumAtomStringifier {
     fn destringify(&self, s: &String) -> Result<AtomId,()> {
-        todo!()
+        let Ok(u) = s.parse::<usize>() else { return Err(()) };
+        let Ok(atom) = AtomId::try_from(u) else { return Err(()) };
+        Ok(atom)
     }
 }
 
