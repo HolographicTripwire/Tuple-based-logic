@@ -1,30 +1,14 @@
+use tbl_stringification::{terms::{NoSpecialCasesStringifier, TermStringifier}, Stringifier};
+use tbl_structures::propositions::Term;
+
 use std::{sync::LazyLock};
 
-use tbl_structures::{atoms::AtomId, propositions::Term};
-use tbl_stringification::{terms::{NoSpecialCasesStringifier, TermStringifier}, Destringify, Stringifier, Stringify};
-
-use super::{VecStringifier};
-
-struct NumAtomStringifier();
-
-impl Stringifier<AtomId> for NumAtomStringifier {}
-impl Stringify<AtomId> for NumAtomStringifier {
-    fn stringify(&self, e: &AtomId) -> Result<String,()> {
-        Ok(e.0.0.to_string())
-    }
-}
-impl Destringify<AtomId> for NumAtomStringifier {
-    fn destringify(&self, s: &String) -> Result<AtomId,()> {
-        let Ok(u) = s.parse::<usize>() else { return Err(()) };
-        let Ok(atom) = AtomId::try_from(u) else { return Err(()) };
-        Ok(atom)
-    }
-}
+use crate::stringifiers::{formats::plaintext,vec::VecStringifier};
 
 pub static TERM_STRINGIFIER: LazyLock<Box<dyn Stringifier<Term>>> = 
     LazyLock::new(|| -> Box<dyn Stringifier<Term>> { 
         Box::new(TermStringifier::new(
-            NumAtomStringifier(),
+            plaintext::atom::STRINGIFIER.clone(),
             VecStringifier(),
             NoSpecialCasesStringifier()
         ))
@@ -34,24 +18,25 @@ pub static TERM_STRINGIFIER: LazyLock<Box<dyn Stringifier<Term>>> =
 mod tests {
     use std::{collections::HashMap};
 
-    use tbl_structures::propositions::{Term};
+    use tbl_structures::{atoms::BuiltInAtom, propositions::Term};
 
     use super::*;
 
     static CONVERSIONS: LazyLock<HashMap<&str,Term>> = LazyLock::new(|| -> HashMap<&str,Term> { 
-        let atom = |u: usize| { Term::from(AtomId::try_from(u).unwrap()) };
+        let conjunction = || Term::from(BuiltInAtom::Conjunction);
+        let implication = || Term::from(BuiltInAtom::Implication);
         HashMap::from_iter(vec![
-            ("0",atom(0)),
-            ("(0)",Term::Tuple(vec![atom(0)])),
-            ("(0, 1)",Term::Tuple(vec![atom(0),atom(1)])),
-            ("((0), 1)", Term::from(vec![Term::from(vec![atom(0)]),atom(1)])),
+            ("∧",conjunction()),
+            ("(∧)",Term::Tuple(vec![conjunction()])),
+            ("(∧, →)",Term::Tuple(vec![conjunction(),implication()])),
+            ("((∧), →)", Term::from(vec![Term::from(vec![conjunction()]),implication()])),
         ].into_iter())
     });
 
     #[test]
     fn test_stringify_atom() {
         // Get the string and term to test
-        let str = "0";
+        let str = "∧";
         let term = CONVERSIONS.get(str).unwrap();
         // Test stringification
         let term_stringified = TERM_STRINGIFIER.stringify(&term);
@@ -60,7 +45,7 @@ mod tests {
     #[test]
     fn test_destringify_atom() {
         // Get the string and term to test
-        let str = "0";
+        let str = "∧";
         let term = CONVERSIONS.get(str).unwrap();
         // Test destringification
         let str_destringified = TERM_STRINGIFIER.destringify(&str.to_string());
@@ -70,7 +55,7 @@ mod tests {
     #[test]
     fn test_stringify_unary_tuple() {
         // Get the string and term to test
-        let str = "(0)";
+        let str = "(∧)";
         let term = CONVERSIONS.get(str).unwrap();
         // Test stringification
         let term_stringified = TERM_STRINGIFIER.stringify(&term);
@@ -79,7 +64,7 @@ mod tests {
     #[test]
     fn test_destringify_unary_tuple() {
         // Get the string and term to test
-        let str = "(0)";
+        let str = "(∧)";
         let term = CONVERSIONS.get(str).unwrap();
         // Test destringification
         let str_destringified = TERM_STRINGIFIER.destringify(&str.to_string());
@@ -89,7 +74,7 @@ mod tests {
     #[test]
     fn test_stringify_binary_tuple() {
         // Get the string and term to test
-        let str = "(0, 1)";
+        let str = "(∧, →)";
         let term = CONVERSIONS.get(str).unwrap();
         // Test stringification
         let term_stringified = TERM_STRINGIFIER.stringify(&term);
@@ -98,7 +83,7 @@ mod tests {
     #[test]
     fn test_destringify_binary_tuple() {
         // Get the string and term to test
-        let str = "(0, 1)";
+        let str = "(∧, →)";
         let term = CONVERSIONS.get(str).unwrap();
         // Test destringification
         let str_destringified = TERM_STRINGIFIER.destringify(&str.to_string());
@@ -108,7 +93,7 @@ mod tests {
     #[test]
     fn test_stringify_nested_tuple() {
         // Get the string and term to test
-        let str = "((0), 1)";
+        let str = "((∧), →)";
         let term = CONVERSIONS.get(str).unwrap();
         // Test stringification
         let term_stringified = TERM_STRINGIFIER.stringify(&term);
@@ -117,7 +102,7 @@ mod tests {
     #[test]
     fn test_destringify_nested_tuple() {
         // Get the string and term to test
-        let str = "((0), 1)";
+        let str = "((∧), →)";
         let term = CONVERSIONS.get(str).unwrap();
         // Test destringification
         let str_destringified = TERM_STRINGIFIER.destringify(&str.to_string());
