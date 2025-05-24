@@ -2,8 +2,8 @@ use bimap::{BiHashMap};
 use tbl_structures::atoms::AtomId;
 use tbl_stringification::{atom::AtomStringifier, Destringify, Stringifier, Stringify};
 
-mod numerical;
-mod plaintext;
+pub mod numerical;
+pub mod plaintext;
 
 pub (self) fn construct_symbols(vec: Vec<(usize,&str)>) -> AtomStringifier {
     AtomStringifier::new(BiHashMap::from_iter(
