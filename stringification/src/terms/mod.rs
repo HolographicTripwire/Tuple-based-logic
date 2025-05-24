@@ -37,10 +37,13 @@ trait TermDestringifyInterface<A: Destringify<AtomId>, V: Destringify<Vec<String
     fn special_cases(&self) -> &S;
     /// This function will be used by [TermStringifier] and [TermDestringify] as a proxy for [Destringify::destringify]. 
     fn from_text(&self, string: &String) -> Result<Term,()> {
+        // Remove whitespace on either side of the string
+        let trimmed = string.trim().to_string();
+        
         // Try to interpret the provided string with each of our inner textualizers
-        let atom_result = self.atoms().destringify(string);
-        let tuple_result = self.vecs().destringify(string);
-        let optional_rules_result = self.special_cases().destringify(string);
+        let atom_result = self.atoms().destringify(&trimmed);
+        let tuple_result = self.vecs().destringify(&trimmed);
+        let optional_rules_result = self.special_cases().destringify(&trimmed);
         // Calculate the number of valid interpretations we found
         let ok_results = (atom_result.is_ok() as u8) + (tuple_result.is_ok() as u8) + (optional_rules_result.is_ok() as u8);
         

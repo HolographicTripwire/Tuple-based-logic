@@ -32,7 +32,7 @@ pub static TERM_STRINGIFIER: LazyLock<Box<dyn Stringifier<Term>>> =
 
 #[cfg(test)]
 mod tests {
-    use std::{cell::LazyCell, collections::HashMap};
+    use std::{collections::HashMap};
 
     use tbl_structures::propositions::{Term};
 
