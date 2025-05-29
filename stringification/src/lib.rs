@@ -1,5 +1,5 @@
 pub mod atom;
-pub mod terms;
+pub mod expressions;
 
 // Types which allow attempting conversions between structs of type Object and Strings
 pub trait Stringifier<Object>: Stringify<Object> + Destringify<Object> {}

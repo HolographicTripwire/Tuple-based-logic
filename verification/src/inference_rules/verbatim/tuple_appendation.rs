@@ -1,4 +1,4 @@
-use tbl_structures::{atoms::BuiltInAtom, propositions::{Proposition, Term}};
+use tbl_structures::{atoms::BuiltInAtom, propositions::{Proposition, Expression}};
 
 use crate::{inference_rules::TUPLE_OR_ERROR, ProofValidationError};
 
@@ -11,24 +11,24 @@ pub fn verify_tuple_appendation(assumptions: &Vec<Proposition>, conclusions: &Ve
     // Throw ane rror if the rule has any assumptions (this rule requires none)
     if assumptions.len() != 0 { return Err(ProofValidationError::InvalidStepSpecification) }
     
-    // Throw an error if there are not three terms in the conclusion
-    let [identity_head, appendation_term, appended] = TUPLE_OR_ERROR.prop_as_slice(conclusion)? else { return Err(ProofValidationError::InvalidStepSpecification) };
-    let [appendation_head, append_to, to_append] = TUPLE_OR_ERROR.term_as_slice(appendation_term)? else { return Err(ProofValidationError::InvalidStepSpecification) };    
+    // Throw an error if there are not three exprs in the conclusion
+    let [identity_head, appendation_expr, appended] = TUPLE_OR_ERROR.prop_as_slice(conclusion)? else { return Err(ProofValidationError::InvalidStepSpecification) };
+    let [appendation_head, append_to, to_append] = TUPLE_OR_ERROR.expr_as_slice(appendation_expr)? else { return Err(ProofValidationError::InvalidStepSpecification) };    
 
     // Throw an error if the head of the conclusion is incorrect
     if identity_head != &BuiltInAtom::Identity.into() { return Err(ProofValidationError::InvalidStepSpecification) }
     if appendation_head != &BuiltInAtom::TupleAppend.into() { return Err(ProofValidationError::InvalidStepSpecification) }
     
-    let append_to_verbatim = TUPLE_OR_ERROR.term_as_tuple(resolve_verbatim(append_to)?)?;
+    let append_to_verbatim = TUPLE_OR_ERROR.expr_as_tuple(resolve_verbatim(append_to)?)?;
     let to_append_verbatim = resolve_verbatim(to_append)?;
     let appended_verbatim = resolve_verbatim(appended)?;
 
-    // Throw an error if the terms aren't actually identical
+    // Throw an error if the exprs aren't actually identical
     if &resolve_appendation(append_to_verbatim.clone(), to_append_verbatim) != appended_verbatim { return Err(ProofValidationError::InvalidStepSpecification) };
 
     Ok(())
 }
 
-fn resolve_appendation(mut append_to: Vec<Term>, to_append: &Term) -> Term {
-    append_to.push(to_append.clone()); Term::Tuple(append_to)
+fn resolve_appendation(mut append_to: Vec<Expression>, to_append: &Expression) -> Expression {
+    append_to.push(to_append.clone()); Expression::Tuple(append_to)
 }

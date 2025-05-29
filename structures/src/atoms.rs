@@ -9,7 +9,7 @@ pub struct AtomId(pub Id16);
 
 impl Identifier for AtomId {
     fn first() -> Self { Self(Id16::first()) }
-    fn next(self) -> Self { Self(self.0.next().expect("Out of term ids")) }
+    fn next(self) -> Self { Self(self.0.next().expect("Out of expression ids")) }
 }
 impl TryFrom<usize> for AtomId {
     type Error = TryFromIntError;

@@ -64,7 +64,7 @@ impl Destringify<Vec<String>> for VecStringifier {
         }
         // Push final substring, which will not be delimited like the others
         substrings.push(current_substring);
-        // Then return all the substrings (each of which will be converted to a Term later)
+        // Then return all the substrings (each of which will be converted to a Expression later)
         Ok(substrings)
     }
 }

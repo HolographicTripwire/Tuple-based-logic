@@ -1,8 +1,8 @@
-use tbl_structures::propositions::Term;
+use tbl_structures::propositions::Expression;
 
 use crate::{Destringify, Stringifier, Stringify};
 
-pub struct SpecialCase(pub Vec<Term>,pub Vec<String>);
+pub struct SpecialCase(pub Vec<Expression>,pub Vec<String>);
 
 /// A rule textualizer that always returns Err(())
 pub struct NoSpecialCasesStringifier();

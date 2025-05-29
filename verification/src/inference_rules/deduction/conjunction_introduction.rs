@@ -9,7 +9,7 @@ pub fn verify_conjunction_introduction(assumptions: &Vec<Proposition>, conclusio
     // Throw an error if there are not two assumptions
     let [assumption_left, assumption_right] = assumptions.as_slice() else { return Err(ProofValidationError::InvalidStepSpecification) };
 
-    // Throw an error if there are not three terms in the conclusion
+    // Throw an error if there are not three expressions in the conclusion
     let [conjunction_head, conjunction_left, conjunction_right] = TUPLE_OR_ERROR.prop_as_slice(conclusion)? else { return Err(ProofValidationError::InvalidStepSpecification) };
 
     // Throw an error if the head of the conjunction is incorrect

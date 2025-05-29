@@ -1,9 +1,9 @@
-mod terms;
+mod expressions;
 mod set;
 pub mod tuple_or_error;
 
-pub use terms::Term;
+pub use expressions::Expression;
 pub use set::PropositionSet;
 
 #[derive(Hash,PartialEq,Eq,Debug,Clone)]
-pub struct Proposition(pub Term);
+pub struct Proposition(pub Expression);

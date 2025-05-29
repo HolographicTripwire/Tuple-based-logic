@@ -9,7 +9,7 @@ pub fn verify_implication_elimination(assumptions: &Vec<Proposition>, conclusion
     // Throw an error if there are not two assumptions
     let [prior, implication] = assumptions.as_slice() else { return Err(ProofValidationError::InvalidStepSpecification) };
     
-    // Throw an error if the implication does not contain three terms
+    // Throw an error if the implication does not contain three expressions
     let [implication_head, antecedent, consequent] = TUPLE_OR_ERROR.prop_as_slice(implication)? else { return Err(ProofValidationError::InvalidStepSpecification) };
 
     // Throw an error if the head of the implication is incorrect
