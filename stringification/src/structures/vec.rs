@@ -1,4 +1,5 @@
-use tbl_stringification::{Destringify, Stringifier, Stringify};
+use crate::{Destringify, Stringifier, Stringify};
+
 
 pub struct VecStringifier{
     opener: String,

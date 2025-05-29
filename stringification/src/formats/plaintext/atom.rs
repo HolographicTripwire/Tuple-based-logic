@@ -1,8 +1,6 @@
 use std::sync::LazyLock;
 
-use tbl_stringification::atom::AtomStringifier;
-
-use crate::stringifiers::construct_symbols;
+use crate::structures::atom::{construct_symbols, AtomStringifier};
 
 pub static STRINGIFIER: LazyLock<AtomStringifier> = LazyLock::new(|| -> AtomStringifier { construct_symbols(vec![
     // Built-in atoms

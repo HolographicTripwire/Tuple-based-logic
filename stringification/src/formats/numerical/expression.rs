@@ -1,12 +1,10 @@
 use std::{sync::LazyLock};
 
 use tbl_structures::{propositions::Expression};
-use tbl_stringification::{expressions::{NoSpecialCasesStringifier, ExpressionStringifier}, Stringifier};
 
-use crate::stringifiers::VecStringifier;
+use crate::{structures::{expressions::{ExpressionStringifier, NoSpecialCasesStringifier}, vec::VecStringifier}, Stringifier};
 
 use super::atom::NumAtomStringifier;
-
 
 pub static TERM_STRINGIFIER: LazyLock<Box<dyn Stringifier<Expression>>> = 
     LazyLock::new(|| -> Box<dyn Stringifier<Expression>> { 
