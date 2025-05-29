@@ -9,7 +9,7 @@ pub static TERM_STRINGIFIER: LazyLock<Box<dyn Stringifier<Term>>> =
     LazyLock::new(|| -> Box<dyn Stringifier<Term>> { 
         Box::new(TermStringifier::new(
             plaintext::atom::STRINGIFIER.clone(),
-            VecStringifier(),
+            VecStringifier::default(),
             NoSpecialCasesStringifier()
         ))
     });

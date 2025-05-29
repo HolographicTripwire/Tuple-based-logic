@@ -1,6 +1,21 @@
 use tbl_stringification::{Destringify, Stringifier, Stringify};
 
-pub struct VecStringifier();
+pub struct VecStringifier{
+    opener: String,
+    closer: String,
+    delimiter: String,
+    escape: String,
+}
+impl Default for VecStringifier {
+    fn default() -> Self {
+        Self { 
+            opener: "(".to_string(),
+            closer: ")".to_string(),
+            delimiter: ",".to_string(),
+            escape: "\\".to_string()
+        }
+    }
+}
 
 impl Stringifier<Vec<String>> for VecStringifier {}
 impl Stringify<Vec<String>> for VecStringifier {
@@ -9,38 +24,41 @@ impl Stringify<Vec<String>> for VecStringifier {
     }
 }
 impl Destringify<Vec<String>> for VecStringifier {
-    fn destringify(&self, s: &String) -> Result<Vec<String>,()> {
-        // Strip the parentheses and return the inner string
-        let inner =  { 
-            if s.starts_with('(') && s.ends_with(')') {
-                s[1..s.len()-1].to_string()
-            } else { return Err(()) }
+    fn destringify(&self, string: &String) -> Result<Vec<String>,()> {
+        // Strip the opener and closer and get the inner string
+        let inner =  {
+            let mut s = string.as_str();
+            if s.starts_with(&self.opener) { s = &s[self.opener.len()..s.len()]; }
+            else { return Err(()) }
+            if s.ends_with(&self.closer) { s = &s[0..s.len()-self.closer.len()]; }
+            else { return Err(()) }
+            s.to_string()
         };
         // Break into substrings
         let mut substrings = Vec::new(); // The substrings that we will return from this function
         let mut current_substring = "".to_string(); // The current substring, which will be added to substrings when we reach a delimiter
-        let mut parentheses_level = 0; // How deep into parentheses we are (e.g. if we had just read "((a,b),(c" we would be at level 2)
+        let mut nesting_level = 0; // How deep into parentheses we are (e.g. if we had just read "((a,b),(c" we would be at level 2)
         let mut escaping = false; // If an escape character has just preceded the one we're at currently
         for char in inner.chars() {
-            // Commas (,) are used as delimiters
-            if char == ',' && parentheses_level == 0 && !escaping {
+            current_substring.push(char);
+            // Handle delimiters. For example, if the delimiter is a comma (',') we will start a new substring on every comma
+            if current_substring.ends_with(&self.delimiter) && nesting_level == 0 && !escaping {
+                current_substring = remove_from_end(current_substring, &self.delimiter).unwrap();
                 substrings.push(current_substring);
                 current_substring = "".to_string();
-            // Any parenthesised expression should be contained
-            } else if char == '(' && !escaping {
-                current_substring.push(char);
-                parentheses_level += 1;
-            } else if char == ')' && !escaping {
-                current_substring.push(char);
-                parentheses_level -= 1;
+            // Contain any nested vecs
+            } else if current_substring.ends_with(&self.opener) && !escaping {
+                nesting_level += 1;
+            } else if current_substring.ends_with(&self.closer) && !escaping {
+                nesting_level -= 1;
                 // Parentheses level cannot be allowed to go below 0
-                if parentheses_level < 0 { return Err(()) }
+                if nesting_level < 0 { return Err(()) }
             // Use backslash (\) as an escape character
-            } else if char == '\\' && !escaping {
+            } else if current_substring.ends_with(&self.escape) && !escaping {
+                current_substring = remove_from_end(current_substring, &self.escape).unwrap();
                 escaping = true;
             // All non-control characters can 
             } else {
-                current_substring.push(char);
                 escaping = false;
             }
         }
@@ -49,4 +67,9 @@ impl Destringify<Vec<String>> for VecStringifier {
         // Then return all the substrings (each of which will be converted to a Term later)
         Ok(substrings)
     }
+}
+
+fn remove_from_end(s1: String, s2: &String) -> Result<String,()> {
+    if s1.ends_with(s2) { Ok(s1[0..s1.len()-s2.len()].to_string()) }
+    else { Err(()) }
 }
