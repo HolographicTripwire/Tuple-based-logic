@@ -38,7 +38,7 @@ fn substitution_comparison(find_expr: &Expression, replace_expr: &Expression, ve
     
     // Recurse, performing substitution comparison on each expression within the sets of tuples
     let results = find_exprs.iter().zip(verify_exprs.iter())
-        .map(|(expr1, expr2)| -> Result<Option<Expression>,ProofValidationError> { substitution_comparison(expr1, replace_expr, ex2) });
+        .map(|(expr1, expr2)| -> Result<Option<Expression>,ProofValidationError> { substitution_comparison(expr1, replace_expr, expr2) });
     
     // Filter out unwanted results
     let mut filtered_results = Vec::new();
