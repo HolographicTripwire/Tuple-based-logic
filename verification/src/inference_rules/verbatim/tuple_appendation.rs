@@ -17,7 +17,7 @@ pub fn verify_tuple_appendation(assumptions: &Vec<Proposition>, conclusions: &Ve
 
     // Throw an error if the head of the conclusion is incorrect
     if identity_head != &BuiltInAtom::Identity.into() { return Err(ProofValidationError::InvalidStepSpecification) }
-    if appendation_head != &BuiltInAtom::TupleAppend.into() { return Err(ProofValidationError::InvalidStepSpecification) }
+    if appendation_head != &BuiltInAtom::Concatenate.into() { return Err(ProofValidationError::InvalidStepSpecification) }
     
     let append_to_verbatim = TUPLE_OR_ERROR.expr_as_tuple(resolve_verbatim(append_to)?)?;
     let to_append_verbatim = resolve_verbatim(to_append)?;

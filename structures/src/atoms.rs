@@ -29,15 +29,14 @@ pub enum BuiltInAtom {
     Conjunction,
     Implication,
     UniversalQuantifier,
-    // Contradiction
-    Negation,
     // Identity
     Identity,
-    NonIdentity,
+    // Contradiction
+    Negation,
     // Verbatim
     Verbatim,
+    Concatenate,
     Atomic,
-    TupleAppend,
 }
 
 impl Into<AtomId> for BuiltInAtom {
@@ -46,17 +45,16 @@ impl Into<AtomId> for BuiltInAtom {
         let id = match self {
             // Deduction
             BuiltInAtom::Conjunction => 0,
-            BuiltInAtom::Implication => 1,
-            BuiltInAtom::UniversalQuantifier => 2,
-            // Contradiction
-            BuiltInAtom::Negation => 3,
+            BuiltInAtom::UniversalQuantifier => 1,
+            BuiltInAtom::Implication => 2,
             // Identity
             BuiltInAtom::Identity => 4,
-            BuiltInAtom::NonIdentity => 5,
+            // Contradiction
+            BuiltInAtom::Negation => 3,
             // Verbatim
             BuiltInAtom::Verbatim => 6,
-            BuiltInAtom::Atomic => 7,
-            BuiltInAtom::TupleAppend => 8,
+            BuiltInAtom::Concatenate => 7,
+            BuiltInAtom::Atomic => 8,
         };
         AtomId(Id16(id))
     }
