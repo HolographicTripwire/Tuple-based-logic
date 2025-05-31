@@ -4,6 +4,8 @@ use std::{sync::LazyLock};
 
 use crate::{structures::{expressions::{ExpressionStringifier, NoSpecialCasesStringifier}, vec::VecStringifier}, Stringifier};
 
+use super::special_cases::SpecialCaseStringifier;
+
 pub static TERM_STRINGIFIER: LazyLock<Box<dyn Stringifier<Expression>>> = 
     LazyLock::new(|| -> Box<dyn Stringifier<Expression>> { 
         Box::new(ExpressionStringifier::new(

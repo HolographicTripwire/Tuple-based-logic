@@ -1,2 +1,2 @@
 pub mod axioms;
-pub mod stringifiers;
+pub mod stringifier_formats;
