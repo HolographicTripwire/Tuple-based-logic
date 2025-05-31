@@ -1,37 +1,26 @@
-use crate::{Destringify, Stringifier, Stringify};
+use crate::{helpers::controls::StringifierControls, Destringify, Stringifier, Stringify};
 
-
-pub struct VecStringifier{
-    opener: String,
-    closer: String,
-    delimiter: String,
-    escape: String,
-}
-impl Default for VecStringifier {
-    fn default() -> Self {
-        Self { 
-            opener: "(".to_string(),
-            closer: ")".to_string(),
-            delimiter: ",".to_string(),
-            escape: "\\".to_string()
-        }
-    }
-}
+struct VecStringifier(Box<StringifierControls>);
 
 impl Stringifier<Vec<String>> for VecStringifier {}
 impl Stringify<Vec<String>> for VecStringifier {
     fn stringify(&self, strings: &Vec<String>) -> Result<String,()> {
-        Ok("(".to_string() + &strings.join(", ") + ")")
+        let vec_controls = &self.0.vec_controls;
+        Ok(vec_controls.opener.clone() + &strings.join(&vec_controls.delimiter) + &vec_controls.closer)
     }
 }
 impl Destringify<Vec<String>> for VecStringifier {
     fn destringify(&self, string: &String) -> Result<Vec<String>,()> {
+        // Get control strings
+        let vec_controls = &self.0.vec_controls;
+        let escape_character = &self.0.escape_string;
+
         // Strip the opener and closer and get the inner string
         let inner =  {
             let mut s = string.as_str();
-            if s.starts_with(&self.opener) { s = &s[self.opener.len()..s.len()]; }
+            if s.starts_with(&vec_controls.opener) { s = &s[vec_controls.opener.len()..s.len()]; }
             else { return Err(()) }
-            if s.ends_with(&self.closer) { s = &s[0..s.len()-self.closer.len()]; }
+            if s.ends_with(&vec_controls.closer) { s = &s[0..s.len()-vec_controls.closer.len()]; }
             else { return Err(()) }
             s.to_string()
         };
@@ -43,20 +32,20 @@ impl Destringify<Vec<String>> for VecStringifier {
         for char in inner.chars() {
             current_substring.push(char);
             // Handle delimiters. For example, if the delimiter is a comma (',') we will start a new substring on every comma
-            if current_substring.ends_with(&self.delimiter) && nesting_level == 0 && !escaping {
-                current_substring = remove_from_end(current_substring, &self.delimiter).unwrap();
+            if current_substring.ends_with(&vec_controls.delimiter) && nesting_level == 0 && !escaping {
+                current_substring = remove_from_end(current_substring, &vec_controls.delimiter).unwrap();
                 substrings.push(current_substring);
                 current_substring = "".to_string();
             // Contain any nested vecs
-            } else if current_substring.ends_with(&self.opener) && !escaping {
+            } else if current_substring.ends_with(&vec_controls.opener) && !escaping {
                 nesting_level += 1;
-            } else if current_substring.ends_with(&self.closer) && !escaping {
+            } else if current_substring.ends_with(&vec_controls.closer) && !escaping {
                 nesting_level -= 1;
                 // Parentheses level cannot be allowed to go below 0
                 if nesting_level < 0 { return Err(()) }
             // Use backslash (\) as an escape character
-            } else if current_substring.ends_with(&self.escape) && !escaping {
-                current_substring = remove_from_end(current_substring, &self.escape).unwrap();
+            } else if current_substring.ends_with(escape_character) && !escaping {
+                current_substring = remove_from_end(current_substring, escape_character).unwrap();
                 escaping = true;
             // All non-control characters can 
             } else {
