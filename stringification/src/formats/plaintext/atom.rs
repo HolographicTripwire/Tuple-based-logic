@@ -7,10 +7,10 @@ pub static STRINGIFIER: LazyLock<AtomStringifier> = LazyLock::new(|| -> AtomStri
     (000,"∧"),  // Conjunction
     (001,"∀"),  // Universal quantiifer
     (002,"→"),  // Implication
-    (004,"="),  // Identity
     (003,"¬"),  // Negation
-    (006,"⟨⟩"), // Verbatim
-    (007,"⌢"),  // Concatenation
-    (008,"⚛"),  // Atomicity
+    (004,"="),  // Identity
+    (005,"⟨⟩"), // Verbatim
+    (006,"⌢"),  // Concatenation
+    (007,"⚛"),  // Atomicity
     // Not built-in
 ])});

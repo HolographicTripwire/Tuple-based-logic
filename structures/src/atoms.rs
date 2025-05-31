@@ -47,14 +47,14 @@ impl Into<AtomId> for BuiltInAtom {
             BuiltInAtom::Conjunction => 0,
             BuiltInAtom::UniversalQuantifier => 1,
             BuiltInAtom::Implication => 2,
-            // Identity
-            BuiltInAtom::Identity => 4,
             // Contradiction
             BuiltInAtom::Negation => 3,
+            // Identity
+            BuiltInAtom::Identity => 4,
             // Verbatim
-            BuiltInAtom::Verbatim => 6,
-            BuiltInAtom::Concatenate => 7,
-            BuiltInAtom::Atomic => 8,
+            BuiltInAtom::Verbatim => 5,
+            BuiltInAtom::Concatenate => 6,
+            BuiltInAtom::Atomic => 7,
         };
         AtomId(Id16(id))
     }
