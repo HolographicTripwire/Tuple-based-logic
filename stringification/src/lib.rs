@@ -1,5 +1,5 @@
+pub mod helpers;
 pub mod structures;
-
 
 // Types which allow attempting conversions between structs of type Object and Strings
 pub trait Stringifier<Object>: Stringify<Object> + Destringify<Object> {}
