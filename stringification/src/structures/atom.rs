@@ -3,22 +3,20 @@ use tbl_structures::atoms::AtomId;
 
 use crate::{Destringify, Stringifier, Stringify};
 
-pub fn construct_symbols(vec: Vec<(usize,&str)>) -> AtomStringifier {
-    AtomStringifier::new(BiHashMap::from_iter(
-        vec.iter()
-        .map(|(int,str)| -> (AtomId, String) {
-            (AtomId::try_from(*int).expect("Atom id out of range when constructing symbols"), str.to_string())
-        })
-    ))
-}
-
 #[derive(Clone)]
 pub struct AtomStringifier {
     symbols: BiMap<AtomId, String>
 }
 
 impl AtomStringifier {
-    pub fn new(symbols: BiMap<AtomId, String>) -> Self { Self { symbols } }
+    pub fn from_strings(symbols: Vec<(usize,&str)>) -> Self { 
+        Self { symbols: BiHashMap::from_iter(
+            symbols.iter()
+            .map(|(int,str)| -> (AtomId, String) {
+                (AtomId::try_from(*int).expect("Atom id out of range when constructing symbols"), str.to_string())
+            })
+        )}
+    }
 }
 
 impl Stringifier<AtomId> for AtomStringifier {}
