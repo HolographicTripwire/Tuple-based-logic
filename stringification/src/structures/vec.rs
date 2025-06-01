@@ -1,12 +1,18 @@
-use crate::{helpers::controls::StringifierControls, Destringify, Stringifier, Stringify};
+use enum_iterator::Sequence;
 
-struct VecStringifier(Box<StringifierControls>);
+use crate::{helpers::controls::{Control, Controls}, Destringify, Stringifier, Stringify};
+
+use super::{TblStringifierControl, TblStringifierControls, };
+
+struct VecStringifier(Box<TblStringifierControls>);
 
 impl Stringifier<Vec<String>> for VecStringifier {}
 impl Stringify<Vec<String>> for VecStringifier {
     fn stringify(&self, strings: &Vec<String>) -> Result<String,()> {
-        let vec_controls = &self.0.vec_controls;
-        Ok(vec_controls.opener.clone() + &strings.join(&vec_controls.delimiter) + &vec_controls.closer)
+        let opener = self.0.string_from_control(&TblStringifierControl::Vec(VecControl::Opener));
+        let delimiter = self.0.string_from_control(&TblStringifierControl::Vec(VecControl::Delimiter));
+        let closer = self.0.string_from_control(&TblStringifierControl::Vec(VecControl::Closer));
+        Ok(opener.clone() + &strings.join(delimiter) + closer)
     }
 }
 impl Destringify<Vec<String>> for VecStringifier {
@@ -62,4 +68,37 @@ impl Destringify<Vec<String>> for VecStringifier {
 fn remove_from_end(s1: String, s2: &String) -> Result<String,()> {
     if s1.ends_with(s2) { Ok(s1[0..s1.len()-s2.len()].to_string()) }
     else { Err(()) }
+}
+
+#[derive(Sequence, Clone, Copy)]
+pub enum VecControl { Opener, Closer, Delimiter }
+impl Control for VecControl {}
+
+#[derive(Clone)]
+pub struct VecControls {
+    escape_string: String,
+    opener: String,
+    closer: String,
+    delimiter: String,
+}
+impl VecControls {
+    pub fn new(escape_string: String, opener: String, closer: String, delimiter: String) -> Self
+        { Self { escape_string, opener, closer, delimiter } }
+}
+impl Controls<VecControl> for VecControls {
+    fn string_from_control(&self, control: &VecControl) -> &String { match control {
+        VecControl::Opener => &self.opener,
+        VecControl::Closer => &self.closer,
+        VecControl::Delimiter => &self.delimiter,
+    }}
+    
+    fn escape_string(&self) -> &String { &self.escape_string }
+}
+impl Default for VecControls {
+    fn default() -> Self { VecControls::new(
+        "\\".to_string(),
+        "(".to_string(),
+        ")".to_string(),
+        ",".to_string(),
+    )}
 }
