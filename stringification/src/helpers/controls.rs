@@ -16,7 +16,7 @@ pub trait Controls<Control: Sequence + Clone> {
     }
 
 
-    
+
     fn string_from_control(&self, control: &Control) -> &String;
     fn control_from_string(&self, string: &String) -> Result<Control,()> {
         let binding = self.controls_and_strings();
@@ -31,22 +31,21 @@ pub trait Controls<Control: Sequence + Clone> {
 
 
 
-    fn pop_from_string(&self, string: &mut String) -> Result<Option<Control>,()> {
+    fn pop_from_string(&self, string: &mut String) -> Result<Option<(Control,&String)>,()> {
         Ok(match self.string_starts_with(string)? {
-            Some(control) => {
-                let string_to_remove = self.string_from_control(&control);
-                string.drain(0..string_to_remove.len());
-                Some(control)
+            Some((c,s)) => {
+                string.drain(0..s.len());
+                Some((c,s))
             }, None => None,
         })
     }
-    fn string_starts_with(&self, string: &String) -> Result<Option<Control>,()> {
+    fn string_starts_with(&self, string: &String) -> Result<Option<(Control,&String)>,()> {
         let all_controls = all::<Control>().collect::<Vec<Control>>();
         let starts_with = all_controls.iter()
-            .map(|c| -> (&Control,String) { (c,self.string_from_control(c).to_string()) })
-            .map(|(c, s)| -> (&Control, bool) { (c,string.starts_with(&s)) } )
-            .filter_map(|(c, b)| -> Option<Control> { if b { Some(c.clone()) } else { None } })
-            .collect::<Vec<Control>>();
+            .map(|c| -> (&Control,&String) { (c,self.string_from_control(c)) })
+            .map(|(c, s)| -> (&Control, &String, bool) { (c,s,string.starts_with(s)) } )
+            .filter_map(|(c, s, b)| -> Option<(Control,&String)> { if b { Some((c.clone(),s)) } else { None } })
+            .collect::<Vec<(Control,&String)>>();
         // If there are multiple plausible control strings that this string could start with
         if starts_with.len() > 1 { return Err(()) }
         Ok(starts_with.get(0).cloned())
