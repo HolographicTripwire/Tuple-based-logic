@@ -25,6 +25,12 @@ impl Stringify<SpecialCase>  for PatternStringifier2{
 }
 impl Destringify<SpecialCase> for PatternStringifier2 {
     fn destringify(&self, string: &String) -> Result<SpecialCase,()> {
-        let strings = object.1;
+        let Ok(replacements) = self.1.match_string(string.clone()) else { return Err(()) };
+        let pattern = self.0.replace_variables(replacements)?;
+        Ok(SpecialCase {
+            expr_components: Vec::new(),
+            string_components: Vec::new(),
+            vecified_whole: pattern.try_into()?,
+        })
     }
 }
