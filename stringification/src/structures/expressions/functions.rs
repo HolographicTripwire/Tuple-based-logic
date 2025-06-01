@@ -1,11 +1,11 @@
-use crate::{helpers::{controls::StringifierControls, patterns::{ExprPattern, ExprPatternStringifier}}, Destringify, Stringifier, Stringify};
+use crate::{helpers::patterns::{stringifier::ExprPatternStringifier, ExprPattern}, structures::TblStringifierControls, Destringify, Stringifier, Stringify};
 
 use super::SpecialCase;
 
 pub struct PatternStringifier2(ExprPattern,ExprPattern);
 
 impl PatternStringifier2 {
-    pub fn from_strings(pre: &str, post: &str, controls: Box<StringifierControls>) -> Result<Self,()> {
+    pub fn from_strings(pre: &str, post: &str, controls: Box<TblStringifierControls>) -> Result<Self,()> {
         let pattern_stringifier = ExprPatternStringifier::new(controls);
         Ok(Self(
             pattern_stringifier.destringify(&pre.to_string())?,
