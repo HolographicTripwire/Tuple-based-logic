@@ -7,3 +7,4 @@ edition = "2024"
 tbl_structures = { path = "../structures" }
 
 bimap = { version = "0.6.3" }
+enum-iterator = { version = "2.1.0" }
