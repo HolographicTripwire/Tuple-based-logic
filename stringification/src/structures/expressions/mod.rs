@@ -16,17 +16,25 @@ trait ExpressionStringifyInterface<A: Stringify<AtomId>, V: Stringify<Vec<String
     /// This function will be used by [ExpressionStringifier] and [ExpressionStringify] as a proxy for [Stringify::stringify]. 
     fn to_text(&self, expr: &Expression) -> Result<String,()> {
         match expr {
-            Expression::Atomic(atom_id) => self.atoms().stringify(atom_id),
-            Expression::Tuple(exprs) => {
+            Expression::Atomic(atom_id) => self.atoms().stringify(&atom_id),
+            Expression::Tuple(expr_components) => {
                 // Convert each expression in the tuple to a string
-                let strings: Result<Vec<String>,()> = exprs.iter().map(|expr| -> Result<String,()> { self.to_text(expr) }).collect();
+                let string_components: Vec<String> = expr_components
+                    .iter()
+                    .map(|expr| -> Result<String,()> { self.to_text(expr) })
+                    .collect::<Result<Vec<String>,()>>()?;
+                let vecified_whole = self.vecs().stringify(&string_components)?;
                 // Pair expressions with strings
-                let expr_and_string = SpecialCase(exprs.clone(),strings?);
+                let special_case = SpecialCase { 
+                    expr_components: expr_components.clone(),
+                    string_components, 
+                    vecified_whole: vecified_whole.clone()
+                };
                 
                 // If there are any optional rules, apply them
-                if let Ok(string) = self.special_cases().stringify(&expr_and_string) { Ok(string) }
+                if let Ok(string) = self.special_cases().stringify(&special_case) { Ok(string) }
                 // Otherwise just treat this vec as we would any other vec
-                else { self.vecs().stringify(&expr_and_string.1) }
+                else { Ok(vecified_whole) }
             },
         }
     }
@@ -56,8 +64,8 @@ trait ExpressionDestringifyInterface<A: Destringify<AtomId>, V: Destringify<Vec<
                 .map(|s| -> Result<Expression,()> { self.from_text(s) })
                 .collect();
             Ok(Expression::Tuple(exprs?)) 
-        } else if let Ok(SpecialCase(_, strings)) = optional_rules_result {
-            let exprs: Result<Vec<Expression>,()> = strings.iter()
+        } else if let Ok(special_case) = optional_rules_result {
+            let exprs: Result<Vec<Expression>,()> = special_case.string_components.iter()
                 .map(|string| -> Result<Expression,()> { self.from_text(string) })
                 .collect();
             Ok(Expression::Tuple(exprs?))
