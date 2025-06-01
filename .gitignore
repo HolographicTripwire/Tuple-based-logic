@@ -23,3 +23,9 @@ rust-project.json
 
 
 # End of https://www.toptal.com/developers/gitignore/api/rust,rust-analyzer
+
+
+
+# User-defined gitignores
+# Ignore folder for files relevant to the project that we don't want tracked at the moment
+_ignore
