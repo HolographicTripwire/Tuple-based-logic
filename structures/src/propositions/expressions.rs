@@ -43,7 +43,7 @@ impl Expression {
         }
     }
 
-    pub fn negation_of(&self, other: &Expression) -> bool {
+    pub fn is_negation_of(&self, other: &Expression) -> bool {
         let Ok([negation_atom, remainder]) = TUPLE_OR_NONE.expr_as_slice(self) else { return false; };
         if negation_atom != &BuiltInAtom::Negation.into() { return false; }
         else { return remainder == other }

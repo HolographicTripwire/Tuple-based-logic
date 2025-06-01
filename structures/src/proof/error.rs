@@ -24,26 +24,32 @@ impl <E: Clone> ErrorInProof<E> {
     pub fn err(&self) -> &E { &self.1 }
 }
 
-pub enum ResultInProof<O,E: Clone> {
-    Ok(O), Err(E),
+pub enum ResultInProof<T,E: Clone> {
+    Ok(T), Err(E),
     ErrNest(ErrorInProof<E>)
 }
 
-impl <O: Clone, E: Clone> ResultInProof<O,E> {
-    pub fn resolve(self, step: usize) -> Result<O,ErrorInProof<E>> { match self {
+impl <T: Clone, E: Clone> ResultInProof<T,E> {
+    /// Turn this ResultInProof instance into a Result instance, while still retaining information about the location of the error
+    /// ### Accepts:
+    /// - The step within the proof that we are at when this ResultInProof object gets resolved
+    /// ### Returns:
+    /// - Ok(T) if this is an Ok result
+    /// - Err(ErrorInProof) if this is an Error result
+    pub fn resolve(self, step: usize) -> Result<T,ErrorInProof<E>> { match self {
         ResultInProof::Ok(ok) => Ok(ok.clone()),
         ResultInProof::Err(err) => Result::Err(ErrorInProof::at_substep(step,err.clone())),
         ResultInProof::ErrNest(error_in_proof) => Result::Err(error_in_proof.push_step(step)),
     }}
 }
-impl <O: Clone, E: Clone> From<Result<O,E>> for ResultInProof<O,E> {
-    fn from(value: Result<O,E>) -> Self { match value {
+impl <T: Clone, E: Clone> From<Result<T,E>> for ResultInProof<T,E> {
+    fn from(value: Result<T,E>) -> Self { match value {
         Ok(o) => Self::Ok(o),
         Err(e) => Self::Err(e),
     }}
 }
-impl <O: Clone, E: Clone> From<Result<O,ErrorInProof<E>>> for ResultInProof<O,E> {
-    fn from(value: Result<O, ErrorInProof<E>>) -> Self { match value {
+impl <T: Clone, E: Clone> From<Result<T,ErrorInProof<E>>> for ResultInProof<T,E> {
+    fn from(value: Result<T, ErrorInProof<E>>) -> Self { match value {
         Ok(o) => Self::Ok(o),
         Err(e) => Self::ErrNest(e),
     }}

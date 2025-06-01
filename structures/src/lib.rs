@@ -1,4 +1,5 @@
-pub mod atoms;
-pub mod propositions;
-pub mod inference;
-pub mod proof;
+pub mod atoms; // The atoms which make up expressions
+pub mod propositions; // Propositions; which represent an expression with truth values
+pub mod inference; // Single steps of a larger proof
+pub mod proof; // Proofs which show that some Propositions can be reached from others
+
