@@ -3,7 +3,11 @@ use tbl_structures::propositions::Expression;
 use crate::{Destringify, Stringifier, Stringify};
 
 #[derive(Clone)]
-pub struct SpecialCase(pub Vec<Expression>,pub Vec<String>);
+pub struct SpecialCase { 
+    pub expr_components: Vec<Expression>,
+    pub string_components: Vec<String>,
+    pub vecified_whole: String,
+}
 
 pub struct SpecialCaseStringifierSet {
     cases: Vec<Box<dyn Stringifier<SpecialCase>>>,
