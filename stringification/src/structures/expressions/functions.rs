@@ -1,11 +1,12 @@
-use crate::{helpers::patterns::{ExprPattern, ExprPatternComponent, ExprPatternStringifier}, Destringify, Stringifier, Stringify};
+use crate::{helpers::{controls::StringifierControls, patterns::{ExprPattern, ExprPatternStringifier}}, Destringify, Stringifier, Stringify};
 
 use super::SpecialCase;
 
 pub struct PatternStringifier2(ExprPattern,ExprPattern);
 
 impl PatternStringifier2 {
-    fn from_strings(pre: &str, post: &str, pattern_stringifier: ExprPatternStringifier) -> Result<Self,()> {
+    pub fn from_strings(pre: &str, post: &str, controls: Box<StringifierControls>) -> Result<Self,()> {
+        let pattern_stringifier = ExprPatternStringifier::new(controls);
         Ok(Self(
             pattern_stringifier.destringify(&pre.to_string())?,
             pattern_stringifier.destringify(&post.to_string())?
@@ -16,9 +17,10 @@ impl PatternStringifier2 {
 impl Stringifier<SpecialCase> for PatternStringifier2 {}
 impl Stringify<SpecialCase>  for PatternStringifier2{
     fn stringify(&self, object: &SpecialCase) -> Result<String,()> {
-        let strings = object.1;
-        let Ok(replacements) = self.0.match_string(strings) else { return Err(()) };
-        self.1.make_replacements(replacements)
+        let string = object.vecified_whole.clone();
+        let Ok(replacements) = self.0.match_string(string) else { return Err(()) };
+        let pattern = self.1.replace_variables(replacements)?;
+        pattern.try_into()
     }
 }
 impl Destringify<SpecialCase> for PatternStringifier2 {
