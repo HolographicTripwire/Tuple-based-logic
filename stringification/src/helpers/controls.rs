@@ -1,6 +1,6 @@
 use enum_iterator::{all, Sequence};
 
-pub trait Controls<Control: Sequence + Clone> {
+pub trait Controls<Control: Sequence + Clone>: Clone {
     fn controls(&self) -> Vec<Control> { all::<Control>().collect::<Vec<Control>>() }
     fn strings(&self) -> Vec<&String> { 
         self.controls()
@@ -59,16 +59,19 @@ pub enum VecControl { Opener, Closer, Delimiter }
 #[derive(Sequence, Clone, Copy)]
 pub enum ExprPatternControl { VariableIndicator, VariableEnumerator }
 
+#[derive(Clone)]
 pub struct StringifierControls{
     escape_string: String,
     vec_controls: VecControls,
     pattern_controls: ExprPatternControls,
 }
+#[derive(Clone)]
 pub struct VecControls {
     opener: String,
     closer: String,
     delimiter: String,
 }
+#[derive(Clone)]
 pub struct ExprPatternControls {
     variable_indicator: String,
     variable_enumerator: String,
