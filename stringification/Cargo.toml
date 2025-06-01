@@ -8,3 +8,4 @@ tbl_structures = { path = "../structures" }
 
 bimap = { version = "0.6.3" }
 enum-iterator = { version = "2.1.0" }
+either = { version = "1.15.0" }
