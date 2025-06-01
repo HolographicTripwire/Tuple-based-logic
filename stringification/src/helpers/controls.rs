@@ -1,6 +1,6 @@
 use enum_iterator::{all, Sequence};
 
-trait Controls<Control: Sequence + Clone> {
+pub trait Controls<Control: Sequence + Clone> {
     fn get_control_string(&self, control: &Control) -> &String;
     fn pop_from_string(&self, string: &mut String) -> Result<Option<Control>,()> {
         Ok(match self.string_starts_with(string)? {
@@ -25,11 +25,11 @@ trait Controls<Control: Sequence + Clone> {
 }
 
 #[derive(Sequence, Clone, Copy)]
-enum StringifierControl { Escape, Vec(VecControl), Pattern (ExprPatternControl) }
+pub enum StringifierControl { Escape, Vec(VecControl), Pattern (ExprPatternControl) }
 #[derive(Sequence, Clone, Copy)]
-enum VecControl { Opener, Closer, Delimiter }
+pub enum VecControl { Opener, Closer, Delimiter }
 #[derive(Sequence, Clone, Copy)]
-enum ExprPatternControl { VariableIndicator, VariableEnumerator }
+pub enum ExprPatternControl { VariableIndicator, VariableEnumerator }
 
 pub struct StringifierControls{
     escape_string: String,
