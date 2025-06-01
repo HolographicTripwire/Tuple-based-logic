@@ -2,7 +2,7 @@ use std::{sync::LazyLock};
 
 use tbl_structures::{propositions::Expression};
 
-use crate::{structures::{expressions::{ExpressionStringifier, NoSpecialCasesStringifier}, vec::VecStringifier}, Stringifier};
+use tbl_stringification::{structures::{expressions::{ExpressionStringifier, NoSpecialCasesStringifier}, vec::VecStringifier}, Stringifier};
 
 use super::atom::NumAtomStringifier;
 

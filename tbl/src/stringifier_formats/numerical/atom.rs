@@ -1,6 +1,6 @@
 use tbl_structures::atoms::AtomId;
 
-use crate::{Destringify, Stringifier, Stringify};
+use tbl_stringification::{Destringify, Stringifier, Stringify};
 
 pub struct NumAtomStringifier();
 
