@@ -1,37 +1,17 @@
-use std::collections::{HashMap, HashSet};
+use replacements::ExprPatternReplacements;
 
-use crate::{helpers::controls::{Controls, StringifierControl}, Destringify, Stringifier, Stringify};
+use crate::{helpers::controls::{Controls, StringifierControl}};
 
 use super::controls::StringifierControls;
 
-pub struct ExprPatternReplacements {
-    vars: HashSet<String>,
-    var_to_val: HashMap<String,String>,
-    vars_to_vals: HashMap<(String,String),Vec<String>>
-}
-impl ExprPatternReplacements {
-    fn new() -> Self { Self {
-        vars: HashSet::new(),
-        var_to_val: HashMap::new(), 
-        vars_to_vals: HashMap::new()
-    }}
+pub mod replacements;
+pub mod stringifier;
 
-    fn add_var_from_val(&mut self, k: String, v: String) -> Result<(),()> {
-        if self.vars.contains(&k) { return Err(()); }
-        self.vars.insert(k.clone());
-        self.var_to_val.insert(k, v);
-        return Ok(());
-    }
-    fn get_va1_from_var(&self, s: &String) -> Option<&String>
-        { self.var_to_val.get(s) }
-
-    fn add_vars_from_val(&mut self, k1: String, k2: String, v: Vec<String>) -> Result<(),()> { 
-        if self.vars.contains(&k1) || self.vars.contains(&k2) { return Err(()); }
-        self.vars_to_vals.insert((k1,k2), v);
-        return Ok(());
-    }
-    fn get_vals_from_vars(&self, s1: &String, s2: &String) -> Option<&Vec<String>> 
-        { self.vars_to_vals.get(&(s1.clone(),s2.clone())) }
+#[derive(Clone,PartialEq,Eq)]
+pub enum ExprPatternComponent {
+    Constant(String),
+    Variable(String),
+    Variables((String,String),String),
 }
 
 pub struct ExprPattern{
@@ -122,37 +102,5 @@ impl TryInto<String> for ExprPattern {
         let [sole_component] = self.components.as_slice() else { return Err(()) };
         let ExprPatternComponent::Constant(str) = sole_component else { return Err(()) };
         Ok(str.clone())
-    }
-}
-
-#[derive(Clone,PartialEq,Eq)]
-pub enum ExprPatternComponent {
-    Constant(String),
-    Variable(String),
-    Variables((String,String),String),
-}
-
-pub struct ExprPatternStringifier {
-    controls: Box<StringifierControls>
-}
-impl ExprPatternStringifier {
-    pub fn new(controls: Box<StringifierControls>) -> Self {
-        Self { controls }
-    }
-}
-
-impl Stringifier<ExprPattern> for ExprPatternStringifier {}
-impl Stringify<ExprPattern> for ExprPatternStringifier {
-    fn stringify(&self, object: &ExprPattern) -> Result<String,()> {
-        todo!()
-    }
-}
-impl Destringify<ExprPattern> for ExprPatternStringifier {
-    fn destringify(&self, string: &String) -> Result<ExprPattern,()> {
-        // Get control strings
-        let escape_string = self.controls.string_from_control(&StringifierControl::Escape);
-        let pattern_controls = &self.controls;
-
-        todo!()
     }
 }
