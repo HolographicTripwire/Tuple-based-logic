@@ -1,11 +1,40 @@
 use enum_iterator::{all, Sequence};
 
 pub trait Controls<Control: Sequence + Clone> {
-    fn get_control_string(&self, control: &Control) -> &String;
+    fn controls(&self) -> Vec<Control> { all::<Control>().collect::<Vec<Control>>() }
+    fn strings(&self) -> Vec<&String> { 
+        self.controls()
+            .iter()
+            .map(|c| -> &String { self.string_from_control(c) })
+            .collect() 
+    }
+    fn controls_and_strings(&self) -> Vec<(Control,&String)> { 
+        self.controls()
+            .iter()
+            .map(|c| -> (Control,&String) { (c.clone(), self.string_from_control(c)) })
+            .collect()
+    }
+
+
+    
+    fn string_from_control(&self, control: &Control) -> &String;
+    fn control_from_string(&self, string: &String) -> Result<Control,()> {
+        let binding = self.controls_and_strings();
+        let interpretations = binding
+            .iter()
+            .filter_map(|(c, s)| -> Option<&Control> { if *s == string { Some(c) } else { None } })
+            .collect::<Vec<&Control>>();
+        if interpretations.len() > 1 { Err(()) }
+        else if let Some(interpretation) = interpretations.get(0) { Ok((*interpretation).clone()) }
+        else { Err(()) }
+    }
+
+
+
     fn pop_from_string(&self, string: &mut String) -> Result<Option<Control>,()> {
         Ok(match self.string_starts_with(string)? {
             Some(control) => {
-                let string_to_remove = self.get_control_string(&control);
+                let string_to_remove = self.string_from_control(&control);
                 string.drain(0..string_to_remove.len());
                 Some(control)
             }, None => None,
@@ -14,7 +43,7 @@ pub trait Controls<Control: Sequence + Clone> {
     fn string_starts_with(&self, string: &String) -> Result<Option<Control>,()> {
         let all_controls = all::<Control>().collect::<Vec<Control>>();
         let starts_with = all_controls.iter()
-            .map(|c| -> (&Control,String) { (c,self.get_control_string(c).to_string()) })
+            .map(|c| -> (&Control,String) { (c,self.string_from_control(c).to_string()) })
             .map(|(c, s)| -> (&Control, bool) { (c,string.starts_with(&s)) } )
             .filter_map(|(c, b)| -> Option<Control> { if b { Some(c.clone()) } else { None } })
             .collect::<Vec<Control>>();
@@ -60,21 +89,21 @@ impl ExprPatternControls {
 }
 
 impl Controls<StringifierControl> for StringifierControls {
-    fn get_control_string(&self, control: &StringifierControl) -> &String { match control {
+    fn string_from_control(&self, control: &StringifierControl) -> &String { match control {
         StringifierControl::Escape => &self.escape_string,
-        StringifierControl::Vec(vec_control) => self.vec_controls.get_control_string(vec_control),
-        StringifierControl::Pattern(pattern_control) => self.pattern_controls.get_control_string(pattern_control),
+        StringifierControl::Vec(vec_control) => self.vec_controls.string_from_control(vec_control),
+        StringifierControl::Pattern(pattern_control) => self.pattern_controls.string_from_control(pattern_control),
     }}
 }
 impl Controls<VecControl> for VecControls {
-    fn get_control_string(&self, control: &VecControl) -> &String { match control {
+    fn string_from_control(&self, control: &VecControl) -> &String { match control {
         VecControl::Opener => &self.opener,
         VecControl::Closer => &self.closer,
         VecControl::Delimiter => &self.delimiter,
     }}
 }
 impl Controls<ExprPatternControl> for ExprPatternControls {
-    fn get_control_string(&self, control: &ExprPatternControl) -> &String { match control {
+    fn string_from_control(&self, control: &ExprPatternControl) -> &String { match control {
         ExprPatternControl::VariableIndicator => &self.variable_indicator,
         ExprPatternControl::VariableEnumerator => &self.variable_enumerator,
     }}
