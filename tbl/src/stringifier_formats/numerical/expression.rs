@@ -2,7 +2,7 @@ use std::{sync::LazyLock};
 
 use tbl_structures::{propositions::Expression};
 
-use tbl_stringification::{structures::{expressions::{ExpressionStringifier, NoSpecialCasesStringifier}, vec::VecStringifier}, Stringifier};
+use tbl_stringification::{structures::{expressions::{special_cases::SpecialCaseStringifierSet, ExpressionStringifier}, vec::VecStringifier}, Stringifier};
 
 use super::atom::NumAtomStringifier;
 
@@ -11,7 +11,7 @@ pub static TERM_STRINGIFIER: LazyLock<Box<dyn Stringifier<Expression>>> =
         Box::new(ExpressionStringifier::new(
             NumAtomStringifier(),
             VecStringifier::default(),
-            NoSpecialCasesStringifier()
+            SpecialCaseStringifierSet::default(),
         ))
     });
 

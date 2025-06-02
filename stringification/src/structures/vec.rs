@@ -4,7 +4,8 @@ use crate::{helpers::controls::{Control, Controls}, Destringify, Stringifier, St
 
 use super::{TblStringifierControl, TblStringifierControls, };
 
-struct VecStringifier(Box<TblStringifierControls>);
+#[derive(Default)]
+pub struct VecStringifier(Box<TblStringifierControls>);
 
 impl Stringifier<Vec<String>> for VecStringifier {}
 impl Stringify<Vec<String>> for VecStringifier {

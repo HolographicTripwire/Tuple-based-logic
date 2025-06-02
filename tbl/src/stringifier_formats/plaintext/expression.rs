@@ -2,14 +2,14 @@ use tbl_structures::propositions::Expression;
 
 use std::{sync::LazyLock};
 
-use tbl_stringification::{structures::{expressions::{ExpressionStringifier, NoSpecialCasesStringifier}, vec::VecStringifier}, Stringifier};
+use tbl_stringification::{structures::{expressions::{special_cases::SpecialCaseStringifierSet, ExpressionStringifier}, vec::VecStringifier}, Stringifier};
 
 pub static TERM_STRINGIFIER: LazyLock<Box<dyn Stringifier<Expression>>> = 
     LazyLock::new(|| -> Box<dyn Stringifier<Expression>> { 
         Box::new(ExpressionStringifier::new(
             super::atom::STRINGIFIER.clone(),
             VecStringifier::default(),
-            NoSpecialCasesStringifier()
+            SpecialCaseStringifierSet::default()
         ))
     });
 

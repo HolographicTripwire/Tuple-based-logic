@@ -9,12 +9,13 @@ pub struct SpecialCase {
     pub vecified_whole: String,
 }
 
+#[derive(Default)]
 pub struct SpecialCaseStringifierSet {
     cases: Vec<Box<dyn Stringifier<SpecialCase>>>,
 }
 
 impl SpecialCaseStringifierSet {
-    fn new(cases: Vec<Box<dyn Stringifier<SpecialCase>>>) -> Self { Self { cases } }
+    pub fn new(cases: Vec<Box<dyn Stringifier<SpecialCase>>>) -> Self { Self { cases } }
 }
 
 impl Stringifier<SpecialCase> for SpecialCaseStringifierSet {}
