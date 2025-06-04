@@ -2,22 +2,20 @@ use std::{collections::{HashMap, HashSet}};
 
 use super::Proposition;
 
-#[derive(Clone)]
+#[derive(Clone, PartialEq, Eq, Debug)]
 pub struct PropositionSet(HashSet<Proposition>);
 
 impl PropositionSet {
     /// Create a new [`PropositionSet`] with some set of starting [Proposition] objects
     pub fn new(starting_propositions: &[Proposition]) -> Self { Self(starting_propositions.iter().cloned().collect()) }
 
-    /// Add every [`Proposition`] in another [`PropositionSet`] to this one
-    pub fn merge(&mut self, other: &Self) { self.0.extend(other.0.iter().cloned()); }
-    /// Get the [`PropositionSet`] that would result from adding every [`Proposition`] in another [`PropositionSet`] to this one
-    pub fn merged(&self, other: &Self) -> Self { Self(self.0.iter().chain(other.0.iter()).cloned().collect()) }
-
-    /// Add every [`Proposition`] in a provided slice to this [`PropositionSet`]
-    pub fn extend(&mut self, vec: &[Proposition]) { self.0.extend(vec.iter().cloned()); }
-    /// Get the [`PropositionSet`] that would result from adding every [`Proposition`] in a provided slice to this one
-    pub fn extended(&self, vec: &[Proposition]) -> Self { Self(self.0.iter().chain(vec).cloned().collect()) }
+    /// Add every [`Proposition`] in a provided iterator of [Proposition] to this [PropositionSet]
+    pub fn merge<'a>(&mut self, iter: impl IntoIterator<Item = &'a Proposition>) { self.0.extend(iter.into_iter().cloned()); }
+    /// Get the [`PropositionSet`] that would result from adding every [`Proposition`] in a provided [Iterator] of [Proposition] objects to this [PropositionSet]
+    pub fn merged<'a>(&self, iter: impl IntoIterator<Item = &'a Proposition>) -> Self {
+        let iter2: Vec<&Proposition> = iter.into_iter().collect();
+        Self(self.0.iter().chain(iter2.iter().cloned()).cloned().collect())
+    }
 
     /// Add every [`Proposition`] in another [`PropositionSet`] from this one
     pub fn subtract(&mut self, other: &PropositionSet) { self.0 = self.0.difference(&other.0).cloned().collect(); }
@@ -84,28 +82,33 @@ impl PropositionSet {
     }
 }
 
+impl <'a> IntoIterator for &'a PropositionSet {
+    type IntoIter = std::collections::hash_set::Iter<'a,Proposition>;
+    type Item = &'a Proposition;
+    
+    fn into_iter(self) -> Self::IntoIter
+        { self.0.iter() }
+}
+
 impl From<&Proposition> for PropositionSet {
-    fn from(proposition: &Proposition) -> Self {
-        Self([proposition.clone()].iter().cloned().collect())
-    }
+    fn from(proposition: &Proposition) -> Self
+        { Self([proposition.clone()].iter().cloned().collect()) }
 }
 impl From<&Vec<Proposition>> for PropositionSet {
-    fn from(starting_propositions: &Vec<Proposition>) -> Self {
-        Self(starting_propositions.iter().cloned().collect())
-    }
+    fn from(starting_propositions: &Vec<Proposition>) -> Self
+        { Self(starting_propositions.iter().cloned().collect()) }
 }
 impl From<&HashSet<Proposition>> for PropositionSet {
-    fn from(starting_propositions: &HashSet<Proposition>) -> Self {
-        Self(starting_propositions.clone())
-    }
+    fn from(starting_propositions: &HashSet<Proposition>) -> Self 
+        { Self(starting_propositions.clone()) }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
-
+    
     #[test]
     fn test_merge() {
-        
+
     }
 }
