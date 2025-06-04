@@ -25,7 +25,7 @@ impl PropositionSet {
     /// Check if this [`PropositionSet`] contains the provided [`Proposition`]
     pub fn contains(&self, proposition: &Proposition) -> bool { self.0.contains(proposition) }
     /// Check if this [`PropositionSet`] contains every provided [`Proposition`]
-    pub fn contains_all<'a>(&self, propositions: impl Iterator<Item=&'a Proposition>) -> bool {
+    pub fn contains_all<'a>(&self, propositions: impl IntoIterator<Item=&'a Proposition>) -> bool {
         for proposition in propositions { if !self.contains(proposition) { return false; } }
         true
     }
@@ -73,7 +73,7 @@ impl PropositionSet {
             // Compare the Propositions within set and the set above this one
             for prop_1 in set_1 {
                 for prop_2 in set_2 {
-                    if prop_1.0.is_negation_of(&prop_2.0) { contradictions.extend(&[(*prop_2).clone()]) }
+                    if prop_1.0.is_negation_of(&prop_2.0) { contradictions.merge([(*prop_2)]) }
                 }
             }
         }
@@ -105,10 +105,55 @@ impl From<&HashSet<Proposition>> for PropositionSet {
 
 #[cfg(test)]
 mod tests {
+    use std::sync::LazyLock;
+
+    use crate::{atoms::AtomId, propositions::Expression};
+
     use super::*;
     
+    fn atomic_proposition_vec(nums: Vec<usize>) -> Vec<Proposition> {
+        nums.iter()
+            .map(|num| -> Proposition {
+                Proposition(Expression::Atomic(AtomId::try_from(*num).unwrap()))
+            }).collect()
+    }
+
+    fn atomic_proposition_set(nums: Vec<usize>) -> PropositionSet {
+        PropositionSet::new(atomic_proposition_vec(nums).as_slice())
+    }
+
+    #[test]
+    fn test_merged() {
+        let propset_01 = atomic_proposition_set(vec![0,1]);
+        let propvec_12 = atomic_proposition_vec(vec![1,2]);
+        let propset_012 = atomic_proposition_set(vec![0,1,2]);
+        assert_eq!(propset_01.merged(&propvec_12), propset_012);
+    }
+
     #[test]
     fn test_merge() {
-
+        let mut propset_01 = atomic_proposition_set(vec![0,1]);
+        let propvec_12 = atomic_proposition_vec(vec![1,2]);
+        let propset_012 = atomic_proposition_set(vec![0,1,2]);
+        propset_01.merge(&propvec_12);
+        assert_eq!(propset_01, propset_012);
     }
+
+    #[test]
+    fn test_merged_with_other_propset() {
+        let propset_01 = atomic_proposition_set(vec![0,1]);
+        let propset_12 = atomic_proposition_set(vec![1,2]);
+        let propset_012 = atomic_proposition_set(vec![0,1,2]);
+        assert_eq!(propset_01.merged(&propset_12), propset_012);
+    }
+
+    #[test]
+    fn test_merge_with_other_propset() {
+        let mut propset_01 = atomic_proposition_set(vec![0,1]);
+        let propset_12 = atomic_proposition_set(vec![1,2]);
+        let propset_012 = atomic_proposition_set(vec![0,1,2]);
+        propset_01.merge(&propset_12);
+        assert_eq!(propset_01, propset_012);
+    }    
+
 }
