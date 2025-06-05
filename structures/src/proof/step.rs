@@ -13,3 +13,34 @@ impl ProofStep {
     pub fn push(&mut self, step: usize) {self.0.insert(0,step)}
     pub fn pop(&mut self) -> Option<usize> { self.0.pop() }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_here() {
+        let step = ProofStep::here();
+        assert_eq!(step.0, vec![])
+    }
+
+    #[test]
+    fn test_at_substep() {
+        let step = ProofStep::at_substep(1);
+        assert_eq!(step.0, vec![1])
+    }
+
+    #[test]
+    fn test_push() {
+        let mut step = ProofStep::at_substep(1);
+        step.push(2);
+        assert_eq!(step.0, vec![2,1])
+    }
+
+    #[test]
+    fn test_pop() {
+        let mut step = ProofStep::at_substep(1);
+        step.push(2);
+        assert_eq!(step.pop(), Some(1))
+    }
+}
