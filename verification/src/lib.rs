@@ -33,7 +33,7 @@ fn validate_proof(proof: &Proof) -> Result<(),ErrorInProof<ProofValidationError>
         }.resolve(i)?;
         
         // Add the new proved propositions to our set of proved propositions
-        proved.extend(subproof.conclusions());
+        proved.merge(subproof.conclusions());
     }
 
     // Throw an error if the supposed conclusions of this proof have not been derived
