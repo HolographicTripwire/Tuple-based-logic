@@ -7,7 +7,7 @@ pub struct PropositionSet(HashSet<Proposition>);
 
 impl PropositionSet {
     /// Create a new [`PropositionSet`] with some set of starting [Proposition] objects
-    pub fn new(starting_propositions: &[Proposition]) -> Self { Self(starting_propositions.iter().cloned().collect()) }
+    pub fn new<'a>(starting_propositions: impl IntoIterator<Item = &'a Proposition>) -> Self { Self(starting_propositions.into_iter().cloned().collect()) }
 
     /// Add every [`Proposition`] in a provided iterator of [Proposition] to this [PropositionSet]
     pub fn merge<'a>(&mut self, iter: impl IntoIterator<Item = &'a Proposition>) { self.0.extend(iter.into_iter().cloned()); }
@@ -105,12 +105,12 @@ impl From<&HashSet<Proposition>> for PropositionSet {
 
 #[cfg(test)]
 mod tests {
-    use std::sync::LazyLock;
+    use enum_iterator::cardinality;
 
-    use crate::{atoms::AtomId, propositions::Expression};
+    use crate::{atoms::{AtomId, BuiltInAtom}, propositions::{Expression}};
 
     use super::*;
-    
+
     fn atomic_proposition_vec(nums: Vec<usize>) -> Vec<Proposition> {
         nums.iter()
             .map(|num| -> Proposition {
@@ -154,6 +154,79 @@ mod tests {
         let propset_012 = atomic_proposition_set(vec![0,1,2]);
         propset_01.merge(&propset_12);
         assert_eq!(propset_01, propset_012);
-    }    
+    }
 
+    #[test]
+    fn test_subtracted() {
+        let propset_01 = atomic_proposition_set(vec![0,1]);
+        let propset_12 = atomic_proposition_set(vec![1,2]);
+        let propset_0 = atomic_proposition_set(vec![0]);
+        assert_eq!(propset_01.subtracted(&propset_12), propset_0);
+    }
+
+    #[test]
+    fn test_subtract() {
+        let mut propset_01 = atomic_proposition_set(vec![0,1]);
+        let propset_12 = atomic_proposition_set(vec![1,2]);
+        let propset_0 = atomic_proposition_set(vec![0]);
+        propset_01.subtract(&propset_12);
+        assert_eq!(propset_01, propset_0);
+    }
+
+    #[test]
+    fn test_len() {
+        for i in 0..10 {
+            let propset = atomic_proposition_set((0..i).collect());
+            assert_eq!(propset.len(), i)
+        }
+    }
+
+    #[test]
+    fn test_isempty_on_empty_set() {
+        let propset_empty = atomic_proposition_set(vec![]);
+        assert!(propset_empty.is_empty())
+    }
+
+    #[test]
+    fn test_isempty_on_nonempty_set() {
+        for i in 1..10 {
+            let propset = atomic_proposition_set((0..i).collect());
+            assert!(!propset.is_empty())
+        }
+    }
+
+    #[test]
+    fn test_get_contradictions_with_no_contradictions() {
+        let neg = BuiltInAtom::Negation.into();
+        let x = Expression::Atomic(cardinality::<BuiltInAtom>().try_into().unwrap());
+        let y = Expression::Atomic((cardinality::<BuiltInAtom>() + 1).try_into().unwrap());
+        let neg_x = Expression::Tuple(vec![neg, x]);
+        let propset = PropositionSet::new(vec![&Proposition(neg_x), &Proposition(y)]);
+        let contradictions = PropositionSet::new(vec![]);
+        assert_eq!(propset.get_contradictions(), contradictions)
+    }
+
+    #[test]
+    fn test_get_contradictions_with_contradictions() {
+        let neg: Expression = BuiltInAtom::Negation.into();
+        let x = Expression::Atomic(cardinality::<BuiltInAtom>().try_into().unwrap());
+        let y = Expression::Atomic((cardinality::<BuiltInAtom>() + 1).try_into().unwrap());
+        let neg_x = Expression::Tuple(vec![neg.clone(), x.clone()]);
+        let neg_y = Expression::Tuple(vec![neg.clone(), y.clone()]);
+        let propset = PropositionSet::new(vec![&Proposition(x.clone()), &Proposition(y.clone()), &Proposition(neg_x), &Proposition(neg_y)]);
+        let contradictions = PropositionSet::new(vec![&Proposition(x), &Proposition(y)]);
+        assert_eq!(propset.get_contradictions(), contradictions)
+    }
+
+    #[test]
+    fn test_get_contradictions_with_triple_contradiction() {
+        let neg: Expression = BuiltInAtom::Negation.into();
+        let x = Expression::Atomic(cardinality::<BuiltInAtom>().try_into().unwrap());
+        let neg_x = Expression::Tuple(vec![neg.clone(), x.clone()]);
+        let neg2_x = Expression::Tuple(vec![neg.clone(), neg_x.clone()]);
+        let neg3_x = Expression::Tuple(vec![neg.clone(), neg2_x.clone()]);
+        let propset = PropositionSet::new(vec![&Proposition(x.clone()), &Proposition(neg3_x.clone())]);
+        let contradictions = PropositionSet::new(vec![]);
+        assert_eq!(propset.get_contradictions(), contradictions)
+    }
 }
