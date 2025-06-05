@@ -62,18 +62,18 @@ impl PropositionSet {
 
     /// Get the set of each [Proposition] within this [PropositionSet] which are contradicted by another [Proposition] within this [PropositionSet]
     pub fn get_contradictions(&self) -> PropositionSet {
+        let empty_hashset = HashSet::new(); // Simple binding of a new HashSet
         // Create a set of Propositions to add to and eventually return
         let mut contradictions = PropositionSet::new(&[]);
         // Iterate throguh propositions by their negation level
         let by_negation_level = self.by_negation_level();
-        for (level, set_1) in &self.by_negation_level() {
-            let empty_hashset = HashSet::new(); // Simple binding of a new HashSet
+        for (level, set_1) in by_negation_level.iter() {
             // Get the Propositions that are at the negation level above this one
-            let set_2 = by_negation_level.get(&(level-1)).unwrap_or(&empty_hashset);
+            let set_2 = by_negation_level.get(&(level+1)).unwrap_or(&empty_hashset);
             // Compare the Propositions within set and the set above this one
             for prop_1 in set_1 {
                 for prop_2 in set_2 {
-                    if prop_1.0.is_negation_of(&prop_2.0) { contradictions.merge([(*prop_2)]) }
+                    if prop_2.0.is_negation_of(&prop_1.0) { contradictions.merge([(*prop_1)]) }
                 }
             }
         }
