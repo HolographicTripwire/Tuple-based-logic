@@ -25,7 +25,10 @@ pub fn verify_proof_rules(proof: &Proof) -> Result<(),ErrorInProof<ProofValidati
                 // Verify that a composite proof is valid
                 match verify_proof_rules(proof) {
                     Ok(()) => Ok(()),
-                    Err(located_err) => Err(located_err.push_step(i)),
+                    Err(mut located_err) => {
+                        located_err.push_step(i);
+                        Err(located_err)
+                    },
                 }},
         }?
     }
