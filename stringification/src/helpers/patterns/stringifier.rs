@@ -1,6 +1,6 @@
 use either::Either;
 
-use crate::{helpers::controls::Controls, structures::{TblStringifierControl, TblStringifierControls}, Destringify, Stringifier, Stringify};
+use crate::{helpers::lexing::Lexer, structures::{TblStringifierControl, TblStringifierControls}, Destringify, Stringifier, Stringify};
 
 use super::{ExprPattern, ExprPatternComponent, ExprPatternControl};
 

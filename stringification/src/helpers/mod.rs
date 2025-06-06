@@ -1,2 +1,2 @@
-pub mod controls;
+pub mod lexing;
 pub mod patterns;

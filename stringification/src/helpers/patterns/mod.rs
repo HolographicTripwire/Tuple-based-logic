@@ -2,9 +2,9 @@ use either::Either;
 use enum_iterator::Sequence;
 use replacements::ExprPatternReplacements;
 
-use crate::{helpers::controls::Controls, structures::{TblStringifierControl, TblStringifierControls}, Destringify};
+use crate::{helpers::lexing::Lexer, structures::{TblStringifierControl, TblStringifierControls}, Destringify};
 
-use super::controls::Control;
+use super::lexing::Token;
 
 
 pub mod replacements;
@@ -74,12 +74,13 @@ impl ExprPattern {
         
         for component in self.components.clone() {
             match component {
-                ExprPatternComponent::Constant(s) => {
-                    let Some(Either::Right(s)) = control_sequence.0.pop() else { return Err(()) };
+                ExprPatternComponent::Constant(s1) => {
+                    let Some(Either::Right(s2)) = control_sequence.0.pop() else { return Err(()) };
+                    if s1 != s2 { return Err(()) }
                 }, ExprPatternComponent::Variable(var) => {
                     let Some(Either::Left(TblStringifierControl::Pattern(ExprPatternControl::VariableIndicator))) = control_sequence.0.pop() else { return Err(()) };
                     let Some(Either::Right(val)) = control_sequence.0.pop() else { return Err(()) };
-                    map.add_var_to_val(var,val);
+                    map.add_var_to_val(var,val)?;
                 },
                 ExprPatternComponent::Variables((var1, var2), sep) => {
                     let Some(Either::Left(TblStringifierControl::Pattern(ExprPatternControl::VariableIndicator))) = control_sequence.0.pop() else { return Err(()) };
@@ -106,7 +107,7 @@ impl TryInto<String> for ExprPattern {
 
 #[derive(Sequence, Clone, Copy)]
 pub enum ExprPatternControl { VariableIndicator, VariableEnumerator }
-impl Control for ExprPatternControl {}
+impl Token for ExprPatternControl {}
 
 #[derive(Clone)]
 pub struct ExprPatternControls {
@@ -118,7 +119,7 @@ impl ExprPatternControls {
     pub fn new(escape_string: String, variable_indicator: String, variable_enumerator: String) -> Self 
         { Self { escape_string, variable_indicator, variable_enumerator } }
 }
-impl Controls<ExprPatternControl> for ExprPatternControls {
+impl Lexer<ExprPatternControl> for ExprPatternControls {
     fn string_from_control(&self, control: &ExprPatternControl) -> &String { match control {
         ExprPatternControl::VariableIndicator => &self.variable_indicator,
         ExprPatternControl::VariableEnumerator => &self.variable_enumerator,

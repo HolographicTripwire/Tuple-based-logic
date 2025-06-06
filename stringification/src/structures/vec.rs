@@ -1,6 +1,6 @@
 use enum_iterator::Sequence;
 
-use crate::{helpers::controls::{Control, Controls}, Destringify, Stringifier, Stringify};
+use crate::{helpers::lexing::{Token, Lexer}, Destringify, Stringifier, Stringify};
 
 use super::{TblStringifierControl, TblStringifierControls, };
 
@@ -73,7 +73,7 @@ fn remove_from_end(s1: String, s2: &String) -> Result<String,()> {
 
 #[derive(Sequence, Clone, Copy)]
 pub enum VecControl { Opener, Closer, Delimiter }
-impl Control for VecControl {}
+impl Token for VecControl {}
 
 #[derive(Clone)]
 pub struct VecControls {
@@ -86,7 +86,7 @@ impl VecControls {
     pub fn new(escape_string: String, opener: String, closer: String, delimiter: String) -> Self
         { Self { escape_string, opener, closer, delimiter } }
 }
-impl Controls<VecControl> for VecControls {
+impl Lexer<VecControl> for VecControls {
     fn string_from_control(&self, control: &VecControl) -> &String { match control {
         VecControl::Opener => &self.opener,
         VecControl::Closer => &self.closer,
