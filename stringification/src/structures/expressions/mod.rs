@@ -1,7 +1,5 @@
-pub mod functions;
 pub mod special_cases;
 
-pub use functions::PatternStringifier2;
 pub use special_cases::{SpecialCase};
 
 use tbl_structures::{atoms::AtomId, propositions::Expression};

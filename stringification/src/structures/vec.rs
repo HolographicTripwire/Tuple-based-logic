@@ -2,32 +2,32 @@ use enum_iterator::Sequence;
 
 use crate::{helpers::lexing::{Token, Lexer}, Destringify, Stringifier, Stringify};
 
-use super::{TblStringifierControl, TblStringifierControls, };
+use super::{TblStringifierToken, TblStringifierLexer, };
 
 #[derive(Default)]
-pub struct VecStringifier(Box<TblStringifierControls>);
+pub struct VecStringifier(Box<TblStringifierLexer>);
 
 impl Stringifier<Vec<String>> for VecStringifier {}
 impl Stringify<Vec<String>> for VecStringifier {
     fn stringify(&self, strings: &Vec<String>) -> Result<String,()> {
-        let opener = self.0.string_from_control(&TblStringifierControl::Vec(VecControl::Opener));
-        let delimiter = self.0.string_from_control(&TblStringifierControl::Vec(VecControl::Delimiter));
-        let closer = self.0.string_from_control(&TblStringifierControl::Vec(VecControl::Closer));
+        let opener = self.0.string_from_token(&TblStringifierToken::Vec(VecToken::Opener));
+        let delimiter = self.0.string_from_token(&TblStringifierToken::Vec(VecToken::Delimiter));
+        let closer = self.0.string_from_token(&TblStringifierToken::Vec(VecToken::Closer));
         Ok(opener.clone() + &strings.join(delimiter) + closer)
     }
 }
 impl Destringify<Vec<String>> for VecStringifier {
     fn destringify(&self, string: &String) -> Result<Vec<String>,()> {
-        // Get control strings
-        let vec_controls = &self.0.vec_controls;
+        // Get token strings
+        let vec_lexer = &self.0.vec_lexer;
         let escape_character = &self.0.escape_string;
 
         // Strip the opener and closer and get the inner string
         let inner =  {
             let mut s = string.as_str();
-            if s.starts_with(&vec_controls.opener) { s = &s[vec_controls.opener.len()..s.len()]; }
+            if s.starts_with(&vec_lexer.opener) { s = &s[vec_lexer.opener.len()..s.len()]; }
             else { return Err(()) }
-            if s.ends_with(&vec_controls.closer) { s = &s[0..s.len()-vec_controls.closer.len()]; }
+            if s.ends_with(&vec_lexer.closer) { s = &s[0..s.len()-vec_lexer.closer.len()]; }
             else { return Err(()) }
             s.to_string()
         };
@@ -39,14 +39,14 @@ impl Destringify<Vec<String>> for VecStringifier {
         for char in inner.chars() {
             current_substring.push(char);
             // Handle delimiters. For example, if the delimiter is a comma (',') we will start a new substring on every comma
-            if current_substring.ends_with(&vec_controls.delimiter) && nesting_level == 0 && !escaping {
-                current_substring = remove_from_end(current_substring, &vec_controls.delimiter).unwrap();
+            if current_substring.ends_with(&vec_lexer.delimiter) && nesting_level == 0 && !escaping {
+                current_substring = remove_from_end(current_substring, &vec_lexer.delimiter).unwrap();
                 substrings.push(current_substring);
                 current_substring = "".to_string();
             // Contain any nested vecs
-            } else if current_substring.ends_with(&vec_controls.opener) && !escaping {
+            } else if current_substring.ends_with(&vec_lexer.opener) && !escaping {
                 nesting_level += 1;
-            } else if current_substring.ends_with(&vec_controls.closer) && !escaping {
+            } else if current_substring.ends_with(&vec_lexer.closer) && !escaping {
                 nesting_level -= 1;
                 // Parentheses level cannot be allowed to go below 0
                 if nesting_level < 0 { return Err(()) }
@@ -54,7 +54,7 @@ impl Destringify<Vec<String>> for VecStringifier {
             } else if current_substring.ends_with(escape_character) && !escaping {
                 current_substring = remove_from_end(current_substring, escape_character).unwrap();
                 escaping = true;
-            // All non-control characters can 
+            // All non-token characters can 
             } else {
                 escaping = false;
             }
@@ -72,31 +72,31 @@ fn remove_from_end(s1: String, s2: &String) -> Result<String,()> {
 }
 
 #[derive(Sequence, Clone, Copy)]
-pub enum VecControl { Opener, Closer, Delimiter }
-impl Token for VecControl {}
+pub enum VecToken { Opener, Closer, Delimiter }
+impl Token for VecToken {}
 
 #[derive(Clone)]
-pub struct VecControls {
+pub struct VecLexer {
     escape_string: String,
     opener: String,
     closer: String,
     delimiter: String,
 }
-impl VecControls {
+impl VecLexer {
     pub fn new(escape_string: String, opener: String, closer: String, delimiter: String) -> Self
         { Self { escape_string, opener, closer, delimiter } }
 }
-impl Lexer<VecControl> for VecControls {
-    fn string_from_control(&self, control: &VecControl) -> &String { match control {
-        VecControl::Opener => &self.opener,
-        VecControl::Closer => &self.closer,
-        VecControl::Delimiter => &self.delimiter,
+impl Lexer<VecToken> for VecLexer {
+    fn string_from_token(&self, token: &VecToken) -> &String { match token {
+        VecToken::Opener => &self.opener,
+        VecToken::Closer => &self.closer,
+        VecToken::Delimiter => &self.delimiter,
     }}
     
     fn escape_string(&self) -> &String { &self.escape_string }
 }
-impl Default for VecControls {
-    fn default() -> Self { VecControls::new(
+impl Default for VecLexer {
+    fn default() -> Self { VecLexer::new(
         "\\".to_string(),
         "(".to_string(),
         ")".to_string(),

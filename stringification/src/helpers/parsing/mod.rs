@@ -1,13 +1,12 @@
 use either::Either;
 use enum_iterator::Sequence;
-use replacements::ExprPatternReplacements;
+use variable_assignments::VariableAssignments;
 
-use crate::{helpers::lexing::Lexer, structures::{TblStringifierControl, TblStringifierControls}, Destringify};
+use crate::{helpers::lexing::Lexer, structures::{TblStringifierToken as TblStringifierToken, TblStringifierLexer}, Destringify};
 
 use super::lexing::Token;
 
-
-pub mod replacements;
+pub mod variable_assignments;
 pub mod stringifier;
 
 #[derive(Clone,PartialEq,Eq)]
@@ -19,11 +18,11 @@ pub enum ExprPatternComponent {
 
 pub struct ExprPattern{
     components: Vec<ExprPatternComponent>,
-    controls: Box<TblStringifierControls>,
+    lexer: Box<TblStringifierLexer>,
 }
 impl ExprPattern {
     /// Create a new ExprPattern
-    fn new(components: Vec<ExprPatternComponent>, controls: Box<TblStringifierControls>) -> Self {
+    fn new(components: Vec<ExprPatternComponent>, lexer: Box<TblStringifierLexer>) -> Self {
         let mut new_components = Vec::new();
         // Iterate through the provided components
         for component in &components {
@@ -44,11 +43,11 @@ impl ExprPattern {
         // Create the struct from the components we created
         Self {
             components: new_components,
-            controls
+            lexer
         }
     }
 
-    pub fn replace_variables(&self, replacements: ExprPatternReplacements) -> Result<Self,()> {
+    pub fn replace_variables(&self, replacements: VariableAssignments) -> Result<Self,()> {
         let components = self.components
             .iter()
             .map(|component| -> Result<ExprPatternComponent,()> { match component {
@@ -63,30 +62,30 @@ impl ExprPattern {
                     }
                 },
             }}).collect::<Result<Vec<ExprPatternComponent>,()>>()?;
-        Ok(ExprPattern { controls: self.controls.clone(), components })
+        Ok(ExprPattern { lexer: self.lexer.clone(), components })
     }
 
-    pub fn match_string(&self, string: String) -> Result<ExprPatternReplacements,()> {
-        // Get the control sequence
-        let mut control_sequence = self.controls.destringify(&string)?;
+    pub fn match_string(&self, string: String) -> Result<VariableAssignments,()> {
+        // Get the token sequence
+        let mut token_sequence = self.lexer.destringify(&string)?;
         // Create a new map
-        let mut map = ExprPatternReplacements::new();
+        let mut map = VariableAssignments::new();
         
         for component in self.components.clone() {
             match component {
                 ExprPatternComponent::Constant(s1) => {
-                    let Some(Either::Right(s2)) = control_sequence.0.pop() else { return Err(()) };
+                    let Some(Either::Right(s2)) = token_sequence.0.pop() else { return Err(()) };
                     if s1 != s2 { return Err(()) }
                 }, ExprPatternComponent::Variable(var) => {
-                    let Some(Either::Left(TblStringifierControl::Pattern(ExprPatternControl::VariableIndicator))) = control_sequence.0.pop() else { return Err(()) };
-                    let Some(Either::Right(val)) = control_sequence.0.pop() else { return Err(()) };
+                    let Some(Either::Left(TblStringifierToken::Pattern(ExprPatternToken::VariableIndicator))) = token_sequence.0.pop() else { return Err(()) };
+                    let Some(Either::Right(val)) = token_sequence.0.pop() else { return Err(()) };
                     map.add_var_to_val(var,val)?;
                 },
                 ExprPatternComponent::Variables((var1, var2), sep) => {
-                    let Some(Either::Left(TblStringifierControl::Pattern(ExprPatternControl::VariableIndicator))) = control_sequence.0.pop() else { return Err(()) };
-                    let Some(Either::Left(TblStringifierControl::Pattern(ExprPatternControl::VariableEnumerator))) = control_sequence.0.pop() else { return Err(()) };
-                    let Some(Either::Left(TblStringifierControl::Pattern(ExprPatternControl::VariableEnumerator))) = control_sequence.0.pop() else { return Err(()) };
-                    let Some(Either::Left(TblStringifierControl::Pattern(ExprPatternControl::VariableIndicator))) = control_sequence.0.pop() else { return Err(()) };
+                    let Some(Either::Left(TblStringifierToken::Pattern(ExprPatternToken::VariableIndicator))) = token_sequence.0.pop() else { return Err(()) };
+                    let Some(Either::Left(TblStringifierToken::Pattern(ExprPatternToken::VariableEnumerator))) = token_sequence.0.pop() else { return Err(()) };
+                    let Some(Either::Left(TblStringifierToken::Pattern(ExprPatternToken::VariableEnumerator))) = token_sequence.0.pop() else { return Err(()) };
+                    let Some(Either::Left(TblStringifierToken::Pattern(ExprPatternToken::VariableIndicator))) = token_sequence.0.pop() else { return Err(()) };
                     
                 },
             };
@@ -106,28 +105,28 @@ impl TryInto<String> for ExprPattern {
 }
 
 #[derive(Sequence, Clone, Copy)]
-pub enum ExprPatternControl { VariableIndicator, VariableEnumerator }
-impl Token for ExprPatternControl {}
+pub enum ExprPatternToken { VariableIndicator, VariableEnumerator }
+impl Token for ExprPatternToken {}
 
 #[derive(Clone)]
-pub struct ExprPatternControls {
+pub struct ExprPatternLexer {
     escape_string: String,
     variable_indicator: String,
     variable_enumerator: String,
 }
-impl ExprPatternControls {
+impl ExprPatternLexer {
     pub fn new(escape_string: String, variable_indicator: String, variable_enumerator: String) -> Self 
         { Self { escape_string, variable_indicator, variable_enumerator } }
 }
-impl Lexer<ExprPatternControl> for ExprPatternControls {
-    fn string_from_control(&self, control: &ExprPatternControl) -> &String { match control {
-        ExprPatternControl::VariableIndicator => &self.variable_indicator,
-        ExprPatternControl::VariableEnumerator => &self.variable_enumerator,
+impl Lexer<ExprPatternToken> for ExprPatternLexer {
+    fn string_from_token(&self, token: &ExprPatternToken) -> &String { match token {
+        ExprPatternToken::VariableIndicator => &self.variable_indicator,
+        ExprPatternToken::VariableEnumerator => &self.variable_enumerator,
     }}
     
     fn escape_string(&self) -> &String { &self.escape_string }
 }
-impl Default for ExprPatternControls {
+impl Default for ExprPatternLexer {
     fn default() -> Self { Self {
         escape_string: "\\".to_string(),
         variable_indicator: "#".to_string(),

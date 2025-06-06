@@ -1,11 +1,11 @@
 use std::collections::{HashMap, HashSet};
 
-pub struct ExprPatternReplacements {
+pub struct VariableAssignments {
     vars: HashSet<String>,
     var_to_val: HashMap<String,String>,
     vars_to_vals: HashMap<(String,String),Vec<String>>
 }
-impl ExprPatternReplacements {
+impl VariableAssignments {
     pub fn new() -> Self { Self {
         vars: HashSet::new(),
         var_to_val: HashMap::new(), 

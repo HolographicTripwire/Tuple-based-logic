@@ -1,12 +1,45 @@
 use tbl_structures::propositions::Expression;
 
-use crate::{Destringify, Stringifier, Stringify};
+use crate::{helpers::parsing::{stringifier::ExprPatternStringifier, ExprPattern}, structures::TblStringifierLexer, Destringify, Stringifier, Stringify};
 
 #[derive(Clone)]
 pub struct SpecialCase { 
     pub expr_components: Vec<Expression>,
     pub string_components: Vec<String>,
     pub vecified_whole: String,
+}
+
+pub struct SpecialCaseStringifier(ExprPattern,ExprPattern);
+
+impl SpecialCaseStringifier {
+    pub fn from_strings(pre: &str, post: &str, lexer: Box<TblStringifierLexer>) -> Result<Self,()> {
+        let pattern_stringifier = ExprPatternStringifier::new(lexer);
+        Ok(Self(
+            pattern_stringifier.destringify(&pre.to_string())?,
+            pattern_stringifier.destringify(&post.to_string())?
+        ))
+    }
+}
+
+impl Stringifier<SpecialCase> for SpecialCaseStringifier {}
+impl Stringify<SpecialCase>  for SpecialCaseStringifier{
+    fn stringify(&self, object: &SpecialCase) -> Result<String,()> {
+        let string = object.vecified_whole.clone();
+        let Ok(replacements) = self.0.match_string(string) else { return Err(()) };
+        let pattern = self.1.replace_variables(replacements)?;
+        pattern.try_into()
+    }
+}
+impl Destringify<SpecialCase> for SpecialCaseStringifier {
+    fn destringify(&self, string: &String) -> Result<SpecialCase,()> {
+        let Ok(replacements) = self.1.match_string(string.clone()) else { return Err(()) };
+        let pattern = self.0.replace_variables(replacements)?;
+        Ok(SpecialCase {
+            expr_components: Vec::new(),
+            string_components: Vec::new(),
+            vecified_whole: pattern.try_into()?,
+        })
+    }
 }
 
 #[derive(Default)]
