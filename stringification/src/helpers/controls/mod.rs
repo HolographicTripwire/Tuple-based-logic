@@ -29,46 +29,47 @@ impl <C: Control, Cs: Controls<C>> Stringify<ControlSequence<C>> for Cs {
 }
 impl <C: Control, Cs: Controls<C>> Destringify<ControlSequence<C>> for Cs {
     fn destringify(&self, string: &String) -> Result<ControlSequence<C>,()> {
-        let escape_string = self.escape_string();
         let mut sequence: Vec<Either<C, String>> = Vec::new();
         let mut escaping = false;
         let mut current_string = "".to_string();
         for char in string.chars() {
             current_string.push(char);
-            if let Ok(_) = pop_escape_from_string_end(self,&mut current_string) { 
-                escaping = true;
-                pop_n_from_end(&mut current_string,escape_string.len());
-            } else if let Some(ControlString(c,s)) = pop_control_from_string_end(self, &mut current_string)? {
-                if current_string.len() > 0 { sequence.push(Either::Right(current_string)) }
-                sequence.push(Either::Left(c));
-                current_string = "".to_owned();
-            }
+            if !escaping {
+                if let Ok(_) = pop_escape_from_string_end(self,&mut current_string) { 
+                    escaping = true;
+                } else if let Some(control_string) = pop_control_from_string_end(self, &mut current_string)? {
+                    if current_string.len() > 0 { sequence.push(Either::Right(current_string)) }
+                    sequence.push(Either::Left(control_string.0));
+                    current_string = "".to_owned();
+                }
+            } else { escaping = false; }
         }
         if current_string.len() > 0 { sequence.push(Either::Right(current_string)) }
         Ok(ControlSequence(sequence))
     }
 }
 
-fn pop_n_from_end(string: &mut String, n: usize) -> std::string::Drain<'_> {
-    string.drain(string.len()-n..string.len())
-}
-
-fn pop_escape_from_string_end<C: Control, Cs: Controls<C>>(controls: &Cs, string: &mut String) -> Result<(),()> {
+fn pop_escape_from_string_end<C: Control, Cs: Controls<C>>(controls: &Cs, string: &mut String) -> Result<String,()> {
     let escape_string = controls.escape_string();
     if string.ends_with(escape_string) {
         pop_n_from_end(string, escape_string.len());
-        Ok(())
+        Ok(escape_string.clone())
     } else { Err(()) }
 }
 
 fn pop_control_from_string_end<C: Control, Cs: Controls<C>>(controls: &Cs, string: &mut String) -> Result<Option<ControlString<C>>,()> {
     Ok(match string_ends_with(controls,string)? {
-        Some(ControlString(c,s)) => {
-            pop_n_from_end(string,s.len());
-            Some(ControlString(c,s))
+        Some(control_string) => {
+            pop_n_from_end(string,control_string.1.len());
+            Some(control_string)
         }, None => None,
     })
 }
+
+fn pop_n_from_end(string: &mut String, n: usize) -> std::string::Drain<'_> {
+    string.drain(string.len()-n..string.len())
+}
+
 
 fn string_ends_with<C: Control, Cs: Controls<C>>(controls: &Cs, string: &String) -> Result<Option<ControlString<C>>,()> {
     let ends_with = get_controls_and_strings(controls).iter()
