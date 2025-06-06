@@ -229,4 +229,15 @@ mod tests {
         let contradictions = PropositionSet::new(vec![]);
         assert_eq!(propset.get_contradictions(), contradictions)
     }
+
+    #[test]
+    fn test_get_contradictions_with_improper_negation() {
+        let neg: Expression = BuiltInAtom::Negation.into();
+        let x = Expression::Atomic(cardinality::<BuiltInAtom>().try_into().unwrap());
+        let y = Expression::Atomic((cardinality::<BuiltInAtom>() + 1).try_into().unwrap());
+        let neg_xy = Expression::Tuple(vec![neg.clone(), x.clone(), y.clone()]);
+        let propset = PropositionSet::new(vec![&Proposition(x.clone()), &Proposition(y.clone()), &Proposition(neg_xy)]);
+        let contradictions = PropositionSet::new(vec![]);
+        assert_eq!(propset.get_contradictions(), contradictions)
+    }
 }
