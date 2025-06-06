@@ -14,9 +14,8 @@ pub struct Proof {
 
 impl Proof {
     /// Create a new [Proof] with the given premises, subproofs, and conclusions
-    pub fn new(premises: Vec<Proposition>, subproofs: Vec<SubProof>, conclusions: Vec<Proposition>) -> Self {
-        Self { premises, subproofs, conclusions }
-    }
+    pub fn new(premises: Vec<Proposition>, subproofs: Vec<SubProof>, conclusions: Vec<Proposition>) -> Self
+        { Self { premises, subproofs, conclusions } }
 
     // Getters and setters
     /// Get the premises of this [Proof]
@@ -74,5 +73,16 @@ impl SubProof {
             SubProof::Atomic(_) => Err(()),
             SubProof::Composite(proof) => proof.subproof_at(step),
         }}
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_getters() {
+        let step = ProofStep::here();
+        assert_eq!(step.0, vec![])
     }
 }
