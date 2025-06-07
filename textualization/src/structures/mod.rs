@@ -1,7 +1,7 @@
 use enum_iterator::Sequence;
 use vec::{VecToken, VecLexer};
 
-use crate::helpers::{lexing::{Token, Lexer}, parsing::{ExprPatternToken, ExprPatternLexer}};
+use crate::{helpers::lexing::{Lexer, Token}, structures::expressions::patterns::expr_pattern::{ExprPatternLexer, ExprPatternToken}};
 
 pub mod atom;
 pub mod vec;

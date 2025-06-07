@@ -1,13 +1,8 @@
 use either::Either;
 use enum_iterator::Sequence;
-use variable_assignments::VariableAssignments;
+use super::variable_assignments::VariableAssignments;
 
-use crate::{helpers::lexing::Lexer, structures::{TblLexer, TblToken}, Detextualize};
-
-use super::lexing::Token;
-
-pub mod variable_assignments;
-pub mod textualizer;
+use crate::{helpers::lexing::{Lexer, Token}, structures::{TblLexer, TblToken}, Detextualize};
 
 #[derive(Clone,PartialEq,Eq)]
 pub enum ExprPatternComponent {
@@ -22,7 +17,16 @@ pub struct ExprPattern{
 }
 impl ExprPattern {
     /// Create a new ExprPattern
-    fn new(components: Vec<ExprPatternComponent>, lexer: Box<TblLexer>) -> Self {
+    pub fn new(components: Vec<ExprPatternComponent>, lexer: Box<TblLexer>) -> Self {
+        Self {
+            components: Self::remove_redundancy(components),
+            lexer
+        }
+    }
+
+    pub fn get_components(&self) -> &Vec<ExprPatternComponent> { return &self.components }
+
+    fn remove_redundancy(components: Vec<ExprPatternComponent>) -> Vec<ExprPatternComponent> {
         let mut new_components = Vec::new();
         // Iterate through the provided components
         for component in &components {
@@ -39,12 +43,7 @@ impl ExprPattern {
                 // For any ExprPattern::Variables components, just add them direcly without modification
                 ExprPatternComponent::Variables((_, _), _) => new_components.push(component.clone()),
             }
-        }
-        // Create the struct from the components we created
-        Self {
-            components: new_components,
-            lexer
-        }
+        } new_components
     }
 
     pub fn replace_variables(&self, replacements: VariableAssignments) -> Result<Self,()> {

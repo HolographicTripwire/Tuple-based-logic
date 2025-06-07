@@ -1,4 +1,6 @@
+pub mod patterns;
 pub mod special_cases;
+
 
 pub use special_cases::{SpecialCase};
 

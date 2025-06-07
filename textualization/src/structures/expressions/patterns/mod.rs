@@ -1,8 +1,9 @@
 use either::Either;
 
-use crate::{helpers::lexing::Lexer, structures::{TblToken, TblLexer}, Detextualize, Textualizer, Textualize};
+use crate::{helpers::lexing::Lexer, structures::{expressions::patterns::expr_pattern::{ExprPattern, ExprPatternComponent, ExprPatternToken}, TblLexer, TblToken}, Detextualize, Textualize, Textualizer};
 
-use super::{ExprPattern, ExprPatternComponent, ExprPatternToken};
+pub mod expr_pattern;
+pub mod variable_assignments;
 
 pub struct ExprPatternTextualizer {
     lexer: Box<TblLexer>
@@ -22,7 +23,7 @@ impl Textualize<ExprPattern> for ExprPatternTextualizer {
         let var_indic_token = self.lexer.string_from_token(&VAR_INDIC_TOKEN);
         let var_enum_token = self.lexer.string_from_token(&VAR_ENUM_TOKEN);
         let mut string = "".to_string();
-        for component in &pattern.components { match component {
+        for component in pattern.get_components() { match component {
             ExprPatternComponent::Constant(constant) => { string = string + 
                 constant
             }, ExprPatternComponent::Variable(var) => { string = string +
