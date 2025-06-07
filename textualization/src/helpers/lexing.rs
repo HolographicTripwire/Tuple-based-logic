@@ -124,14 +124,24 @@ mod tests {
         }
     }
 
-    fn test_textualize(string: &str, tokens: Vec<Either<TestToken,String>>) {
+    fn test_textualize(string: &str, tokens: Vec<Either<TestToken,&str>>) {
         let lexer = TestLexer::default();
+        let tokens = tokens.iter()
+            .map(|obj| -> Either<TestToken,String> { match obj {
+                Either::Left(token) => Either::Left(token.clone()),
+                Either::Right(string) => Either::Right(string.to_string()),
+            }}).collect();
         let sequence = TokenSequence(tokens);
         assert_eq!(lexer.textualize(&sequence), Ok(string.to_string()))
     }
 
-    fn test_detextualize(string: &str, tokens: Vec<Either<TestToken,String>>) {
+    fn test_detextualize(string: &str, tokens: Vec<Either<TestToken,&str>>) {
         let lexer = TestLexer::default();
+        let tokens = tokens.iter()
+            .map(|obj| -> Either<TestToken,String> { match obj {
+                Either::Left(token) => Either::Left(token.clone()),
+                Either::Right(string) => Either::Right(string.to_string()),
+            }}).collect();
         let sequence = TokenSequence(tokens);
         assert_eq!(lexer.detextualize(&string.to_string()), Ok(sequence))
     }
@@ -158,5 +168,29 @@ mod tests {
     fn test_detextualize_with_multi_character_token() {
         let tokens = vec![Either::Left(TestToken::BB)];
         test_detextualize("BB", tokens);
+    }
+
+    #[test]
+    fn test_textualize_with_multiple_tokens() {
+        let tokens = vec![Either::Left(TestToken::BB), Either::Left(TestToken::A), Either::Left(TestToken::A), Either::Left(TestToken::BB)];
+        test_textualize("BBAABB", tokens);
+    }
+
+    #[test]
+    fn test_detextualize_with_multiple_tokens() {
+        let tokens = vec![Either::Left(TestToken::BB), Either::Left(TestToken::A), Either::Left(TestToken::A), Either::Left(TestToken::BB)];
+        test_detextualize("BBAABB", tokens);
+    }
+
+    #[test]
+    fn test_textualize_with_strings() {
+        let tokens = vec![Either::Right("Sasquatch "), Either::Left(TestToken::BB), Either::Right("B"), Either::Left(TestToken::A), Either::Right("Firehose")];
+        test_textualize("Sasquatch BBBAFirehose", tokens);
+    }
+
+    #[test]
+    fn test_detextualize_with_strings() {
+        let tokens = vec![Either::Right("Sasquatch "), Either::Left(TestToken::BB), Either::Right("B"), Either::Left(TestToken::A), Either::Right("Firehose")];
+        test_detextualize("Sasquatch BBBAFirehose", tokens);
     }
 }
