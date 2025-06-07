@@ -24,7 +24,7 @@ impl Textualize<AtomId> for AtomTextualizer {
     fn textualize(&self, atom: &AtomId) -> Result<String,()> {
         match self.symbols.get_by_left(atom) {
             Some(symbol) => Ok(symbol.clone()),
-            None => Err(()),
+            None => Ok(atom.0.0.to_string()),
         }
     }
 }
@@ -32,7 +32,11 @@ impl Detextualize<AtomId> for AtomTextualizer {
     fn detextualize(&self, string: &String) -> Result<AtomId,()> {
         match self.symbols.get_by_right(string) {
             Some(symbol) => Ok(symbol.clone()),
-            None => Err(()),
+            None => {
+                let Ok(u) = string.parse::<usize>() else { return Err(()) };
+                let Ok(atom) = AtomId::try_from(u) else { return Err(()) };
+                Ok(atom)
+            },
         }
     }
 }
