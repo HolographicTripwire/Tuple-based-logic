@@ -4,13 +4,14 @@ use super::variable_assignments::VariableAssignments;
 
 use crate::{helpers::lexing::{Lexer, Token}, structures::{TblLexer, TblToken}, Detextualize};
 
-#[derive(Clone,PartialEq,Eq)]
+#[derive(Clone,PartialEq,Eq,Debug)]
 pub enum ExprPatternComponent {
     Constant(String),
     Variable(String),
     Variables((String,String),String),
 }
 
+#[derive(Clone,PartialEq,Eq,Debug)]
 pub struct ExprPattern{
     components: Vec<ExprPatternComponent>,
     lexer: Box<ExprPatternLexer>,
@@ -103,7 +104,7 @@ impl TryInto<String> for ExprPattern {
 pub enum ExprPatternToken { VariableIndicator, VariableEnumerator }
 impl Token for ExprPatternToken {}
 
-#[derive(Clone)]
+#[derive(Clone,Debug,PartialEq,Eq)]
 pub struct ExprPatternLexer {
     escape_string: String,
     variable_indicator: String,

@@ -71,3 +71,38 @@ impl Detextualize<ExprPattern> for ExprPatternTextualizer {
         Ok(ExprPattern::new(components, self.lexer.clone()))
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use std::sync::LazyLock;
+
+    use super::*;
+
+    const TEST_PARSER: LazyLock<Box<ExprPatternTextualizer>> = LazyLock::new(|| -> Box<ExprPatternTextualizer> 
+        { Box::new(ExprPatternTextualizer::default()) }
+    );
+
+    fn pre_textualize_test(string: &str, components: Vec<ExprPatternComponent>) -> (Result<String,()>,String) {
+        let pattern = ExprPattern::new(components,TEST_PARSER.clone().lexer);
+        (TEST_PARSER.textualize(&pattern), string.to_string())
+    }
+
+    fn pre_detextualize_test(string: &str, components: Vec<ExprPatternComponent>) -> (Result<ExprPattern,()>,ExprPattern) {
+        let pattern = ExprPattern::new(components,TEST_PARSER.clone().lexer);
+        (TEST_PARSER.detextualize(&string.to_string()),pattern)
+    }
+    
+    #[test]
+    fn test_parse_with_const() {
+        let components = vec![ExprPatternComponent::Constant("A".to_string())];
+        let (textualized, check) = pre_textualize_test("A", components);
+        assert_eq!(textualized, Ok(check));
+    }
+
+    #[test]
+    fn test_unparse_with_const() {
+        let components = vec![ExprPatternComponent::Constant("A".to_string())];
+        let (detextualized, check) = pre_detextualize_test("A", components);
+        assert_eq!(detextualized, Ok(check));
+    }
+}
