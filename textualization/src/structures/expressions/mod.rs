@@ -4,24 +4,24 @@ pub use special_cases::{SpecialCase};
 
 use tbl_structures::{atoms::AtomId, propositions::Expression};
 
-use crate::{Destringify, Stringifier, Stringify};
+use crate::{Detextualize, Textualizer, Textualize};
 
-trait ExpressionStringifyInterface<A: Stringify<AtomId>, V: Stringify<Vec<String>>, S: Stringify<SpecialCase>> {
+trait ExpressionTextualizeInterface<A: Textualize<AtomId>, V: Textualize<Vec<String>>, S: Textualize<SpecialCase>> {
     // Simple getters
     fn atoms(&self) -> &A;
     fn vecs(&self) -> &V;
     fn special_cases(&self) -> &S;
-    /// This function will be used by [ExpressionStringifier] and [ExpressionStringify] as a proxy for [Stringify::stringify]. 
+    /// This function will be used by [ExpressionTextualizer] and [ExpressionTextualize] as a proxy for [Textualize::stringify]. 
     fn to_text(&self, expr: &Expression) -> Result<String,()> {
         match expr {
-            Expression::Atomic(atom_id) => self.atoms().stringify(&atom_id),
+            Expression::Atomic(atom_id) => self.atoms().textualize(&atom_id),
             Expression::Tuple(expr_components) => {
                 // Convert each expression in the tuple to a string
                 let string_components: Vec<String> = expr_components
                     .iter()
                     .map(|expr| -> Result<String,()> { self.to_text(expr) })
                     .collect::<Result<Vec<String>,()>>()?;
-                let vecified_whole = self.vecs().stringify(&string_components)?;
+                let vecified_whole = self.vecs().textualize(&string_components)?;
                 // Pair expressions with strings
                 let special_case = SpecialCase { 
                     expr_components: expr_components.clone(),
@@ -30,26 +30,26 @@ trait ExpressionStringifyInterface<A: Stringify<AtomId>, V: Stringify<Vec<String
                 };
                 
                 // If there are any optional rules, apply them
-                if let Ok(string) = self.special_cases().stringify(&special_case) { Ok(string) }
+                if let Ok(string) = self.special_cases().textualize(&special_case) { Ok(string) }
                 // Otherwise just treat this vec as we would any other vec
                 else { Ok(vecified_whole) }
             },
         }
     }
 }
-trait ExpressionDestringifyInterface<A: Destringify<AtomId>, V: Destringify<Vec<String>>, S: Destringify<SpecialCase>> {
+trait ExpressionDetextualizeInterface<A: Detextualize<AtomId>, V: Detextualize<Vec<String>>, S: Detextualize<SpecialCase>> {
     fn atoms(&self) -> &A;
     fn vecs(&self) -> &V;
     fn special_cases(&self) -> &S;
-    /// This function will be used by [ExpressionStringifier] and [ExpressionDestringify] as a proxy for [Destringify::destringify]. 
+    /// This function will be used by [ExpressionTextualizer] and [ExpressionDetextualize] as a proxy for [Detextualize::destringify]. 
     fn from_text(&self, string: &String) -> Result<Expression,()> {
         // Remove whitespace on either side of the string
         let trimmed = string.trim().to_string();
         
         // Try to interpret the provided string with each of our inner textualizers
-        let atom_result = self.atoms().destringify(&trimmed);
-        let tuple_result = self.vecs().destringify(&trimmed);
-        let optional_rules_result = self.special_cases().destringify(&trimmed);
+        let atom_result = self.atoms().detextualize(&trimmed);
+        let tuple_result = self.vecs().detextualize(&trimmed);
+        let optional_rules_result = self.special_cases().detextualize(&trimmed);
         // Calculate the number of valid interpretations we found
         let ok_results = (atom_result.is_ok() as u8) + (tuple_result.is_ok() as u8) + (optional_rules_result.is_ok() as u8);
         
@@ -73,71 +73,71 @@ trait ExpressionDestringifyInterface<A: Destringify<AtomId>, V: Destringify<Vec<
     }
 }
 
-/// A struct that can both Stringify and Destringify expressions
-pub struct ExpressionStringifier<A: Stringifier<AtomId>, V: Stringifier<Vec<String>>, S: Stringifier<SpecialCase>> {
+/// A struct that can both Textualize and Detextualize expressions
+pub struct ExpressionTextualizer<A: Textualizer<AtomId>, V: Textualizer<Vec<String>>, S: Textualizer<SpecialCase>> {
     atoms: A,
     vecs: V,
     special_cases: S,
 }
 /// A struct that can stringify, but not destringify, expressions
-pub struct ExpressionStringify<A: Stringify<AtomId>, V: Stringify<Vec<String>>, S: Stringify<SpecialCase>> {
+pub struct ExpressionTextualize<A: Textualize<AtomId>, V: Textualize<Vec<String>>, S: Textualize<SpecialCase>> {
     atoms: A,
     vecs: V,
     special_cases: S,
 }
 /// A struct that can destringify, but not stringify, expressions
-pub struct ExpressionDestringify<A: Destringify<AtomId>, V: Destringify<Vec<String>>, S: Destringify<SpecialCase>> {
+pub struct ExpressionDetextualize<A: Detextualize<AtomId>, V: Detextualize<Vec<String>>, S: Detextualize<SpecialCase>> {
     atoms: A,
     vecs: V,
     special_cases: S,
 }
 
 // Implement new for Expression stringification structs
-impl <A: Stringifier<AtomId>, V: Stringifier<Vec<String>>, S: Stringifier<SpecialCase>> ExpressionStringifier<A,V,S> {
+impl <A: Textualizer<AtomId>, V: Textualizer<Vec<String>>, S: Textualizer<SpecialCase>> ExpressionTextualizer<A,V,S> {
     pub fn new(atoms: A, vecs: V, special_cases: S) -> Self { Self {atoms, vecs, special_cases} }
 }
-impl <A: Stringify<AtomId>, V: Stringify<Vec<String>>, S: Stringify<SpecialCase>> ExpressionStringify<A,V,S> {
+impl <A: Textualize<AtomId>, V: Textualize<Vec<String>>, S: Textualize<SpecialCase>> ExpressionTextualize<A,V,S> {
     pub fn new(atoms: A, vecs: V, special_cases: S) -> Self { Self {atoms, vecs, special_cases} }
 }
-impl <A: Destringify<AtomId>, V: Destringify<Vec<String>>, S: Destringify<SpecialCase>> ExpressionDestringify<A,V,S> {
+impl <A: Detextualize<AtomId>, V: Detextualize<Vec<String>>, S: Detextualize<SpecialCase>> ExpressionDetextualize<A,V,S> {
     pub fn new(atoms: A, vecs: V, special_cases: S) -> Self { Self {atoms, vecs, special_cases} }
 }
 
 // Implement the expression stringifier interface for Expression stringification structs
-impl <A: Stringifier<AtomId>, V: Stringifier<Vec<String>>, S: Stringifier<SpecialCase>> ExpressionStringifyInterface<A,V,S> for ExpressionStringifier<A,V,S> {
+impl <A: Textualizer<AtomId>, V: Textualizer<Vec<String>>, S: Textualizer<SpecialCase>> ExpressionTextualizeInterface<A,V,S> for ExpressionTextualizer<A,V,S> {
     fn atoms(&self) -> &A { &self.atoms }
     fn vecs(&self) -> &V { &self.vecs }
     fn special_cases(&self) -> &S { &self.special_cases }
 }
-impl <A: Stringify<AtomId>, V: Stringify<Vec<String>>, S: Stringify<SpecialCase>> ExpressionStringifyInterface<A,V,S> for ExpressionStringify<A,V,S> {
+impl <A: Textualize<AtomId>, V: Textualize<Vec<String>>, S: Textualize<SpecialCase>> ExpressionTextualizeInterface<A,V,S> for ExpressionTextualize<A,V,S> {
     fn atoms(&self) -> &A { &self.atoms }
     fn vecs(&self) -> &V { &self.vecs }
     fn special_cases(&self) -> &S { &self.special_cases }
 }
-impl <A: Stringifier<AtomId>, V: Stringifier<Vec<String>>, S: Stringifier<SpecialCase>> ExpressionDestringifyInterface<A,V,S> for ExpressionStringifier<A,V,S> {
+impl <A: Textualizer<AtomId>, V: Textualizer<Vec<String>>, S: Textualizer<SpecialCase>> ExpressionDetextualizeInterface<A,V,S> for ExpressionTextualizer<A,V,S> {
     fn atoms(&self) -> &A { &self.atoms }
     fn vecs(&self) -> &V { &self.vecs }
     fn special_cases(&self) -> &S { &self.special_cases }
 }
-impl <A: Destringify<AtomId>, V: Destringify<Vec<String>>, S: Destringify<SpecialCase>> ExpressionDestringifyInterface<A,V,S> for ExpressionDestringify<A,V,S> {
+impl <A: Detextualize<AtomId>, V: Detextualize<Vec<String>>, S: Detextualize<SpecialCase>> ExpressionDetextualizeInterface<A,V,S> for ExpressionDetextualize<A,V,S> {
     fn atoms(&self) -> &A { &self.atoms }
     fn vecs(&self) -> &V { &self.vecs }
     fn special_cases(&self) -> &S { &self.special_cases }
 }
 
-// Implement Stringify and Destringifiy for the stringification structs
-impl <A: Stringifier<AtomId>, V: Stringifier<Vec<String>>, S: Stringifier<SpecialCase>> Stringify<Expression> for ExpressionStringifier<A,V,S>  { 
-    fn stringify(&self, expr: &Expression) -> Result<String,()> { self.to_text(expr) }
+// Implement Textualize and Destringifiy for the stringification structs
+impl <A: Textualizer<AtomId>, V: Textualizer<Vec<String>>, S: Textualizer<SpecialCase>> Textualize<Expression> for ExpressionTextualizer<A,V,S>  { 
+    fn textualize(&self, expr: &Expression) -> Result<String,()> { self.to_text(expr) }
 }
-impl <A: Stringifier<AtomId>, V: Stringifier<Vec<String>>, S: Stringifier<SpecialCase>> Stringify<Expression> for ExpressionStringify<A,V,S>  { 
-    fn stringify(&self, expr: &Expression) -> Result<String,()> { self.to_text(expr) }
+impl <A: Textualizer<AtomId>, V: Textualizer<Vec<String>>, S: Textualizer<SpecialCase>> Textualize<Expression> for ExpressionTextualize<A,V,S>  { 
+    fn textualize(&self, expr: &Expression) -> Result<String,()> { self.to_text(expr) }
 }
-impl <A: Stringifier<AtomId>, V: Stringifier<Vec<String>>, S: Stringifier<SpecialCase>> Destringify<Expression> for ExpressionStringifier<A,V,S> { 
-    fn destringify(&self, string: &String) -> Result<Expression,()> { self.from_text(string) }
+impl <A: Textualizer<AtomId>, V: Textualizer<Vec<String>>, S: Textualizer<SpecialCase>> Detextualize<Expression> for ExpressionTextualizer<A,V,S> { 
+    fn detextualize(&self, string: &String) -> Result<Expression,()> { self.from_text(string) }
 }
-impl <A: Stringifier<AtomId>, V: Stringifier<Vec<String>>, S: Stringifier<SpecialCase>> Destringify<Expression> for ExpressionDestringify<A,V,S> { 
-    fn destringify(&self, string: &String) -> Result<Expression,()> { self.from_text(string) }
+impl <A: Textualizer<AtomId>, V: Textualizer<Vec<String>>, S: Textualizer<SpecialCase>> Detextualize<Expression> for ExpressionDetextualize<A,V,S> { 
+    fn detextualize(&self, string: &String) -> Result<Expression,()> { self.from_text(string) }
 }
 
-// Implement Stringifier for the one stringifier type
-impl <A: Stringifier<AtomId>, V: Stringifier<Vec<String>>, S: Stringifier<SpecialCase>> Stringifier<Expression> for ExpressionStringifier<A,V,S> {}
+// Implement Textualizer for the one stringifier type
+impl <A: Textualizer<AtomId>, V: Textualizer<Vec<String>>, S: Textualizer<SpecialCase>> Textualizer<Expression> for ExpressionTextualizer<A,V,S> {}

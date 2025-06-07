@@ -1,24 +1,24 @@
 use either::Either;
 
-use crate::{helpers::lexing::Lexer, structures::{TblStringifierToken, TblStringifierLexer}, Destringify, Stringifier, Stringify};
+use crate::{helpers::lexing::Lexer, structures::{TblToken, TblLexer}, Detextualize, Textualizer, Textualize};
 
 use super::{ExprPattern, ExprPatternComponent, ExprPatternToken};
 
-pub struct ExprPatternStringifier {
-    lexer: Box<TblStringifierLexer>
+pub struct ExprPatternTextualizer {
+    lexer: Box<TblLexer>
 }
-impl ExprPatternStringifier {
-    pub fn new(lexer: Box<TblStringifierLexer>) -> Self {
+impl ExprPatternTextualizer {
+    pub fn new(lexer: Box<TblLexer>) -> Self {
         Self { lexer }
     }
 }
 
-const VAR_INDIC_TOKEN: TblStringifierToken = TblStringifierToken::Pattern(ExprPatternToken::VariableIndicator);
-const VAR_ENUM_TOKEN: TblStringifierToken = TblStringifierToken::Pattern(ExprPatternToken::VariableIndicator);
+const VAR_INDIC_TOKEN: TblToken = TblToken::Pattern(ExprPatternToken::VariableIndicator);
+const VAR_ENUM_TOKEN: TblToken = TblToken::Pattern(ExprPatternToken::VariableIndicator);
 
-impl Stringifier<ExprPattern> for ExprPatternStringifier {}
-impl Stringify<ExprPattern> for ExprPatternStringifier {
-    fn stringify(&self, pattern: &ExprPattern) -> Result<String,()> {
+impl Textualizer<ExprPattern> for ExprPatternTextualizer {}
+impl Textualize<ExprPattern> for ExprPatternTextualizer {
+    fn textualize(&self, pattern: &ExprPattern) -> Result<String,()> {
         let var_indic_token = self.lexer.string_from_token(&VAR_INDIC_TOKEN);
         let var_enum_token = self.lexer.string_from_token(&VAR_ENUM_TOKEN);
         let mut string = "".to_string();
@@ -37,9 +37,9 @@ impl Stringify<ExprPattern> for ExprPatternStringifier {
     }
 }
 enum VarDeclarationStage { Begin, FirstIndic, FirstVar, FirstEnum, Sep, SecondEnum, SecondIndic }
-impl Destringify<ExprPattern> for ExprPatternStringifier {
-    fn destringify(&self, string: &String) -> Result<ExprPattern,()> {
-        let token_sequence = self.lexer.destringify(&string)?;
+impl Detextualize<ExprPattern> for ExprPatternTextualizer {
+    fn detextualize(&self, string: &String) -> Result<ExprPattern,()> {
+        let token_sequence = self.lexer.detextualize(&string)?;
         let mut components = Vec::new();
         let mut var_declaration_stage = VarDeclarationStage::Begin;
         for token_or_string in token_sequence.0 { match token_or_string {
@@ -51,7 +51,7 @@ impl Destringify<ExprPattern> for ExprPatternStringifier {
                 VarDeclarationStage::Sep => todo!(),
                 VarDeclarationStage::SecondEnum => todo!(),
                 VarDeclarationStage::SecondIndic => todo!(),
-            }}, Either::Left(TblStringifierToken::Pattern(token)) => match token {
+            }}, Either::Left(TblToken::Pattern(token)) => match token {
                 ExprPatternToken::VariableIndicator => var_declaration_stage = match var_declaration_stage {
                     VarDeclarationStage::Begin | VarDeclarationStage::FirstVar => VarDeclarationStage::FirstIndic,
                     VarDeclarationStage::SecondEnum => VarDeclarationStage::SecondIndic,

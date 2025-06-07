@@ -2,12 +2,12 @@ use either::Either;
 use enum_iterator::Sequence;
 use variable_assignments::VariableAssignments;
 
-use crate::{helpers::lexing::Lexer, structures::{TblStringifierToken as TblStringifierToken, TblStringifierLexer}, Destringify};
+use crate::{helpers::lexing::Lexer, structures::{TblLexer, TblToken}, Detextualize};
 
 use super::lexing::Token;
 
 pub mod variable_assignments;
-pub mod stringifier;
+pub mod textualizer;
 
 #[derive(Clone,PartialEq,Eq)]
 pub enum ExprPatternComponent {
@@ -18,11 +18,11 @@ pub enum ExprPatternComponent {
 
 pub struct ExprPattern{
     components: Vec<ExprPatternComponent>,
-    lexer: Box<TblStringifierLexer>,
+    lexer: Box<TblLexer>,
 }
 impl ExprPattern {
     /// Create a new ExprPattern
-    fn new(components: Vec<ExprPatternComponent>, lexer: Box<TblStringifierLexer>) -> Self {
+    fn new(components: Vec<ExprPatternComponent>, lexer: Box<TblLexer>) -> Self {
         let mut new_components = Vec::new();
         // Iterate through the provided components
         for component in &components {
@@ -67,7 +67,7 @@ impl ExprPattern {
 
     pub fn match_string(&self, string: String) -> Result<VariableAssignments,()> {
         // Get the token sequence
-        let mut token_sequence = self.lexer.destringify(&string)?;
+        let mut token_sequence = self.lexer.detextualize(&string)?;
         // Create a new map
         let mut map = VariableAssignments::new();
         
@@ -77,15 +77,12 @@ impl ExprPattern {
                     let Some(Either::Right(s2)) = token_sequence.0.pop() else { return Err(()) };
                     if s1 != s2 { return Err(()) }
                 }, ExprPatternComponent::Variable(var) => {
-                    let Some(Either::Left(TblStringifierToken::Pattern(ExprPatternToken::VariableIndicator))) = token_sequence.0.pop() else { return Err(()) };
+                    let Some(Either::Left(TblToken::Pattern(ExprPatternToken::VariableIndicator))) = token_sequence.0.pop() else { return Err(()) };
                     let Some(Either::Right(val)) = token_sequence.0.pop() else { return Err(()) };
                     map.add_var_to_val(var,val)?;
                 },
                 ExprPatternComponent::Variables((var1, var2), sep) => {
-                    let Some(Either::Left(TblStringifierToken::Pattern(ExprPatternToken::VariableIndicator))) = token_sequence.0.pop() else { return Err(()) };
-                    let Some(Either::Left(TblStringifierToken::Pattern(ExprPatternToken::VariableEnumerator))) = token_sequence.0.pop() else { return Err(()) };
-                    let Some(Either::Left(TblStringifierToken::Pattern(ExprPatternToken::VariableEnumerator))) = token_sequence.0.pop() else { return Err(()) };
-                    let Some(Either::Left(TblStringifierToken::Pattern(ExprPatternToken::VariableIndicator))) = token_sequence.0.pop() else { return Err(()) };
+                    let Some(Either::Left(TblToken::Pattern(ExprPatternToken::VariableIndicator))) = token_sequence.0.pop() else { return Err(()) };
                     
                 },
             };

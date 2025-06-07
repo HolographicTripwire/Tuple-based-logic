@@ -1,7 +1,7 @@
 use either::Either;
 use enum_iterator::{all, Sequence};
 
-use crate::{Destringify, Stringifier, Stringify};
+use crate::{Detextualize, Textualizer, Textualize};
 
 /// This trait allows an enum to be used as a Token for an implementer of the Lexer trait
 pub trait Token: Sequence + Clone {}
@@ -16,9 +16,9 @@ pub trait Lexer<T>: Clone + Send + Sync {
     fn string_from_token(&self, token: &T) -> &String;
 }
 
-impl <T: Token, L: Lexer<T>> Stringifier<TokenSequence<T>> for L {}
-impl <T: Token, L: Lexer<T>> Stringify<TokenSequence<T>> for L {
-    fn stringify(&self, sequence: &TokenSequence<T>) -> Result<String,()> {
+impl <T: Token, L: Lexer<T>> Textualizer<TokenSequence<T>> for L {}
+impl <T: Token, L: Lexer<T>> Textualize<TokenSequence<T>> for L {
+    fn textualize(&self, sequence: &TokenSequence<T>) -> Result<String,()> {
         let mut string = "".to_string();
         for s in &sequence.0 { match s {
             Either::Left(c) => string += self.string_from_token(&c),
@@ -27,8 +27,8 @@ impl <T: Token, L: Lexer<T>> Stringify<TokenSequence<T>> for L {
         Ok(string)
     }
 }
-impl <T: Token, L: Lexer<T>> Destringify<TokenSequence<T>> for L {
-    fn destringify(&self, string: &String) -> Result<TokenSequence<T>,()> {
+impl <T: Token, L: Lexer<T>> Detextualize<TokenSequence<T>> for L {
+    fn detextualize(&self, string: &String) -> Result<TokenSequence<T>,()> {
         let mut sequence: Vec<Either<T, String>> = Vec::new();
         let mut escaping = false;
         let mut current_string = "".to_string();

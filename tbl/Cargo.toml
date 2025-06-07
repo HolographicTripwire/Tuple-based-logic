@@ -6,7 +6,7 @@ edition = "2024"
 [dependencies]
 tbl_verification = { path = "../verification" }
 tbl_generation = { path = "../generation" }
-tbl_stringification = { path = "../stringification" }
+tbl_textualization = { path = "../textualization" }
 tbl_structures = { path = "../structures" }
 
 bimap = { version = "0.6.3" }

@@ -2,14 +2,14 @@ use tbl_structures::propositions::Expression;
 
 use std::{sync::LazyLock};
 
-use tbl_stringification::{structures::{expressions::{special_cases::SpecialCaseStringifierSet, ExpressionStringifier}, vec::VecStringifier}, Stringifier};
+use tbl_textualization::{structures::{expressions::{special_cases::SpecialCaseTextualizerSet, ExpressionTextualizer}, vec::VecTextualizer}, Textualizer};
 
-pub static TERM_STRINGIFIER: LazyLock<Box<dyn Stringifier<Expression>>> = 
-    LazyLock::new(|| -> Box<dyn Stringifier<Expression>> { 
-        Box::new(ExpressionStringifier::new(
+pub static TERM_TEXTUALIZER: LazyLock<Box<dyn Textualizer<Expression>>> = 
+    LazyLock::new(|| -> Box<dyn Textualizer<Expression>> { 
+        Box::new(ExpressionTextualizer::new(
             super::atom::STRINGIFIER.clone(),
-            VecStringifier::default(),
-            SpecialCaseStringifierSet::default()
+            VecTextualizer::default(),
+            SpecialCaseTextualizerSet::default()
         ))
     });
 
@@ -38,7 +38,7 @@ mod tests {
         let str = "∧";
         let term = CONVERSIONS.get(str).unwrap();
         // Test stringification
-        let term_stringified = TERM_STRINGIFIER.stringify(&term);
+        let term_stringified = TERM_TEXTUALIZER.textualize(&term);
         assert_eq!(term_stringified,Ok(str.to_string()));
     }
     #[test]
@@ -47,7 +47,7 @@ mod tests {
         let str = "∧";
         let term = CONVERSIONS.get(str).unwrap();
         // Test destringification
-        let str_destringified = TERM_STRINGIFIER.destringify(&str.to_string());
+        let str_destringified = TERM_TEXTUALIZER.detextualize(&str.to_string());
         assert_eq!(Ok(term.clone()),str_destringified);
     }
 
@@ -57,7 +57,7 @@ mod tests {
         let str = "(∧)";
         let term = CONVERSIONS.get(str).unwrap();
         // Test stringification
-        let term_stringified = TERM_STRINGIFIER.stringify(&term);
+        let term_stringified = TERM_TEXTUALIZER.textualize(&term);
         assert_eq!(term_stringified,Ok(str.to_string()));
     }
     #[test]
@@ -66,7 +66,7 @@ mod tests {
         let str = "(∧)";
         let term = CONVERSIONS.get(str).unwrap();
         // Test destringification
-        let str_destringified = TERM_STRINGIFIER.destringify(&str.to_string());
+        let str_destringified = TERM_TEXTUALIZER.detextualize(&str.to_string());
         assert_eq!(Ok(term.clone()),str_destringified);
     }
 
@@ -76,7 +76,7 @@ mod tests {
         let str = "(∧, →)";
         let term = CONVERSIONS.get(str).unwrap();
         // Test stringification
-        let term_stringified = TERM_STRINGIFIER.stringify(&term);
+        let term_stringified = TERM_TEXTUALIZER.textualize(&term);
         assert_eq!(term_stringified,Ok(str.to_string()));
     }
     #[test]
@@ -85,7 +85,7 @@ mod tests {
         let str = "(∧, →)";
         let term = CONVERSIONS.get(str).unwrap();
         // Test destringification
-        let str_destringified = TERM_STRINGIFIER.destringify(&str.to_string());
+        let str_destringified = TERM_TEXTUALIZER.detextualize(&str.to_string());
         assert_eq!(Ok(term.clone()),str_destringified);
     }
 
@@ -95,7 +95,7 @@ mod tests {
         let str = "((∧), →)";
         let term = CONVERSIONS.get(str).unwrap();
         // Test stringification
-        let term_stringified = TERM_STRINGIFIER.stringify(&term);
+        let term_stringified = TERM_TEXTUALIZER.textualize(&term);
         assert_eq!(term_stringified,Ok(str.to_string()));
     }
     #[test]
@@ -104,7 +104,7 @@ mod tests {
         let str = "((∧), →)";
         let term = CONVERSIONS.get(str).unwrap();
         // Test destringification
-        let str_destringified = TERM_STRINGIFIER.destringify(&str.to_string());
+        let str_destringified = TERM_TEXTUALIZER.detextualize(&str.to_string());
         assert_eq!(Ok(term.clone()),str_destringified);
     }
 }

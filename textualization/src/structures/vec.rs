@@ -1,23 +1,23 @@
 use enum_iterator::Sequence;
 
-use crate::{helpers::lexing::{Token, Lexer}, Destringify, Stringifier, Stringify};
+use crate::{helpers::lexing::{Token, Lexer}, Detextualize, Textualizer, Textualize};
 
-use super::{TblStringifierToken, TblStringifierLexer, };
+use super::{TblToken, TblLexer, };
 
 #[derive(Default)]
-pub struct VecStringifier(Box<TblStringifierLexer>);
+pub struct VecTextualizer(Box<TblLexer>);
 
-impl Stringifier<Vec<String>> for VecStringifier {}
-impl Stringify<Vec<String>> for VecStringifier {
-    fn stringify(&self, strings: &Vec<String>) -> Result<String,()> {
-        let opener = self.0.string_from_token(&TblStringifierToken::Vec(VecToken::Opener));
-        let delimiter = self.0.string_from_token(&TblStringifierToken::Vec(VecToken::Delimiter));
-        let closer = self.0.string_from_token(&TblStringifierToken::Vec(VecToken::Closer));
+impl Textualizer<Vec<String>> for VecTextualizer {}
+impl Textualize<Vec<String>> for VecTextualizer {
+    fn textualize(&self, strings: &Vec<String>) -> Result<String,()> {
+        let opener = self.0.string_from_token(&TblToken::Vec(VecToken::Opener));
+        let delimiter = self.0.string_from_token(&TblToken::Vec(VecToken::Delimiter));
+        let closer = self.0.string_from_token(&TblToken::Vec(VecToken::Closer));
         Ok(opener.clone() + &strings.join(delimiter) + closer)
     }
 }
-impl Destringify<Vec<String>> for VecStringifier {
-    fn destringify(&self, string: &String) -> Result<Vec<String>,()> {
+impl Detextualize<Vec<String>> for VecTextualizer {
+    fn detextualize(&self, string: &String) -> Result<Vec<String>,()> {
         // Get token strings
         let vec_lexer = &self.0.vec_lexer;
         let escape_character = &self.0.escape_string;

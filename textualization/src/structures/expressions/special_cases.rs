@@ -1,6 +1,6 @@
 use tbl_structures::propositions::Expression;
 
-use crate::{helpers::parsing::{stringifier::ExprPatternStringifier, ExprPattern}, structures::TblStringifierLexer, Destringify, Stringifier, Stringify};
+use crate::{helpers::parsing::{textualizer::ExprPatternTextualizer, ExprPattern}, structures::TblLexer, Detextualize, Textualizer, Textualize};
 
 #[derive(Clone)]
 pub struct SpecialCase { 
@@ -9,29 +9,29 @@ pub struct SpecialCase {
     pub vecified_whole: String,
 }
 
-pub struct SpecialCaseStringifier(ExprPattern,ExprPattern);
+pub struct SpecialCaseTextualizer(ExprPattern,ExprPattern);
 
-impl SpecialCaseStringifier {
-    pub fn from_strings(pre: &str, post: &str, lexer: Box<TblStringifierLexer>) -> Result<Self,()> {
-        let pattern_stringifier = ExprPatternStringifier::new(lexer);
+impl SpecialCaseTextualizer {
+    pub fn from_strings(pre: &str, post: &str, lexer: Box<TblLexer>) -> Result<Self,()> {
+        let pattern_textualizer = ExprPatternTextualizer::new(lexer);
         Ok(Self(
-            pattern_stringifier.destringify(&pre.to_string())?,
-            pattern_stringifier.destringify(&post.to_string())?
+            pattern_textualizer.detextualize(&pre.to_string())?,
+            pattern_textualizer.detextualize(&post.to_string())?
         ))
     }
 }
 
-impl Stringifier<SpecialCase> for SpecialCaseStringifier {}
-impl Stringify<SpecialCase>  for SpecialCaseStringifier{
-    fn stringify(&self, object: &SpecialCase) -> Result<String,()> {
+impl Textualizer<SpecialCase> for SpecialCaseTextualizer {}
+impl Textualize<SpecialCase>  for SpecialCaseTextualizer{
+    fn textualize(&self, object: &SpecialCase) -> Result<String,()> {
         let string = object.vecified_whole.clone();
         let Ok(replacements) = self.0.match_string(string) else { return Err(()) };
         let pattern = self.1.replace_variables(replacements)?;
         pattern.try_into()
     }
 }
-impl Destringify<SpecialCase> for SpecialCaseStringifier {
-    fn destringify(&self, string: &String) -> Result<SpecialCase,()> {
+impl Detextualize<SpecialCase> for SpecialCaseTextualizer {
+    fn detextualize(&self, string: &String) -> Result<SpecialCase,()> {
         let Ok(replacements) = self.1.match_string(string.clone()) else { return Err(()) };
         let pattern = self.0.replace_variables(replacements)?;
         Ok(SpecialCase {
@@ -43,20 +43,20 @@ impl Destringify<SpecialCase> for SpecialCaseStringifier {
 }
 
 #[derive(Default)]
-pub struct SpecialCaseStringifierSet {
-    cases: Vec<Box<dyn Stringifier<SpecialCase>>>,
+pub struct SpecialCaseTextualizerSet {
+    cases: Vec<Box<dyn Textualizer<SpecialCase>>>,
 }
 
-impl SpecialCaseStringifierSet {
-    pub fn new(cases: Vec<Box<dyn Stringifier<SpecialCase>>>) -> Self { Self { cases } }
+impl SpecialCaseTextualizerSet {
+    pub fn new(cases: Vec<Box<dyn Textualizer<SpecialCase>>>) -> Self { Self { cases } }
 }
 
-impl Stringifier<SpecialCase> for SpecialCaseStringifierSet {}
-impl Stringify<SpecialCase> for SpecialCaseStringifierSet {
-    fn stringify(&self, case: &SpecialCase) -> Result<String,()> { 
+impl Textualizer<SpecialCase> for SpecialCaseTextualizerSet {}
+impl Textualize<SpecialCase> for SpecialCaseTextualizerSet {
+    fn textualize(&self, case: &SpecialCase) -> Result<String,()> { 
         let interpretations: Vec<String> = self.cases.iter()
-            .filter_map(|stringifier| -> Option<String>{
-                match stringifier.stringify(case) {
+            .filter_map(|textualizer| -> Option<String>{
+                match textualizer.textualize(case) {
                     Ok(string) => Some(string),
                     Err(_) => None,
                 }})
@@ -70,11 +70,11 @@ impl Stringify<SpecialCase> for SpecialCaseStringifierSet {
         else { Err(()) }
     }
 }
-impl Destringify<SpecialCase> for SpecialCaseStringifierSet {
-    fn destringify(&self, string: &String) -> Result<SpecialCase,()> { 
+impl Detextualize<SpecialCase> for SpecialCaseTextualizerSet {
+    fn detextualize(&self, string: &String) -> Result<SpecialCase,()> { 
         let interpretations: Vec<SpecialCase> = self.cases.iter()
-            .filter_map(|stringifier| -> Option<SpecialCase>{
-                match stringifier.destringify(string) {
+            .filter_map(|textualizer| -> Option<SpecialCase>{
+                match textualizer.detextualize(string) {
                     Ok(case) => Some(case),
                     Err(_) => None,
                 }})

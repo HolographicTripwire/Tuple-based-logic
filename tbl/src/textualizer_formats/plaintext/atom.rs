@@ -1,9 +1,9 @@
 use std::sync::LazyLock;
 
-use tbl_stringification::structures::atom::AtomStringifier;
+use tbl_textualization::structures::atom::AtomTextualizer;
 
-pub static STRINGIFIER: LazyLock<AtomStringifier> = LazyLock::new(|| -> AtomStringifier { 
-    AtomStringifier::from_strings(vec![
+pub static STRINGIFIER: LazyLock<AtomTextualizer> = LazyLock::new(|| -> AtomTextualizer { 
+    AtomTextualizer::from_strings(vec![
         // Built-in atoms
         (000,"∧"),  // Conjunction
         (001,"∀"),  // Universal quantiifer
