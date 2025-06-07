@@ -201,4 +201,18 @@ mod tests {
         let (detextualized, check) = pre_detextualize_test("Sasquatch BBBAFirehose", tokens);
         assert_eq!(detextualized, Ok(check));
     }
+
+    #[test]
+    fn test_textualize_with_escapes() {
+        let tokens = vec![Either::Right("Aardvark"), Either::Left(TestToken::BB)];
+        let (textualized, check) = pre_textualize_test("\\AardvarkBB", tokens);
+        assert_eq!(textualized, Ok(check));
+    }
+
+    #[test]
+    fn test_detextualize_with_escapes() {
+        let tokens = vec![Either::Right("Aardvark"), Either::Left(TestToken::BB)];
+        let (detextualized, check) = pre_detextualize_test("\\AardvarkBB", tokens);
+        assert_eq!(detextualized, Ok(check));
+    }
 }
