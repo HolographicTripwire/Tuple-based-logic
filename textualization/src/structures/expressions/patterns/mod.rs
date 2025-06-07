@@ -1,6 +1,6 @@
 use either::Either;
 
-use crate::{helpers::lexing::Lexer, structures::{expressions::patterns::expr_pattern::{ExprPattern, ExprPatternComponent, ExprPatternLexer, ExprPatternToken}, TblLexer, TblToken}, Detextualize, Textualize, Textualizer};
+use crate::{helpers::lexing::Lexer, structures::expressions::patterns::expr_pattern::{ExprPattern, ExprPatternComponent, ExprPatternLexer, ExprPatternToken}, Detextualize, Textualize, Textualizer};
 
 pub mod expr_pattern;
 pub mod variable_assignments;
@@ -94,15 +94,29 @@ mod tests {
     
     #[test]
     fn test_parse_with_const() {
-        let components = vec![ExprPatternComponent::Constant("A".to_string())];
-        let (textualized, check) = pre_textualize_test("A", components);
+        let components = vec![ExprPatternComponent::Constant("AA".to_string())];
+        let (textualized, check) = pre_textualize_test("AA", components);
         assert_eq!(textualized, Ok(check));
     }
 
     #[test]
     fn test_unparse_with_const() {
-        let components = vec![ExprPatternComponent::Constant("A".to_string())];
-        let (detextualized, check) = pre_detextualize_test("A", components);
+        let components = vec![ExprPatternComponent::Constant("AA".to_string())];
+        let (detextualized, check) = pre_detextualize_test("AA", components);
+        assert_eq!(detextualized, Ok(check));
+    }
+
+    #[test]
+    fn test_parse_with_var() {
+        let components = vec![ExprPatternComponent::Variable("Potato ".to_string())];
+        let (textualized, check) = pre_textualize_test("#Potato ", components);
+        assert_eq!(textualized, Ok(check));
+    }
+
+    #[test]
+    fn test_deparse_with_var() {
+        let components = vec![ExprPatternComponent::Variable("Potato ".to_string())];
+        let (detextualized, check) = pre_detextualize_test("#Potato ", components);
         assert_eq!(detextualized, Ok(check));
     }
 }
