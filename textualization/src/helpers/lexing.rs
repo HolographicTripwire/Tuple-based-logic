@@ -124,7 +124,7 @@ mod tests {
         }
     }
 
-    fn test_textualize(string: &str, tokens: Vec<Either<TestToken,&str>>) {
+    fn pre_textualize_test(string: &str, tokens: Vec<Either<TestToken,&str>>) -> (Result<String,()>,String) {
         let lexer = TestLexer::default();
         let tokens = tokens.iter()
             .map(|obj| -> Either<TestToken,String> { match obj {
@@ -132,10 +132,10 @@ mod tests {
                 Either::Right(string) => Either::Right(string.to_string()),
             }}).collect();
         let sequence = TokenSequence(tokens);
-        assert_eq!(lexer.textualize(&sequence), Ok(string.to_string()))
+        (lexer.textualize(&sequence), string.to_string())
     }
 
-    fn test_detextualize(string: &str, tokens: Vec<Either<TestToken,&str>>) {
+    fn pre_detextualize_test(string: &str, tokens: Vec<Either<TestToken,&str>>) -> (Result<TokenSequence<TestToken>,()>,TokenSequence<TestToken>) {
         let lexer = TestLexer::default();
         let tokens = tokens.iter()
             .map(|obj| -> Either<TestToken,String> { match obj {
@@ -143,54 +143,62 @@ mod tests {
                 Either::Right(string) => Either::Right(string.to_string()),
             }}).collect();
         let sequence = TokenSequence(tokens);
-        assert_eq!(lexer.detextualize(&string.to_string()), Ok(sequence))
+        (lexer.detextualize(&string.to_string()), sequence)
     }
 
     #[test]
     fn test_textualize_with_single_character_token() {
         let tokens = vec![Either::Left(TestToken::A)];
-        test_textualize("A", tokens);
+        let (textualized, check) = pre_textualize_test("A", tokens);
+        assert_eq!(textualized, Ok(check));
     }
 
     #[test]
     fn test_detextualize_with_single_character_token() {
         let tokens = vec![Either::Left(TestToken::A)];
-        test_detextualize("A", tokens);
+        let (detextualized, check) = pre_detextualize_test("A", tokens);
+        assert_eq!(detextualized, Ok(check));
     }
 
     #[test]
     fn test_textualize_with_multi_character_token() {
         let tokens = vec![Either::Left(TestToken::BB)];
-        test_textualize("BB", tokens);
+        let (textualized, check) = pre_textualize_test("BB", tokens);
+        assert_eq!(textualized, Ok(check));
     }
 
     #[test]
     fn test_detextualize_with_multi_character_token() {
         let tokens = vec![Either::Left(TestToken::BB)];
-        test_detextualize("BB", tokens);
+        let (detextualized, check) = pre_detextualize_test("BB", tokens);
+        assert_eq!(detextualized, Ok(check));
     }
 
     #[test]
     fn test_textualize_with_multiple_tokens() {
         let tokens = vec![Either::Left(TestToken::BB), Either::Left(TestToken::A), Either::Left(TestToken::A), Either::Left(TestToken::BB)];
-        test_textualize("BBAABB", tokens);
+        let (textualized, check) = pre_textualize_test("BBAABB", tokens);
+        assert_eq!(textualized, Ok(check));
     }
 
     #[test]
     fn test_detextualize_with_multiple_tokens() {
         let tokens = vec![Either::Left(TestToken::BB), Either::Left(TestToken::A), Either::Left(TestToken::A), Either::Left(TestToken::BB)];
-        test_detextualize("BBAABB", tokens);
+        let (detextualized, check) = pre_detextualize_test("BBAABB", tokens);
+        assert_eq!(detextualized, Ok(check));
     }
 
     #[test]
     fn test_textualize_with_strings() {
         let tokens = vec![Either::Right("Sasquatch "), Either::Left(TestToken::BB), Either::Right("B"), Either::Left(TestToken::A), Either::Right("Firehose")];
-        test_textualize("Sasquatch BBBAFirehose", tokens);
+        let (textualized, check) = pre_textualize_test("Sasquatch BBBAFirehose", tokens);
+        assert_eq!(textualized, Ok(check));
     }
 
     #[test]
     fn test_detextualize_with_strings() {
         let tokens = vec![Either::Right("Sasquatch "), Either::Left(TestToken::BB), Either::Right("B"), Either::Left(TestToken::A), Either::Right("Firehose")];
-        test_detextualize("Sasquatch BBBAFirehose", tokens);
+        let (detextualized, check) = pre_detextualize_test("Sasquatch BBBAFirehose", tokens);
+        assert_eq!(detextualized, Ok(check));
     }
 }
