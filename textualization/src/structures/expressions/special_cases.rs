@@ -1,6 +1,6 @@
 use tbl_structures::propositions::Expression;
 
-use crate::{structures::{expressions::patterns::{expr_pattern::ExprPattern, ExprPatternTextualizer}, TblLexer}, Detextualize, Textualize, Textualizer};
+use crate::{structures::{expressions::patterns::{expr_pattern::{ExprPattern, ExprPatternLexer}, ExprPatternTextualizer}, TblLexer}, Detextualize, Textualize, Textualizer};
 
 #[derive(Clone)]
 pub struct SpecialCase { 
@@ -12,7 +12,7 @@ pub struct SpecialCase {
 pub struct SpecialCaseTextualizer(ExprPattern,ExprPattern);
 
 impl SpecialCaseTextualizer {
-    pub fn from_strings(pre: &str, post: &str, lexer: Box<TblLexer>) -> Result<Self,()> {
+    pub fn from_strings(pre: &str, post: &str, lexer: Box<ExprPatternLexer>) -> Result<Self,()> {
         let pattern_textualizer = ExprPatternTextualizer::new(lexer);
         Ok(Self(
             pattern_textualizer.detextualize(&pre.to_string())?,

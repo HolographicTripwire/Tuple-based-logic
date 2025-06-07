@@ -13,11 +13,11 @@ pub enum ExprPatternComponent {
 
 pub struct ExprPattern{
     components: Vec<ExprPatternComponent>,
-    lexer: Box<TblLexer>,
+    lexer: Box<ExprPatternLexer>,
 }
 impl ExprPattern {
     /// Create a new ExprPattern
-    pub fn new(components: Vec<ExprPatternComponent>, lexer: Box<TblLexer>) -> Self {
+    pub fn new(components: Vec<ExprPatternComponent>, lexer: Box<ExprPatternLexer>) -> Self {
         Self {
             components: Self::remove_redundancy(components),
             lexer
@@ -76,13 +76,12 @@ impl ExprPattern {
                     let Some(Either::Right(s2)) = token_sequence.0.pop() else { return Err(()) };
                     if s1 != s2 { return Err(()) }
                 }, ExprPatternComponent::Variable(var) => {
-                    let Some(Either::Left(TblToken::Pattern(ExprPatternToken::VariableIndicator))) = token_sequence.0.pop() else { return Err(()) };
+                    let Some(Either::Left(ExprPatternToken::VariableIndicator)) = token_sequence.0.pop() else { return Err(()) };
                     let Some(Either::Right(val)) = token_sequence.0.pop() else { return Err(()) };
                     map.add_var_to_val(var,val)?;
                 },
                 ExprPatternComponent::Variables((var1, var2), sep) => {
-                    let Some(Either::Left(TblToken::Pattern(ExprPatternToken::VariableIndicator))) = token_sequence.0.pop() else { return Err(()) };
-                    
+                    let Some(Either::Left(ExprPatternToken::VariableIndicator)) = token_sequence.0.pop() else { return Err(()) };
                 },
             };
         }

@@ -1,21 +1,22 @@
 use either::Either;
 
-use crate::{helpers::lexing::Lexer, structures::{expressions::patterns::expr_pattern::{ExprPattern, ExprPatternComponent, ExprPatternToken}, TblLexer, TblToken}, Detextualize, Textualize, Textualizer};
+use crate::{helpers::lexing::Lexer, structures::{expressions::patterns::expr_pattern::{ExprPattern, ExprPatternComponent, ExprPatternLexer, ExprPatternToken}, TblLexer, TblToken}, Detextualize, Textualize, Textualizer};
 
 pub mod expr_pattern;
 pub mod variable_assignments;
 
+#[derive(Default,Clone)]
 pub struct ExprPatternTextualizer {
-    lexer: Box<TblLexer>
+    lexer: Box<ExprPatternLexer>
 }
 impl ExprPatternTextualizer {
-    pub fn new(lexer: Box<TblLexer>) -> Self {
+    pub fn new(lexer: Box<ExprPatternLexer>) -> Self {
         Self { lexer }
     }
 }
 
-const VAR_INDIC_TOKEN: TblToken = TblToken::Pattern(ExprPatternToken::VariableIndicator);
-const VAR_ENUM_TOKEN: TblToken = TblToken::Pattern(ExprPatternToken::VariableIndicator);
+const VAR_INDIC_TOKEN: ExprPatternToken = ExprPatternToken::VariableIndicator;
+const VAR_ENUM_TOKEN: ExprPatternToken = ExprPatternToken::VariableIndicator;
 
 impl Textualizer<ExprPattern> for ExprPatternTextualizer {}
 impl Textualize<ExprPattern> for ExprPatternTextualizer {
@@ -52,7 +53,7 @@ impl Detextualize<ExprPattern> for ExprPatternTextualizer {
                 VarDeclarationStage::Sep => todo!(),
                 VarDeclarationStage::SecondEnum => todo!(),
                 VarDeclarationStage::SecondIndic => todo!(),
-            }}, Either::Left(TblToken::Pattern(token)) => match token {
+            }}, Either::Left(token) => match token {
                 ExprPatternToken::VariableIndicator => var_declaration_stage = match var_declaration_stage {
                     VarDeclarationStage::Begin | VarDeclarationStage::FirstVar => VarDeclarationStage::FirstIndic,
                     VarDeclarationStage::SecondEnum => VarDeclarationStage::SecondIndic,
