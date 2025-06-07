@@ -23,7 +23,18 @@ impl <T: Token, L: Lexer<T>> Textualize<TokenSequence<T>> for L {
         let mut string = "".to_string();
         for s in &tokens.0 { match s {
             Either::Left(c) => string += self.string_from_token(&c),
-            Either::Right(s) => string += s.as_str(),
+            Either::Right(s) => {
+                let mut string_to_add = "".to_string();
+                for character in s.chars() {
+                    string_to_add.push(character);
+                    if let Ok(escape) = pop_escape_from_string_end(self, &mut string_to_add) {
+                        string_to_add = string_to_add + "\\" + &escape;
+                    } else if let Some(token_mapping) = pop_token_from_string_end(self, &mut string_to_add)? {
+                        string_to_add = string_to_add + "\\" + &token_mapping.1;
+                    }
+                }
+                string += &string_to_add;
+            },
         }}
         Ok(string)
     }
