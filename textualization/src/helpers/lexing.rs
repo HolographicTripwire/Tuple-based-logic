@@ -19,9 +19,9 @@ pub trait Lexer<T>: Clone + Send + Sync {
 
 impl <T: Token, L: Lexer<T>> Textualizer<TokenSequence<T>> for L {}
 impl <T: Token, L: Lexer<T>> Textualize<TokenSequence<T>> for L {
-    fn textualize(&self, sequence: &TokenSequence<T>) -> Result<String,()> {
+    fn textualize(&self, tokens: &TokenSequence<T>) -> Result<String,()> {
         let mut string = "".to_string();
-        for s in &sequence.0 { match s {
+        for s in &tokens.0 { match s {
             Either::Left(c) => string += self.string_from_token(&c),
             Either::Right(s) => string += s.as_str(),
         }}
@@ -30,7 +30,7 @@ impl <T: Token, L: Lexer<T>> Textualize<TokenSequence<T>> for L {
 }
 impl <T: Token, L: Lexer<T>> Detextualize<TokenSequence<T>> for L {
     fn detextualize(&self, string: &String) -> Result<TokenSequence<T>,()> {
-        let mut sequence: Vec<Either<T, String>> = Vec::new();
+        let mut tokens: Vec<Either<T, String>> = Vec::new();
         let mut escaping = false;
         let mut current_string = "".to_string();
         for char in string.chars() {
@@ -39,14 +39,14 @@ impl <T: Token, L: Lexer<T>> Detextualize<TokenSequence<T>> for L {
                 if let Ok(_) = pop_escape_from_string_end(self,&mut current_string) { 
                     escaping = true;
                 } else if let Some(token_mapping) = pop_token_from_string_end(self, &mut current_string)? {
-                    if current_string.len() > 0 { sequence.push(Either::Right(current_string)) }
-                    sequence.push(Either::Left(token_mapping.0));
+                    if current_string.len() > 0 { tokens.push(Either::Right(current_string)) }
+                    tokens.push(Either::Left(token_mapping.0));
                     current_string = "".to_owned();
                 }
             } else { escaping = false; }
         }
-        if current_string.len() > 0 { sequence.push(Either::Right(current_string)) }
-        Ok(TokenSequence(sequence))
+        if current_string.len() > 0 { tokens.push(Either::Right(current_string)) }
+        Ok(TokenSequence(tokens))
     }
 }
 
@@ -124,36 +124,39 @@ mod tests {
         }
     }
 
+    fn test_textualize(string: &str, tokens: Vec<Either<TestToken,String>>) {
+        let lexer = TestLexer::default();
+        let sequence = TokenSequence(tokens);
+        assert_eq!(lexer.textualize(&sequence), Ok(string.to_string()))
+    }
+
+    fn test_detextualize(string: &str, tokens: Vec<Either<TestToken,String>>) {
+        let lexer = TestLexer::default();
+        let sequence = TokenSequence(tokens);
+        assert_eq!(lexer.detextualize(&string.to_string()), Ok(sequence))
+    }
+
     #[test]
     fn test_textualize_with_single_character_token() {
-        let lexer = TestLexer::default();
-        let sequence: TokenSequence<TestToken> = TokenSequence(vec![Either::Left(TestToken::A)]);
-        let string = "A".to_string();
-        assert_eq!(lexer.detextualize(&string), Ok(sequence));
-        
+        let tokens = vec![Either::Left(TestToken::A)];
+        test_textualize("A", tokens);
     }
 
     #[test]
     fn test_detextualize_with_single_character_token() {
-        let lexer = TestLexer::default();
-        let sequence: TokenSequence<TestToken> = TokenSequence(vec![Either::Left(TestToken::A)]);
-        let string = "A".to_string();
-        assert_eq!(lexer.textualize(&sequence), Ok(string));
+        let tokens = vec![Either::Left(TestToken::A)];
+        test_detextualize("A", tokens);
     }
 
     #[test]
     fn test_textualize_with_multi_character_token() {
-        let lexer = TestLexer::default();
-        let sequence: TokenSequence<TestToken> = TokenSequence(vec![Either::Left(TestToken::BB)]);
-        let string = "BB".to_string();
-        assert_eq!(lexer.detextualize(&string), Ok(sequence));
+        let tokens = vec![Either::Left(TestToken::BB)];
+        test_textualize("BB", tokens);
     }
 
     #[test]
     fn test_detextualize_with_multi_character_token() {
-        let lexer = TestLexer::default();
-        let sequence: TokenSequence<TestToken> = TokenSequence(vec![Either::Left(TestToken::BB)]);
-        let string = "BB".to_string();
-        assert_eq!(lexer.textualize(&sequence), Ok(string));
+        let tokens = vec![Either::Left(TestToken::BB)];
+        test_detextualize("BB", tokens);
     }
 }
