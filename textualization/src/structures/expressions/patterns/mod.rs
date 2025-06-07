@@ -119,4 +119,39 @@ mod tests {
         let (result, check) = pre_detextualize_test("#Potato ", components);
         assert_eq!(result, Ok(check));
     }
+
+    #[test]
+    fn test_parse_with_vars_no_joiner() {
+        let components = vec![ExprPatternComponent::new_vars("A","","B")];
+        let (result, check) = pre_textualize_test("#A....B", components);
+        assert_eq!(result, Ok(check));
+    }
+
+    #[test]
+    fn test_deparse_with_vars_no_joiner() {
+        let components = vec![ExprPatternComponent::new_vars("A","","B")];
+        let (result, check) = pre_detextualize_test("#A....B", components);
+        assert_eq!(result, Ok(check));
+    }
+
+    #[test]
+    fn test_parse_with_vars_and_joiner() {
+        let components = vec![ExprPatternComponent::new_vars("A"," & ","B")];
+        let (result, check) = pre_textualize_test("#A.. & .. #B", components);
+        assert_eq!(result, Ok(check));
+    }
+
+    #[test]
+    fn test_deparse_with_vars_and_joiner() {
+        let components = vec![ExprPatternComponent::new_vars("A"," & ","B")];
+        let (result, check) = pre_detextualize_test("#A.. & .. #B", components);
+        assert_eq!(result, Ok(check));
+    }
+
+    #[test]
+    fn test_parse_with_complex_string() {
+        let components = vec![ExprPatternComponent::new_const("("), ExprPatternComponent::new_var("G"), ExprPatternComponent::new_const(","), ExprPatternComponent::new_vars("A"," & ","B"), ExprPatternComponent::new_const("))")];
+        let (result, check) = pre_textualize_test("(#G,(f,#A.. & .. #B))", components);
+        assert_eq!(result, Ok(check));
+    }
 }
