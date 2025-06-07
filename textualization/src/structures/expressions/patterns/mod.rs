@@ -94,29 +94,29 @@ mod tests {
     
     #[test]
     fn test_parse_with_const() {
-        let components = vec![ExprPatternComponent::Constant("AA".to_string())];
-        let (textualized, check) = pre_textualize_test("AA", components);
-        assert_eq!(textualized, Ok(check));
+        let components = vec![ExprPatternComponent::new_const("AA")];
+        let (result, check) = pre_textualize_test("AA", components);
+        assert_eq!(result, Ok(check));
     }
 
     #[test]
     fn test_unparse_with_const() {
-        let components = vec![ExprPatternComponent::Constant("AA".to_string())];
-        let (detextualized, check) = pre_detextualize_test("AA", components);
-        assert_eq!(detextualized, Ok(check));
+        let components = vec![ExprPatternComponent::new_const("AA")];
+        let (result, check) = pre_detextualize_test("AA", components);
+        assert_eq!(result, Ok(check));
     }
 
     #[test]
     fn test_parse_with_var() {
-        let components = vec![ExprPatternComponent::Variable("Potato ".to_string())];
-        let (textualized, check) = pre_textualize_test("#Potato ", components);
-        assert_eq!(textualized, Ok(check));
+        let components = vec![ExprPatternComponent::new_var("Potato ")];
+        let (result, check) = pre_textualize_test("#Potato ", components);
+        assert_eq!(result, Ok(check));
     }
 
     #[test]
     fn test_deparse_with_var() {
-        let components = vec![ExprPatternComponent::Variable("Potato ".to_string())];
-        let (detextualized, check) = pre_detextualize_test("#Potato ", components);
-        assert_eq!(detextualized, Ok(check));
+        let components = vec![ExprPatternComponent::new_var("Potato ")];
+        let (result, check) = pre_detextualize_test("#Potato ", components);
+        assert_eq!(result, Ok(check));
     }
 }

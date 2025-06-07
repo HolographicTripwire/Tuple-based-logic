@@ -13,7 +13,7 @@ pub enum ExprPatternComponent {
 impl ExprPatternComponent {
     pub fn new_const(const_string: &str) -> Self { Self::Constant(const_string.to_string()) }
     pub fn new_var(var_name: &str) -> Self { Self::Variable(var_name.to_string()) }
-    pub fn new_vars(from: &str, to: &str, joiner: &str) -> Self { Self::Variables((from.to_string(),to.to_string()),joiner.to_string()) }
+    pub fn new_vars(from: &str, joiner: &str, to: &str) -> Self { Self::Variables((from.to_string(),to.to_string()),joiner.to_string()) }
 }
 
 #[derive(Clone,PartialEq,Eq,Debug)]
