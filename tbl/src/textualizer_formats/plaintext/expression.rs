@@ -7,7 +7,7 @@ use tbl_textualization::{structures::{expressions::{special_cases::SpecialCaseTe
 pub static TERM_TEXTUALIZER: LazyLock<Box<dyn Textualizer<Expression>>> = 
     LazyLock::new(|| -> Box<dyn Textualizer<Expression>> { 
         Box::new(ExpressionTextualizer::new(
-            super::atom::STRINGIFIER.clone(),
+            super::atom::ATOM_TEXTUALIZER.clone(),
             VecTextualizer::default(),
             SpecialCaseTextualizerSet::default()
         ))

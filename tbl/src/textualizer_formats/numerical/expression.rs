@@ -4,12 +4,12 @@ use tbl_structures::{propositions::Expression};
 
 use tbl_textualization::{structures::{expressions::{special_cases::SpecialCaseTextualizerSet, ExpressionTextualizer}, vec::VecTextualizer}, Textualizer};
 
-use super::atom::NumAtomTextualizer;
+use crate::textualizer_formats::numerical::atom::ATOM_TEXTUALIZER;
 
 pub static TERM_STRINGIFIER: LazyLock<Box<dyn Textualizer<Expression>>> = 
     LazyLock::new(|| -> Box<dyn Textualizer<Expression>> { 
         Box::new(ExpressionTextualizer::new(
-            NumAtomTextualizer(),
+            ATOM_TEXTUALIZER.clone(),
             VecTextualizer::default(),
             SpecialCaseTextualizerSet::default(),
         ))

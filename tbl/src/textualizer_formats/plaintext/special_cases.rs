@@ -4,7 +4,7 @@ use tbl_textualization::{structures::expressions::{special_cases::{SpecialCaseTe
 
 use super::TBL_LEXER;
 
-pub static SPECIAL_CASES: LazyLock<SpecialCaseTextualizerSet> = LazyLock::new(|| -> SpecialCaseTextualizerSet {
+pub static SPECIAL_CASE_TEXTUALIZER: LazyLock<SpecialCaseTextualizerSet> = LazyLock::new(|| -> SpecialCaseTextualizerSet {
     let function_rules = vec![
         ("(∧,#a..#b)","(#a.. ∧ ..#b)"),
         ("(∀,#a,#b)","∀#a(#b)"),

@@ -2,7 +2,7 @@ use std::sync::LazyLock;
 
 use tbl_textualization::structures::atom::AtomTextualizer;
 
-pub static STRINGIFIER: LazyLock<AtomTextualizer> = LazyLock::new(|| -> AtomTextualizer { 
+pub static ATOM_TEXTUALIZER: LazyLock<AtomTextualizer> = LazyLock::new(|| -> AtomTextualizer { 
     AtomTextualizer::from_strings(vec![
         // Built-in atoms
         (000,"∧"),  // Conjunction
