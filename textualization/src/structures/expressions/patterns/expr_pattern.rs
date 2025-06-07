@@ -2,7 +2,7 @@ use either::Either;
 use enum_iterator::Sequence;
 use super::variable_assignments::VariableAssignments;
 
-use crate::{helpers::lexing::{Lexer, Token}, structures::{TblLexer, TblToken}, Detextualize};
+use crate::{helpers::lexing::{Lexer, Token}, Detextualize};
 
 #[derive(Clone,PartialEq,Eq,Debug)]
 pub enum ExprPatternComponent {
@@ -30,21 +30,26 @@ impl ExprPattern {
     fn remove_redundancy(components: Vec<ExprPatternComponent>) -> Vec<ExprPatternComponent> {
         let mut new_components = Vec::new();
         // Iterate through the provided components
-        for component in &components {
-            match component {
-                // For any ExprPatternComponent::Constant objects, we should join them together if they are consecutive
-                ExprPatternComponent::Constant(new_string) => {
-                    let combined_string = if let Some(ExprPatternComponent::Constant(old_string)) = components.last()
-                        { new_components.pop(); old_string.to_string() + new_string } 
-                    else { new_string.to_string() };
-                    
-                    new_components.push(ExprPatternComponent::Constant(combined_string));
-                }, // For any ExprPattern::Variable components, just add them directly without modification
-                ExprPatternComponent::Variable(_) => new_components.push(component.clone()),
-                // For any ExprPattern::Variables components, just add them direcly without modification
-                ExprPatternComponent::Variables((_, _), _) => new_components.push(component.clone()),
+        let mut combined_string = "".to_string();
+        let push_combined_string = |combined_string: &mut String, new_components: &mut Vec<ExprPatternComponent>| -> () {
+            if combined_string.len() > 0 {
+                new_components.push(ExprPatternComponent::Constant(combined_string.clone()));
+                combined_string.clear();
             }
-        } new_components
+        };
+        for component_i in components {
+            if let ExprPatternComponent::Constant(_) = component_i {}
+            else { push_combined_string(&mut combined_string, &mut new_components) }
+            match component_i {
+                // For any ExprPatternComponent::Constant objects, we should join them together if they are consecutive
+                ExprPatternComponent::Constant(new_string) => combined_string += &new_string,
+                // For any ExprPattern::Variable components, just add them directly without modification
+                ExprPatternComponent::Variable(_) => new_components.push(component_i.clone()),
+                // For any ExprPattern::Variables components, just add them direcly without modification
+                ExprPatternComponent::Variables((_, _), _) => new_components.push(component_i.clone()),
+            }
+        } push_combined_string(&mut combined_string, &mut new_components);
+        new_components
     }
 
     pub fn replace_variables(&self, replacements: VariableAssignments) -> Result<Self,()> {
