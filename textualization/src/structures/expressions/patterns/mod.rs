@@ -44,15 +44,29 @@ impl Destringify<ExprPattern> for ExprPatternParser {
         let token_sequence = self.lexer.destringify(&string)?;
         let mut components = Vec::new();
         let mut var_declaration_stage = VarDeclarationStage::Begin;
+        let mut var_left = None;
+        let mut var_joiner = None;
         for token_or_string in token_sequence.0 { match token_or_string {
             Either::Right(string) => { match var_declaration_stage {
                 VarDeclarationStage::Begin => components.push(ExprPatternComponent::Constant(string)),
-                VarDeclarationStage::FirstIndic => todo!(),
-                VarDeclarationStage::FirstVar => todo!(),
-                VarDeclarationStage::FirstEnum => todo!(),
-                VarDeclarationStage::Sep => todo!(),
-                VarDeclarationStage::SecondEnum => todo!(),
-                VarDeclarationStage::SecondIndic => todo!(),
+                VarDeclarationStage::FirstIndic => {
+                    var_left = Some(string); 
+                    var_declaration_stage = VarDeclarationStage::FirstVar
+                }, VarDeclarationStage::FirstVar => { 
+                    let var = var_left.expect("var_declaration_stage was FirstVar but var_left was not defined"); var_left = None;
+                    components.push(ExprPatternComponent::Variable(var));
+                    components.push(ExprPatternComponent::Constant(string));
+                    
+                }, VarDeclarationStage::FirstEnum => {
+                    var_joiner = Some(string); 
+                    var_declaration_stage = VarDeclarationStage::Sep
+                }, VarDeclarationStage::Sep => { panic!("TokenSequence contained two strings in a row") },
+                VarDeclarationStage::SecondEnum => { return Err(()) },
+                VarDeclarationStage::SecondIndic => {
+                    let var_l = var_left.expect("var_declaration_stage was SecondIndic but var_left was not defined"); var_left = None;
+                    let var_j = var_joiner.expect("var_declaration_stage was SecondIndic but var_joiner was not defined"); var_joiner = None;
+                    components.push(ExprPatternComponent::Variables((var_l,string),var_j))
+                },
             }}, Either::Left(token) => match token {
                 ExprPatternToken::VariableIndicator => var_declaration_stage = match var_declaration_stage {
                     VarDeclarationStage::Begin | VarDeclarationStage::FirstVar => VarDeclarationStage::FirstIndic,
@@ -60,7 +74,8 @@ impl Destringify<ExprPattern> for ExprPatternParser {
                     _ => return Err(())
                 }, ExprPatternToken::VariableEnumerator => var_declaration_stage = match var_declaration_stage {
                     VarDeclarationStage::FirstVar => VarDeclarationStage::FirstEnum,
-                    VarDeclarationStage::FirstEnum | VarDeclarationStage::Sep => VarDeclarationStage::SecondEnum,
+                    VarDeclarationStage::FirstEnum => { var_joiner = Some("".to_string()); VarDeclarationStage::SecondEnum }
+                    VarDeclarationStage::Sep => VarDeclarationStage::SecondEnum,
                     _ => return Err(())
                 },
             }, Either::Left(token) => {
