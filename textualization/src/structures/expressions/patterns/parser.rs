@@ -23,12 +23,18 @@ impl Stringify<ExprPattern> for ExprPatternParser {
         let var_indic_token = self.lexer.string_from_token(&VAR_INDIC_TOKEN);
         let var_enum_token = self.lexer.string_from_token(&VAR_ENUM_TOKEN);
         let mut string = "".to_string();
-        for component in pattern.get_components() { match component {
-            ExprPatternComponent::Constant(constant) => { string = string + 
+        for component in pattern.get_components() { string = match component {
+            ExprPatternComponent::Constant(constant) => {
+                if constant.len() == 0 { return Err(()) }
+                string + 
                 constant
-            }, ExprPatternComponent::Variable(var) => { string = string +
+            }, ExprPatternComponent::Variable(var) => { 
+                if var.len() == 0 { return Err(()) }
+                string +
                 var_indic_token + var + var_indic_token
-            }, ExprPatternComponent::Variables((var1, var2), sep) => { string = string + 
+            }, ExprPatternComponent::Variables((var1, var2), sep) => { 
+                if vec![var1.len(),var2.len(),sep.len()].contains(&0) { return Err(()) }
+                string + 
                 var_indic_token + var1 + 
                 var_enum_token + sep + var_enum_token +
                 var2 + var_indic_token
@@ -86,7 +92,7 @@ impl Destringify<ExprPattern> for ExprPatternParser {
                     } _ => return Err(())
                 }, ExprPatternToken::VariableEnumerator => match var_declaration_stage {
                     VarDeclarationStage::FirstVar => VarDeclarationStage::FirstEnum,
-                    VarDeclarationStage::FirstEnum => { var_definition.1 = Some("".to_string()); VarDeclarationStage::SecondEnum }
+                    VarDeclarationStage::FirstEnum => { return Err(()) }
                     VarDeclarationStage::Sep => VarDeclarationStage::SecondEnum,
                     _ => return Err(())
                 },
@@ -147,15 +153,14 @@ mod tests {
     #[test]
     fn test_parse_with_vars_no_joiner() {
         let components = vec![ExprPatternComponent::new_vars("A","","B")];
-        let (result, check) = pre_stringify_test("#A....B#", components);
-        assert_eq!(result, Ok(check));
+        let (result, _) = pre_stringify_test("", components);
+        assert_eq!(result, Err(()));
     }
 
     #[test]
     fn test_deparse_with_vars_no_joiner() {
-        let components = vec![ExprPatternComponent::new_vars("A","","B")];
-        let (result, check) = pre_destringify_test("#A....B#", components);
-        assert_eq!(result, Ok(check));
+        let (result, _) = pre_destringify_test("#A....B#", vec![]);
+        assert_eq!(result, Err(()));
     }
 
     #[test]
