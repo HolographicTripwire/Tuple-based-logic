@@ -28,60 +28,72 @@ impl Stringify<ExprPattern> for ExprPatternParser {
             ExprPatternComponent::Constant(constant) => { string = string + 
                 constant
             }, ExprPatternComponent::Variable(var) => { string = string +
-                var_indic_token + var
+                var_indic_token + var + var_indic_token
             }, ExprPatternComponent::Variables((var1, var2), sep) => { string = string + 
                 var_indic_token + var1 + 
                 var_enum_token + sep + var_enum_token +
-                var_indic_token + var2
+                var2 + var_indic_token
             },
         }}
         Ok(string)
     }
 }
-enum VarDeclarationStage { Begin, FirstIndic, FirstVar, FirstEnum, Sep, SecondEnum, SecondIndic }
+
+#[derive(PartialEq,Eq,Debug)]
+enum VarDeclarationStage { Begin, FirstIndic, FirstVar, FirstEnum, Sep, SecondEnum, SecondVar }
 impl Destringify<ExprPattern> for ExprPatternParser {
     fn destringify(&self, string: &String) -> Result<ExprPattern,()> {
         let token_sequence = self.lexer.destringify(&string)?;
         let mut components = Vec::new();
         let mut var_declaration_stage = VarDeclarationStage::Begin;
-        let mut var_left = None;
-        let mut var_joiner = None;
-        for token_or_string in token_sequence.0 { match token_or_string {
+        let mut var_definition = ((None,None),None);
+        for token_or_string in token_sequence.0 {
+            var_declaration_stage = match token_or_string {
             Either::Right(string) => { match var_declaration_stage {
-                VarDeclarationStage::Begin => components.push(ExprPatternComponent::Constant(string)),
-                VarDeclarationStage::FirstIndic => {
-                    var_left = Some(string); 
-                    var_declaration_stage = VarDeclarationStage::FirstVar
-                }, VarDeclarationStage::FirstVar => { 
-                    let var = var_left.expect("var_declaration_stage was FirstVar but var_left was not defined"); var_left = None;
-                    components.push(ExprPatternComponent::Variable(var));
+                VarDeclarationStage::Begin => {
                     components.push(ExprPatternComponent::Constant(string));
-                    
-                }, VarDeclarationStage::FirstEnum => {
-                    var_joiner = Some(string); 
-                    var_declaration_stage = VarDeclarationStage::Sep
-                }, VarDeclarationStage::Sep => { panic!("TokenSequence contained two strings in a row") },
-                VarDeclarationStage::SecondEnum => { return Err(()) },
-                VarDeclarationStage::SecondIndic => {
-                    let var_l = var_left.expect("var_declaration_stage was SecondIndic but var_left was not defined"); var_left = None;
-                    let var_j = var_joiner.expect("var_declaration_stage was SecondIndic but var_joiner was not defined"); var_joiner = None;
-                    components.push(ExprPatternComponent::Variables((var_l,string),var_j))
+                    VarDeclarationStage::Begin
                 },
-            }}, Either::Left(token) => match token {
-                ExprPatternToken::VariableIndicator => var_declaration_stage = match var_declaration_stage {
-                    VarDeclarationStage::Begin | VarDeclarationStage::FirstVar => VarDeclarationStage::FirstIndic,
-                    VarDeclarationStage::SecondEnum => VarDeclarationStage::SecondIndic,
-                    _ => return Err(())
-                }, ExprPatternToken::VariableEnumerator => var_declaration_stage = match var_declaration_stage {
+                VarDeclarationStage::FirstIndic => {
+                    var_definition.0.0 = Some(string); 
+                    VarDeclarationStage::FirstVar
+                }, 
+                VarDeclarationStage::FirstVar => { return Err(()); }, 
+                VarDeclarationStage::FirstEnum => {
+                    var_definition.1 = Some(string); 
+                    VarDeclarationStage::Sep
+                }, 
+                VarDeclarationStage::Sep => { panic!("TokenSequence contained two strings in a row") },
+                VarDeclarationStage::SecondEnum => {
+                    var_definition.0.1 = Some(string);
+                    VarDeclarationStage::SecondVar
+                }, 
+                VarDeclarationStage::SecondVar => { return Err(()) }
+            }}, Either::Left(token) => { match token {
+                ExprPatternToken::VariableIndicator => match var_declaration_stage {
+                    VarDeclarationStage::Begin => VarDeclarationStage::FirstIndic,
+                    VarDeclarationStage::FirstVar => {
+                        let var = var_definition.0.0.expect("var_declaration_stage was FirstVar but var_left was not defined");
+                        var_definition = ((None,None),None);
+                        
+                        components.push(ExprPatternComponent::Variable((var)));
+                        VarDeclarationStage::Begin
+                    } VarDeclarationStage::SecondVar => {
+                        let var_left = var_definition.0.0.expect("var_declaration_stage was SecondVar but var_left was not defined");
+                        let var_joiner = var_definition.1.expect("var_declaration_stage was SecondVar but var_joiner was not defined");
+                        let var_right = var_definition.0.1.expect("var_declaration_stage was SecondVar but var_right was not defined");
+                        var_definition = ((None,None),None);
+                        
+                        components.push(ExprPatternComponent::Variables((var_left,var_right),var_joiner));
+                        VarDeclarationStage::Begin
+                    } _ => return Err(())
+                }, ExprPatternToken::VariableEnumerator => match var_declaration_stage {
                     VarDeclarationStage::FirstVar => VarDeclarationStage::FirstEnum,
-                    VarDeclarationStage::FirstEnum => { var_joiner = Some("".to_string()); VarDeclarationStage::SecondEnum }
+                    VarDeclarationStage::FirstEnum => { var_definition.1 = Some("".to_string()); VarDeclarationStage::SecondEnum }
                     VarDeclarationStage::Sep => VarDeclarationStage::SecondEnum,
                     _ => return Err(())
                 },
-            }, Either::Left(token) => {
-                let s = self.lexer.string_from_token(&token);
-                components.push(ExprPatternComponent::Constant(s.clone()))
-            }
+            }}
         }}
         Ok(ExprPattern::new(components, self.lexer.clone()))
     }
@@ -124,56 +136,56 @@ mod tests {
     #[test]
     fn test_parse_with_var() {
         let components = vec![ExprPatternComponent::new_var("Potato ")];
-        let (result, check) = pre_stringify_test("#Potato ", components);
+        let (result, check) = pre_stringify_test("#Potato #", components);
         assert_eq!(result, Ok(check));
     }
 
     #[test]
     fn test_deparse_with_var() {
         let components = vec![ExprPatternComponent::new_var("Potato ")];
-        let (result, check) = pre_destringify_test("#Potato ", components);
+        let (result, check) = pre_destringify_test("#Potato #", components);
         assert_eq!(result, Ok(check));
     }
 
     #[test]
     fn test_parse_with_vars_no_joiner() {
         let components = vec![ExprPatternComponent::new_vars("A","","B")];
-        let (result, check) = pre_stringify_test("#A....#B", components);
+        let (result, check) = pre_stringify_test("#A....B#", components);
         assert_eq!(result, Ok(check));
     }
 
     #[test]
     fn test_deparse_with_vars_no_joiner() {
         let components = vec![ExprPatternComponent::new_vars("A","","B")];
-        let (result, check) = pre_destringify_test("#A....#B", components);
+        let (result, check) = pre_destringify_test("#A....B#", components);
         assert_eq!(result, Ok(check));
     }
 
     #[test]
     fn test_parse_with_vars_and_joiner() {
         let components = vec![ExprPatternComponent::new_vars("A"," & ","B")];
-        let (result, check) = pre_stringify_test("#A.. & ..#B", components);
+        let (result, check) = pre_stringify_test("#A.. & ..B#", components);
         assert_eq!(result, Ok(check));
     }
 
     #[test]
     fn test_deparse_with_vars_and_joiner() {
         let components = vec![ExprPatternComponent::new_vars("A"," & ","B")];
-        let (result, check) = pre_destringify_test("#A.. & ..#B", components);
+        let (result, check) = pre_destringify_test("#A.. & ..B#", components);
         assert_eq!(result, Ok(check));
     }
 
     #[test]
     fn test_parse_with_complex_string() {
         let components = vec![ExprPatternComponent::new_const("("), ExprPatternComponent::new_var("G"), ExprPatternComponent::new_const(",(f,"), ExprPatternComponent::new_vars("A"," & ","B"), ExprPatternComponent::new_const("))")];
-        let (result, check) = pre_stringify_test("(#G,(f,#A.. & ..#B))", components);
+        let (result, check) = pre_stringify_test("(#G#,(f,#A.. & ..B#))", components);
         assert_eq!(result, Ok(check));
     }
 
     #[test]
     fn test_deparse_with_complex_string() {
         let components = vec![ExprPatternComponent::new_const("("), ExprPatternComponent::new_var("G"), ExprPatternComponent::new_const(",(f,"), ExprPatternComponent::new_vars("A"," & ","B"), ExprPatternComponent::new_const("))")];
-        let (result, check) = pre_destringify_test("(#G,(f,#A.. & ..#B))", components);
+        let (result, check) = pre_destringify_test("(#G#,(f,#A.. & ..B#))", components);
         assert_eq!(result, Ok(check));
     }
 }

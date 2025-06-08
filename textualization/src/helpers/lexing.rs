@@ -1,10 +1,12 @@
+use std::fmt::Debug;
+
 use either::Either;
 use enum_iterator::{all, Sequence};
 
 use crate::{Destringify, Stringifier, Stringify};
 
 /// This trait allows an enum to be used as a Token for an implementer of the Lexer trait
-pub trait Token: Sequence + Clone {}
+pub trait Token: Sequence + Clone + Debug {}
 
 #[derive(Clone)]
 pub struct TokenMapping<T: Token>(pub T,pub String);

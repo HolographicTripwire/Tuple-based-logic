@@ -110,7 +110,7 @@ impl TryInto<String> for ExprPattern {
     }
 }
 
-#[derive(Sequence, Clone, Copy)]
+#[derive(Sequence, Clone, Copy, Debug)]
 pub enum ExprPatternToken { VariableIndicator, VariableEnumerator }
 impl Token for ExprPatternToken {}
 
