@@ -16,7 +16,7 @@ impl ExprPatternParser {
 }
 
 const VAR_INDIC_TOKEN: ExprPatternToken = ExprPatternToken::VariableIndicator;
-const VAR_ENUM_TOKEN: ExprPatternToken = ExprPatternToken::VariableIndicator;
+const VAR_ENUM_TOKEN: ExprPatternToken = ExprPatternToken::VariableEnumerator;
 
 impl Stringifier<ExprPattern> for ExprPatternParser {}
 impl Stringify<ExprPattern> for ExprPatternParser {
@@ -123,42 +123,42 @@ mod tests {
     #[test]
     fn test_parse_with_vars_no_joiner() {
         let components = vec![ExprPatternComponent::new_vars("A","","B")];
-        let (result, check) = pre_stringify_test("#A....B", components);
+        let (result, check) = pre_stringify_test("#A....#B", components);
         assert_eq!(result, Ok(check));
     }
 
     #[test]
     fn test_deparse_with_vars_no_joiner() {
         let components = vec![ExprPatternComponent::new_vars("A","","B")];
-        let (result, check) = pre_destringify_test("#A....B", components);
+        let (result, check) = pre_destringify_test("#A....#B", components);
         assert_eq!(result, Ok(check));
     }
 
     #[test]
     fn test_parse_with_vars_and_joiner() {
         let components = vec![ExprPatternComponent::new_vars("A"," & ","B")];
-        let (result, check) = pre_stringify_test("#A.. & .. #B", components);
+        let (result, check) = pre_stringify_test("#A.. & ..#B", components);
         assert_eq!(result, Ok(check));
     }
 
     #[test]
     fn test_deparse_with_vars_and_joiner() {
         let components = vec![ExprPatternComponent::new_vars("A"," & ","B")];
-        let (result, check) = pre_destringify_test("#A.. & .. #B", components);
+        let (result, check) = pre_destringify_test("#A.. & ..#B", components);
         assert_eq!(result, Ok(check));
     }
 
     #[test]
     fn test_parse_with_complex_string() {
-        let components = vec![ExprPatternComponent::new_const("("), ExprPatternComponent::new_var("G"), ExprPatternComponent::new_const(","), ExprPatternComponent::new_vars("A"," & ","B"), ExprPatternComponent::new_const("))")];
-        let (result, check) = pre_stringify_test("(#G,(f,#A.. & .. #B))", components);
+        let components = vec![ExprPatternComponent::new_const("("), ExprPatternComponent::new_var("G"), ExprPatternComponent::new_const(",(f,"), ExprPatternComponent::new_vars("A"," & ","B"), ExprPatternComponent::new_const("))")];
+        let (result, check) = pre_stringify_test("(#G,(f,#A.. & ..#B))", components);
         assert_eq!(result, Ok(check));
     }
 
     #[test]
     fn test_deparse_with_complex_string() {
-        let components = vec![ExprPatternComponent::new_const("("), ExprPatternComponent::new_var("G"), ExprPatternComponent::new_const(","), ExprPatternComponent::new_vars("A"," & ","B"), ExprPatternComponent::new_const("))")];
-        let (result, check) = pre_destringify_test("(#G,(f,#A.. & .. #B))", components);
+        let components = vec![ExprPatternComponent::new_const("("), ExprPatternComponent::new_var("G"), ExprPatternComponent::new_const(",(f,"), ExprPatternComponent::new_vars("A"," & ","B"), ExprPatternComponent::new_const("))")];
+        let (result, check) = pre_destringify_test("(#G,(f,#A.. & ..#B))", components);
         assert_eq!(result, Ok(check));
     }
 }
