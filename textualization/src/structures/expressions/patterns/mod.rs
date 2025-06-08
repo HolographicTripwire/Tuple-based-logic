@@ -111,3 +111,31 @@ impl TryInto<String> for ExprPattern {
         Ok(str.clone())
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_component_new_const() {
+        let const_str = "agejoi23";
+        let component = ExprPatternComponent::new_const(const_str);
+        assert_eq!(ExprPatternComponent::Constant(const_str.to_string()), component)
+    }
+
+    #[test]
+    fn test_component_new_var() {
+        let var_str = "rheu54w";
+        let component = ExprPatternComponent::new_var(var_str);
+        assert_eq!(ExprPatternComponent::Variable(var_str.to_string()), component)
+    }
+
+    #[test]
+    fn test_component_new_vars() {
+        let var_left = "feghj6";
+        let var_join = "qr23t4y5ui";
+        let var_right = "bnmkilu";
+        let component = ExprPatternComponent::new_vars(var_left,var_join,var_right);
+        assert_eq!(ExprPatternComponent::Variables((var_left.to_string(),var_right.to_string()), var_join.to_string()), component)
+    }
+}
