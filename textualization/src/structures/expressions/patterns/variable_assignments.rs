@@ -1,5 +1,6 @@
 use std::collections::{HashMap, HashSet};
 
+#[derive(Clone,PartialEq,Eq,Debug)]
 pub struct VariableAssignments {
     vars: HashSet<String>,
     var_to_val: HashMap<String,String>,

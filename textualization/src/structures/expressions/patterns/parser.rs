@@ -7,9 +7,11 @@ pub struct ExprPatternParser {
     lexer: Box<ExprPatternLexer>
 }
 impl ExprPatternParser {
-    pub fn new(lexer: Box<ExprPatternLexer>) -> Self {
-        Self { lexer }
-    }
+    pub fn new(lexer: Box<ExprPatternLexer>) -> Self
+        { Self { lexer } }
+
+    pub fn get_lexer(&self) -> &Box<ExprPatternLexer>
+        { &self.lexer }
 }
 
 const VAR_INDIC_TOKEN: ExprPatternToken = ExprPatternToken::VariableIndicator;

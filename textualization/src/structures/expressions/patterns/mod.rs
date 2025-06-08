@@ -114,7 +114,18 @@ impl TryInto<String> for ExprPattern {
 
 #[cfg(test)]
 mod tests {
+    use std::sync::LazyLock;
+
+    use crate::structures::expressions::patterns::parser::ExprPatternParser;
+
     use super::*;
+
+    const TEST_LEXER: LazyLock<Box<ExprPatternLexer>> = LazyLock::new(|| -> Box<ExprPatternLexer> {
+        TEST_PARSER.get_lexer().clone()
+    });
+    const TEST_PARSER: LazyLock<Box<ExprPatternParser>> = LazyLock::new(|| -> Box<ExprPatternParser> {
+        Box::new(ExprPatternParser::default())
+    });
 
     #[test]
     fn test_component_new_const() {
@@ -141,33 +152,83 @@ mod tests {
 
     #[test]
     fn test_new_with_single_const_component() {
-        let const_str = "agejoi23";
-        let component = ExprPatternComponent::new_const(const_str);
+        let component = ExprPatternComponent::new_const("agejoi23");
         let lexer = Box::new(ExprPatternLexer::default());
         let pattern = ExprPattern::new(vec![component.clone()], lexer.clone());
-        assert_eq!(pattern.lexer, lexer);
+        assert_eq!(pattern.lexer, TEST_LEXER.clone());
         assert_eq!(pattern.components, vec![component]);
     }
 
     #[test]
     fn test_new_with_single_var_component() {
-        let var_str = "rheu54w";
-        let component = ExprPatternComponent::new_var(var_str);
-        let lexer = Box::new(ExprPatternLexer::default());
-        let pattern = ExprPattern::new(vec![component.clone()], lexer.clone());
-        assert_eq!(pattern.lexer, lexer);
+        let component = ExprPatternComponent::new_var("rheu54w");
+        let pattern = ExprPattern::new(vec![component.clone()], TEST_LEXER.clone());
+        assert_eq!(pattern.lexer, TEST_LEXER.clone());
         assert_eq!(pattern.components, vec![component]);
     }
 
     #[test]
     fn test_new_with_single_vars_component() {
-        let var_left = "feghj6";
-        let var_join = "qr23t4y5ui";
-        let var_right = "bnmkilu";
-        let component = ExprPatternComponent::new_vars(var_left,var_join,var_right);
-        let lexer = Box::new(ExprPatternLexer::default());
-        let pattern = ExprPattern::new(vec![component.clone()], lexer.clone());
-        assert_eq!(pattern.lexer, lexer);
+        let component = ExprPatternComponent::new_vars("feghj6","qr23t4y5ui", "bnmkilu");
+        let pattern = ExprPattern::new(vec![component.clone()], TEST_LEXER.clone());
+        assert_eq!(pattern.lexer, TEST_LEXER.clone());
         assert_eq!(pattern.components, vec![component]);
+    }
+
+    #[test]
+    fn test_new_with_multiple_const_components() {
+        let left_str ="awduge";
+        let right_str = "t32u8awd";
+        let left_component = ExprPatternComponent::new_const(left_str);
+        let right_component = ExprPatternComponent::new_const(right_str);
+        let pattern = ExprPattern::new(vec![left_component.clone(), right_component.clone()], TEST_LEXER.clone());
+        assert_eq!(pattern.lexer, TEST_LEXER.clone());
+        assert_eq!(pattern.components, vec![ExprPatternComponent::Constant(left_str.to_string() + right_str)]);
+    }
+
+    #[test]
+    fn test_new_with_complex_components() {
+        // TODO
+    }
+
+    fn construct_assignments(var_mappings: Vec<(&str,&str)>, vars_mappings: Vec<(&str,&str,Vec<&str>)>) -> VariableAssignments {
+        let mut assignments = VariableAssignments::new();
+        for (k,v) in var_mappings { assignments.add_var_to_val(k.to_string(), v.to_string()); }
+        for (k1,k2, vars) in vars_mappings { 
+            let new_vars = vars.iter().map(|s| -> String { s.to_string() }).collect();
+            assignments.add_vars_to_vals(k1.to_string(), k2.to_string(), new_vars);
+        }
+        assignments
+    }
+
+    fn pre_test_match(pattern_str: &str, match_str: &str, var_mappings: Vec<(&str,&str)>, vars_mappings: Vec<(&str,&str,Vec<&str>)>) -> (Result<VariableAssignments,()>,VariableAssignments) {
+        let pattern = TEST_PARSER.destringify(&pattern_str.to_string()).unwrap();
+        let assignments = pattern.match_string(match_str.to_string());
+        let assingments_check = construct_assignments(var_mappings, vars_mappings);
+        return (assignments, assingments_check);
+    }
+    
+    #[test]
+    fn test_match_with_const() {
+        let (assignments, check) = pre_test_match("r32u89", "r32u89", vec![], vec![]);
+        assert_eq!(assignments, Ok(check));
+    }
+
+    #[test]
+    fn test_match_with_var() {
+        let (assignments, check) = pre_test_match("#x1#", "fgt43y4", vec![("x1","fgt43y4")], vec![]);
+        assert_eq!(assignments, Ok(check));
+    }
+
+    #[test]
+    fn test_match_with_vars() {
+        let (assignments, check) = pre_test_match("#x1..,..x2#", "a,b,c", vec![], vec![("x1","x2",vec!["a","b","c"])]);
+        assert_eq!(assignments, Ok(check));
+    }
+
+    #[test]
+    fn test_match_with_complex_string() {
+        let (assignments, check) = pre_test_match("(#G#,(f,#A.. & ..B#))", "(g_variable,(f,a1 & a2 & a3))", vec![("G","g_variable")], vec![("A","B",vec!["a1","a2","a3"])]);
+        assert_eq!(assignments, Ok(check));
     }
 }
