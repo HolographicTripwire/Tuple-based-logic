@@ -1,14 +1,14 @@
 use bimap::{BiHashMap, BiMap};
 use tbl_structures::atoms::AtomId;
 
-use crate::{Detextualize, Textualizer, Textualize};
+use crate::{Destringify, Stringifier, Stringify};
 
 #[derive(Clone)]
-pub struct AtomTextualizer {
+pub struct AtomParser {
     symbols: BiMap<AtomId, String>
 }
 
-impl AtomTextualizer {
+impl AtomParser {
     pub fn from_strings(symbols: Vec<(usize,&str)>) -> Self { 
         Self { symbols: BiHashMap::from_iter(
             symbols.iter()
@@ -19,17 +19,17 @@ impl AtomTextualizer {
     }
 }
 
-impl Textualizer<AtomId> for AtomTextualizer {}
-impl Textualize<AtomId> for AtomTextualizer {
-    fn textualize(&self, atom: &AtomId) -> Result<String,()> {
+impl Stringifier<AtomId> for AtomParser {}
+impl Stringify<AtomId> for AtomParser {
+    fn stringify(&self, atom: &AtomId) -> Result<String,()> {
         match self.symbols.get_by_left(atom) {
             Some(symbol) => Ok(symbol.clone()),
             None => Ok(atom.0.0.to_string()),
         }
     }
 }
-impl Detextualize<AtomId> for AtomTextualizer {
-    fn detextualize(&self, string: &String) -> Result<AtomId,()> {
+impl Destringify<AtomId> for AtomParser {
+    fn destringify(&self, string: &String) -> Result<AtomId,()> {
         match self.symbols.get_by_right(string) {
             Some(symbol) => Ok(symbol.clone()),
             None => {

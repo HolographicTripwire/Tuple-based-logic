@@ -1,10 +1,11 @@
 use std::{sync::LazyLock};
 
-use tbl_textualization::{structures::expressions::{special_cases::{SpecialCaseTextualizer, SpecialCaseTextualizerSet}, SpecialCase}, Textualizer};
+use tbl_textualization::{structures::expressions::{special_cases::{SpecialCaseParser, SpecialCaseStringifierSet}, SpecialCase}, Stringifier};
 
-use super::TBL_LEXER;
+use crate::textualizer_formats::plaintext::expression::EXPR_PATTERN_LEXER;
 
-pub static SPECIAL_CASE_TEXTUALIZER: LazyLock<SpecialCaseTextualizerSet> = LazyLock::new(|| -> SpecialCaseTextualizerSet {
+
+pub static SPECIAL_CASE_PARSER: LazyLock<Box<dyn Stringifier<SpecialCase>>> = LazyLock::new(|| -> Box<dyn Stringifier<SpecialCase>> {
     let function_rules = vec![
         ("(∧,#a..#b)","(#a.. ∧ ..#b)"),
         ("(∀,#a,#b)","∀#a(#b)"),
@@ -14,11 +15,11 @@ pub static SPECIAL_CASE_TEXTUALIZER: LazyLock<SpecialCaseTextualizerSet> = LazyL
         ("(⟨⟩,#a)", "⟨#b⟩"),
         ("(⌢,#a..#b)", "(#a..⌢..#b)"),
         ("(⚛,#a)", "⚛(#b)")
-    ].iter().map(|(pre,post)| -> Result<SpecialCaseTextualizer,()> { 
-        SpecialCaseTextualizer::from_strings(pre,post,TBL_LEXER.clone())
-     }).map(|textualizer| -> Box<dyn Textualizer<SpecialCase>> {
-        Box::new(textualizer.unwrap()) as Box<dyn Textualizer<SpecialCase>>
+    ].iter().map(|(pre,post)| -> Result<SpecialCaseParser,()> { 
+        SpecialCaseParser::from_strings(pre,post,EXPR_PATTERN_LEXER.clone())
+     }).map(|stringifier| -> Box<dyn Stringifier<SpecialCase>> {
+        Box::new(stringifier.unwrap()) as Box<dyn Stringifier<SpecialCase>>
      }).collect();
 
-     return SpecialCaseTextualizerSet::new(function_rules);
+     Box::new(SpecialCaseStringifierSet::new(function_rules))
 });

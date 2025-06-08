@@ -2,7 +2,7 @@ use either::Either;
 use enum_iterator::Sequence;
 use super::variable_assignments::VariableAssignments;
 
-use crate::{helpers::lexing::{Lexer, Token}, Detextualize};
+use crate::{helpers::lexing::{Lexer, Token}, Destringify};
 
 #[derive(Clone,PartialEq,Eq,Debug)]
 pub enum ExprPatternComponent {
@@ -77,7 +77,7 @@ impl ExprPattern {
 
     pub fn match_string(&self, string: String) -> Result<VariableAssignments,()> {
         // Get the token sequence
-        let mut token_sequence = self.lexer.detextualize(&string)?;
+        let mut token_sequence = self.lexer.destringify(&string)?;
         // Create a new map
         let mut map = VariableAssignments::new();
         

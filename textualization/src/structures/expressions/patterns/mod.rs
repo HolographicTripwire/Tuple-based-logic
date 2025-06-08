@@ -1,15 +1,15 @@
 use either::Either;
 
-use crate::{helpers::lexing::Lexer, structures::expressions::patterns::expr_pattern::{ExprPattern, ExprPatternComponent, ExprPatternLexer, ExprPatternToken}, Detextualize, Textualize, Textualizer};
+use crate::{helpers::lexing::Lexer, structures::expressions::patterns::expr_pattern::{ExprPattern, ExprPatternComponent, ExprPatternLexer, ExprPatternToken}, Destringify, Stringify, Stringifier};
 
 pub mod expr_pattern;
 pub mod variable_assignments;
 
 #[derive(Default,Clone)]
-pub struct ExprPatternTextualizer {
+pub struct ExprPatternParser {
     lexer: Box<ExprPatternLexer>
 }
-impl ExprPatternTextualizer {
+impl ExprPatternParser {
     pub fn new(lexer: Box<ExprPatternLexer>) -> Self {
         Self { lexer }
     }
@@ -18,9 +18,9 @@ impl ExprPatternTextualizer {
 const VAR_INDIC_TOKEN: ExprPatternToken = ExprPatternToken::VariableIndicator;
 const VAR_ENUM_TOKEN: ExprPatternToken = ExprPatternToken::VariableIndicator;
 
-impl Textualizer<ExprPattern> for ExprPatternTextualizer {}
-impl Textualize<ExprPattern> for ExprPatternTextualizer {
-    fn textualize(&self, pattern: &ExprPattern) -> Result<String,()> {
+impl Stringifier<ExprPattern> for ExprPatternParser {}
+impl Stringify<ExprPattern> for ExprPatternParser {
+    fn stringify(&self, pattern: &ExprPattern) -> Result<String,()> {
         let var_indic_token = self.lexer.string_from_token(&VAR_INDIC_TOKEN);
         let var_enum_token = self.lexer.string_from_token(&VAR_ENUM_TOKEN);
         let mut string = "".to_string();
@@ -39,9 +39,9 @@ impl Textualize<ExprPattern> for ExprPatternTextualizer {
     }
 }
 enum VarDeclarationStage { Begin, FirstIndic, FirstVar, FirstEnum, Sep, SecondEnum, SecondIndic }
-impl Detextualize<ExprPattern> for ExprPatternTextualizer {
-    fn detextualize(&self, string: &String) -> Result<ExprPattern,()> {
-        let token_sequence = self.lexer.detextualize(&string)?;
+impl Destringify<ExprPattern> for ExprPatternParser {
+    fn destringify(&self, string: &String) -> Result<ExprPattern,()> {
+        let token_sequence = self.lexer.destringify(&string)?;
         let mut components = Vec::new();
         let mut var_declaration_stage = VarDeclarationStage::Begin;
         for token_or_string in token_sequence.0 { match token_or_string {
@@ -78,80 +78,87 @@ mod tests {
 
     use super::*;
 
-    const TEST_PARSER: LazyLock<Box<ExprPatternTextualizer>> = LazyLock::new(|| -> Box<ExprPatternTextualizer> 
-        { Box::new(ExprPatternTextualizer::default()) }
+    const TEST_PARSER: LazyLock<Box<ExprPatternParser>> = LazyLock::new(|| -> Box<ExprPatternParser> 
+        { Box::new(ExprPatternParser::default()) }
     );
 
-    fn pre_textualize_test(string: &str, components: Vec<ExprPatternComponent>) -> (Result<String,()>,String) {
+    fn pre_stringify_test(string: &str, components: Vec<ExprPatternComponent>) -> (Result<String,()>,String) {
         let pattern = ExprPattern::new(components,TEST_PARSER.clone().lexer);
-        (TEST_PARSER.textualize(&pattern), string.to_string())
+        (TEST_PARSER.stringify(&pattern), string.to_string())
     }
 
-    fn pre_detextualize_test(string: &str, components: Vec<ExprPatternComponent>) -> (Result<ExprPattern,()>,ExprPattern) {
+    fn pre_destringify_test(string: &str, components: Vec<ExprPatternComponent>) -> (Result<ExprPattern,()>,ExprPattern) {
         let pattern = ExprPattern::new(components,TEST_PARSER.clone().lexer);
-        (TEST_PARSER.detextualize(&string.to_string()),pattern)
+        (TEST_PARSER.destringify(&string.to_string()),pattern)
     }
     
     #[test]
     fn test_parse_with_const() {
         let components = vec![ExprPatternComponent::new_const("AA")];
-        let (result, check) = pre_textualize_test("AA", components);
+        let (result, check) = pre_stringify_test("AA", components);
         assert_eq!(result, Ok(check));
     }
 
     #[test]
     fn test_unparse_with_const() {
         let components = vec![ExprPatternComponent::new_const("AA")];
-        let (result, check) = pre_detextualize_test("AA", components);
+        let (result, check) = pre_destringify_test("AA", components);
         assert_eq!(result, Ok(check));
     }
 
     #[test]
     fn test_parse_with_var() {
         let components = vec![ExprPatternComponent::new_var("Potato ")];
-        let (result, check) = pre_textualize_test("#Potato ", components);
+        let (result, check) = pre_stringify_test("#Potato ", components);
         assert_eq!(result, Ok(check));
     }
 
     #[test]
     fn test_deparse_with_var() {
         let components = vec![ExprPatternComponent::new_var("Potato ")];
-        let (result, check) = pre_detextualize_test("#Potato ", components);
+        let (result, check) = pre_destringify_test("#Potato ", components);
         assert_eq!(result, Ok(check));
     }
 
     #[test]
     fn test_parse_with_vars_no_joiner() {
         let components = vec![ExprPatternComponent::new_vars("A","","B")];
-        let (result, check) = pre_textualize_test("#A....B", components);
+        let (result, check) = pre_stringify_test("#A....B", components);
         assert_eq!(result, Ok(check));
     }
 
     #[test]
     fn test_deparse_with_vars_no_joiner() {
         let components = vec![ExprPatternComponent::new_vars("A","","B")];
-        let (result, check) = pre_detextualize_test("#A....B", components);
+        let (result, check) = pre_destringify_test("#A....B", components);
         assert_eq!(result, Ok(check));
     }
 
     #[test]
     fn test_parse_with_vars_and_joiner() {
         let components = vec![ExprPatternComponent::new_vars("A"," & ","B")];
-        let (result, check) = pre_textualize_test("#A.. & .. #B", components);
+        let (result, check) = pre_stringify_test("#A.. & .. #B", components);
         assert_eq!(result, Ok(check));
     }
 
     #[test]
     fn test_deparse_with_vars_and_joiner() {
         let components = vec![ExprPatternComponent::new_vars("A"," & ","B")];
-        let (result, check) = pre_detextualize_test("#A.. & .. #B", components);
+        let (result, check) = pre_destringify_test("#A.. & .. #B", components);
         assert_eq!(result, Ok(check));
     }
 
     #[test]
     fn test_parse_with_complex_string() {
         let components = vec![ExprPatternComponent::new_const("("), ExprPatternComponent::new_var("G"), ExprPatternComponent::new_const(","), ExprPatternComponent::new_vars("A"," & ","B"), ExprPatternComponent::new_const("))")];
-        let (result, check) = pre_textualize_test("(#G,(f,#A.. & .. #B))", components);
+        let (result, check) = pre_stringify_test("(#G,(f,#A.. & .. #B))", components);
+        assert_eq!(result, Ok(check));
+    }
+
+    #[test]
+    fn test_deparse_with_complex_string() {
+        let components = vec![ExprPatternComponent::new_const("("), ExprPatternComponent::new_var("G"), ExprPatternComponent::new_const(","), ExprPatternComponent::new_vars("A"," & ","B"), ExprPatternComponent::new_const("))")];
+        let (result, check) = pre_destringify_test("(#G,(f,#A.. & .. #B))", components);
         assert_eq!(result, Ok(check));
     }
 }

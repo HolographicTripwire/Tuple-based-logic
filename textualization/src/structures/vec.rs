@@ -1,23 +1,23 @@
 use enum_iterator::Sequence;
 
-use crate::{helpers::lexing::{Token, Lexer}, Detextualize, Textualizer, Textualize};
+use crate::{helpers::lexing::{Token, Lexer}, Destringify, Stringifier, Stringify};
 
 use super::{TblToken, TblLexer, };
 
-#[derive(Default)]
-pub struct VecTextualizer(Box<TblLexer>);
+#[derive(Default,Clone)]
+pub struct VecParser(Box<TblLexer>);
 
-impl Textualizer<Vec<String>> for VecTextualizer {}
-impl Textualize<Vec<String>> for VecTextualizer {
-    fn textualize(&self, strings: &Vec<String>) -> Result<String,()> {
+impl Stringifier<Vec<String>> for VecParser {}
+impl Stringify<Vec<String>> for VecParser {
+    fn stringify(&self, strings: &Vec<String>) -> Result<String,()> {
         let opener = self.0.string_from_token(&TblToken::Vec(VecToken::Opener));
         let delimiter = self.0.string_from_token(&TblToken::Vec(VecToken::Delimiter));
         let closer = self.0.string_from_token(&TblToken::Vec(VecToken::Closer));
         Ok(opener.clone() + &strings.join(delimiter) + closer)
     }
 }
-impl Detextualize<Vec<String>> for VecTextualizer {
-    fn detextualize(&self, string: &String) -> Result<Vec<String>,()> {
+impl Destringify<Vec<String>> for VecParser {
+    fn destringify(&self, string: &String) -> Result<Vec<String>,()> {
         // Get token strings
         let vec_lexer = &self.0.vec_lexer;
         let escape_character = &self.0.escape_string;

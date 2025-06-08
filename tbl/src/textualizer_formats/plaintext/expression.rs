@@ -2,14 +2,22 @@ use tbl_structures::propositions::Expression;
 
 use std::{sync::LazyLock};
 
-use tbl_textualization::{structures::{expressions::{special_cases::SpecialCaseTextualizerSet, ExpressionTextualizer}, vec::VecTextualizer}, Textualizer};
+use tbl_textualization::{structures::{atom::AtomParser, expressions::{patterns::expr_pattern::ExprPatternLexer, special_cases::SpecialCaseStringifierSet, ExpressionParser}, vec::VecParser}, Stringifier};
 
-pub static TERM_TEXTUALIZER: LazyLock<Box<dyn Textualizer<Expression>>> = 
-    LazyLock::new(|| -> Box<dyn Textualizer<Expression>> { 
-        Box::new(ExpressionTextualizer::new(
-            super::atom::ATOM_TEXTUALIZER.clone(),
-            VecTextualizer::default(),
-            SpecialCaseTextualizerSet::default()
+pub static VEC_PARSER: LazyLock<Box<dyn Stringifier<Vec<String>>>> =
+    LazyLock::new(|| -> Box<dyn Stringifier<Vec<String>>> {
+        Box::new(VecParser::default())
+    });
+pub static EXPR_PATTERN_LEXER: LazyLock<Box<ExprPatternLexer>> =
+    LazyLock::new(|| -> Box<ExprPatternLexer> {
+        Box::new(ExprPatternLexer::default())
+    });
+pub static EXPR_PARSER: LazyLock<Box<dyn Stringifier<Expression>>> = 
+    LazyLock::new(|| -> Box<dyn Stringifier<Expression>> { 
+        Box::new(ExpressionParser::new(
+            super::atom::ATOM_PARSER.clone(),
+            VEC_PARSER.clone(),
+            super::special_cases::SPECIAL_CASE_PARSER.clone()
         ))
     });
 
@@ -38,7 +46,7 @@ mod tests {
         let str = "∧";
         let term = CONVERSIONS.get(str).unwrap();
         // Test stringification
-        let term_stringified = TERM_TEXTUALIZER.textualize(&term);
+        let term_stringified = EXPR_PARSER.stringify(&term);
         assert_eq!(term_stringified,Ok(str.to_string()));
     }
     #[test]
@@ -47,7 +55,7 @@ mod tests {
         let str = "∧";
         let term = CONVERSIONS.get(str).unwrap();
         // Test destringification
-        let str_destringified = TERM_TEXTUALIZER.detextualize(&str.to_string());
+        let str_destringified = EXPR_PARSER.destringify(&str.to_string());
         assert_eq!(Ok(term.clone()),str_destringified);
     }
 
@@ -57,7 +65,7 @@ mod tests {
         let str = "(∧)";
         let term = CONVERSIONS.get(str).unwrap();
         // Test stringification
-        let term_stringified = TERM_TEXTUALIZER.textualize(&term);
+        let term_stringified = EXPR_PARSER.stringify(&term);
         assert_eq!(term_stringified,Ok(str.to_string()));
     }
     #[test]
@@ -66,7 +74,7 @@ mod tests {
         let str = "(∧)";
         let term = CONVERSIONS.get(str).unwrap();
         // Test destringification
-        let str_destringified = TERM_TEXTUALIZER.detextualize(&str.to_string());
+        let str_destringified = EXPR_PARSER.destringify(&str.to_string());
         assert_eq!(Ok(term.clone()),str_destringified);
     }
 
@@ -76,7 +84,7 @@ mod tests {
         let str = "(∧, →)";
         let term = CONVERSIONS.get(str).unwrap();
         // Test stringification
-        let term_stringified = TERM_TEXTUALIZER.textualize(&term);
+        let term_stringified = EXPR_PARSER.stringify(&term);
         assert_eq!(term_stringified,Ok(str.to_string()));
     }
     #[test]
@@ -85,7 +93,7 @@ mod tests {
         let str = "(∧, →)";
         let term = CONVERSIONS.get(str).unwrap();
         // Test destringification
-        let str_destringified = TERM_TEXTUALIZER.detextualize(&str.to_string());
+        let str_destringified = EXPR_PARSER.destringify(&str.to_string());
         assert_eq!(Ok(term.clone()),str_destringified);
     }
 
@@ -95,7 +103,7 @@ mod tests {
         let str = "((∧), →)";
         let term = CONVERSIONS.get(str).unwrap();
         // Test stringification
-        let term_stringified = TERM_TEXTUALIZER.textualize(&term);
+        let term_stringified = EXPR_PARSER.stringify(&term);
         assert_eq!(term_stringified,Ok(str.to_string()));
     }
     #[test]
@@ -104,7 +112,7 @@ mod tests {
         let str = "((∧), →)";
         let term = CONVERSIONS.get(str).unwrap();
         // Test destringification
-        let str_destringified = TERM_TEXTUALIZER.detextualize(&str.to_string());
+        let str_destringified = EXPR_PARSER.destringify(&str.to_string());
         assert_eq!(Ok(term.clone()),str_destringified);
     }
 }
