@@ -120,14 +120,14 @@ mod tests {
     fn test_component_new_const() {
         let const_str = "agejoi23";
         let component = ExprPatternComponent::new_const(const_str);
-        assert_eq!(ExprPatternComponent::Constant(const_str.to_string()), component)
+        assert_eq!(component, ExprPatternComponent::Constant(const_str.to_string()))
     }
 
     #[test]
     fn test_component_new_var() {
         let var_str = "rheu54w";
         let component = ExprPatternComponent::new_var(var_str);
-        assert_eq!(ExprPatternComponent::Variable(var_str.to_string()), component)
+        assert_eq!(component, ExprPatternComponent::Variable(var_str.to_string()))
     }
 
     #[test]
@@ -136,6 +136,38 @@ mod tests {
         let var_join = "qr23t4y5ui";
         let var_right = "bnmkilu";
         let component = ExprPatternComponent::new_vars(var_left,var_join,var_right);
-        assert_eq!(ExprPatternComponent::Variables((var_left.to_string(),var_right.to_string()), var_join.to_string()), component)
+        assert_eq!(component, ExprPatternComponent::Variables((var_left.to_string(),var_right.to_string()), var_join.to_string()))
+    }
+
+    #[test]
+    fn test_new_with_single_const_component() {
+        let const_str = "agejoi23";
+        let component = ExprPatternComponent::new_const(const_str);
+        let lexer = Box::new(ExprPatternLexer::default());
+        let pattern = ExprPattern::new(vec![component.clone()], lexer.clone());
+        assert_eq!(pattern.lexer, lexer);
+        assert_eq!(pattern.components, vec![component]);
+    }
+
+    #[test]
+    fn test_new_with_single_var_component() {
+        let var_str = "rheu54w";
+        let component = ExprPatternComponent::new_var(var_str);
+        let lexer = Box::new(ExprPatternLexer::default());
+        let pattern = ExprPattern::new(vec![component.clone()], lexer.clone());
+        assert_eq!(pattern.lexer, lexer);
+        assert_eq!(pattern.components, vec![component]);
+    }
+
+    #[test]
+    fn test_new_with_single_vars_component() {
+        let var_left = "feghj6";
+        let var_join = "qr23t4y5ui";
+        let var_right = "bnmkilu";
+        let component = ExprPatternComponent::new_vars(var_left,var_join,var_right);
+        let lexer = Box::new(ExprPatternLexer::default());
+        let pattern = ExprPattern::new(vec![component.clone()], lexer.clone());
+        assert_eq!(pattern.lexer, lexer);
+        assert_eq!(pattern.components, vec![component]);
     }
 }
