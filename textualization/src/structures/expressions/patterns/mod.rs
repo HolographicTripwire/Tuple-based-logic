@@ -1,191 +1,113 @@
 use either::Either;
 
-use crate::{helpers::lexing::Lexer, structures::expressions::patterns::expr_pattern::{ExprPattern, ExprPatternComponent, ExprPatternLexer, ExprPatternToken}, Destringify, Stringify, Stringifier};
+use crate::{structures::expressions::patterns::{lexer::{ExprPatternLexer, ExprPatternToken}, variable_assignments::VariableAssignments}, Destringify};
 
-pub mod expr_pattern;
+pub mod lexer;
+pub mod parser;
 pub mod variable_assignments;
 
-#[derive(Default,Clone)]
-pub struct ExprPatternParser {
-    lexer: Box<ExprPatternLexer>
+#[derive(Clone,PartialEq,Eq,Debug)]
+pub enum ExprPatternComponent {
+    Constant(String),
+    Variable(String),
+    Variables((String,String),String),
 }
-impl ExprPatternParser {
-    pub fn new(lexer: Box<ExprPatternLexer>) -> Self {
-        Self { lexer }
+impl ExprPatternComponent {
+    pub fn new_const(const_string: &str) -> Self { Self::Constant(const_string.to_string()) }
+    pub fn new_var(var_name: &str) -> Self { Self::Variable(var_name.to_string()) }
+    pub fn new_vars(from: &str, joiner: &str, to: &str) -> Self { Self::Variables((from.to_string(),to.to_string()),joiner.to_string()) }
+}
+
+#[derive(Clone,PartialEq,Eq,Debug)]
+pub struct ExprPattern{
+    components: Vec<ExprPatternComponent>,
+    lexer: Box<ExprPatternLexer>,
+}
+impl ExprPattern {
+    /// Create a new ExprPattern
+    pub fn new(components: Vec<ExprPatternComponent>, lexer: Box<ExprPatternLexer>) -> Self {
+        Self {
+            components: Self::remove_redundancy(components),
+            lexer
+        }
     }
-}
 
-const VAR_INDIC_TOKEN: ExprPatternToken = ExprPatternToken::VariableIndicator;
-const VAR_ENUM_TOKEN: ExprPatternToken = ExprPatternToken::VariableEnumerator;
+    pub fn get_components(&self) -> &Vec<ExprPatternComponent> { return &self.components }
 
-impl Stringifier<ExprPattern> for ExprPatternParser {}
-impl Stringify<ExprPattern> for ExprPatternParser {
-    fn stringify(&self, pattern: &ExprPattern) -> Result<String,()> {
-        let var_indic_token = self.lexer.string_from_token(&VAR_INDIC_TOKEN);
-        let var_enum_token = self.lexer.string_from_token(&VAR_ENUM_TOKEN);
-        let mut string = "".to_string();
-        for component in pattern.get_components() { match component {
-            ExprPatternComponent::Constant(constant) => { string = string + 
-                constant
-            }, ExprPatternComponent::Variable(var) => { string = string +
-                var_indic_token + var + var_indic_token
-            }, ExprPatternComponent::Variables((var1, var2), sep) => { string = string + 
-                var_indic_token + var1 + 
-                var_enum_token + sep + var_enum_token +
-                var2 + var_indic_token
-            },
-        }}
-        Ok(string)
+    fn remove_redundancy(components: Vec<ExprPatternComponent>) -> Vec<ExprPatternComponent> {
+        let mut new_components = Vec::new();
+        // Iterate through the provided components
+        let mut combined_string = "".to_string();
+        let push_combined_string = |combined_string: &mut String, new_components: &mut Vec<ExprPatternComponent>| -> () {
+            if combined_string.len() > 0 {
+                new_components.push(ExprPatternComponent::Constant(combined_string.clone()));
+                combined_string.clear();
+            }
+        };
+        for component_i in components {
+            if let ExprPatternComponent::Constant(_) = component_i {}
+            else { push_combined_string(&mut combined_string, &mut new_components) }
+            match component_i {
+                // For any ExprPatternComponent::Constant objects, we should join them together if they are consecutive
+                ExprPatternComponent::Constant(new_string) => combined_string += &new_string,
+                // For any ExprPattern::Variable components, just add them directly without modification
+                ExprPatternComponent::Variable(_) => new_components.push(component_i.clone()),
+                // For any ExprPattern::Variables components, just add them direcly without modification
+                ExprPatternComponent::Variables((_, _), _) => new_components.push(component_i.clone()),
+            }
+        } push_combined_string(&mut combined_string, &mut new_components);
+        new_components
     }
-}
 
-#[derive(PartialEq,Eq,Debug)]
-enum VarDeclarationStage { Begin, FirstIndic, FirstVar, FirstEnum, Sep, SecondEnum, SecondVar }
-impl Destringify<ExprPattern> for ExprPatternParser {
-    fn destringify(&self, string: &String) -> Result<ExprPattern,()> {
-        let token_sequence = self.lexer.destringify(&string)?;
-        let mut components = Vec::new();
-        let mut var_declaration_stage = VarDeclarationStage::Begin;
-        let mut var_definition = ((None,None),None);
-        for token_or_string in token_sequence.0 {
-            var_declaration_stage = match token_or_string {
-            Either::Right(string) => { match var_declaration_stage {
-                VarDeclarationStage::Begin => {
-                    components.push(ExprPatternComponent::Constant(string));
-                    VarDeclarationStage::Begin
+    pub fn replace_variables(&self, replacements: VariableAssignments) -> Result<Self,()> {
+        let components = self.components
+            .iter()
+            .map(|component| -> Result<ExprPatternComponent,()> { match component {
+                ExprPatternComponent::Constant(_) => Ok(component.clone()),
+                ExprPatternComponent::Variable(var) => match replacements.get_va1_from_var(var) {
+                    Some(val) => Ok(ExprPatternComponent::Constant(val.to_string())),
+                    None => Ok(component.clone()),
+                }, ExprPatternComponent::Variables((var1, var2), sep) => {
+                    match (replacements.get_vals_from_vars(var1, var2)) {
+                        None => Ok(component.clone()),
+                        Some(strings) => Ok(ExprPatternComponent::Constant(strings.join(sep))),
+                    }
                 },
-                VarDeclarationStage::FirstIndic => {
-                    var_definition.0.0 = Some(string); 
-                    VarDeclarationStage::FirstVar
-                }, 
-                VarDeclarationStage::FirstVar => { return Err(()); }, 
-                VarDeclarationStage::FirstEnum => {
-                    var_definition.1 = Some(string); 
-                    VarDeclarationStage::Sep
-                }, 
-                VarDeclarationStage::Sep => { panic!("TokenSequence contained two strings in a row") },
-                VarDeclarationStage::SecondEnum => {
-                    var_definition.0.1 = Some(string);
-                    VarDeclarationStage::SecondVar
-                }, 
-                VarDeclarationStage::SecondVar => { return Err(()) }
-            }}, Either::Left(token) => { match token {
-                ExprPatternToken::VariableIndicator => match var_declaration_stage {
-                    VarDeclarationStage::Begin => VarDeclarationStage::FirstIndic,
-                    VarDeclarationStage::FirstVar => {
-                        let var = var_definition.0.0.expect("var_declaration_stage was FirstVar but var_left was not defined");
-                        var_definition = ((None,None),None);
-                        
-                        components.push(ExprPatternComponent::Variable((var)));
-                        VarDeclarationStage::Begin
-                    } VarDeclarationStage::SecondVar => {
-                        let var_left = var_definition.0.0.expect("var_declaration_stage was SecondVar but var_left was not defined");
-                        let var_joiner = var_definition.1.expect("var_declaration_stage was SecondVar but var_joiner was not defined");
-                        let var_right = var_definition.0.1.expect("var_declaration_stage was SecondVar but var_right was not defined");
-                        var_definition = ((None,None),None);
-                        
-                        components.push(ExprPatternComponent::Variables((var_left,var_right),var_joiner));
-                        VarDeclarationStage::Begin
-                    } _ => return Err(())
-                }, ExprPatternToken::VariableEnumerator => match var_declaration_stage {
-                    VarDeclarationStage::FirstVar => VarDeclarationStage::FirstEnum,
-                    VarDeclarationStage::FirstEnum => { var_definition.1 = Some("".to_string()); VarDeclarationStage::SecondEnum }
-                    VarDeclarationStage::Sep => VarDeclarationStage::SecondEnum,
-                    _ => return Err(())
+            }}).collect::<Result<Vec<ExprPatternComponent>,()>>()?;
+        Ok(ExprPattern { lexer: self.lexer.clone(), components })
+    }
+
+    pub fn match_string(&self, string: String) -> Result<VariableAssignments,()> {
+        // Get the token sequence
+        let mut token_sequence = self.lexer.destringify(&string)?;
+        // Create a new map
+        let mut map = VariableAssignments::new();
+        
+        for component in self.components.clone() {
+            match component {
+                ExprPatternComponent::Constant(s1) => {
+                    let Some(Either::Right(s2)) = token_sequence.0.pop() else { return Err(()) };
+                    if s1 != s2 { return Err(()) }
+                }, ExprPatternComponent::Variable(var) => {
+                    let Some(Either::Left(ExprPatternToken::VariableIndicator)) = token_sequence.0.pop() else { return Err(()) };
+                    let Some(Either::Right(val)) = token_sequence.0.pop() else { return Err(()) };
+                    map.add_var_to_val(var,val)?;
                 },
-            }}
-        }}
-        Ok(ExprPattern::new(components, self.lexer.clone()))
+                ExprPatternComponent::Variables((var1, var2), sep) => {
+                    let Some(Either::Left(ExprPatternToken::VariableIndicator)) = token_sequence.0.pop() else { return Err(()) };
+                },
+            };
+        }
+        return Ok(map);
     }
 }
 
-#[cfg(test)]
-mod tests {
-    use std::sync::LazyLock;
+impl TryInto<String> for ExprPattern {
+    type Error = ();
 
-    use super::*;
-
-    const TEST_PARSER: LazyLock<Box<ExprPatternParser>> = LazyLock::new(|| -> Box<ExprPatternParser> 
-        { Box::new(ExprPatternParser::default()) }
-    );
-
-    fn pre_stringify_test(string: &str, components: Vec<ExprPatternComponent>) -> (Result<String,()>,String) {
-        let pattern = ExprPattern::new(components,TEST_PARSER.clone().lexer);
-        (TEST_PARSER.stringify(&pattern), string.to_string())
-    }
-
-    fn pre_destringify_test(string: &str, components: Vec<ExprPatternComponent>) -> (Result<ExprPattern,()>,ExprPattern) {
-        let pattern = ExprPattern::new(components,TEST_PARSER.clone().lexer);
-        (TEST_PARSER.destringify(&string.to_string()),pattern)
-    }
-    
-    #[test]
-    fn test_parse_with_const() {
-        let components = vec![ExprPatternComponent::new_const("AA")];
-        let (result, check) = pre_stringify_test("AA", components);
-        assert_eq!(result, Ok(check));
-    }
-
-    #[test]
-    fn test_unparse_with_const() {
-        let components = vec![ExprPatternComponent::new_const("AA")];
-        let (result, check) = pre_destringify_test("AA", components);
-        assert_eq!(result, Ok(check));
-    }
-
-    #[test]
-    fn test_parse_with_var() {
-        let components = vec![ExprPatternComponent::new_var("Potato ")];
-        let (result, check) = pre_stringify_test("#Potato #", components);
-        assert_eq!(result, Ok(check));
-    }
-
-    #[test]
-    fn test_deparse_with_var() {
-        let components = vec![ExprPatternComponent::new_var("Potato ")];
-        let (result, check) = pre_destringify_test("#Potato #", components);
-        assert_eq!(result, Ok(check));
-    }
-
-    #[test]
-    fn test_parse_with_vars_no_joiner() {
-        let components = vec![ExprPatternComponent::new_vars("A","","B")];
-        let (result, check) = pre_stringify_test("#A....B#", components);
-        assert_eq!(result, Ok(check));
-    }
-
-    #[test]
-    fn test_deparse_with_vars_no_joiner() {
-        let components = vec![ExprPatternComponent::new_vars("A","","B")];
-        let (result, check) = pre_destringify_test("#A....B#", components);
-        assert_eq!(result, Ok(check));
-    }
-
-    #[test]
-    fn test_parse_with_vars_and_joiner() {
-        let components = vec![ExprPatternComponent::new_vars("A"," & ","B")];
-        let (result, check) = pre_stringify_test("#A.. & ..B#", components);
-        assert_eq!(result, Ok(check));
-    }
-
-    #[test]
-    fn test_deparse_with_vars_and_joiner() {
-        let components = vec![ExprPatternComponent::new_vars("A"," & ","B")];
-        let (result, check) = pre_destringify_test("#A.. & ..B#", components);
-        assert_eq!(result, Ok(check));
-    }
-
-    #[test]
-    fn test_parse_with_complex_string() {
-        let components = vec![ExprPatternComponent::new_const("("), ExprPatternComponent::new_var("G"), ExprPatternComponent::new_const(",(f,"), ExprPatternComponent::new_vars("A"," & ","B"), ExprPatternComponent::new_const("))")];
-        let (result, check) = pre_stringify_test("(#G#,(f,#A.. & ..B#))", components);
-        assert_eq!(result, Ok(check));
-    }
-
-    #[test]
-    fn test_deparse_with_complex_string() {
-        let components = vec![ExprPatternComponent::new_const("("), ExprPatternComponent::new_var("G"), ExprPatternComponent::new_const(",(f,"), ExprPatternComponent::new_vars("A"," & ","B"), ExprPatternComponent::new_const("))")];
-        let (result, check) = pre_destringify_test("(#G#,(f,#A.. & ..B#))", components);
-        assert_eq!(result, Ok(check));
+    fn try_into(self) -> Result<String, Self::Error> {
+        let [sole_component] = self.components.as_slice() else { return Err(()) };
+        let ExprPatternComponent::Constant(str) = sole_component else { return Err(()) };
+        Ok(str.clone())
     }
 }

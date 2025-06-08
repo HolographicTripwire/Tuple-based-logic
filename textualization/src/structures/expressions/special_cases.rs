@@ -1,6 +1,6 @@
 use tbl_structures::propositions::Expression;
 
-use crate::{structures::expressions::patterns::{expr_pattern::{ExprPattern, ExprPatternLexer}, ExprPatternParser}, Destringify, Stringify, Stringifier};
+use crate::{structures::expressions::patterns::{lexer::ExprPatternLexer, parser::ExprPatternParser, ExprPattern}, Destringify, Stringifier, Stringify};
 
 #[derive(Clone)]
 pub struct SpecialCase { 

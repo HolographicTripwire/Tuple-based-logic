@@ -1,8 +1,7 @@
 use tbl_structures::propositions::Expression;
+use tbl_textualization::{structures::{expressions::{patterns::lexer::ExprPatternLexer, ExpressionParser}, vec::VecParser}, Stringifier};
 
 use std::{sync::LazyLock};
-
-use tbl_textualization::{structures::{atom::AtomParser, expressions::{patterns::expr_pattern::ExprPatternLexer, special_cases::SpecialCaseStringifierSet, ExpressionParser}, vec::VecParser}, Stringifier};
 
 pub static VEC_PARSER: LazyLock<Box<dyn Stringifier<Vec<String>>>> =
     LazyLock::new(|| -> Box<dyn Stringifier<Vec<String>>> {
