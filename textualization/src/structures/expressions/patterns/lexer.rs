@@ -2,7 +2,7 @@ use enum_iterator::Sequence;
 
 use crate::helpers::lexing::{Lexer, Token};
 
-#[derive(Sequence, Clone, Copy, Debug)]
+#[derive(Sequence, Clone, Copy, Debug, PartialEq, Eq)]
 pub enum ExprPatternToken { VariableIndicator, VariableEnumerator }
 impl Token for ExprPatternToken {}
 

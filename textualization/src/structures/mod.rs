@@ -7,7 +7,7 @@ pub mod atom;
 pub mod vec;
 pub mod expressions;
 
-#[derive(Sequence, Clone, Copy, Debug)]
+#[derive(Sequence, Clone, Copy, Debug, PartialEq, Eq)]
 pub enum TblToken { Vec(VecToken), Pattern (ExprPatternToken) }
 impl Token for TblToken {}
 

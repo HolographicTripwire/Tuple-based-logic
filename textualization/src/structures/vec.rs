@@ -71,7 +71,7 @@ fn remove_from_end(s1: String, s2: &String) -> Result<String,()> {
     else { Err(()) }
 }
 
-#[derive(Sequence, Clone, Copy, Debug)]
+#[derive(Sequence, Clone, Copy, Debug, PartialEq, Eq)]
 pub enum VecToken { Opener, Closer, Delimiter }
 impl Token for VecToken {}
 
