@@ -1,6 +1,6 @@
 use either::Either;
 
-use crate::{helpers::lexing::{Lexer, Token, TokenSequence}, structures::expressions::patterns::{lexer::{ExprPatternLexer, ExprPatternToken}, variable_assignments::VariableAssignments}, Destringify};
+use crate::{structures::expressions::patterns::{lexer::{ExprPatternLexer, ExprPatternToken}, variable_assignments::VariableAssignments}, Destringify};
 
 pub mod lexer;
 pub mod parser;
@@ -25,39 +25,14 @@ pub struct ExprPattern{
 }
 impl ExprPattern {
     /// Create a new ExprPattern
-    pub fn new(components: Vec<ExprPatternComponent>, lexer: Box<ExprPatternLexer>) -> Self {
-        Self {
-            components: Self::remove_redundancy(components),
+    pub fn new(components: Vec<ExprPatternComponent>, lexer: Box<ExprPatternLexer>) -> Result<Self,()> {
+        if verify_var_alternation(&components) { Ok(Self {
+            components: components,
             lexer
-        }
+        })} else { Err(()) }
     }
 
     pub fn get_components(&self) -> &Vec<ExprPatternComponent> { return &self.components }
-
-    fn remove_redundancy(components: Vec<ExprPatternComponent>) -> Vec<ExprPatternComponent> {
-        let mut new_components = Vec::new();
-        // Iterate through the provided components
-        let mut combined_string = "".to_string();
-        let push_combined_string = |combined_string: &mut String, new_components: &mut Vec<ExprPatternComponent>| -> () {
-            if combined_string.len() > 0 {
-                new_components.push(ExprPatternComponent::Constant(combined_string.clone()));
-                combined_string.clear();
-            }
-        };
-        for component_i in components {
-            if let ExprPatternComponent::Constant(_) = component_i {}
-            else { push_combined_string(&mut combined_string, &mut new_components) }
-            match component_i {
-                // For any ExprPatternComponent::Constant objects, we should join them together if they are consecutive
-                ExprPatternComponent::Constant(new_string) => combined_string += &new_string,
-                // For any ExprPattern::Variable components, just add them directly without modification
-                ExprPatternComponent::Variable(_) => new_components.push(component_i.clone()),
-                // For any ExprPattern::Variables components, just add them direcly without modification
-                ExprPatternComponent::Variables((_, _), _) => new_components.push(component_i.clone()),
-            }
-        } push_combined_string(&mut combined_string, &mut new_components);
-        new_components
-    }
 
     pub fn replace_variables(&self, replacements: VariableAssignments) -> Result<Self,()> {
         let components = self.components
@@ -84,7 +59,7 @@ impl ExprPattern {
         
         // Create a new map
         let mut map = VariableAssignments::new();
-        for component in self.components.clone() {
+        for component in self.get_components() {
             match component {
                 ExprPatternComponent::Constant(s1) => {
                     if token_sequence.0.pop() != s1 { return Err(()) }
@@ -101,14 +76,41 @@ impl ExprPattern {
         
     }
 }
-/*
-if token_sequence.0.pop() != var_indic { return Err(()) }
-let Some(Either::Right(s)) = token_sequence.0.pop() else { return Err(()) };
 
+fn remove_redundancy(components: Vec<ExprPatternComponent>) -> Vec<ExprPatternComponent> {
+    let mut new_components = Vec::new();
+    // Iterate through the provided components
+    let mut combined_string = "".to_string();
+    let push_combined_string = |combined_string: &mut String, new_components: &mut Vec<ExprPatternComponent>| -> () {
+        if combined_string.len() > 0 {
+            new_components.push(ExprPatternComponent::Constant(combined_string.clone()));
+            combined_string.clear();
+        }
+    };
+    for component_i in components {
+        if let ExprPatternComponent::Constant(_) = component_i {}
+        else { push_combined_string(&mut combined_string, &mut new_components) }
+        match component_i {
+            // For any ExprPatternComponent::Constant objects, we should join them together if they are consecutive
+            ExprPatternComponent::Constant(new_string) => combined_string += &new_string,
+            // For any ExprPattern::Variable components, just add them directly without modification
+            ExprPatternComponent::Variable(_) => new_components.push(component_i.clone()),
+            // For any ExprPattern::Variables components, just add them direcly without modification
+            ExprPatternComponent::Variables((_, _), _) => new_components.push(component_i.clone()),
+        }
+    } push_combined_string(&mut combined_string, &mut new_components);
+    new_components
+}
 
-if token_sequence.0.pop() != var_indic { return Err(()) }
-*/
-
+fn verify_var_alternation(components: &Vec<ExprPatternComponent>) -> bool {
+    let mut is_var_iter = components.iter()
+        .map(|component| -> bool { if let ExprPatternComponent::Constant(_) = component { false } else { true } } );
+    let Some(mut prev_is_var) = is_var_iter.next() else { return true; };
+    for cur_is_var in is_var_iter {
+        if cur_is_var == prev_is_var { return false; }
+        prev_is_var = cur_is_var;
+    } true
+}
 
 impl TryInto<String> for ExprPattern {
     type Error = ();
@@ -162,7 +164,7 @@ mod tests {
     fn test_new_with_single_const_component() {
         let component = ExprPatternComponent::new_const("agejoi23");
         let lexer = Box::new(ExprPatternLexer::default());
-        let pattern = ExprPattern::new(vec![component.clone()], lexer.clone());
+        let pattern = ExprPattern::new(vec![component.clone()], lexer.clone()).unwrap();
         assert_eq!(pattern.lexer, TEST_LEXER.clone());
         assert_eq!(pattern.components, vec![component]);
     }
@@ -170,7 +172,7 @@ mod tests {
     #[test]
     fn test_new_with_single_var_component() {
         let component = ExprPatternComponent::new_var("rheu54w");
-        let pattern = ExprPattern::new(vec![component.clone()], TEST_LEXER.clone());
+        let pattern = ExprPattern::new(vec![component.clone()], TEST_LEXER.clone()).unwrap();
         assert_eq!(pattern.lexer, TEST_LEXER.clone());
         assert_eq!(pattern.components, vec![component]);
     }
@@ -178,7 +180,7 @@ mod tests {
     #[test]
     fn test_new_with_single_vars_component() {
         let component = ExprPatternComponent::new_vars("feghj6","qr23t4y5ui", "bnmkilu");
-        let pattern = ExprPattern::new(vec![component.clone()], TEST_LEXER.clone());
+        let pattern = ExprPattern::new(vec![component.clone()], TEST_LEXER.clone()).unwrap();
         assert_eq!(pattern.lexer, TEST_LEXER.clone());
         assert_eq!(pattern.components, vec![component]);
     }
@@ -189,7 +191,7 @@ mod tests {
         let right_str = "t32u8awd";
         let left_component = ExprPatternComponent::new_const(left_str);
         let right_component = ExprPatternComponent::new_const(right_str);
-        let pattern = ExprPattern::new(vec![left_component.clone(), right_component.clone()], TEST_LEXER.clone());
+        let pattern = ExprPattern::new(vec![left_component.clone(), right_component.clone()], TEST_LEXER.clone()).unwrap();
         assert_eq!(pattern.lexer, TEST_LEXER.clone());
         assert_eq!(pattern.components, vec![ExprPatternComponent::Constant(left_str.to_string() + right_str)]);
     }
