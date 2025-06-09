@@ -1,6 +1,6 @@
 use either::Either;
 
-use crate::{structures::expressions::patterns::{lexer::{ExprPatternLexer, ExprPatternToken}, variable_assignments::VariableAssignments}, Destringify};
+use crate::{helpers::lexing::{Lexer, Token, TokenSequence}, structures::expressions::patterns::{lexer::{ExprPatternLexer, ExprPatternToken}, variable_assignments::VariableAssignments}, Destringify};
 
 pub mod lexer;
 pub mod parser;
@@ -78,29 +78,37 @@ impl ExprPattern {
     }
 
     pub fn match_string(&self, string: String) -> Result<VariableAssignments,()> {
-        // Get the token sequence
         let mut token_sequence = self.lexer.destringify(&string)?;
+        let var_indic = Some(Either::Left(ExprPatternToken::VariableIndicator));
+        let var_enum = Some(Either::Left(ExprPatternToken::VariableEnumerator));
+        
         // Create a new map
         let mut map = VariableAssignments::new();
-        
         for component in self.components.clone() {
             match component {
                 ExprPatternComponent::Constant(s1) => {
-                    let Some(Either::Right(s2)) = token_sequence.0.pop() else { return Err(()) };
-                    if s1 != s2 { return Err(()) }
+                    if token_sequence.0.pop() != s1 { return Err(()) }
                 }, ExprPatternComponent::Variable(var) => {
-                    let Some(Either::Left(ExprPatternToken::VariableIndicator)) = token_sequence.0.pop() else { return Err(()) };
-                    let Some(Either::Right(val)) = token_sequence.0.pop() else { return Err(()) };
-                    map.add_var_to_val(var,val)?;
-                },
-                ExprPatternComponent::Variables((var1, var2), sep) => {
-                    let Some(Either::Left(ExprPatternToken::VariableIndicator)) = token_sequence.0.pop() else { return Err(()) };
-                },
-            };
+                    if token_sequence.0.pop() != var_indic { return Err(()) }
+                    let Some(Either::Right(value)) = token_sequence.0.pop() else { return Err(()) };
+                    if token_sequence.0.pop() != var_indic { return Err(()) }
+                }, ExprPatternComponent::Variables((var1, var2), sep) => { 
+
+                }
+            }
         }
-        return Ok(map);
+        if token_sequence.0.len() == 0 { Ok(map) } else { Err(()) }
+        
     }
 }
+/*
+if token_sequence.0.pop() != var_indic { return Err(()) }
+let Some(Either::Right(s)) = token_sequence.0.pop() else { return Err(()) };
+
+
+if token_sequence.0.pop() != var_indic { return Err(()) }
+*/
+
 
 impl TryInto<String> for ExprPattern {
     type Error = ();
@@ -193,10 +201,10 @@ mod tests {
 
     fn construct_assignments(var_mappings: Vec<(&str,&str)>, vars_mappings: Vec<(&str,&str,Vec<&str>)>) -> VariableAssignments {
         let mut assignments = VariableAssignments::new();
-        for (k,v) in var_mappings { assignments.add_var_to_val(k.to_string(), v.to_string()); }
+        for (k,v) in var_mappings { let _ = assignments.add_var_to_val(k.to_string(), v.to_string()); }
         for (k1,k2, vars) in vars_mappings { 
             let new_vars = vars.iter().map(|s| -> String { s.to_string() }).collect();
-            assignments.add_vars_to_vals(k1.to_string(), k2.to_string(), new_vars);
+            let _ = assignments.add_vars_to_vals(k1.to_string(), k2.to_string(), new_vars);
         }
         assignments
     }
@@ -210,25 +218,41 @@ mod tests {
     
     #[test]
     fn test_match_with_const() {
-        let (assignments, check) = pre_test_match("r32u89", "r32u89", vec![], vec![]);
-        assert_eq!(assignments, Ok(check));
+        let (assignments, check) = pre_test_match(
+            "r32u89", 
+            "r32u89", 
+            vec![], 
+            vec![]
+        ); assert_eq!(assignments, Ok(check));
     }
 
     #[test]
     fn test_match_with_var() {
-        let (assignments, check) = pre_test_match("#x1#", "fgt43y4", vec![("x1","fgt43y4")], vec![]);
-        assert_eq!(assignments, Ok(check));
+        let (assignments, check) = pre_test_match(
+            "#x1#", 
+            "fgt43y4", 
+            vec![("x1","fgt43y4")], 
+            vec![]
+        ); assert_eq!(assignments, Ok(check));
     }
 
     #[test]
     fn test_match_with_vars() {
-        let (assignments, check) = pre_test_match("#x1..,..x2#", "a,b,c", vec![], vec![("x1","x2",vec!["a","b","c"])]);
-        assert_eq!(assignments, Ok(check));
+        let (assignments, check) = pre_test_match(
+            "#x1..,..x2#", 
+            "a,b,c", 
+            vec![], 
+            vec![("x1","x2",vec!["a","b","c"])]
+        ); assert_eq!(assignments, Ok(check));
     }
 
     #[test]
     fn test_match_with_complex_string() {
-        let (assignments, check) = pre_test_match("(#G#,(f,#A.. & ..B#))", "(g_variable,(f,a1 & a2 & a3))", vec![("G","g_variable")], vec![("A","B",vec!["a1","a2","a3"])]);
-        assert_eq!(assignments, Ok(check));
+        let (assignments, check) = pre_test_match(
+            "(#G#,(f,#A.. & ..B#))",
+            "(g_variable,(f,a1 & a2 & a3))",
+            vec![("G","g_variable")],
+            vec![("A","B",vec!["a1","a2","a3"])]
+        ); assert_eq!(assignments, Ok(check));
     }
 }
