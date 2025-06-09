@@ -77,31 +77,6 @@ impl ExprPattern {
     }
 }
 
-fn remove_redundancy(components: Vec<ExprPatternComponent>) -> Vec<ExprPatternComponent> {
-    let mut new_components = Vec::new();
-    // Iterate through the provided components
-    let mut combined_string = "".to_string();
-    let push_combined_string = |combined_string: &mut String, new_components: &mut Vec<ExprPatternComponent>| -> () {
-        if combined_string.len() > 0 {
-            new_components.push(ExprPatternComponent::Constant(combined_string.clone()));
-            combined_string.clear();
-        }
-    };
-    for component_i in components {
-        if let ExprPatternComponent::Constant(_) = component_i {}
-        else { push_combined_string(&mut combined_string, &mut new_components) }
-        match component_i {
-            // For any ExprPatternComponent::Constant objects, we should join them together if they are consecutive
-            ExprPatternComponent::Constant(new_string) => combined_string += &new_string,
-            // For any ExprPattern::Variable components, just add them directly without modification
-            ExprPatternComponent::Variable(_) => new_components.push(component_i.clone()),
-            // For any ExprPattern::Variables components, just add them direcly without modification
-            ExprPatternComponent::Variables((_, _), _) => new_components.push(component_i.clone()),
-        }
-    } push_combined_string(&mut combined_string, &mut new_components);
-    new_components
-}
-
 fn verify_var_alternation(components: &Vec<ExprPatternComponent>) -> bool {
     let mut is_var_iter = components.iter()
         .map(|component| -> bool { if let ExprPatternComponent::Constant(_) = component { false } else { true } } );
@@ -191,9 +166,32 @@ mod tests {
         let right_str = "t32u8awd";
         let left_component = ExprPatternComponent::new_const(left_str);
         let right_component = ExprPatternComponent::new_const(right_str);
-        let pattern = ExprPattern::new(vec![left_component.clone(), right_component.clone()], TEST_LEXER.clone()).unwrap();
-        assert_eq!(pattern.lexer, TEST_LEXER.clone());
-        assert_eq!(pattern.components, vec![ExprPatternComponent::Constant(left_str.to_string() + right_str)]);
+        let pattern = ExprPattern::new(vec![left_component.clone(), right_component.clone()], TEST_LEXER.clone());
+        assert_eq!(pattern, Err(()));
+    }
+
+    #[test]
+    fn test_new_with_multiple_var_components() {
+        let left_component = ExprPatternComponent::new_var("awduge");
+        let right_component = ExprPatternComponent::new_var("t32u8awd");
+        let pattern = ExprPattern::new(vec![left_component.clone(), right_component.clone()], TEST_LEXER.clone());
+        assert_eq!(pattern, Err(()));
+    }
+
+    #[test]
+    fn test_new_with_multiple_vars_components() {
+        let left_component = ExprPatternComponent::new_vars("feug", "r3ht2uo", "8u91r35yth");
+        let right_component = ExprPatternComponent::new_vars("ytgposfev", "gh08jbnj l", "mbkawo");
+        let pattern = ExprPattern::new(vec![left_component.clone(), right_component.clone()], TEST_LEXER.clone());
+        assert_eq!(pattern, Err(()));
+    }
+
+    #[test]
+    fn test_new_with_multiple_var_and_vars_component() {
+        let left_component = ExprPatternComponent::new_var("fg8t4kopnm");
+        let right_component = ExprPatternComponent::new_vars("bdnpjim", "bjio8n", "mghgsfa");
+        let pattern = ExprPattern::new(vec![left_component.clone(), right_component.clone()], TEST_LEXER.clone());
+        assert_eq!(pattern, Err(()));
     }
 
     #[test]
