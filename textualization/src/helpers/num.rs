@@ -1,15 +1,22 @@
 use parsertools::{lazy, pred, Parser};
 
 pub fn num_parser<'a>() -> Parser<'a, char, usize> {
-    digit_parser().then(lazy(num_parser))
-        .map(|(first_digit, rest)| first_digit * 10 + rest)
-        .or(digit_parser())
+    num_parser_inner().map(|s| s.parse::<usize>().unwrap() )
+}
+fn num_parser_inner<'a>() -> Parser<'a, char, String> {
+    digit_parser_inner().or(
+        digit_parser_inner().then(lazy(num_parser_inner))
+        .map(|(left, right)| left + &right )
+    )
 }
 
 pub fn digit_parser<'a>() -> Parser<'a, char, usize> {
-    pred(|token: &char| {
-        vec!['0','1','2','3','4','5','6','7','8','9'].iter().position(|digit| token == digit) 
-    })
+    digit_parser_inner().map(|s| s.parse::<usize>().unwrap())
+}
+pub fn digit_parser_inner<'a>() -> Parser<'a, char, String> {
+    pred(|token: &char| 
+        { if vec!['0','1','2','3','4','5','6','7','8','9'].contains(token) { Some(token.to_string()) } else { None } }
+    )
 }
 
 #[cfg(test)]
@@ -37,7 +44,7 @@ mod tests {
     }
     #[test]
     fn test_num_parser_with_num() {
-        assert_eq!(parse_str(num_parser(), "012"),Ok(12))
+        assert_eq!(parse_str(num_parser(), "012003"),Ok(12003))
     }
     #[test]
     fn test_digit_parser_with_nonnum() {
