@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use bimap::BiMap;
+use bimap::{BiHashMap, BiMap};
 use parsertools::{pred, Parser};
 use tbl_structures::atoms::AtomId;
 
@@ -15,15 +15,13 @@ impl AtomControls {
 
     pub fn atoms(&self) -> &BiMap<AtomId,String> { &self.ids_and_symbols }
     pub fn atoms_by_id(&self) -> HashMap<AtomId,String> {
-        self.ids_and_symbols.left_values()
-            .zip(self.ids_and_symbols.right_values())
+        self.ids_and_symbols.iter()
             .map(|(a,b)| (a.clone(),b.clone()))
             .collect()
     }
     pub fn atoms_by_symbol(&self) -> HashMap<String,AtomId> {
-        self.ids_and_symbols.right_values()
-            .zip(self.ids_and_symbols.left_values())
-            .map(|(a,b)| (a.clone(),b.clone()))
+        self.ids_and_symbols.iter()
+            .map(|(a,b)| (b.clone(),a.clone()))
             .collect()
     }
 
@@ -36,18 +34,20 @@ impl Default for AtomControls {
 }
 
 pub fn atom_parser<'a>(controls: &AtomControls) -> Parser<'a, char,AtomId> {
-    let ids = atom_id_parser(controls.id_indicator()).unwrap();
-    let symbols = atom_symbol_parser(controls.atoms_by_id()).unwrap();
+    let ids = atom_id_parser(controls);
+    let symbols = atom_symbol_parser(controls);
     ids.or(symbols)
 }
 
-pub fn atom_symbol_parser<'a>(atoms: HashMap<AtomId, String>) -> Result<Parser<'a, char,AtomId>,()> {
-    let all_atoms = atoms.iter()
+pub fn atom_symbol_parser<'a>(controls: &AtomControls) -> Parser<'a, char,AtomId> {
+    let atoms_by_id = controls.atoms_by_id();
+    let all_atom_symbols = atoms_by_id.iter()
         .map(|(id,string)| -> Result<Parser<char, AtomId>,()> { atom_symbol_parser_inner(*id, string) } )
-            .collect::<Result<Vec<Parser<char,AtomId>>,()>>()?;
-    let any_atom = all_atoms.into_iter()
+        .collect::<Result<Vec<Parser<char,AtomId>>,()>>().unwrap();
+    let any_atom_symbols = all_atom_symbols.into_iter()
             .reduce(|acc, e| acc.or(e));
-    Ok(any_atom.unwrap_or(pred(|_| None)))
+    let no_atom_symbols = pred(|_| None);
+    any_atom_symbols.unwrap_or(no_atom_symbols)
 }
 
 fn atom_symbol_parser_inner<'a>(id: AtomId, string: &String) -> Result<Parser<'a, char,AtomId>,()> {
@@ -56,8 +56,8 @@ fn atom_symbol_parser_inner<'a>(id: AtomId, string: &String) -> Result<Parser<'a
     )
 }
 
-pub fn atom_id_parser<'a>(atom_id_indicator: &String) -> Result<Parser<'a, char,AtomId>,()> {
-    Ok(string_parser(&atom_id_indicator)?.then(
+pub fn atom_id_parser<'a>(controls: &AtomControls) -> Parser<'a, char,AtomId> {
+    string_parser(controls.id_indicator()).unwrap().then(
         num_parser()
-    ).map(|(_, uint)| -> AtomId { AtomId::try_from(uint).unwrap() }))
+    ).map(|(_, uint)| -> AtomId { AtomId::try_from(uint).unwrap() })
 }
