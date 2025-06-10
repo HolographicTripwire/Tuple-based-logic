@@ -18,3 +18,9 @@ pub trait Destringify<Object>: DynClone + Send + Sync {
 dyn_clone::clone_trait_object!(<Object> Stringifier<Object>);
 dyn_clone::clone_trait_object!(<Object> Stringify<Object>);
 dyn_clone::clone_trait_object!(<Object> Destringify<Object>);
+
+fn collapse_interpreations<I: Clone>(interpretations: &Vec<I>) -> Result<I,()> {
+    if interpretations.len() > 1 { Err(()) }
+    else if let Some(interpretation) = interpretations.get(0) { Ok(interpretation.clone()) }
+    else { Err(()) }
+}

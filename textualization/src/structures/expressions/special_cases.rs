@@ -1,6 +1,6 @@
 use tbl_structures::propositions::Expression;
 
-use crate::{structures::expressions::patterns::{lexer::ExprPatternLexer, parser::ExprPatternParser, ExprPattern}, Destringify, Stringifier, Stringify};
+use crate::{collapse_interpreations, structures::expressions::patterns::{lexer::ExprPatternLexer, parser::ExprPatternParser, ExprPattern}, Destringify, Stringifier, Stringify};
 
 #[derive(Clone)]
 pub struct SpecialCase { 
@@ -25,15 +25,17 @@ impl SpecialCaseParser {
 impl Stringifier<SpecialCase> for SpecialCaseParser {}
 impl Stringify<SpecialCase>  for SpecialCaseParser{
     fn stringify(&self, object: &SpecialCase) -> Result<String,()> {
-        let string = object.vecified_whole.clone();
-        let Ok(replacements) = self.0.match_string(string) else { return Err(()) };
+        let string = &object.vecified_whole;
+        let interpretations = self.0.match_string(string);
+        let replacements = collapse_interpreations(&interpretations)?;
         let pattern = self.1.replace_variables(replacements)?;
         pattern.try_into()
     }
 }
 impl Destringify<SpecialCase> for SpecialCaseParser {
     fn destringify(&self, string: &String) -> Result<SpecialCase,()> {
-        let Ok(replacements) = self.1.match_string(string.clone()) else { return Err(()) };
+        let interpretations = self.0.match_string(string);
+        let replacements = collapse_interpreations(&interpretations)?;
         let pattern = self.0.replace_variables(replacements)?;
         Ok(SpecialCase {
             expr_components: Vec::new(),
