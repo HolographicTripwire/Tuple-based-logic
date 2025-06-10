@@ -18,34 +18,34 @@ fn string_parser_inner<'a>(value: &[char]) -> Result<Parser<'a, char, ()>,()> {
     )}
 }
 
-fn word_parser<'a>() -> Parser<'a, char, String> {
+pub fn word_parser<'a>() -> Parser<'a, char, String> {
     single_letter_parser()
         .then(lazy(word_parser))
         .map(|(first_letter, rest)| first_letter + &rest)
         .or(single_letter_parser())
 }
 
-fn single_letter_parser<'a>() -> Parser<'a, char, String> {
+pub fn single_letter_parser<'a>() -> Parser<'a, char, String> {
     pred(|token: &char| { Some(token.to_string()) })
 }
 
 
 #[cfg(test)]
 mod tests {
-    use crate::parse_str;
+    use crate::test_helpers::parse_str;
 
     use super::*;
     
     #[test]
-    fn test_digit_parser_with_single_char_string() {
+    fn test_string_parser_with_single_char_string() {
         assert_eq!(parse_str(string_parser("H").unwrap(), "H"),Ok(()))
     }
     #[test]
-    fn test_digit_parser_with_multi_char_string() {
+    fn test_string_parser_with_multi_char_string() {
         assert_eq!(parse_str(string_parser("Hello").unwrap(), "Hello"),Ok(()))
     }
     #[test]
-    fn test_digit_parser_with_nonmatching_string() {
+    fn test_string_parser_with_nonmatching_string() {
         assert!(parse_str(string_parser("Hello").unwrap(), "Hello there").is_err())
     }
 }

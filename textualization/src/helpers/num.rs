@@ -14,7 +14,7 @@ pub fn digit_parser<'a>() -> Parser<'a, char, usize> {
 
 #[cfg(test)]
 mod tests {
-    use crate::parse_str;
+    use crate::test_helpers::parse_str;
 
     use super::*;
     
