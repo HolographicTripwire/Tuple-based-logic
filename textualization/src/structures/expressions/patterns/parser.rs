@@ -98,7 +98,7 @@ impl Destringify<ExprPattern> for ExprPatternParser {
                 },
             }}
         }}
-        Ok(ExprPattern::new(components, self.lexer.clone()))
+        Ok(ExprPattern::new(components, self.lexer.clone())?)
     }
 }
 
@@ -113,12 +113,12 @@ mod tests {
     );
 
     fn pre_stringify_test(string: &str, components: Vec<ExprPatternComponent>) -> (Result<String,()>,String) {
-        let pattern = ExprPattern::new(components,TEST_PARSER.clone().lexer);
+        let pattern = ExprPattern::new(components,TEST_PARSER.clone().lexer).unwrap();
         (TEST_PARSER.stringify(&pattern), string.to_string())
     }
 
     fn pre_destringify_test(string: &str, components: Vec<ExprPatternComponent>) -> (Result<ExprPattern,()>,ExprPattern) {
-        let pattern = ExprPattern::new(components,TEST_PARSER.clone().lexer);
+        let pattern = ExprPattern::new(components,TEST_PARSER.clone().lexer).unwrap();
         (TEST_PARSER.destringify(&string.to_string()),pattern)
     }
     

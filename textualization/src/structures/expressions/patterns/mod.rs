@@ -1,6 +1,4 @@
-use either::Either;
-
-use crate::{structures::expressions::patterns::{lexer::{ExprPatternLexer, ExprPatternToken}, variable_assignments::VariableAssignments}, Destringify};
+use crate::structures::expressions::patterns::{lexer::{ExprPatternLexer, ExprPatternToken}, variable_assignments::VariableAssignments};
 
 pub mod lexer;
 pub mod parser;
@@ -26,10 +24,11 @@ pub struct ExprPattern{
 impl ExprPattern {
     /// Create a new ExprPattern
     pub fn new(components: Vec<ExprPatternComponent>, lexer: Box<ExprPatternLexer>) -> Result<Self,()> {
-        if verify_var_alternation(&components) { Ok(Self {
+        if !verify_var_alternation(&components) { Err(()) }
+        else { Ok(Self {
             components: components,
             lexer
-        })} else { Err(()) }
+        })}
     }
 
     pub fn get_components(&self) -> &Vec<ExprPatternComponent> { return &self.components }
@@ -52,27 +51,7 @@ impl ExprPattern {
         Ok(ExprPattern { lexer: self.lexer.clone(), components })
     }
 
-    pub fn match_string(&self, string: String) -> Result<VariableAssignments,()> {
-        let mut token_sequence = self.lexer.destringify(&string)?;
-        let var_indic = Some(Either::Left(ExprPatternToken::VariableIndicator));
-        let var_enum = Some(Either::Left(ExprPatternToken::VariableEnumerator));
-        
-        // Create a new map
-        let mut map = VariableAssignments::new();
-        for component in self.get_components() {
-            match component {
-                ExprPatternComponent::Constant(s1) => {
-                    if token_sequence.0.pop() != s1 { return Err(()) }
-                }, ExprPatternComponent::Variable(var) => {
-                    if token_sequence.0.pop() != var_indic { return Err(()) }
-                    let Some(Either::Right(value)) = token_sequence.0.pop() else { return Err(()) };
-                    if token_sequence.0.pop() != var_indic { return Err(()) }
-                }, ExprPatternComponent::Variables((var1, var2), sep) => { 
-
-                }
-            }
-        }
-        if token_sequence.0.len() == 0 { Ok(map) } else { Err(()) }
+    pub fn match_string(&self, input: &String) -> Vec<VariableAssignments> {
         
     }
 }
@@ -101,7 +80,7 @@ impl TryInto<String> for ExprPattern {
 mod tests {
     use std::sync::LazyLock;
 
-    use crate::structures::expressions::patterns::parser::ExprPatternParser;
+    use crate::{structures::expressions::patterns::parser::ExprPatternParser, Destringify};
 
     use super::*;
 
@@ -199,21 +178,23 @@ mod tests {
         // TODO
     }
 
-    fn construct_assignments(var_mappings: Vec<(&str,&str)>, vars_mappings: Vec<(&str,&str,Vec<&str>)>) -> VariableAssignments {
+    fn construct_assignments(var_mappings: &Vec<(&str,&str)>, vars_mappings: &Vec<(&str,&str,Vec<&str>)>) -> VariableAssignments {
         let mut assignments = VariableAssignments::new();
-        for (k,v) in var_mappings { let _ = assignments.add_var_to_val(k.to_string(), v.to_string()); }
+        for (k,v) in var_mappings { let _ = assignments.insert_var_to_val(k.to_string(), v.to_string()); }
         for (k1,k2, vars) in vars_mappings { 
             let new_vars = vars.iter().map(|s| -> String { s.to_string() }).collect();
-            let _ = assignments.add_vars_to_vals(k1.to_string(), k2.to_string(), new_vars);
+            let _ = assignments.insert_vars_to_vals(k1.to_string(), k2.to_string(), new_vars);
         }
         assignments
     }
 
-    fn pre_test_match(pattern_str: &str, match_str: &str, var_mappings: Vec<(&str,&str)>, vars_mappings: Vec<(&str,&str,Vec<&str>)>) -> (Result<VariableAssignments,()>,VariableAssignments) {
+    fn pre_test_match(pattern_str: &str, match_str: &str, var_mappings: Vec<Vec<(&str,&str)>>, vars_mappings: Vec<Vec<(&str,&str,Vec<&str>)>>) -> (Vec<VariableAssignments>,Vec<VariableAssignments>) {
         let pattern = TEST_PARSER.destringify(&pattern_str.to_string()).unwrap();
-        let assignments = pattern.match_string(match_str.to_string());
-        let assingments_check = construct_assignments(var_mappings, vars_mappings);
-        return (assignments, assingments_check);
+        let assignments = pattern.match_string(&match_str.to_string());
+        let assignments_check = var_mappings.iter().zip(&vars_mappings)
+            .map(|(var, vars)| -> VariableAssignments { construct_assignments(var, vars) })
+            .collect();
+        return (assignments, assignments_check);
     }
     
     #[test]
@@ -223,7 +204,7 @@ mod tests {
             "r32u89", 
             vec![], 
             vec![]
-        ); assert_eq!(assignments, Ok(check));
+        ); assert_eq!(assignments, check);
     }
 
     #[test]
@@ -231,9 +212,9 @@ mod tests {
         let (assignments, check) = pre_test_match(
             "#x1#", 
             "fgt43y4", 
-            vec![("x1","fgt43y4")], 
+            vec![vec![("x1","fgt43y4")]], 
             vec![]
-        ); assert_eq!(assignments, Ok(check));
+        ); assert_eq!(assignments, check);
     }
 
     #[test]
@@ -242,8 +223,8 @@ mod tests {
             "#x1..,..x2#", 
             "a,b,c", 
             vec![], 
-            vec![("x1","x2",vec!["a","b","c"])]
-        ); assert_eq!(assignments, Ok(check));
+            vec![vec![("x1","x2",vec!["a","b","c"])]]
+        ); assert_eq!(assignments, check);
     }
 
     #[test]
@@ -251,8 +232,8 @@ mod tests {
         let (assignments, check) = pre_test_match(
             "(#G#,(f,#A.. & ..B#))",
             "(g_variable,(f,a1 & a2 & a3))",
-            vec![("G","g_variable")],
-            vec![("A","B",vec!["a1","a2","a3"])]
-        ); assert_eq!(assignments, Ok(check));
+            vec![vec![("G","g_variable")]],
+            vec![vec![("A","B",vec!["a1","a2","a3"])]]
+        ); assert_eq!(assignments, check);
     }
 }
