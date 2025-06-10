@@ -12,6 +12,16 @@ impl AtomControls {
     pub fn new(ids_and_symbols: BiMap<AtomId, String>, atom_id_indicator: String) -> Result<Self,()> {
         Ok(Self { ids_and_symbols, atom_id_indicator })
     }
+    pub fn from_strings(atom_id_indicator: &str, symbols: Vec<(usize,&str)>) -> Self { 
+        Self {
+            ids_and_symbols: BiHashMap::from_iter(
+                symbols.iter()
+                .map(|(int,str)| -> (AtomId, String) {
+                    (AtomId::try_from(*int).expect("Atom id out of range when constructing symbols"), str.to_string())
+                })
+            ), atom_id_indicator: atom_id_indicator.to_string(),
+        }
+    }
 
     pub fn atoms(&self) -> &BiMap<AtomId,String> { &self.ids_and_symbols }
     pub fn atoms_by_id(&self) -> HashMap<AtomId,String> {
