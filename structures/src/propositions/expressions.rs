@@ -69,20 +69,19 @@ impl From<BuiltInAtom> for Expression {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use ids::Id16;
 
     #[test]
     fn test_as_atom_on_atom() {
         for i in 0..10 {
-            let atomic_expr = Expression::from(AtomId(Id16(i)));
-            assert_eq!(atomic_expr.as_atom(), Ok(AtomId(Id16(i))));
+            let atomic_expr = Expression::from(AtomId(i));
+            assert_eq!(atomic_expr.as_atom(), Ok(AtomId(i)));
         }
     }
 
     #[test]
     fn test_as_atom_on_tuple() {
         for i in 0..10 {
-            let atomic_expr = Expression::from(vec![Expression::from(AtomId(Id16(i)))]);
+            let atomic_expr = Expression::from(vec![Expression::from(AtomId(i))]);
             assert_eq!(atomic_expr.as_atom(), Err(()));
         }
     }
@@ -90,7 +89,7 @@ mod tests {
     #[test]
     fn test_as_tuple_on_atom() {
         for i in 0..10 {
-            let atomic_expr = Expression::Atomic(AtomId(Id16(i)));
+            let atomic_expr = Expression::Atomic(AtomId(i));
             assert_eq!(atomic_expr.as_tuple(), Err(()));
         }
     }
@@ -98,15 +97,15 @@ mod tests {
     #[test]
     fn test_as_tuple_on_tuple() {
         for i in 0..10 {
-            let atomic_expr = Expression::from(vec![Expression::from(AtomId(Id16(i)))]);
-            assert_eq!(atomic_expr.as_tuple(), Ok(&vec![Expression::from(AtomId(Id16(i)))]));
+            let atomic_expr = Expression::from(vec![Expression::from(AtomId(i))]);
+            assert_eq!(atomic_expr.as_tuple(), Ok(&vec![Expression::from(AtomId(i))]));
         }
     }
 
     #[test]
     fn test_as_slice_on_atom() {
         for i in 0..10 {
-            let atomic_expr = Expression::Atomic(AtomId(Id16(i)));
+            let atomic_expr = Expression::Atomic(AtomId(i));
             assert_eq!(atomic_expr.as_slice(), Err(()));
         }
     }
@@ -114,15 +113,15 @@ mod tests {
     #[test]
     fn test_as_slice_on_tuple() {
         for i in 0..10 {
-            let atomic_expr = Expression::from(vec![Expression::from(AtomId(Id16(i)))]);
-            assert_eq!(atomic_expr.as_slice(), Ok(vec![Expression::from(AtomId(Id16(i)))].as_slice()));
+            let atomic_expr = Expression::from(vec![Expression::from(AtomId(i))]);
+            assert_eq!(atomic_expr.as_slice(), Ok(vec![Expression::from(AtomId(i))].as_slice()));
         }
     }
 
     #[test]
     fn test_get_subexpr_on_atom() {
         for i in 0..10 {
-            let atomic_expr = Expression::from(AtomId(Id16(i)));
+            let atomic_expr = Expression::from(AtomId(i));
             assert_eq!(atomic_expr.get_subexpr(0), Err(()));
         }
     }
@@ -130,15 +129,15 @@ mod tests {
     #[test]
     fn test_get_subexpr_on_tuple() {
         for i in 0..10 {
-            let atomic_expr = Expression::from(vec![Expression::from(AtomId(Id16(i)))]);
-            assert_eq!(atomic_expr.get_subexpr(0), Ok(&Expression::from(AtomId(Id16(i)))));
+            let atomic_expr = Expression::from(vec![Expression::from(AtomId(i))]);
+            assert_eq!(atomic_expr.get_subexpr(0), Ok(&Expression::from(AtomId(i))));
         }
     }
 
     #[test]
     fn test_get_subexpr_on_short_tuple() {
         for i in 0..10 {
-            let atomic_expr = Expression::from(vec![Expression::from(AtomId(Id16(i)))]);
+            let atomic_expr = Expression::from(vec![Expression::from(AtomId(i))]);
             assert_eq!(atomic_expr.get_subexpr(1), Err(()));
         }
     }

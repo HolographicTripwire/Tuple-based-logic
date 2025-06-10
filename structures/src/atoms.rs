@@ -1,20 +1,21 @@
 use std::num::TryFromIntError;
 
 use enum_iterator::Sequence;
-use ids::{Id16, IdImpl, Identifier};
 
 /// An [Identifier] used for Atom objects, which are used for building tuple objects in Tuple-based logic
 #[derive(Clone, Copy, PartialEq, Eq, Debug, Hash)]
-pub struct AtomId(pub Id16);
-
-impl Identifier for AtomId {
-    fn first() -> Self { Self(Id16::first()) }
-    fn next(self) -> Self { Self(self.0.next().expect("Out of expression ids")) }
+pub struct AtomId(pub u16);
+impl AtomId {
+    fn first() -> AtomId { AtomId(0) }
+    fn next(&self) -> AtomId { AtomId(self.0 + 1) }
 }
 impl TryFrom<usize> for AtomId {
     type Error = TryFromIntError;
     fn try_from(value: usize) -> Result<Self, Self::Error>
-        { Ok(AtomId(Id16::try_from(value)?)) }
+        { match u16::try_from(value) {
+            Ok(val) => Ok(Self(val)),
+            Err(err) => Err(err),
+        }}
 }
 impl TryFrom<AtomId> for usize {
     type Error = TryFromIntError;
@@ -42,7 +43,7 @@ pub enum BuiltInAtom {
 impl Into<AtomId> for BuiltInAtom {
     /// Assigns each built in atom a unique atom id
     fn into(self) -> AtomId {
-        let id = match self {
+        AtomId(match self {
             // Deduction
             BuiltInAtom::Conjunction => 0,
             BuiltInAtom::UniversalQuantifier => 1,
@@ -55,8 +56,7 @@ impl Into<AtomId> for BuiltInAtom {
             BuiltInAtom::Verbatim => 5,
             BuiltInAtom::Concatenate => 6,
             BuiltInAtom::Atomic => 7,
-        };
-        AtomId(Id16(id))
+        })
     }
 }
 
@@ -68,13 +68,13 @@ mod tests {
     #[test]
     fn test_id_initialisation() {
         let result = AtomId::first();
-        assert_eq!(result, AtomId(Id16(0)));
+        assert_eq!(result, AtomId(0));
     }
 
     #[test]
     #[should_panic]
     fn test_id_overflow() {
-        let result = AtomId(Id16(u16::max_value()));
+        let result = AtomId(u16::max_value());
         result.next();
     }
 
