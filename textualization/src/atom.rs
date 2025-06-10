@@ -71,3 +71,56 @@ pub fn atom_id_parser<'a>(controls: &AtomControls) -> Parser<'a, char,AtomId> {
         num_parser()
     ).map(|(_, uint)| -> AtomId { AtomId::try_from(uint).unwrap() })
 }
+
+#[cfg(test)]
+mod tests {
+    use std::sync::LazyLock;
+
+    use crate::test_helpers::parse_str;
+
+    use super::*;
+
+    pub (crate) const TEST_ATOM_CONTROLS: LazyLock<AtomControls> = LazyLock::new(|| -> AtomControls {
+        AtomControls::from_strings("#", vec![
+            (000,"∧"),  // Conjunction
+            (001,"∀"),  // Universal quantiifer
+            (002,"→"),  // Implication
+            (003,"¬"),  // Negation
+            (004,"="),  // Identity
+            (005,"⟨⟩"), // Verbatim
+            (006,"⌢"),  // Concatenation
+            (007,"⚛"),  // Atomicity
+            // Variables
+            (008,"P"),
+            (009,"Q"),
+            (010,"x"),
+            (011,"y"),
+        ]
+    )});
+    
+    #[test]
+    fn test_id_parser_with_atom_id() {
+        assert_eq!(parse_str(atom_id_parser(&TEST_ATOM_CONTROLS), "#1124"),Ok(AtomId(1124)))
+    }
+    #[test]
+    fn test_id_parser_with_plain_num() {
+        assert!(parse_str(atom_id_parser(&TEST_ATOM_CONTROLS), "1124").is_err())
+    }
+    #[test]
+    fn test_id_parser_with_atom_symbol() {
+        assert!(parse_str(atom_id_parser(&TEST_ATOM_CONTROLS), "P").is_err())
+    }
+
+    #[test]
+    fn test_symbol_parser_with_one_char_atom_symbol() {
+        assert_eq!(parse_str(atom_symbol_parser(&TEST_ATOM_CONTROLS), "P"),Ok(AtomId(008)))
+    }
+    #[test]
+    fn test_symbol_parser_with_multi_char_atom_symbol() {
+        assert_eq!(parse_str(atom_symbol_parser(&TEST_ATOM_CONTROLS), "⟨⟩"),Ok(AtomId(005)))
+    }
+    #[test]
+    fn test_symbol_parser_with_atom_id() {
+        assert!(parse_str(atom_symbol_parser(&TEST_ATOM_CONTROLS), "#1124").is_err())
+    }
+}
