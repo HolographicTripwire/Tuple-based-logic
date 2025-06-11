@@ -23,6 +23,15 @@ impl RawExpressionControls {
     pub fn delimiter(&self) -> &String { &self.delimiter }
 }
 
+pub fn raw_expression_parser<'a>(controls: &RawExpressionControls) -> Parser<'a, char,Expression> {
+    let opener = string_parser(controls.tuple_opener()).unwrap();
+    let closer = string_parser(controls.tuple_closer()).unwrap();
+    let atom = atomic_expression_parser(controls);
+    let tuple = opener.then(raw_expression_series_parser(controls.clone())).then(closer)
+        .map(|((_,expr),_)| expr);
+    atom.or(tuple)
+}
+
 fn raw_expression_series_parser<'a>(controls: RawExpressionControls) -> Parser<'a,char,Expression> {
     let delimiter = string_parser(controls.delimiter()).unwrap();
     let binding = controls.clone();
