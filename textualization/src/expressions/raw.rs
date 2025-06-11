@@ -105,4 +105,35 @@ pub (crate) mod tests {
         let expected = Ok(Expression::Tuple(vec![Expression::Tuple(vec![AtomId(8).into(),AtomId(9).into()])]));
         assert_eq!(parse_str(raw_expression_series_parser(TEST_RAW_EXPRESSION_CONTROLS.clone()), "(P,Q)"), expected)
     }
+
+    #[test]
+    fn test_expression_parser_with_atom_id() {
+        let expected = Ok(Expression::Atomic(AtomId(1124).into()));
+        assert_eq!(parse_str(raw_expression_parser(&TEST_RAW_EXPRESSION_CONTROLS), "#1124"), expected)
+    }
+    #[test]
+    fn test_expression_parser_with_plain_num() {
+        assert!(parse_str(raw_expression_parser(&TEST_RAW_EXPRESSION_CONTROLS), "1124").is_err())
+    }
+    #[test]
+    fn test_expression_parser_with_atom_symbol() {
+        let expected = Ok(Expression::Atomic(AtomId(8).into()));
+        assert_eq!(parse_str(raw_expression_parser(&TEST_RAW_EXPRESSION_CONTROLS), "P"), expected)
+    }
+    #[test]
+    fn test_expression_parser_with_atom_series() {
+        assert!(parse_str(raw_expression_parser(&TEST_RAW_EXPRESSION_CONTROLS), "P,Q").is_err())
+    }
+    #[test]
+    fn test_expression_parser_with_atom_tuple() {
+        let expected = Ok(Expression::Tuple(vec![AtomId(8).into(),AtomId(9).into()]));
+        assert_eq!(parse_str(raw_expression_parser(&TEST_RAW_EXPRESSION_CONTROLS), "(P,Q)"), expected)
+    }
+    #[test]
+    fn test_expression_parser_with_nested_tuple() {
+        let neg_p = Expression::Tuple(vec![AtomId(3).into(),AtomId(8).into()]);
+        let neg_neg_p = Expression::Tuple(vec![AtomId(3).into(),neg_p]);
+        let expected = Ok(Expression::Tuple(vec![AtomId(4).into(),AtomId(8).into(),neg_neg_p]));
+        assert_eq!(parse_str(raw_expression_parser(&TEST_RAW_EXPRESSION_CONTROLS), "(=,P,(¬,(¬,P)))"), expected)
+    }
 }
