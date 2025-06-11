@@ -3,7 +3,6 @@ pub mod helpers;
 pub mod atom;
 pub mod expressions;
 
-
 #[cfg(test)]
 mod test_helpers {
     use std::{fmt::Debug, hash::Hash};

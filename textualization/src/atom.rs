@@ -73,7 +73,7 @@ pub fn atom_id_parser<'a>(controls: &AtomControls) -> Parser<'a, char,AtomId> {
 }
 
 #[cfg(test)]
-mod tests {
+pub (crate) mod tests {
     use std::sync::LazyLock;
 
     use crate::test_helpers::parse_str;
