@@ -61,4 +61,34 @@ pub (crate) mod tests {
     fn test_atomic_parser_with_atom_tuple() {
         assert!(parse_str(atomic_expression_parser(&TEST_RAW_EXPRESSION_CONTROLS), "(P,Q)").is_err())
     }
+
+
+    #[test]
+    fn test_series_parser_with_atom_id() {
+        let expected = Ok(Expression::Tuple(vec![AtomId(1124).into()]));
+        assert_eq!(parse_str(raw_expression_series_parser(TEST_RAW_EXPRESSION_CONTROLS.clone()), "#1124"), expected)
+    }
+    #[test]
+    fn test_series_parser_with_plain_num() {
+        assert!(parse_str(raw_expression_series_parser(TEST_RAW_EXPRESSION_CONTROLS.clone()), "1124").is_err())
+    }
+    #[test]
+    fn test_series_parser_with_atom_symbol() {
+        let expected = Ok(Expression::Tuple(vec![AtomId(8).into()]));
+        assert_eq!(parse_str(raw_expression_series_parser(TEST_RAW_EXPRESSION_CONTROLS.clone()), "P"), expected)
+    }
+    #[test]
+    fn test_series_parser_with_atom_series() {
+        let expected = Ok(Expression::Tuple(vec![AtomId(8).into(),AtomId(9).into()]));
+        assert_eq!(parse_str(raw_expression_series_parser(TEST_RAW_EXPRESSION_CONTROLS.clone()), "P,Q"), expected)
+    }
+    #[test]
+    fn test_series_parser_with_atom_series_wrong_delimiter() {
+        assert!(parse_str(raw_expression_series_parser(TEST_RAW_EXPRESSION_CONTROLS.clone()), "P Q").is_err())
+    }
+    #[test]
+    fn test_series_parser_with_atom_tuple() {
+        let expected = Ok(Expression::Tuple(vec![Expression::Tuple(vec![AtomId(8).into(),AtomId(9).into()])]));
+        assert_eq!(parse_str(raw_expression_series_parser(TEST_RAW_EXPRESSION_CONTROLS.clone()), "(P,Q)"), expected)
+    }
 }
