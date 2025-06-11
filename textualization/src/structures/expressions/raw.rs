@@ -2,7 +2,7 @@
 use parsertools::{dynamic, Parser};
 use tbl_structures::propositions::Expression;
 
-use crate::{atom::{atom_parser, AtomControls}, helpers::string_parser};
+use crate::{helpers::string_parser,structures::atoms::{atom_parser, AtomControls}};
 
 #[derive(Clone)]
 pub struct RawExpressionControls {
@@ -57,7 +57,7 @@ pub (crate) mod tests {
 
     use tbl_structures::atoms::AtomId;
 
-    use crate::{test_helpers::parse_str,atom::tests::TEST_ATOM_CONTROLS};
+    use crate::{test_helpers::parse_str,structures::atoms::tests::TEST_ATOM_CONTROLS};
 
     use super::*;
     

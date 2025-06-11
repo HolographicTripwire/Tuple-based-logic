@@ -1,7 +1,7 @@
 
 pub mod helpers;
-pub mod atom;
-pub mod expressions;
+pub mod structures;
+pub mod generation;
 
 #[cfg(test)]
 mod test_helpers {
