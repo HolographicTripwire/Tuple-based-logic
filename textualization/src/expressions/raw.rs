@@ -23,6 +23,20 @@ impl RawExpressionControls {
     pub fn delimiter(&self) -> &String { &self.delimiter }
 }
 
+fn raw_expression_series_parser<'a>(controls: RawExpressionControls) -> Parser<'a,char,Expression> {
+    let delimiter = string_parser(controls.delimiter()).unwrap();
+    let binding = controls.clone();
+    
+    let unary = dynamic(move || raw_expression_parser(&binding.clone())
+        .map(|expr| Expression::Tuple(vec![expr])));
+    
+    let series = dynamic(move || raw_expression_series_parser(controls.clone()));
+    let non_unary = unary.clone().then(delimiter).then(series)
+        .map(|((a,_),b)| Expression::Tuple([a.as_slice().unwrap(),b.as_slice().unwrap()].concat()) );
+    
+    non_unary.or(unary)
+}
+
 fn atomic_expression_parser<'a>(controls: &RawExpressionControls) -> Parser<'a, char, Expression> {
     atom_parser(controls.atoms()).map(|atom| Expression::from(atom))
 }
