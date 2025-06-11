@@ -27,9 +27,10 @@ pub fn raw_expression_parser<'a>(controls: &RawExpressionControls) -> Parser<'a,
     let opener = string_parser(controls.tuple_opener()).unwrap();
     let closer = string_parser(controls.tuple_closer()).unwrap();
     let atom = atomic_expression_parser(controls);
-    let tuple = opener.then(raw_expression_series_parser(controls.clone())).then(closer)
+    let empty_tuple = opener.clone().then(closer.clone()).map(|_| Expression::Tuple(vec![]));
+    let filled_tuple = opener.then(raw_expression_series_parser(controls.clone())).then(closer)
         .map(|((_,expr),_)| expr);
-    atom.or(tuple)
+    atom.or(empty_tuple).or(filled_tuple)
 }
 
 fn raw_expression_series_parser<'a>(controls: RawExpressionControls) -> Parser<'a,char,Expression> {
@@ -134,9 +135,9 @@ pub (crate) mod tests {
         assert!(parse_str(raw_expression_parser(&TEST_RAW_EXPRESSION_CONTROLS), "P,Q").is_err())
     }
     #[test]
-    fn test_expression_parser_with_atom_tuple() {
-        let expected = Ok(Expression::Tuple(vec![AtomId(8).into(),AtomId(9).into()]));
-        assert_eq!(parse_str(raw_expression_parser(&TEST_RAW_EXPRESSION_CONTROLS), "(P,Q)"), expected)
+    fn test_expression_parser_with_atom_id_tuple() {
+        let expected = Ok(Expression::Tuple(vec![AtomId(8).into(),AtomId(241).into()]));
+        assert_eq!(parse_str(raw_expression_parser(&TEST_RAW_EXPRESSION_CONTROLS), "(P,#241)"), expected)
     }
     #[test]
     fn test_expression_parser_with_nested_tuple() {
@@ -144,5 +145,11 @@ pub (crate) mod tests {
         let neg_neg_p = Expression::Tuple(vec![AtomId(3).into(),neg_p]);
         let expected = Ok(Expression::Tuple(vec![AtomId(4).into(),AtomId(8).into(),neg_neg_p]));
         assert_eq!(parse_str(raw_expression_parser(&TEST_RAW_EXPRESSION_CONTROLS), "(=,P,(¬,(¬,P)))"), expected)
+    }
+    #[test]
+    fn test_expression_parser_with_empty_tuple() {
+        let empty = Expression::Tuple(vec![]);
+        let expected = Ok(Expression::Tuple(vec![AtomId(4).into(),AtomId(13).into(),empty]));
+        assert_eq!(parse_str(raw_expression_parser(&TEST_RAW_EXPRESSION_CONTROLS), "(=,#13,())"), expected)
     }
 }
