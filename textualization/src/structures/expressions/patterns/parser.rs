@@ -58,3 +58,47 @@ fn vars_parser<'a>(controls: &ExprPatternControls) -> Parser<'a, char, Vec<ExprP
         .then(word_parser()).then(var_indic_parser)
         .map(|((((((_,v1),_),sep),_),v2),_)| vec![ExprPatternComponent::Variables((v1,v2),sep)])
 }
+
+#[cfg(test)]
+pub mod tests {
+    use std::sync::LazyLock;
+
+    use super::*;
+
+    use crate::{structures::expressions::patterns::parser::ExprPatternControls, test_helpers::parse_str};
+
+    pub (crate) const TEST_PATTERN_CONTROLS: LazyLock<ExprPatternControls> = LazyLock::new(|| {
+        ExprPatternControls::from_strs("@", "..")
+    });
+
+    #[test]
+    fn test_const_parser() {
+        assert_eq!(
+            parse_str(
+                const_parser(&TEST_PATTERN_CONTROLS), 
+                "Hello"
+            ), Ok(vec![ExprPatternComponent::new_const("Hello")])
+        )
+    }
+    
+    #[test]
+    fn test_var_parser() {
+        assert_eq!(
+            parse_str(
+                var_parser(&TEST_PATTERN_CONTROLS), 
+                "#adiw awdio#"
+            ), Ok(vec![ExprPatternComponent::new_var("adiw awdio")])
+        )
+    }
+
+    #[test]
+    fn test_vars_parser() {
+        assert_eq!(
+            parse_str(
+                vars_parser(&TEST_PATTERN_CONTROLS),
+                "#a.. and ..b#"
+            ), Ok(vec![ExprPatternComponent::new_vars("a"," and ","b")])
+        )
+    }
+
+}
