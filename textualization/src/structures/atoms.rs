@@ -12,7 +12,7 @@ impl AtomControls {
     pub fn new(ids_and_symbols: BiMap<AtomId, String>, atom_id_indicator: String) -> Result<Self,()> {
         Ok(Self { ids_and_symbols, atom_id_indicator })
     }
-    pub fn from_strings(atom_id_indicator: &str, symbols: Vec<(usize,&str)>) -> Self { 
+    pub fn from_strs(atom_id_indicator: &str, symbols: Vec<(usize,&str)>) -> Self { 
         Self {
             ids_and_symbols: BiHashMap::from_iter(
                 symbols.iter()
@@ -81,7 +81,7 @@ pub (crate) mod tests {
     use super::*;
 
     pub (crate) const TEST_ATOM_CONTROLS: LazyLock<AtomControls> = LazyLock::new(|| -> AtomControls {
-        AtomControls::from_strings("#", vec![
+        AtomControls::from_strs("#", vec![
             (000,"∧"),  // Conjunction
             (001,"∀"),  // Universal quantiifer
             (002,"→"),  // Implication

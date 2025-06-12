@@ -2,7 +2,7 @@ use parsertools::{lazy, Parser};
 
 use crate::helpers::{string_parser, word_parser};
 
-#[derive(Clone,PartialEq,Eq,Debug)]
+#[derive(Clone,PartialEq,Eq,Debug,Hash)]
 pub enum ExprPatternComponent {
     Constant(String),
     Variable(String),
