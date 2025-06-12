@@ -51,3 +51,73 @@ fn vars_parser_inner<'a>(joiner: String) -> Parser<'a,char,Vec<String>> {
         .map(|((next,_),mut vars)| { vars.insert(0,next); vars });
     single_var.or(multi_var)
 }
+
+#[cfg(test)]
+mod tests {
+    use crate::{structures::expressions::patterns::components::{pattern_component_parser, ExprPatternAssignment, ExprPatternComponent}, test_helpers::parse_str};
+
+    #[test]
+    fn test_new_constant() {
+        
+    }
+
+    #[test]
+    fn test_parser_with_constant_match() {
+        assert_eq!(
+            parse_str(
+                pattern_component_parser(ExprPatternComponent::new_const("Hello")), 
+                "Hello"
+            ), Ok(ExprPatternAssignment::new_const())
+        )
+    }
+    
+    #[test]
+    fn test_parser_with_constant_nonmatch() {
+        assert!(
+            parse_str(
+                pattern_component_parser(ExprPatternComponent::new_const("Hello")), 
+                "Hello there"
+            ).is_err()
+        )
+    }
+
+    #[test]
+    fn test_parser_with_var() {
+        assert_eq!(
+            parse_str(pattern_component_parser(
+                ExprPatternComponent::new_var("Marco")),
+                "Polo"
+            ), Ok(ExprPatternAssignment::new_var("Marco","Polo"))
+        )
+    }
+
+    #[test]
+    fn test_parser_with_vars_1() {
+        assert_eq!(
+            parse_str(pattern_component_parser(
+                ExprPatternComponent::new_vars("A","B"," and ")),
+                "Sugar"
+            ), Ok(ExprPatternAssignment::new_vars("A","B",vec!["Sugar"]))
+        )
+    }
+
+    #[test]
+    fn test_parser_with_vars_2() {
+        assert_eq!(
+            parse_str(
+                pattern_component_parser(ExprPatternComponent::new_vars("A","B"," and ")),
+                "Sugar and Spice"
+            ), Ok(ExprPatternAssignment::new_vars("A","B",vec!["Sugar","Spice"]))
+        )
+    }
+
+    #[test]
+    fn test_parser_with_vars_3() {
+        assert_eq!(
+            parse_str(
+                pattern_component_parser(ExprPatternComponent::new_vars("A","B"," and ")),
+                "Sugar and Spice and Everything nice"
+            ), Ok(ExprPatternAssignment::new_vars("A","B",vec!["Sugar","Spice","Everything nice"]))
+        )
+    }
+}
