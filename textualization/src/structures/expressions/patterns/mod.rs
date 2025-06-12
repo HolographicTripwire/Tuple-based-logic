@@ -21,3 +21,14 @@ impl ExprPatternAssignments {
         assignments.into_iter().filter(|assignment| assignment == &ExprPatternAssignment::Constant).collect()
     )}
 }
+
+fn expr_pattern_matcher<'a>(pattern: &'a ExprPattern) -> Parser<'a, char, Vec<ExprPatternAssignment>> {
+    let unary_vec_parser = pattern.components.iter()
+        // Convert components to assignment vec parsers
+        .map(|component| pattern_component_parser(component)
+            .map(|assignment| vec![assignment] )).collect::<Vec<_>>();
+    let vec_parser = unary_vec_parser.iter().fold(
+        pred(|_: &char| Some(Vec::<ExprPatternAssignment>::new())),
+        |acc, next| acc.then(next.clone()).map(|(left,right)| [left,right].concat()));
+    vec_parser
+}
