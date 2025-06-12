@@ -1,23 +1,23 @@
 
-use parsertools::{dynamic, Parser};
+use parsertools::{lazy, Parser};
 use tbl_structures::propositions::Expression;
 
 use crate::{helpers::string_parser,structures::atoms::{atom_parser, AtomControls}};
 
 #[derive(Clone)]
 pub struct RawExpressionControls {
-    atoms: AtomControls,
+    atom_controls: AtomControls,
     tuple_opener: String,
     tuple_closer: String,
     delimiter: String
 }
 impl RawExpressionControls {
-    pub fn new(atoms: AtomControls, tuple_opener: String, tuple_closer: String, delimiter: String) -> Self { Self { atoms, tuple_opener, tuple_closer, delimiter } }
-    pub fn from_strs(atoms: AtomControls, tuple_opener: &str, tuple_closer: &str, delimiter: &str) -> Self {
-        Self { atoms, tuple_opener: tuple_opener.to_string(), tuple_closer: tuple_closer.to_string(), delimiter: delimiter.to_string() }
+    pub fn new(atoms: AtomControls, tuple_opener: String, tuple_closer: String, delimiter: String) -> Self { Self { atom_controls: atoms, tuple_opener, tuple_closer, delimiter } }
+    pub fn from_strs(atom_controls: AtomControls, tuple_opener: &str, tuple_closer: &str, delimiter: &str) -> Self {
+        Self { atom_controls, tuple_opener: tuple_opener.to_string(), tuple_closer: tuple_closer.to_string(), delimiter: delimiter.to_string() }
     }
 
-    pub fn atoms(&self) -> &AtomControls { &self.atoms }
+    pub fn atom_controls(&self) -> &AtomControls { &self.atom_controls }
     pub fn tuple_opener(&self) -> &String { &self.tuple_opener }
     pub fn tuple_closer(&self) -> &String { &self.tuple_closer }
     pub fn delimiter(&self) -> &String { &self.delimiter }
@@ -37,10 +37,10 @@ fn raw_expression_series_parser<'a>(controls: RawExpressionControls) -> Parser<'
     let delimiter = string_parser(controls.delimiter()).unwrap();
     let binding = controls.clone();
     
-    let unary = dynamic(move || raw_expression_parser(&binding.clone())
+    let unary = lazy(move || raw_expression_parser(&binding.clone())
         .map(|expr| Expression::Tuple(vec![expr])));
     
-    let series = dynamic(move || raw_expression_series_parser(controls.clone()));
+    let series = lazy(move || raw_expression_series_parser(controls.clone()));
     let non_unary = unary.clone().then(delimiter).then(series)
         .map(|((a,_),b)| Expression::Tuple([a.as_slice().unwrap(),b.as_slice().unwrap()].concat()) );
     
@@ -48,7 +48,7 @@ fn raw_expression_series_parser<'a>(controls: RawExpressionControls) -> Parser<'
 }
 
 fn atomic_expression_parser<'a>(controls: &RawExpressionControls) -> Parser<'a, char, Expression> {
-    atom_parser(controls.atoms()).map(|atom| Expression::from(atom))
+    atom_parser(controls.atom_controls()).map(|atom| Expression::from(atom))
 }
 
 #[cfg(test)]
