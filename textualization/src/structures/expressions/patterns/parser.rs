@@ -101,4 +101,33 @@ pub mod tests {
         )
     }
 
+    #[test]
+    fn test_pattern_parser_with_const() {
+        assert_eq!(
+            parse_str(
+                expr_pattern_parser(&TEST_PATTERN_CONTROLS), 
+                "Hello"
+            ), Ok(ExprPattern::new([ExprPatternComponent::new_const("Hello")]))
+        )
+    }
+    
+    #[test]
+    fn test_pattern_parser_with_var() {
+        assert_eq!(
+            parse_str(
+                expr_pattern_parser(&TEST_PATTERN_CONTROLS), 
+                "#adiw awdio#"
+            ), Ok(ExprPattern::new([ExprPatternComponent::new_var("adiw awdio")]))
+        )
+    }
+
+    #[test]
+    fn test_pattern_parser_with_vars() {
+        assert_eq!(
+            parse_str(
+                expr_pattern_parser(&TEST_PATTERN_CONTROLS),
+                "#a.. and ..b#"
+            ), Ok(ExprPattern::new([ExprPatternComponent::new_vars("a"," and ","b")]))
+        )
+    }
 }
