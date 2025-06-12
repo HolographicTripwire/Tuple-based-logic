@@ -18,6 +18,28 @@ impl ExprPatternControls {
     fn var_enum_parser<'a>(&self) -> Parser<'a,char,()> { string_parser(&self.var_enum).unwrap() }
 }
 
+pub fn expr_pattern_parser<'a>(controls: &'a ExprPatternControls) -> Parser<'a, char, ExprPattern> {
+    const_parser(controls)
+        .or(vec_concat_parser([var_or_vars_parser(controls), const_parser(controls)]))
+        .or(vec_concat_parser([const_parser(controls), dual_component_series_parser(controls)]))
+        .or(vec_concat_parser([var_or_vars_parser(controls), const_parser(controls), dual_component_series_parser(controls)]))
+        .or(vec_concat_parser([const_parser(controls), dual_component_series_parser(controls), var_or_vars_parser(controls)]))
+        .or(vec_concat_parser([var_or_vars_parser(controls), const_parser(controls), dual_component_series_parser(controls), var_or_vars_parser(controls)]))
+        .map(|components| ExprPattern::new(components))
+}
+
+fn dual_component_series_parser<'a>(controls: &'a ExprPatternControls) -> Parser<'a, char, Vec<ExprPatternComponent>> {
+    dual_component_parser(controls)
+        .or(vec_concat_parser([dual_component_parser(controls), lazy(|| dual_component_series_parser(controls))]))
+}
+
+fn dual_component_parser<'a>(controls: &ExprPatternControls) -> Parser<'a, char, Vec<ExprPatternComponent>> {
+    vec_concat_parser([var_or_vars_parser(controls),const_parser(controls)])
+}
+
+fn var_or_vars_parser<'a>(controls: &ExprPatternControls) -> Parser<'a, char, Vec<ExprPatternComponent>>
+    { var_parser(controls).or(vars_parser(controls)) }
+
 fn const_parser<'a>(controls: &ExprPatternControls) -> Parser<'a, char, Vec<ExprPatternComponent>>
     { word_parser().map(|s| vec![ExprPatternComponent::Constant(s)]) }
 fn var_parser<'a>(controls: &ExprPatternControls) -> Parser<'a, char, Vec<ExprPatternComponent>> {
