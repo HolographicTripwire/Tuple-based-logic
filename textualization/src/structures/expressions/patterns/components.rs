@@ -1,4 +1,4 @@
-use parsertools::{dynamic, pred, Parser};
+use parsertools::{lazy, pred, Parser};
 
 use crate::helpers::{string_parser, word_parser};
 
@@ -47,14 +47,18 @@ fn vars_parser<'a>(vars: (String, String), joiner: String) -> Parser<'a,char,Exp
 }
 fn vars_parser_inner<'a>(joiner: String) -> Parser<'a,char,Vec<String>> {
     let single_var = word_parser().map(|val| vec![val]);
-    let multi_var = word_parser().then(string_parser(&joiner).unwrap()).then(dynamic(move || vars_parser_inner(joiner.clone())))
+    let multi_var = word_parser().then(string_parser(&joiner).unwrap()).then(lazy(move || vars_parser_inner(joiner.clone())))
         .map(|((next,_),mut vars)| { vars.insert(0,next); vars });
     single_var.or(multi_var)
 }
 
 #[cfg(test)]
 mod tests {
-    use crate::{structures::expressions::patterns::components::{pattern_component_parser, ExprPatternAssignment, ExprPatternComponent}, test_helpers::parse_str};
+    use std::collections::HashSet;
+
+    use parsertools::ParseError;
+
+    use crate::{structures::expressions::patterns::components::{pattern_component_parser, ExprPatternAssignment, ExprPatternComponent}, test_helpers::{parse_all_str, parse_str}};
 
     #[test]
     fn test_new_constant() {
@@ -95,7 +99,7 @@ mod tests {
     fn test_parser_with_vars_1() {
         assert_eq!(
             parse_str(pattern_component_parser(
-                ExprPatternComponent::new_vars("A","B"," and ")),
+                ExprPatternComponent::new_vars("A"," and ","B")),
                 "Sugar"
             ), Ok(ExprPatternAssignment::new_vars("A","B",vec!["Sugar"]))
         )
@@ -104,20 +108,28 @@ mod tests {
     #[test]
     fn test_parser_with_vars_2() {
         assert_eq!(
-            parse_str(
-                pattern_component_parser(ExprPatternComponent::new_vars("A","B"," and ")),
+            parse_all_str(
+                pattern_component_parser(ExprPatternComponent::new_vars("A"," and ","B")),
                 "Sugar and Spice"
-            ), Ok(ExprPatternAssignment::new_vars("A","B",vec!["Sugar","Spice"]))
+            ), HashSet::from([
+                ExprPatternAssignment::new_vars("A","B",vec!["Sugar","Spice"]),
+                ExprPatternAssignment::new_vars("A","B",vec!["Sugar and Spice"])
+            ])
         )
     }
 
     #[test]
     fn test_parser_with_vars_3() {
         assert_eq!(
-            parse_str(
-                pattern_component_parser(ExprPatternComponent::new_vars("A","B"," and ")),
+            parse_all_str(
+                pattern_component_parser(ExprPatternComponent::new_vars("A"," and ","B")),
                 "Sugar and Spice and Everything nice"
-            ), Ok(ExprPatternAssignment::new_vars("A","B",vec!["Sugar","Spice","Everything nice"]))
+            ), HashSet::from([
+                ExprPatternAssignment::new_vars("A","B",vec!["Sugar","Spice", "Everything nice"]),
+                ExprPatternAssignment::new_vars("A","B",vec!["Sugar and Spice", "Everything nice"]),
+                ExprPatternAssignment::new_vars("A","B",vec!["Sugar","Spice and Everything nice"]),
+                ExprPatternAssignment::new_vars("A","B",vec!["Sugar and Spice and Everything nice"])
+            ])
         )
     }
 }
