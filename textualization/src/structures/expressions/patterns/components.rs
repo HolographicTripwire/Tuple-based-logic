@@ -59,11 +59,6 @@ mod tests {
     use crate::{structures::expressions::patterns::components::{pattern_component_parser, ExprPatternAssignment, ExprPatternComponent}, test_helpers::{parse_all_str, parse_str}};
 
     #[test]
-    fn test_new_constant() {
-        
-    }
-
-    #[test]
     fn test_parser_with_constant_match() {
         assert_eq!(
             parse_str(
