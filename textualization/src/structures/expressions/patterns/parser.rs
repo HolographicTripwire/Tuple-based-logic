@@ -1,6 +1,6 @@
 use parsertools::{lazy, Parser};
 
-use crate::{helpers::{string_parser, vec_concat_parser, word_parser}, structures::expressions::patterns::{components::ExprPatternComponent, ExprPattern}};
+use crate::{helpers::{string_parser, vec_concat_parser_transformer, word_parser}, structures::expressions::patterns::{components::ExprPatternComponent, ExprPattern}};
 
 #[derive(Clone,PartialEq,Eq,Debug,Hash)]
 pub struct ExprPatternControls {
@@ -20,21 +20,21 @@ impl ExprPatternControls {
 
 pub fn expr_pattern_parser<'a>(controls: &'a ExprPatternControls) -> Parser<'a, char, ExprPattern> {
     const_parser(controls)
-        .or(vec_concat_parser([var_or_vars_parser(controls), const_parser(controls)]))
-        .or(vec_concat_parser([const_parser(controls), dual_component_series_parser(controls)]))
-        .or(vec_concat_parser([var_or_vars_parser(controls), const_parser(controls), dual_component_series_parser(controls)]))
-        .or(vec_concat_parser([const_parser(controls), dual_component_series_parser(controls), var_or_vars_parser(controls)]))
-        .or(vec_concat_parser([var_or_vars_parser(controls), const_parser(controls), dual_component_series_parser(controls), var_or_vars_parser(controls)]))
+        .or(vec_concat_parser_transformer([var_or_vars_parser(controls), const_parser(controls)]))
+        .or(vec_concat_parser_transformer([const_parser(controls), dual_component_series_parser(controls)]))
+        .or(vec_concat_parser_transformer([var_or_vars_parser(controls), const_parser(controls), dual_component_series_parser(controls)]))
+        .or(vec_concat_parser_transformer([const_parser(controls), dual_component_series_parser(controls), var_or_vars_parser(controls)]))
+        .or(vec_concat_parser_transformer([var_or_vars_parser(controls), const_parser(controls), dual_component_series_parser(controls), var_or_vars_parser(controls)]))
         .map(|components| ExprPattern::new(components))
 }
 
 fn dual_component_series_parser<'a>(controls: &'a ExprPatternControls) -> Parser<'a, char, Vec<ExprPatternComponent>> {
     dual_component_parser(controls)
-        .or(vec_concat_parser([dual_component_parser(controls), lazy(|| dual_component_series_parser(controls))]))
+        .or(vec_concat_parser_transformer([dual_component_parser(controls), lazy(|| dual_component_series_parser(controls))]))
 }
 
 fn dual_component_parser<'a>(controls: &ExprPatternControls) -> Parser<'a, char, Vec<ExprPatternComponent>> {
-    vec_concat_parser([var_or_vars_parser(controls),const_parser(controls)])
+    vec_concat_parser_transformer([var_or_vars_parser(controls),const_parser(controls)])
 }
 
 fn var_or_vars_parser<'a>(controls: &ExprPatternControls) -> Parser<'a, char, Vec<ExprPatternComponent>>
