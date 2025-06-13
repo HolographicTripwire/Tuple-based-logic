@@ -10,6 +10,9 @@ pub struct ControlStrings {
     others: HashSet<String>
 }
 impl ControlStrings {
+    fn new(escape: String, others: HashSet<String>) -> Self { Self{escape, others} }
+    fn from_strs(escape: &str, others: Vec<&str>) -> Self { Self{escape: escape.to_string(), others: others.into_iter().map(|s| s.to_string()).collect()} }
+
     pub fn escape(&self) -> &String { &self.escape }
     pub fn escape_parser(&self) -> Parser<char,String> { string_parser(&self.escape).unwrap() }
     pub fn others(&self) -> &HashSet<String> { &self.others }
@@ -34,4 +37,57 @@ fn word_not_containing_parser<'a>(set: HashSet<String>) -> Parser<'a, char, Stri
         move |word| !set.iter().any(|should_not_contain| -> bool { word.contains(should_not_contain) }),
         parsertools::ParseError::UnexpectedTokenProperUnknown
     )
+}
+
+#[cfg(test)]
+mod tests {
+    use std::sync::LazyLock;
+
+    use crate::test_helpers::parse_str;
+
+    use super::*;
+
+    const TEST_CONTROL_STRINGS: LazyLock<ControlStrings> = LazyLock::new(||
+        ControlStrings::from_strs("\\", vec!["#",".."])
+    );
+
+    #[test]
+    pub fn test_with_no_controls() {
+        assert_eq!(parse_str(controlled_word_parser(&TEST_CONTROL_STRINGS), "Hello"),Ok("Hello".to_string()))
+    }
+
+    #[test]
+    pub fn test_with_single_char_control() {
+        assert!(parse_str(controlled_word_parser(&TEST_CONTROL_STRINGS), "Hel#lo").is_err())
+    }
+
+    #[test]
+    pub fn test_with_multi_char_control() {
+        assert!(parse_str(controlled_word_parser(&TEST_CONTROL_STRINGS), "Hel..lo").is_err())
+    }
+
+    #[test]
+    pub fn test_with_escaped_single_char_control() {
+        assert_eq!(parse_str(controlled_word_parser(&TEST_CONTROL_STRINGS), "Hel\\#lo"),Ok("Hel#lo".to_string()))
+    }
+
+    #[test]
+    pub fn test_with_escaped_multi_char_control() {
+        assert_eq!(parse_str(controlled_word_parser(&TEST_CONTROL_STRINGS), "Hel\\..lo"),Ok("Hel..lo".to_string()))
+    }
+
+    #[test]
+    pub fn test_with_single_escape() {
+        assert!(parse_str(controlled_word_parser(&TEST_CONTROL_STRINGS), "Hel\\lo").is_err())
+    }
+
+    #[test]
+    pub fn test_with_double_escape() {
+        assert_eq!(parse_str(controlled_word_parser(&TEST_CONTROL_STRINGS), "Hel\\\\lo"),Ok("Hel\\lo".to_string()))
+    }
+
+    #[test]
+    pub fn test_with_triple_escape() {
+        assert!(parse_str(controlled_word_parser(&TEST_CONTROL_STRINGS), "Hel\\\\\\lo").is_err())
+    }
 }
