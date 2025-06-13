@@ -1,21 +1,12 @@
 use parsertools::{lazy, pred, tok, Parser};
 
-pub fn string_parser<'a>(input: &str) -> Result<Parser<'a, char, ()>,()> {
+use crate::helpers::vec_concat_parser_transformer;
+
+pub fn string_parser<'a>(input: &str) -> Result<Parser<'a, char, String>,()> {
+    if input.len() == 0 { return Err(()) }
     let chars: Vec<char> = input.chars().collect();
-    string_parser_inner(&chars)
-}
-fn string_parser_inner<'a>(value: &[char]) -> Result<Parser<'a, char, ()>,()> {
-    if value.is_empty() {
-        Err(())
-    } else { Ok(
-        if value.len() == 1 {
-            tok(value[0])
-        } else {
-            tok(value[0])
-                .then(string_parser_inner(&value[1..])?)
-                .map(|_| ())
-        }
-    )}
+    let char_parsers = chars.into_iter().map(|char| tok(char).map(move |_| vec![char]));
+    Ok(vec_concat_parser_transformer(char_parsers).map(|vec| vec.into_iter().collect::<String>()))
 }
 
 pub fn word_parser<'a>() -> Parser<'a, char, String> {
@@ -38,11 +29,11 @@ mod tests {
     
     #[test]
     fn test_string_parser_with_single_char_string() {
-        assert_eq!(parse_str(string_parser("H").unwrap(), "H"),Ok(()))
+        assert_eq!(parse_str(string_parser("H").unwrap(), "H"),Ok("H".to_string()))
     }
     #[test]
     fn test_string_parser_with_multi_char_string() {
-        assert_eq!(parse_str(string_parser("Hello").unwrap(), "Hello"),Ok(()))
+        assert_eq!(parse_str(string_parser("Hello").unwrap(), "Hello"),Ok("Hello".to_string()))
     }
     #[test]
     fn test_string_parser_with_nonmatching_string() {
