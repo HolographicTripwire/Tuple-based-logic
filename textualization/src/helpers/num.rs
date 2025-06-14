@@ -1,13 +1,8 @@
-use parsertools::parsers::{helpers::lazy, tokens::pred, Parser};
+use parsertools::parsers::{tokens::pred, transformers::series, Parser};
 
 pub fn num_parser<'a>() -> Parser<'a, char, usize> {
-    num_parser_inner().map(|s| s.parse::<usize>().unwrap() )
-}
-fn num_parser_inner<'a>() -> Parser<'a, char, String> {
-    digit_parser_inner().or(
-        digit_parser_inner().then(lazy(num_parser_inner))
-        .map(|(left, right)| left + &right )
-    )
+    series(digit_parser_inner())
+        .map(|vec| vec.join("").parse::<usize>().unwrap()) 
 }
 
 pub fn digit_parser<'a>() -> Parser<'a, char, usize> {

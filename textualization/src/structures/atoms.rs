@@ -6,6 +6,7 @@ use tbl_structures::atoms::AtomId;
 
 use crate::helpers::{num_parser, string_parser};
 
+
 #[derive(Clone)]
 pub struct AtomControls { ids_and_symbols: BiMap<AtomId,String>, atom_id_indicator: String }
 impl AtomControls {
