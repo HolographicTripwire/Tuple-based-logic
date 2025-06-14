@@ -11,7 +11,7 @@ pub struct ControlStrings {
 }
 impl ControlStrings {
     pub fn new(escape: String, others: HashSet<String>) -> Self { Self{escape, others} }
-    pub fn from_strs(escape: &str, others: Vec<&str>) -> Self { Self{escape: escape.to_string(), others: others.into_iter().map(|s| s.to_string()).collect()} }
+    pub fn from_strs<'a, I: IntoIterator<Item = &'a str>>(escape: &str, others: I) -> Self { Self{escape: escape.to_string(), others: others.into_iter().map(|s| s.to_string()).collect()} }
 
     pub fn controls(&self) -> HashSet<String> { self.others.iter().chain(vec![self.escape_control()]).cloned().collect() }
     pub fn escape_control(&self) -> &String { &self.escape }
