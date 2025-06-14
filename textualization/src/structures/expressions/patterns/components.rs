@@ -1,4 +1,4 @@
-use parsertools::{lazy, Parser};
+use parsertools::parsers::{helpers::lazy, Parser};
 
 use crate::helpers::{string_parser, word_parser};
 

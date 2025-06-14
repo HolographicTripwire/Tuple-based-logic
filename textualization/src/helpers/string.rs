@@ -1,19 +1,13 @@
-use parsertools::{lazy, pred, tok, Parser};
-
-use crate::helpers::vec_concat_parser_transformer;
+use parsertools::parsers::{tokens::{pred, tok}, transformers::{conjoin, series}, Parser};
 
 pub fn string_parser<'a>(input: &str) -> Result<Parser<'a, char, String>,()> {
     if input.len() == 0 { return Err(()) }
-    let chars: Vec<char> = input.chars().collect();
-    let char_parsers = chars.into_iter().map(|char| tok(char).map(move |_| vec![char]));
-    Ok(vec_concat_parser_transformer(char_parsers).map(|vec| vec.into_iter().collect::<String>()))
+    let char_parsers = input.chars().map(|char| tok(char));
+    Ok(conjoin(char_parsers).map(|vec| vec.into_iter().collect::<String>()))
 }
 
 pub fn word_parser<'a>() -> Parser<'a, char, String> {
-    single_letter_parser()
-        .then(lazy(word_parser))
-        .map(|(first_letter, rest)| first_letter + &rest)
-        .or(single_letter_parser())
+    series(single_letter_parser()).map(|strings| strings.join(""))
 }
 
 pub fn single_letter_parser<'a>() -> Parser<'a, char, String> {

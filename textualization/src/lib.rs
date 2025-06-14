@@ -7,7 +7,7 @@ pub mod generation;
 mod test_helpers {
     use std::collections::HashSet;
 
-    use parsertools::{AstBounds, ParseError, Parser};
+    use parsertools::parsers::{AstBounds, results::ParseError, Parser};
 
     pub (crate) fn parse_str<T: AstBounds>(parser: Parser<char,T>, string: &str) -> Result<T,ParseError<char>> {
         let chars = string.chars().collect::<Vec<_>>();

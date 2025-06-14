@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
 use bimap::{BiHashMap, BiMap};
-use parsertools::{pred, Parser};
+use parsertools::parsers::{tokens::pred, Parser};
 use tbl_structures::atoms::AtomId;
 
 use crate::helpers::{num_parser, string_parser};

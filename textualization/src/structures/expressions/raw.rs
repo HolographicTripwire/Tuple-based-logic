@@ -1,5 +1,5 @@
 
-use parsertools::{lazy, Parser};
+use parsertools::parsers::{helpers::lazy, Parser};
 use tbl_structures::propositions::Expression;
 
 use crate::{helpers::string_parser,structures::atoms::{atom_parser, AtomControls}};

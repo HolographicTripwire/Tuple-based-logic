@@ -1,5 +1,5 @@
 use hashable::HashableHashSet;
-use parsertools::{pred, Parser};
+use parsertools::parsers::{tokens::pred, Parser};
 
 use crate::structures::expressions::patterns::components::{pattern_component_parser, ExprPatternAssignment, ExprPatternComponent};
 

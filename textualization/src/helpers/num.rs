@@ -1,4 +1,4 @@
-use parsertools::{lazy, pred, Parser};
+use parsertools::parsers::{helpers::lazy, tokens::pred, Parser};
 
 pub fn num_parser<'a>() -> Parser<'a, char, usize> {
     num_parser_inner().map(|s| s.parse::<usize>().unwrap() )
