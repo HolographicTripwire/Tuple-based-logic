@@ -78,6 +78,43 @@ mod tests {
         assert_eq!(ExprPattern::new(pattern).components,check)
     }
 
+    fn pre_test_assign<C1: IntoIterator<Item=ExprPatternComponent>, A: IntoIterator<Item=ExprPatternAssignment>, C2: IntoIterator<Item=ExprPatternComponent>>
+    (components: C1, assignments: A, check: C2) -> (Result<ExprPattern,()>,ExprPattern) {(
+        ExprPattern::new(components).assign(&ExprPatternAssignments::new(assignments)),
+        ExprPattern::new(check)
+    )}
+
+    #[test]
+    fn test_assign_with_var_assignment() {
+        let (assigned,assigned_check) = pre_test_assign(
+            [ExprPatternComponent::new_const("one"),ExprPatternComponent::new_var("two"),ExprPatternComponent::new_vars("three","then","four")],
+            [ExprPatternAssignment::new_const(),ExprPatternAssignment::new_var("two", "2")],
+            [ExprPatternComponent::new_const("one2"),ExprPatternComponent::new_vars("three","then","four")]
+        );
+        assert_eq!(assigned,Ok(assigned_check));
+    }
+
+    #[test]
+    fn test_assign_with_vars_assignment() {
+        let (assigned,assigned_check) = pre_test_assign(
+            [ExprPatternComponent::new_const("one"),ExprPatternComponent::new_vars("two","then","three"),ExprPatternComponent::new_var("four")],
+            [ExprPatternAssignment::new_vars("two", "three",vec!["1","2","3"]),ExprPatternAssignment::new_const()],
+            [ExprPatternComponent::new_const("one1then2then3"),ExprPatternComponent::new_var("four")]
+        );
+        assert_eq!(assigned,Ok(assigned_check));
+    }
+
+    #[test]
+    fn test_assign_with_missing_assignment() {
+        let (assigned,_) = pre_test_assign(
+            [ExprPatternComponent::new_const("one"),ExprPatternComponent::new_var("four")],
+            [ExprPatternAssignment::new_vars("two", "three",vec!["1","2","3"]),ExprPatternAssignment::new_const()],
+            [ExprPatternComponent::new_const("one1then2then3"),ExprPatternComponent::new_var("four")]
+        );
+        assert_eq!(assigned,Err(()));
+    }
+
+
     fn pre_test_matcher(pattern_str: &str, match_str: &str, assignments_vec: Vec<(Vec<(&str,&str)>,Vec<(&str,&str,Vec<&str>)>)>) -> (HashSet<ExprPatternAssignments>,HashSet<ExprPatternAssignments>) {
         let controls = parser::TEST_PATTERN_CONTROLS;
         let blacklist = parser::TEST_BLACKLIST;
