@@ -12,6 +12,16 @@ pub struct ExprPattern{
 }
 impl ExprPattern {
     fn new<I: IntoIterator<Item=ExprPatternComponent>>(components: I) -> Self { Self { components: components.into_iter().collect() }}
+    fn assign(&self, assignments: &ExprPatternAssignments) -> Result<ExprPattern,()> {
+        let mut modified = self.components.clone();
+        for assignment in assignments.0.into_iter() {
+            if assignment != &ExprPatternAssignment::Constant {
+                let modify = modified.iter().map(|component| component.assign(&assignment.clone())).collect();
+                if modify == modified { return Err(()) }
+                modified = modify
+            }
+        } Ok(Self::new(modified))
+    }
 }
 
 #[derive(Clone,PartialEq,Eq,Debug,Hash)]
