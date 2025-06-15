@@ -20,7 +20,7 @@ impl ExprPattern {
                     result.push(ExprPatternComponent::Constant(consts_joined.concat()));
                     consts_joined = Vec::new();
                 } result.push(component);
-        }}} 
+        }}} if consts_joined.len() > 0 { result.push(ExprPatternComponent::Constant(consts_joined.concat())); }
         Self { components: result }
     }
     fn assign(&self, assignments: &ExprPatternAssignments) -> Result<ExprPattern,()> {
