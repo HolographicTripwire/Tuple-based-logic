@@ -1,8 +1,7 @@
-use std::marker::PhantomData;
 
-use parsertools::parsers::{transformers::{alternating, conjoin}, Parser};
+use parsertools::parsers::{transformers::alternating, Parser};
 
-use crate::{helpers::{controlled::{controlled_word_parser, ControlStrings}, string_parser, word_parser}, structures::expressions::patterns::{components::ExprPatternComponent, ExprPattern}};
+use crate::{helpers::{controlled::{controlled_word_parser, ControlStrings}, string_parser}, structures::expressions::patterns::{components::ExprPatternComponent, ExprPattern}};
 
 #[derive(Clone,PartialEq,Eq,Debug,Hash)]
 pub struct ExprPatternControls {
@@ -50,17 +49,22 @@ fn vars_parser<'a>(controls: &ExprPatternControls, blacklist: &'a ControlStrings
 }
 
 #[cfg(test)]
-pub mod tests {
+pub(crate) use self::tests::TEST_PATTERN_CONTROLS;
+#[cfg(test)]
+pub(crate) use self::tests::TEST_BLACKLIST;
+
+#[cfg(test)]
+mod tests {
     use std::sync::LazyLock;
 
     use super::*;
 
     use crate::{structures::expressions::patterns::parser::ExprPatternControls, test_helpers::parse_str};
 
-    pub (crate) const TEST_PATTERN_CONTROLS: LazyLock<ExprPatternControls> = LazyLock::new(|| {
+    pub const TEST_PATTERN_CONTROLS: LazyLock<ExprPatternControls> = LazyLock::new(|| {
         ExprPatternControls::from_strs("@", "..")
     });
-    const TEST_BLACKLIST: LazyLock<ControlStrings> = LazyLock::new(|| {
+    pub const TEST_BLACKLIST: LazyLock<ControlStrings> = LazyLock::new(|| {
         ControlStrings::from_strs("\\", TEST_PATTERN_CONTROLS.controls())
     });
 
@@ -121,6 +125,32 @@ pub mod tests {
                 expr_pattern_parser(&TEST_PATTERN_CONTROLS, &TEST_BLACKLIST),
                 "@a.. and ..b@"
             ), Ok(ExprPattern::new([ExprPatternComponent::new_vars("a"," and ","b")]))
+        )
+    }
+
+    #[test]
+    fn test_pattern_parser_with_escapes() {
+        assert_eq!(
+            parse_str(
+                expr_pattern_parser(&TEST_PATTERN_CONTROLS, &TEST_BLACKLIST),
+                r#"@a.. \@ ..b@"#
+            ), Ok(ExprPattern::new([ExprPatternComponent::new_vars("a"," @ ","b")]))
+        )
+    }
+
+    #[test]
+    fn test_pattern_parser_with_complex_string() {
+        assert_eq!(
+            parse_str(
+                expr_pattern_parser(&TEST_PATTERN_CONTROLS, &TEST_BLACKLIST),
+                r#"x(@a.. \@ ..b@,@x@)"#
+            ), Ok(ExprPattern::new([
+                ExprPatternComponent::new_const("x("),
+                ExprPatternComponent::new_vars("a"," @ ","b"),
+                ExprPatternComponent::new_const(","),
+                ExprPatternComponent::new_var("x"),
+                ExprPatternComponent::new_const(")")
+            ]))
         )
     }
 }
