@@ -2,7 +2,7 @@ use parsertools::parsers::{tokens::pred, transformers::series, Parser};
 
 pub fn num_parser<'a>() -> Parser<'a, char, usize> {
     series(digit_parser_inner())
-        .map(|vec| vec.join("").parse::<usize>().unwrap()) 
+        .map(|digits| digits.concat().parse::<usize>().unwrap()) 
 }
 
 pub fn digit_parser<'a>() -> Parser<'a, char, usize> {

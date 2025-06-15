@@ -7,7 +7,7 @@ pub fn string_parser<'a>(input: &str) -> Result<Parser<'a, char, String>,()> {
 }
 
 pub fn word_parser<'a>() -> Parser<'a, char, String> {
-    series(single_letter_parser()).map(|strings| strings.join(""))
+    series(single_letter_parser()).map(|strings| strings.concat())
 }
 
 pub fn single_letter_parser<'a>() -> Parser<'a, char, String> {

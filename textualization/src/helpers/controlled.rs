@@ -27,8 +27,8 @@ pub fn other_control_parser<'a>(controls: &'a ControlStrings) -> Parser<'a,char,
 
 pub fn controlled_word_parser<'a>(controls: &'a ControlStrings) -> Parser<'a,char,String> {
     let word_not_containing_control = word_not_containing_parser(controls.controls());
-    let series_of_escaped_controls = series(escaped_control_parser(controls)).map(|vec| vec.join(""));
-    alternating(word_not_containing_control, series_of_escaped_controls).map(|strings| strings.join(""))
+    let series_of_escaped_controls = series(escaped_control_parser(controls)).map(|vec| vec.concat());
+    alternating(word_not_containing_control, series_of_escaped_controls).map(|strings| strings.concat())
 }
 
 fn escaped_control_parser<'a>(controls: &'a ControlStrings) -> Parser<'a,char,String> {
