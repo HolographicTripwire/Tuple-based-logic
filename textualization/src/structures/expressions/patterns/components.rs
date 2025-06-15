@@ -1,6 +1,6 @@
 use parsertools::parsers::{helpers::lazy, Parser};
 
-use crate::helpers::{string_parser, word_parser};
+use crate::{helpers::{string_parser, word_parser}};
 
 #[derive(Clone,PartialEq,Eq,Debug,Hash)]
 pub enum ExprPatternComponent {
@@ -12,6 +12,17 @@ impl ExprPatternComponent {
     pub fn new_const(const_string: &str) -> Self { Self::Constant(const_string.to_string()) }
     pub fn new_var(var_name: &str) -> Self { Self::Variable(var_name.to_string()) }
     pub fn new_vars(from: &str, joiner: &str, to: &str) -> Self { Self::Variables((from.to_string(),to.to_string()),joiner.to_string()) }
+    pub (super) fn assign(&self, assignment: ExprPatternAssignment) -> ExprPatternComponent { match assignment {
+            ExprPatternAssignment::Constant => self.clone(),
+            ExprPatternAssignment::Variable(var, val) => {
+                let ExprPatternComponent::Variable(self_var) = self else { return self.clone() };
+                if &var == self_var { ExprPatternComponent::Constant(val) } else { self.clone() }
+            }, ExprPatternAssignment::Variables((var1, var2), vals) => {
+                let ExprPatternComponent::Variables((self_var1,self_var2), sep) = self else { return self.clone() };
+                if (&var1 == self_var1) & (&var2 == self_var2) { ExprPatternComponent::Constant(vals.join(sep)) } else { self.clone() }
+            }
+        }
+    }
 }
 
 #[derive(PartialEq,Eq,Clone,Hash,Debug)]
