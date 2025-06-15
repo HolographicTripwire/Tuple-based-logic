@@ -64,6 +64,20 @@ mod tests {
         assert_eq!(ExprPattern::new(pattern).components,check)
     }
 
+    #[test]
+    fn test_new_with_multiple_consts_in_middle() {
+        let pattern = vec![ExprPatternComponent::new_var("A"),ExprPatternComponent::new_const("B"),ExprPatternComponent::new_const("C"),ExprPatternComponent::new_const("D"),ExprPatternComponent::new_var("E")];
+        let check = vec![ExprPatternComponent::new_var("A"),ExprPatternComponent::new_const("BCD"),ExprPatternComponent::new_var("E")];
+        assert_eq!(ExprPattern::new(pattern).components,check)
+    }
+
+    #[test]
+    fn test_new_with_multiple_consts_at_end() {
+        let pattern = vec![ExprPatternComponent::new_var("A"),ExprPatternComponent::new_const("B"),ExprPatternComponent::new_const("C"),ExprPatternComponent::new_const("D")];
+        let check = vec![ExprPatternComponent::new_var("A"),ExprPatternComponent::new_const("BCD")];
+        assert_eq!(ExprPattern::new(pattern).components,check)
+    }
+
     fn pre_test_matcher(pattern_str: &str, match_str: &str, assignments_vec: Vec<(Vec<(&str,&str)>,Vec<(&str,&str,Vec<&str>)>)>) -> (HashSet<ExprPatternAssignments>,HashSet<ExprPatternAssignments>) {
         let controls = parser::TEST_PATTERN_CONTROLS;
         let blacklist = parser::TEST_BLACKLIST;
