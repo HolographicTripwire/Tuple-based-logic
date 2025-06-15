@@ -112,7 +112,7 @@ mod tests {
     #[test]
     fn test_assign_with_var_and_var_aligned() {
         assert_eq!(
-            ExprPatternComponent::new_const("grogr").assign(&ExprPatternAssignment::new_var("grogr","dawuhofawohu")),
+            ExprPatternComponent::new_var("grogr").assign(&ExprPatternAssignment::new_var("grogr","dawuhofawohu")),
             ExprPatternComponent::new_const("dawuhofawohu")
         )
     }
@@ -152,7 +152,7 @@ mod tests {
     #[test]
     fn test_assign_with_vars_and_vars_aligned() {
         assert_eq!(
-            ExprPatternComponent::new_vars("kbnfeoji","bdijak","ijoaef").assign(&ExprPatternAssignment::new_vars("kbnfeoji","bdijak",vec!["odwfawaio", "groahba0"])),
+            ExprPatternComponent::new_vars("kbnfeoji","ijoaef","bdijak").assign(&ExprPatternAssignment::new_vars("kbnfeoji","bdijak",vec!["odwfawaio", "groahba0"])),
             ExprPatternComponent::new_const("odwfawaioijoaefgroahba0")
         )
     }
