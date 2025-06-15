@@ -70,6 +70,94 @@ mod tests {
     use crate::{structures::expressions::patterns::components::{pattern_component_parser, ExprPatternAssignment, ExprPatternComponent}, test_helpers::{parse_all_str, parse_str}};
 
     #[test]
+    fn test_assign_with_const_and_const() {
+        assert_eq!(
+            ExprPatternComponent::new_const("fewhuow").assign(ExprPatternAssignment::new_const()),
+            ExprPatternComponent::new_const(("fewhuow"))
+        )
+    }
+
+    #[test]
+    fn test_assign_with_const_and_var() {
+        assert_eq!(
+            ExprPatternComponent::new_const("fewhuow").assign(ExprPatternAssignment::new_var("fewhuow","dawuhofawohu")),
+            ExprPatternComponent::new_const(("fewhuow"))
+        )
+    }
+
+    #[test]
+    fn test_assign_with_const_and_vars() {
+        assert_eq!(
+            ExprPatternComponent::new_const("fewhuow").assign(ExprPatternAssignment::new_vars("fewhuow","fewhuow",vec!["odwfawaio", "groahba0"])),
+            ExprPatternComponent::new_const(("fewhuow"))
+        )
+    }
+
+    #[test]
+    fn test_assign_with_var_and_const() {
+        assert_eq!(
+            ExprPatternComponent::new_var("grogr").assign(ExprPatternAssignment::new_const()),
+            ExprPatternComponent::new_var(("grogr"))
+        )
+    }
+
+    #[test]
+    fn test_assign_with_var_and_var_unaligned() {
+        assert_eq!(
+            ExprPatternComponent::new_const("grogr").assign(ExprPatternAssignment::new_var("fewhuow","dawuhofawohu")),
+            ExprPatternComponent::new_const(("grogr"))
+        )
+    }
+
+    #[test]
+    fn test_assign_with_var_and_var_aligned() {
+        assert_eq!(
+            ExprPatternComponent::new_const("grogr").assign(ExprPatternAssignment::new_var("grogr","dawuhofawohu")),
+            ExprPatternComponent::new_const("dawuhofawohu")
+        )
+    }
+
+    #[test]
+    fn test_assign_with_var_and_vars() {
+        assert_eq!(
+            ExprPatternComponent::new_var("grogr").assign(ExprPatternAssignment::new_vars("grogr","grogr",vec!["odwfawaio", "groahba0"])),
+            ExprPatternComponent::new_var("grogr")
+        )
+    }
+
+    #[test]
+    fn test_assign_with_vars_and_const() {
+        assert_eq!(
+            ExprPatternComponent::new_vars("kbnfeoji","bdijak","ijoaef").assign(ExprPatternAssignment::new_const()),
+            ExprPatternComponent::new_vars("kbnfeoji","bdijak","ijoaef")
+        )
+    }
+
+    #[test]
+    fn test_assign_with_vars_and_var() {
+        assert_eq!(
+            ExprPatternComponent::new_vars("kbnfeoji","bdijak","ijoaef").assign(ExprPatternAssignment::new_var("fewhuow","dawuhofawohu")),
+            ExprPatternComponent::new_vars("kbnfeoji","bdijak","ijoaef")
+        )
+    }
+
+    #[test]
+    fn test_assign_with_vars_and_vars_unaligned() {
+        assert_eq!(
+            ExprPatternComponent::new_vars("kbnfeoji","bdijak","ijoaef").assign(ExprPatternAssignment::new_vars("fewhuow","fewhuow",vec!["odwfawaio", "groahba0"])),
+            ExprPatternComponent::new_vars("kbnfeoji","bdijak","ijoaef")
+        )
+    }
+
+    #[test]
+    fn test_assign_with_vars_and_vars_aligned() {
+        assert_eq!(
+            ExprPatternComponent::new_vars("kbnfeoji","bdijak","ijoaef").assign(ExprPatternAssignment::new_vars("kbnfeoji","bdijak",vec!["odwfawaio", "groahba0"])),
+            ExprPatternComponent::new_const("odwfawaioijoaefgroahba0")
+        )
+    }
+    
+    #[test]
     fn test_parser_with_constant_match() {
         assert_eq!(
             parse_str(
