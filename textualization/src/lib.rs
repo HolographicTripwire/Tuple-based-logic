@@ -9,12 +9,8 @@ mod test_helpers {
 
     use parsertools::parsers::{AstBounds, results::ParseError, Parser};
 
-    pub (crate) fn parse_str<T: AstBounds>(parser: Parser<char,T>, string: &str) -> Result<T,ParseError<char>> {
-        let chars = string.chars().collect::<Vec<_>>();
-        parser.parse(&chars)
-    }
-    pub (crate) fn parse_all_str<T: AstBounds>(parser: Parser<char,T>, string: &str) -> HashSet<T> {
-        let chars = string.chars().collect::<Vec<_>>();
-        parser.parse_all(&chars)
-    }
+    pub (crate) fn parse_str<T: AstBounds>(parser: Parser<char,T>, string: &str) -> Result<T,ParseError<char>>
+        { parser.parse(string.chars()) }
+    pub (crate) fn parse_all_str<T: AstBounds>(parser: Parser<char,T>, string: &str) -> HashSet<T>
+        { parser.parse_all(string.chars()) }
 }
