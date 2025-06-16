@@ -40,7 +40,7 @@ mod tests {
 
     use std::{collections::HashSet, sync::LazyLock};
 
-    use parsertools::parsers::{Parser};
+    use parsertools::parsers::{results::ParseError, Parser};
     use tbl_structures::propositions::Expression;
 
     use crate::{structures::expressions::{patterns::{parser::{expr_pattern_parser, TEST_BLACKLIST, TEST_PATTERN_CONTROLS}, ExprPattern}, raw::{raw_expression_parser, tests::TEST_RAW_EXPRESSION_CONTROLS}}, test_helpers::{parse_all_str, parse_str}};
@@ -62,5 +62,36 @@ mod tests {
             "(&,@A..,..B@)", "(@A.. & ..B@)", "(&,A,B,C)",
             vec!["(A & B & C)","(A & B,C)","(A,B & C)","(A,B,C)"]
         ); assert_eq!(after, after_check);
+    }
+
+    const RAW_EXPRESSION_PARSER: LazyLock<Parser<char,Expression>> = LazyLock::new(||
+        raw_expression_parser(&TEST_RAW_EXPRESSION_CONTROLS)
+    );
+    fn parse_pattern_pair<'a>(l: &str, r: &str) -> ExprPatternPair<'a>
+        { ExprPatternPair::new(parse_pattern(l),parse_pattern(r)) }
+
+    fn pre_test_special_case(before_pattern_str: &str, after_pattern_str: &str, before_str: &str, after_expression: &str) -> (Result<Expression,ParseError<char>>,Expression) {
+        let pattern_pair = parse_pattern_pair(before_pattern_str,after_pattern_str);
+        let after = parse_str((pattern_pair.special_case())(RAW_EXPRESSION_PARSER.clone()),before_str);
+        let after_check = parse_str(RAW_EXPRESSION_PARSER.clone(),after_expression).unwrap();
+        (after, after_check)
+    }
+
+    #[test]
+    fn test_special_case_with_no_change() {
+        let (after,after_check) = pre_test_special_case("@A@", "@A@", "#1", "#1");
+        assert_eq!(after,Ok(after_check))
+    }
+
+    #[test]
+    fn test_special_case_with_var() {
+        let (after,after_check) = pre_test_special_case("@A@", "@A@+", "#1+", "#1");
+        assert_eq!(after,Ok(after_check))
+    }
+
+    #[test]
+    fn test_special_case_with_vars() {
+        let (after,after_check) = pre_test_special_case("(@A..,..B@)","(@A.. & ..B@)","(#1 & #2 & #3)","(#1,#2,#3)");
+        assert_eq!(after,Ok(after_check))
     }
 }
