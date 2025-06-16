@@ -2,7 +2,7 @@
 use parsertools::parsers::{helpers::lazy, Parser};
 use tbl_structures::propositions::Expression;
 
-use crate::{helpers::string_parser,structures::atoms::{atom_parser, AtomControls}};
+use crate::{helpers::string_parser,structures::atoms::{atom_id_parser, AtomControls}};
 
 #[derive(Clone)]
 pub struct RawExpressionControls {
@@ -48,7 +48,7 @@ fn raw_expression_series_parser<'a>(controls: RawExpressionControls) -> Parser<'
 }
 
 fn atomic_expression_parser<'a>(controls: &RawExpressionControls) -> Parser<'a, char, Expression> {
-    atom_parser(controls.atom_controls()).map(|atom| Expression::from(atom))
+    atom_id_parser(controls.atom_controls()).map(|atom| Expression::from(atom))
 }
 
 #[cfg(test)]
@@ -75,15 +75,15 @@ pub (crate) mod tests {
     }
     #[test]
     fn test_atomic_parser_with_atom_symbol() {
-        assert_eq!(parse_str(atomic_expression_parser(&TEST_RAW_EXPRESSION_CONTROLS), "P"), Ok(Expression::Atomic(AtomId(8))))
+        assert_eq!(parse_str(atomic_expression_parser(&TEST_RAW_EXPRESSION_CONTROLS), "#8"), Ok(Expression::Atomic(AtomId(8))))
     }
     #[test]
     fn test_atomic_parser_with_atom_series() {
-        assert!(parse_str(atomic_expression_parser(&TEST_RAW_EXPRESSION_CONTROLS), "P,Q").is_err())
+        assert!(parse_str(atomic_expression_parser(&TEST_RAW_EXPRESSION_CONTROLS), "#8,#9").is_err())
     }
     #[test]
     fn test_atomic_parser_with_atom_tuple() {
-        assert!(parse_str(atomic_expression_parser(&TEST_RAW_EXPRESSION_CONTROLS), "(P,Q)").is_err())
+        assert!(parse_str(atomic_expression_parser(&TEST_RAW_EXPRESSION_CONTROLS), "(#8,#9)").is_err())
     }
 
 
@@ -99,21 +99,21 @@ pub (crate) mod tests {
     #[test]
     fn test_series_parser_with_atom_symbol() {
         let expected = Ok(Expression::Tuple(vec![AtomId(8).into()]));
-        assert_eq!(parse_str(raw_expression_series_parser(TEST_RAW_EXPRESSION_CONTROLS.clone()), "P"), expected)
+        assert_eq!(parse_str(raw_expression_series_parser(TEST_RAW_EXPRESSION_CONTROLS.clone()), "#8"), expected)
     }
     #[test]
     fn test_series_parser_with_atom_series() {
         let expected = Ok(Expression::Tuple(vec![AtomId(8).into(),AtomId(9).into()]));
-        assert_eq!(parse_str(raw_expression_series_parser(TEST_RAW_EXPRESSION_CONTROLS.clone()), "P,Q"), expected)
+        assert_eq!(parse_str(raw_expression_series_parser(TEST_RAW_EXPRESSION_CONTROLS.clone()), "#8,#9"), expected)
     }
     #[test]
     fn test_series_parser_with_atom_series_wrong_delimiter() {
-        assert!(parse_str(raw_expression_series_parser(TEST_RAW_EXPRESSION_CONTROLS.clone()), "P Q").is_err())
+        assert!(parse_str(raw_expression_series_parser(TEST_RAW_EXPRESSION_CONTROLS.clone()), "#8 #9").is_err())
     }
     #[test]
     fn test_series_parser_with_atom_tuple() {
         let expected = Ok(Expression::Tuple(vec![Expression::Tuple(vec![AtomId(8).into(),AtomId(9).into()])]));
-        assert_eq!(parse_str(raw_expression_series_parser(TEST_RAW_EXPRESSION_CONTROLS.clone()), "(P,Q)"), expected)
+        assert_eq!(parse_str(raw_expression_series_parser(TEST_RAW_EXPRESSION_CONTROLS.clone()), "(#8,#9)"), expected)
     }
 
     #[test]
@@ -126,30 +126,21 @@ pub (crate) mod tests {
         assert!(parse_str(raw_expression_parser(&TEST_RAW_EXPRESSION_CONTROLS), "1124").is_err())
     }
     #[test]
-    fn test_expression_parser_with_atom_symbol() {
-        let expected = Ok(Expression::Atomic(AtomId(8).into()));
-        assert_eq!(parse_str(raw_expression_parser(&TEST_RAW_EXPRESSION_CONTROLS), "P"), expected)
-    }
-    #[test]
-    fn test_expression_parser_with_atom_series() {
-        assert!(parse_str(raw_expression_parser(&TEST_RAW_EXPRESSION_CONTROLS), "P,Q").is_err())
-    }
-    #[test]
     fn test_expression_parser_with_atom_id_tuple() {
         let expected = Ok(Expression::Tuple(vec![AtomId(8).into(),AtomId(241).into()]));
-        assert_eq!(parse_str(raw_expression_parser(&TEST_RAW_EXPRESSION_CONTROLS), "(P,#241)"), expected)
+        assert_eq!(parse_str(raw_expression_parser(&TEST_RAW_EXPRESSION_CONTROLS), "(#8,#241)"), expected)
     }
     #[test]
     fn test_expression_parser_with_nested_tuple() {
         let neg_p = Expression::Tuple(vec![AtomId(3).into(),AtomId(8).into()]);
         let neg_neg_p = Expression::Tuple(vec![AtomId(3).into(),neg_p]);
         let expected = Ok(Expression::Tuple(vec![AtomId(4).into(),AtomId(8).into(),neg_neg_p]));
-        assert_eq!(parse_str(raw_expression_parser(&TEST_RAW_EXPRESSION_CONTROLS), "(=,P,(¬,(¬,P)))"), expected)
+        assert_eq!(parse_str(raw_expression_parser(&TEST_RAW_EXPRESSION_CONTROLS), "(#4,#8,(#3,(#3,#8)))"), expected)
     }
     #[test]
     fn test_expression_parser_with_empty_tuple() {
         let empty = Expression::Tuple(vec![]);
         let expected = Ok(Expression::Tuple(vec![AtomId(4).into(),AtomId(13).into(),empty]));
-        assert_eq!(parse_str(raw_expression_parser(&TEST_RAW_EXPRESSION_CONTROLS), "(=,#13,())"), expected)
+        assert_eq!(parse_str(raw_expression_parser(&TEST_RAW_EXPRESSION_CONTROLS), "(#4,#13,())"), expected)
     }
 }
