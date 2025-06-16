@@ -5,6 +5,7 @@ use crate::structures::expressions::patterns::components::{pattern_component_par
 
 pub mod components;
 pub mod parser;
+pub mod special_case;
 
 #[derive(Clone,PartialEq,Eq,Debug,Hash)]
 pub struct ExprPattern{
@@ -32,6 +33,15 @@ impl ExprPattern {
                 modified = modify
             }
         } Ok(Self::new(modified))
+    }
+}
+impl TryInto<String> for ExprPattern {
+    type Error = ();
+
+    fn try_into(self) -> Result<String, Self::Error> {
+        let [const_component] = self.components.as_slice() else { return Err(()) };
+        if let ExprPatternComponent::Constant(s) = const_component { Ok(s.clone()) }
+        else { Err(()) }
     }
 }
 
