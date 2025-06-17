@@ -21,7 +21,7 @@ impl ExprPatternControls {
 fn var_indic_parser<'a>(controls: &ExprPatternControls) -> Parser<'a,char,()> { string_parser(controls.var_indic()).unwrap().map(|_| ()) }
 fn var_enum_parser<'a>(controls: &ExprPatternControls) -> Parser<'a,char,()> { string_parser(controls.var_enum()).unwrap().map(|_| ()) }
 
-pub fn expr_pattern_parser<'a>(controls: &'a ExprPatternControls, blacklist: &'a ControlStrings) -> Parser<'a, char, ExprPattern> {
+pub fn expr_pattern_parser<'a>(controls: &ExprPatternControls, blacklist: &'a ControlStrings) -> Parser<'a, char, ExprPattern> {
     alternating(const_parser(controls, blacklist),var_or_vars_parser(controls, blacklist)).map(|components| ExprPattern::new(components))
 }
 

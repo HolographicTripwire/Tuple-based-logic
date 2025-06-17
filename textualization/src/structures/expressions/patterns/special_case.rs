@@ -20,13 +20,12 @@ impl <'a> ExprPatternPair<'a> {
     fn right_to_left(&'a self) -> Parser<'a,char,String> {
         expr_pattern_translator(&self.right, &self.left)
     }
-    pub fn special_case(&'a self) -> impl SpecialCase<'a> {
-        move |expr_parser: Parser<'a, char,Expression>|
-            self.right_to_left().clone()
-                .split_map(move |s| expr_parser.parse_all(s.chars()) 
-        )
+}
+impl <'a> SpecialCase<'a> for ExprPatternPair<'a> {
+    fn parser(&'a self, expr_parser: Parser<'a,char,Expression>) -> Parser<'a,char,Expression> {
+        self.right_to_left().clone()
+            .split_map(move |s| expr_parser.parse_all(s.chars()))
     }
-    
 }
 
 fn expr_pattern_translator<'a>(before: &'a ExprPattern, after: &'a ExprPattern) -> Parser<'a,char,String> {
@@ -72,7 +71,7 @@ mod tests {
 
     fn pre_test_special_case(before_pattern_str: &str, after_pattern_str: &str, before_str: &str, after_expression: &str) -> (Result<Expression,ParseError<char>>,Expression) {
         let pattern_pair = parse_pattern_pair(before_pattern_str,after_pattern_str);
-        let after = parse_str((pattern_pair.special_case())(RAW_EXPRESSION_PARSER.clone()),before_str);
+        let after = parse_str(pattern_pair.parser(RAW_EXPRESSION_PARSER.clone()),before_str);
         let after_check = parse_str(RAW_EXPRESSION_PARSER.clone(),after_expression).unwrap();
         (after, after_check)
     }
