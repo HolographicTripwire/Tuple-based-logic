@@ -7,14 +7,14 @@ use crate::helpers::{num_parser, string_parser};
 #[derive(Clone)]
 pub struct AtomControls { atom_id_indicator: String }
 impl AtomControls {
-    pub fn new(atom_id_indicator: String) -> Result<Self,()> {
-        Ok(Self { atom_id_indicator })
-    }
-    pub fn from_strs(atom_id_indicator: &str) -> Self { 
-        Self { atom_id_indicator: atom_id_indicator.to_string(), }
-    }
+    pub fn new(atom_id_indicator: String) -> Result<Self,()>
+        { Ok(Self { atom_id_indicator }) }
+    pub fn from_strs(atom_id_indicator: &str) -> Self
+        { Self { atom_id_indicator: atom_id_indicator.to_string(), } }
 
     pub fn id_indicator(&self) -> &String { &self.atom_id_indicator }
+
+    pub fn to_id(&self, num: usize) -> String { self.atom_id_indicator.clone() + &num.to_string() }
 }
 impl Default for AtomControls {
     fn default() -> Self {

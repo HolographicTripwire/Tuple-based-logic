@@ -21,6 +21,9 @@ impl RawExpressionControls {
     pub fn tuple_opener(&self) -> &String { &self.tuple_opener }
     pub fn tuple_closer(&self) -> &String { &self.tuple_closer }
     pub fn delimiter(&self) -> &String { &self.delimiter }
+    
+    pub fn to_tuple<I: IntoIterator<Item=String>>(&self, subexprs: I) -> String
+        { self.tuple_closer.clone() + &subexprs.into_iter().collect::<Vec<String>>().join(&self.delimiter) + &self.tuple_closer }
 }
 
 pub fn raw_expression_parser<'a>(controls: &RawExpressionControls) -> Parser<'a, char,Expression> {
