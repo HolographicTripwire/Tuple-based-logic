@@ -1,3 +1,4 @@
+use dyn_clone::DynClone;
 use parsertools::parsers::{helpers::lazy, tokens::pred, Parser};
 use tbl_structures::propositions::Expression;
 
@@ -15,9 +16,11 @@ impl <'a> ExpressionControls<'a> {
     pub fn special_cases(&self) -> &Vec<Box<dyn SpecialCase<'a>>> { &self.special_cases }
 }
 
-pub trait SpecialCase<'a>: Sync + Send {
+pub trait SpecialCase<'a>: Sync + Send + DynClone {
     fn parser(&'a self, expr_parser: Parser<'a,char,Expression>) -> Parser<'a,char,Expression>;
 }
+impl <'a> Clone for Box<dyn SpecialCase<'a>>
+    { fn clone(&self) -> Self { dyn_clone::clone_box(&**self) } }
 
 pub fn expression_parser<'a>(controls: &'a ExpressionControls<'a>) -> Parser<'a,char,Expression> {
     raw_expression_parser(controls.raw_controls())

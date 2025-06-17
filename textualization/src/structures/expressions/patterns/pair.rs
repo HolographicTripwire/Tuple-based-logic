@@ -5,23 +5,23 @@ use tbl_structures::propositions::Expression;
 
 use crate::structures::expressions::{patterns::{expr_pattern_matcher, ExprPattern}, SpecialCase};
 
-pub struct ExprPatternPair<'a> {
+#[derive(Clone)]
+pub struct ExprPatternPair {
     left: ExprPattern,
     right: ExprPattern,
-    phantom: PhantomData<&'a ()>
 }
-impl <'a> ExprPatternPair<'a> {
+impl ExprPatternPair {
     pub fn new(left: ExprPattern, right: ExprPattern) -> Self
-        { Self { left, right, phantom: PhantomData } }
+        { Self { left, right } }
 
-    fn left_to_right(&'a self) -> Parser<'a,char,String> {
+    fn left_to_right<'a>(&'a self) -> Parser<'a,char,String> {
         expr_pattern_translator(&self.left, &self.right)
     }
-    fn right_to_left(&'a self) -> Parser<'a,char,String> {
+    fn right_to_left<'a>(&'a self) -> Parser<'a,char,String> {
         expr_pattern_translator(&self.right, &self.left)
     }
 }
-impl <'a> SpecialCase<'a> for ExprPatternPair<'a> {
+impl <'a> SpecialCase<'a> for ExprPatternPair {
     fn parser(&'a self, expr_parser: Parser<'a,char,Expression>) -> Parser<'a,char,Expression> {
         self.right_to_left().clone()
             .split_map(move |s| expr_parser.parse_all(s.chars()))
@@ -66,7 +66,7 @@ mod tests {
     const RAW_EXPRESSION_PARSER: LazyLock<Parser<char,Expression>> = LazyLock::new(||
         raw_expression_parser(&TEST_RAW_EXPRESSION_CONTROLS)
     );
-    fn parse_pattern_pair<'a>(l: &str, r: &str) -> ExprPatternPair<'a>
+    fn parse_pattern_pair<'a>(l: &str, r: &str) -> ExprPatternPair
         { ExprPatternPair::new(parse_pattern(l),parse_pattern(r)) }
 
     fn pre_test_special_case(before_pattern_str: &str, after_pattern_str: &str, before_str: &str, after_expression: &str) -> (Result<Expression,ParseError<char>>,Expression) {
