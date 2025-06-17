@@ -12,7 +12,7 @@ pub struct ExprPattern{
     components: Vec<ExprPatternComponent>
 }
 impl ExprPattern {
-    fn new<I: IntoIterator<Item=ExprPatternComponent>>(components: I) -> Self {
+    pub fn new<I: IntoIterator<Item=ExprPatternComponent>>(components: I) -> Self {
         let mut result = Vec::new();
         let mut consts_joined = Vec::new();
         for component in components.into_iter() { match component {
@@ -24,7 +24,7 @@ impl ExprPattern {
         }}} if consts_joined.len() > 0 { result.push(ExprPatternComponent::Constant(consts_joined.concat())); }
         Self { components: result }
     }
-    fn assign(&self, assignments: &ExprPatternAssignments) -> Result<ExprPattern,()> {
+    pub fn assign(&self, assignments: &ExprPatternAssignments) -> Result<ExprPattern,()> {
         let mut modified = self.components.clone();
         for assignment in assignments.0.into_iter() {
             if assignment != &ExprPatternAssignment::Constant {
