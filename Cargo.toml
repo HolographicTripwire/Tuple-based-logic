@@ -1,4 +1,4 @@
 [workspace]
 resolver = "2"
-members = ["structures", "generation", "textualization", "verification", "tbl", "parsertools"]
+members = ["parsertools", "structures", "generation", "textualization", "verification", "tbl"]
 
