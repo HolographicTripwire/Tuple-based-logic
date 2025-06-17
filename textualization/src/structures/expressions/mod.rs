@@ -6,14 +6,15 @@ use crate::structures::expressions::raw::{raw_expression_parser, RawExpressionCo
 
 pub mod raw;
 pub mod patterns;
+pub mod functional;
 
 pub struct ExpressionControls<'a> {
     raw_controls: RawExpressionControls,
-    special_cases: Vec<Box<dyn SpecialCase<'a>>>
+    special_cases: SpecialCases<'a>
 }
 impl <'a> ExpressionControls<'a> {
     pub fn raw_controls(&self) -> &RawExpressionControls { &self.raw_controls }
-    pub fn special_cases(&self) -> &Vec<Box<dyn SpecialCase<'a>>> { &self.special_cases }
+    pub fn special_cases(&self) -> &SpecialCases<'a> { &self.special_cases }
 }
 
 pub trait SpecialCase<'a>: Sync + Send + DynClone {
@@ -21,6 +22,7 @@ pub trait SpecialCase<'a>: Sync + Send + DynClone {
 }
 impl <'a> Clone for Box<dyn SpecialCase<'a>>
     { fn clone(&self) -> Self { dyn_clone::clone_box(&**self) } }
+pub type SpecialCases<'a> = Vec<Box<dyn SpecialCase<'a>>>;
 
 pub fn expression_parser<'a>(controls: &'a ExpressionControls<'a>) -> Parser<'a,char,Expression> {
     raw_expression_parser(controls.raw_controls())
