@@ -2,7 +2,7 @@ use std::collections::HashSet;
 
 use parsertools::parsers::{results::ParseError, transformers::{alternating, disjunction, series}, Parser};
 
-use crate::helpers::{string_parser, word_parser};
+use crate::helpers::parsers::{string_parser, word_parser};
 
 #[derive(Clone)]
 pub struct ControlStrings {

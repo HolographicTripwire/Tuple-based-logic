@@ -1,7 +1,7 @@
 
 use parsertools::parsers::{transformers::alternating, Parser};
 
-use crate::{helpers::{controlled::{controlled_word_parser, ControlStrings}, string_parser}, structures::expressions::patterns::{components::ExprPatternComponent, ExprPattern}};
+use crate::{helpers::parsers::{controlled::{controlled_word_parser, ControlStrings}, string_parser}, structures::expressions::patterns::{components::ExprPatternComponent, ExprPattern}};
 
 #[derive(Clone,PartialEq,Eq,Debug,Hash)]
 pub struct ExprPatternStyle {

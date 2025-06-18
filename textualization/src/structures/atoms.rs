@@ -1,7 +1,7 @@
 use parsertools::parsers::Parser;
 use tbl_structures::atoms::AtomId;
 
-use crate::helpers::{num_parser, string_parser};
+use crate::helpers::parsers::{num_parser, string_parser};
 
 
 #[derive(Clone)]

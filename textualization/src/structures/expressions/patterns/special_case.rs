@@ -1,5 +1,3 @@
-use std::marker::PhantomData;
-
 use parsertools::parsers::Parser;
 use tbl_structures::propositions::Expression;
 

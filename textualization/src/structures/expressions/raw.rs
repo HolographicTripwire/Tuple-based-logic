@@ -2,7 +2,7 @@
 use parsertools::parsers::{helpers::lazy, Parser};
 use tbl_structures::propositions::Expression;
 
-use crate::{helpers::string_parser,structures::atoms::{atom_id_parser, AtomStyle}};
+use crate::{helpers::parsers::string_parser,structures::atoms::{atom_id_parser, AtomStyle}};
 
 #[derive(Clone)]
 pub struct RawExpressionStyle {

@@ -1,6 +1,6 @@
 use parsertools::parsers::{helpers::lazy, Parser};
 
-use crate::{helpers::{string_parser, word_parser}};
+use crate::{helpers::parsers::{string_parser, word_parser}};
 
 #[derive(Clone,PartialEq,Eq,Debug,Hash)]
 pub enum ExprPatternComponent {
