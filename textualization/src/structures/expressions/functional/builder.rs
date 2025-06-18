@@ -1,4 +1,4 @@
-use crate::structures::expressions::{patterns::special_case::ExprPatternPair, raw::RawExpressionControls, SpecialCases};
+use crate::structures::expressions::{patterns::special_case::ExprPatternPair, raw::RawExpressionControls, SpecialCase, SpecialCases};
 
 use super::special_case::*;
 

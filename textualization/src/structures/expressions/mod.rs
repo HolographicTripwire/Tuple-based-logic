@@ -2,7 +2,7 @@ use dyn_clone::DynClone;
 use parsertools::parsers::{helpers::lazy, tokens::pred, Parser};
 use tbl_structures::propositions::Expression;
 
-use crate::structures::expressions::raw::{raw_expression_parser, RawExpressionControls};
+use crate::structures::expressions::{raw::{raw_expression_parser, RawExpressionControls}};
 
 pub mod raw;
 pub mod patterns;
@@ -13,6 +13,8 @@ pub struct ExpressionControls<'a> {
     special_cases: SpecialCases<'a>
 }
 impl <'a> ExpressionControls<'a> {
+    pub fn new(raw_controls: RawExpressionControls, special_cases: SpecialCases<'a>) -> Self { Self { raw_controls, special_cases } }
+
     pub fn raw_controls(&self) -> &RawExpressionControls { &self.raw_controls }
     pub fn special_cases(&self) -> &SpecialCases<'a> { &self.special_cases }
 }
