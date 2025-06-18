@@ -14,14 +14,14 @@ pub struct ExprPattern{
 impl ExprPattern {
     pub fn new<I: IntoIterator<Item=ExprPatternComponent>>(components: I) -> Self {
         let mut result = Vec::new();
-        let mut consts_joined = Vec::new();
+        let mut consts_joined = "".to_string();
         for component in components.into_iter() { match component {
-            ExprPatternComponent::Constant(s) => consts_joined.push(s), _ => {
+            ExprPatternComponent::Constant(s) => consts_joined += &s, _ => {
                 if consts_joined.len() > 0 { 
-                    result.push(ExprPatternComponent::Constant(consts_joined.concat()));
-                    consts_joined = Vec::new();
+                    result.push(ExprPatternComponent::Constant(consts_joined));
+                    consts_joined = "".to_string();
                 } result.push(component);
-        }}} if consts_joined.len() > 0 { result.push(ExprPatternComponent::Constant(consts_joined.concat())); }
+        }}} if consts_joined.len() > 0 { result.push(ExprPatternComponent::Constant(consts_joined)); }
         Self { components: result }
     }
     pub fn assign(&self, assignments: &ExprPatternAssignments) -> Result<ExprPattern,()> {
@@ -66,6 +66,13 @@ mod tests {
     use crate::{structures::expressions::patterns::parser::{expr_pattern_parser}, test_helpers::{parse_all_str, parse_str}};
 
     use super::*;
+
+    #[test]
+    fn test_new_with_empty_consts() {
+        let pattern = vec![ExprPatternComponent::new_const(""),ExprPatternComponent::new_var("D")];
+        let check = vec![ExprPatternComponent::new_var("D")];
+        assert_eq!(ExprPattern::new(pattern).components,check)
+    }
 
     #[test]
     fn test_new_with_multiple_consts_at_start() {
