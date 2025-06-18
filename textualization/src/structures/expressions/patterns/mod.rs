@@ -133,9 +133,9 @@ mod tests {
 
 
     fn pre_test_matcher(pattern_str: &str, match_str: &str, assignments_vec: Vec<(Vec<(&str,&str)>,Vec<(&str,&str,Vec<&str>)>)>) -> (HashSet<ExprPatternAssignments>,HashSet<ExprPatternAssignments>) {
-        let controls = parser::TEST_PATTERN_CONTROLS;
+        let style = parser::TEST_PATTERN_STYLE;
         let blacklist = parser::TEST_BLACKLIST;
-        let parser = expr_pattern_parser(&controls, &blacklist);
+        let parser = expr_pattern_parser(&style, &blacklist);
         let pattern = parse_str(parser,pattern_str).unwrap();
         let assignments = parse_all_str(expr_pattern_matcher(&pattern), match_str);
         

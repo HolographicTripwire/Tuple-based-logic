@@ -42,10 +42,10 @@ mod tests {
     use parsertools::parsers::{results::ParseError, Parser};
     use tbl_structures::propositions::Expression;
 
-    use crate::{structures::expressions::{patterns::{parser::{expr_pattern_parser, TEST_BLACKLIST, TEST_PATTERN_CONTROLS}, ExprPattern}, raw::{raw_expression_parser, tests::TEST_RAW_EXPRESSION_CONTROLS}}, test_helpers::{parse_all_str, parse_str}};
+    use crate::{structures::expressions::{patterns::{parser::{expr_pattern_parser, TEST_BLACKLIST, TEST_PATTERN_STYLE}, ExprPattern}, raw::{raw_expression_parser, tests::TEST_RAW_EXPRESSION_STYLE}}, test_helpers::{parse_all_str, parse_str}};
 
     fn parse_pattern(s: &str) -> ExprPattern
-        { parse_str(expr_pattern_parser(&TEST_PATTERN_CONTROLS,&TEST_BLACKLIST), s).unwrap() }
+        { parse_str(expr_pattern_parser(&TEST_PATTERN_STYLE,&TEST_BLACKLIST), s).unwrap() }
 
     fn pre_expr_pattern_translator_test(before_pattern_str: &str, after_pattern_str: &str, before_str: &str, after_strs: Vec<&str>) -> (HashSet<String>, HashSet<String>) {
         let before_pattern = parse_pattern(before_pattern_str);
@@ -64,7 +64,7 @@ mod tests {
     }
 
     const RAW_EXPRESSION_PARSER: LazyLock<Parser<char,Expression>> = LazyLock::new(||
-        raw_expression_parser(&TEST_RAW_EXPRESSION_CONTROLS)
+        raw_expression_parser(&TEST_RAW_EXPRESSION_STYLE)
     );
     fn parse_pattern_pair<'a>(l: &str, r: &str) -> ExprPatternPair
         { ExprPatternPair::new(parse_pattern(l),parse_pattern(r)) }
