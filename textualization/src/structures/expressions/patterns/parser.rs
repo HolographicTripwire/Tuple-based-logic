@@ -1,7 +1,8 @@
+use std::collections::HashSet;
 
 use parsertools::parsers::{transformers::alternating, Parser};
 
-use crate::{helpers::parsers::{controlled::{controlled_word_parser, ControlStrings}, string_parser}, structures::expressions::patterns::{components::ExprPatternComponent, ExprPattern}};
+use crate::{helpers::{parsers::{controlled::{controlled_word_parser, ControlStrings}, string_parser}, styles::Style}, structures::expressions::patterns::{components::ExprPatternComponent, ExprPattern}};
 
 #[derive(Clone,PartialEq,Eq,Debug,Hash)]
 pub struct ExprPatternStyle {
@@ -15,7 +16,19 @@ impl ExprPatternStyle {
     
     pub fn var_indic(&self) -> &String { &self.var_indic }
     pub fn var_enum(&self) -> &String { &self.var_enum }
-    pub fn style(&self) -> impl Iterator<Item=&str> { [self.var_indic.as_str(), self.var_enum.as_str()].into_iter() }
+    
+    pub fn controls(&self) -> HashSet<&str> { HashSet::from_iter(
+        [self.var_indic(),
+        self.var_enum()]
+        .map(|s| s.as_str())
+    )}
+}
+impl Style<ExprPattern> for ExprPatternStyle {
+    fn stringify(&self, pattern: &ExprPattern) -> String {
+        pattern.components.iter()
+            .map(|component| self.stringify(component))
+            .collect::<Vec<String>>().join("")
+    }
 }
 
 fn var_indic_parser<'a>(style: &ExprPatternStyle) -> Parser<'a,char,()> { string_parser(style.var_indic()).unwrap().map(|_| ()) }
@@ -65,7 +78,7 @@ mod tests {
         ExprPatternStyle::from_strs("@", "..")
     });
     pub const TEST_BLACKLIST: LazyLock<ControlStrings> = LazyLock::new(|| {
-        ControlStrings::from_strs("\\", TEST_PATTERN_STYLE.style())
+        ControlStrings::from_strs("\\", TEST_PATTERN_STYLE.controls())
     });
 
     #[test]

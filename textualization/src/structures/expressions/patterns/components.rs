@@ -1,6 +1,6 @@
 use parsertools::parsers::{helpers::lazy, Parser};
 
-use crate::{helpers::parsers::{string_parser, word_parser}};
+use crate::{helpers::{parsers::{string_parser, word_parser}, styles::Style}, structures::expressions::patterns::parser::ExprPatternStyle};
 
 #[derive(Clone,PartialEq,Eq,Debug,Hash)]
 pub enum ExprPatternComponent {
@@ -21,6 +21,16 @@ impl ExprPatternComponent {
                 let ExprPatternComponent::Variables((self_var1,self_var2), sep) = self else { return self.clone() };
                 if (var1 == self_var1) & (var2 == self_var2) { ExprPatternComponent::Constant(vals.join(sep)) } else { self.clone() }
             }
+        }
+    }
+}
+
+impl Style<ExprPatternComponent> for ExprPatternStyle {
+    fn stringify(&self, stylable: &ExprPatternComponent) -> String {
+        match stylable {
+            ExprPatternComponent::Constant(_) => todo!(),
+            ExprPatternComponent::Variable(_) => todo!(),
+            ExprPatternComponent::Variables(_, _) => todo!(),
         }
     }
 }

@@ -1,8 +1,10 @@
 
+use std::collections::HashSet;
+
 use parsertools::parsers::{helpers::lazy, Parser};
 use tbl_structures::propositions::Expression;
 
-use crate::{helpers::parsers::string_parser,structures::atoms::{atom_id_parser, AtomStyle}};
+use crate::{helpers::{parsers::string_parser, styles::Style},structures::atoms::{atom_id_parser, AtomStyle}};
 
 #[derive(Clone)]
 pub struct RawExpressionStyle {
@@ -22,8 +24,21 @@ impl RawExpressionStyle {
     pub fn tuple_closer(&self) -> &String { &self.tuple_closer }
     pub fn delimiter(&self) -> &String { &self.delimiter }
     
+    pub fn controls(&self) -> HashSet<&str> { HashSet::from_iter(
+        [self.tuple_opener(),
+        self.tuple_closer(),
+        self.delimiter()]
+        .into_iter().map(|s| s.as_str())
+        .chain(self.atom_style.controls().into_iter())
+    )}
+
     pub fn to_tuple<I: IntoIterator<Item=String>>(&self, subexprs: I) -> String
         { self.tuple_closer.clone() + &subexprs.into_iter().collect::<Vec<String>>().join(&self.delimiter) + &self.tuple_closer }
+}
+impl Style<Expression> for RawExpressionStyle {
+    fn stringify(&self, stylable: &Expression) -> String {
+        todo!()
+    }
 }
 
 pub fn raw_expression_parser<'a>(style: &RawExpressionStyle) -> Parser<'a, char,Expression> {

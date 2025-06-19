@@ -1,7 +1,9 @@
+use std::collections::HashSet;
+
 use parsertools::parsers::Parser;
 use tbl_structures::atoms::AtomId;
 
-use crate::helpers::parsers::{num_parser, string_parser};
+use crate::helpers::{parsers::{num_parser, string_parser}, styles::Style};
 
 
 #[derive(Clone)]
@@ -14,11 +16,15 @@ impl AtomStyle {
 
     pub fn id_indicator(&self) -> &String { &self.atom_id_indicator }
 
+    pub fn controls(&self) -> HashSet<&str> { HashSet::from_iter(
+        [self.id_indicator().as_str()]
+    )}
+
     pub fn to_id(&self, num: usize) -> String { self.atom_id_indicator.clone() + &num.to_string() }
 }
-impl Default for AtomStyle {
-    fn default() -> Self {
-        Self { atom_id_indicator: "#".to_string() }
+impl Style<AtomId> for AtomStyle {
+    fn stringify(&self, stylable: &AtomId) -> String {
+        todo!()
     }
 }
 
