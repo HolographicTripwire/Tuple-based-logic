@@ -94,7 +94,7 @@ pub(super) fn variadic_allfix_function<'a>(input_head: &str, output_left: &str, 
     )
 }
 pub(super) fn allfix_function<'a>(input_head: &str, arity: usize, output_left: &str, output_infix: &str, output_right: &str, raw_style: &RawExpressionStyle) -> ExprPatternPair {
-    if arity < 2 { panic!("Attempted to create n_allfix_function with n < 2") }
+    if arity < 1 { panic!("Attempted to create n_allfix_function with n < 1") }
     let vars_delimited = (0..arity)
         .map(|x| [
             ExprPatternComponent::new_var(&x.to_string()),
