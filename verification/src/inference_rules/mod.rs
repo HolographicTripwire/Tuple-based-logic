@@ -10,6 +10,12 @@ use crate::ProofValidationError;
 
 pub (self) const TUPLE_OR_ERROR: TupleOrError<ProofValidationError> = TupleOrError{ error: ProofValidationError::InvalidStepSpecification };
 
+/// A function that checks if a Proof step is valid, and if not returns an error of type E
+trait ProofStepVerifier: Fn(&[Proposition], &[Proposition]) -> Result<(),ProofValidationError> {}
+impl <F: Fn(&[Proposition], &[Proposition]) -> Result<(),ProofValidationError>> ProofStepVerifier for F {}
+
+
+
 /// Check if all deduction rules in the proof are correct
 pub fn verify_proof_rules(proof: &Proof) -> Result<(),ErrorInProof<ProofValidationError>> {
     // Iterate through all steps in the proof
@@ -40,7 +46,8 @@ pub fn verify_rules_in_proof_step(step: &Inference) -> Result<(),ProofValidation
     verifier(&step.assumptions, &step.conclusions)
 }
 
-fn get_proof_step_verifier_by_type(step_type: &InferenceRule) -> impl Fn(&Vec<Proposition>, &Vec<Proposition>) -> Result<(),ProofValidationError> {
+/// Get the verifier for a particular inference rule
+fn get_proof_step_verifier_by_type(step_type: &InferenceRule) -> impl ProofStepVerifier {
     match step_type {
         // Deduction rules
         InferenceRule::ConjunctionIntroduction => verify_conjunction_introduction,

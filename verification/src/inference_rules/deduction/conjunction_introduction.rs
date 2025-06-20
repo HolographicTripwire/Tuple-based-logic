@@ -3,11 +3,11 @@ use tbl_structures::{atoms::BuiltInAtom, propositions::Proposition};
 use crate::{inference_rules::TUPLE_OR_ERROR, ProofValidationError};
 
 /// Verify that the assumptions and the conclusion form a valid instance of conjunction introduction ("a" and "b" entails "a and b")
-pub fn verify_conjunction_introduction(assumptions: &Vec<Proposition>, conclusions: &Vec<Proposition>) -> Result<(),ProofValidationError> {
+pub fn verify_conjunction_introduction(assumptions: &[Proposition], conclusions: &[Proposition]) -> Result<(),ProofValidationError> {
     // Throw an error if there is not exactly one conclusion
-    let [conclusion] = conclusions.as_slice() else { return Err(ProofValidationError::InvalidStepSpecification) };
+    let [conclusion] = conclusions else { return Err(ProofValidationError::InvalidStepSpecification) };
     // Throw an error if there are not two assumptions
-    let [assumption_left, assumption_right] = assumptions.as_slice() else { return Err(ProofValidationError::InvalidStepSpecification) };
+    let [assumption_left, assumption_right] = assumptions else { return Err(ProofValidationError::InvalidStepSpecification) };
 
     // Throw an error if there are not three expressions in the conclusion
     let [conjunction_head, conjunction_left, conjunction_right] = TUPLE_OR_ERROR.as_slice(conclusion)? else { return Err(ProofValidationError::InvalidStepSpecification) };

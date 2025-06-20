@@ -5,9 +5,9 @@ use crate::{inference_rules::{TUPLE_OR_ERROR}, ProofValidationError};
 use super::resolve_verbatim;
 
 /// Verify that the assumptions and the conclusion form a valid instance of atomicity assertion ("Atomic(Verbatim(a))" for any atom a)
-pub fn verify_atomicity_assertion(assumptions: &Vec<Proposition>, conclusions: &Vec<Proposition>) -> Result<(),ProofValidationError> {
+pub fn verify_atomicity_assertion(assumptions: &[Proposition], conclusions: &[Proposition]) -> Result<(),ProofValidationError> {
     // Throw an error if there is not exactly one conclusion
-    let [conclusion] = conclusions.as_slice() else { return Err(ProofValidationError::InvalidStepSpecification) };
+    let [conclusion] = conclusions else { return Err(ProofValidationError::InvalidStepSpecification) };
     // Throw ane rror if the rule has any assumptions (this rule requires none)
     if assumptions.len() != 0 { return Err(ProofValidationError::InvalidStepSpecification) }
     
