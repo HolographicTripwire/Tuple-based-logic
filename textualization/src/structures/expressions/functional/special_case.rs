@@ -1,4 +1,4 @@
-use crate::structures::expressions::{patterns::{components::ExprPatternComponent, special_case::ExprPatternPair, ExprPattern}, raw::RawExpressionStyle, SpecialCase, SpecialCases};
+use crate::structures::expressions::{patterns::{components::ExprPatternComponent, special_case::ExprPatternPair, ExprPattern}, raw::RawExpressionStyle};
 
 pub(super) fn symbol_atom<'a>(atom_id: usize, after: &str, style: &RawExpressionStyle) -> ExprPatternPair 
     { symbol(&style.atom_style().to_id(atom_id), after) }

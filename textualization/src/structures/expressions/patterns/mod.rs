@@ -53,8 +53,8 @@ impl ExprPatternAssignments {
     )}
 }
 
-fn expr_pattern_matcher<'a>(pattern: &'a ExprPattern) -> Parser<'a, char, ExprPatternAssignments> {
-    let components = pattern.components.iter()
+fn expr_pattern_matcher<'a>(pattern: ExprPattern) -> Parser<'a, char, ExprPatternAssignments> {
+    let components = pattern.components.into_iter()
         .map(|component| pattern_component_parser(component));
     conjoin(components).map(|assignments| ExprPatternAssignments::new(assignments))
 }
@@ -137,7 +137,7 @@ mod tests {
         let blacklist = parser::TEST_BLACKLIST;
         let parser = expr_pattern_parser(&style, &blacklist);
         let pattern = parse_str(parser,pattern_str).unwrap();
-        let assignments = parse_all_str(expr_pattern_matcher(&pattern), match_str);
+        let assignments = parse_all_str(expr_pattern_matcher(pattern), match_str);
         
         let assignments_check = assignments_vec.into_iter().map(|(var_vec,vars_vec)| -> ExprPatternAssignments {
             let var = var_vec.into_iter().map(|(var,val)| ExprPatternAssignment::new_var(var, val));

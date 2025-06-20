@@ -5,7 +5,7 @@ pub trait Style<Sb: Stylable>: Sized + Clone {
 }
 
 pub trait Stylable: Sized + Clone {
-    fn styled<S: Style<Self>>(&self, style: S) -> Styled<Self,S>
+    fn styled<S: Style<Self>>(&self, style: &S) -> Styled<Self,S>
         { Styled::new(self.clone(), style.clone()) }
 }
 impl <Sb: Sized + Clone> Stylable for Sb {}
