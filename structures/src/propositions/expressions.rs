@@ -19,7 +19,7 @@ impl Expression {
     }
 
     /// If this expression is a Tuple, get its expressions. Otherwise throw an error 
-    pub fn as_tuple(&self) -> Result<&Vec<Expression>,()> { 
+    pub fn as_vec(&self) -> Result<&Vec<Expression>,()> { 
         match &self {
             Expression::Atomic(_) => Err(()),
             Expression::Tuple(proposition_exprs) => Ok(proposition_exprs),
@@ -36,7 +36,7 @@ impl Expression {
 
     /// Get the subexpression within this expression at the provided index if it exists, otherwise throw an error.
     pub fn get_subexpr(&self, index: usize) -> Result<&Expression,()> {
-        let exprs= self.as_tuple()?;
+        let exprs= self.as_vec()?;
         match exprs.get(index) {
             Some(expr) => Ok(expr),
             None => Err(()),
@@ -90,7 +90,7 @@ mod tests {
     fn test_as_tuple_on_atom() {
         for i in 0..10 {
             let atomic_expr = Expression::Atomic(AtomId(i));
-            assert_eq!(atomic_expr.as_tuple(), Err(()));
+            assert_eq!(atomic_expr.as_vec(), Err(()));
         }
     }
 
@@ -98,7 +98,7 @@ mod tests {
     fn test_as_tuple_on_tuple() {
         for i in 0..10 {
             let atomic_expr = Expression::from(vec![Expression::from(AtomId(i))]);
-            assert_eq!(atomic_expr.as_tuple(), Ok(&vec![Expression::from(AtomId(i))]));
+            assert_eq!(atomic_expr.as_vec(), Ok(&vec![Expression::from(AtomId(i))]));
         }
     }
 

@@ -45,7 +45,7 @@ impl PropositionSet {
         // Iterate through all propositions in this PropositionSet
         for proposition in self.0.iter() {
             // Get the negation level of the proposition
-            let negation_level = proposition.0.negation_level();
+            let negation_level = proposition.negation_level();
             // If there is already a hashset of this negation level, add this proposition to that one
             if let Some(set) = result.get_mut(&negation_level) 
                 { set.insert(proposition); }
@@ -73,7 +73,7 @@ impl PropositionSet {
             // Compare the Propositions within set and the set above this one
             for prop_1 in set_1 {
                 for prop_2 in set_2 {
-                    if prop_2.0.is_negation_of(&prop_1.0) { contradictions.merge([(*prop_1)]) }
+                    if prop_2.is_negation_of(&prop_1) { contradictions.merge([(*prop_1)]) }
                 }
             }
         }
@@ -114,7 +114,7 @@ mod tests {
     fn atomic_proposition_vec(nums: Vec<usize>) -> Vec<Proposition> {
         nums.iter()
             .map(|num| -> Proposition {
-                Proposition(Expression::Atomic(AtomId::try_from(*num).unwrap()))
+                Proposition::Atomic(AtomId::try_from(*num).unwrap())
             }).collect()
     }
 
@@ -201,7 +201,7 @@ mod tests {
         let x = Expression::Atomic(cardinality::<BuiltInAtom>().try_into().unwrap());
         let y = Expression::Atomic((cardinality::<BuiltInAtom>() + 1).try_into().unwrap());
         let neg_x = Expression::Tuple(vec![neg, x]);
-        let propset = PropositionSet::new(vec![&Proposition(neg_x), &Proposition(y)]);
+        let propset = PropositionSet::new(vec![&neg_x, &y]);
         let contradictions = PropositionSet::new(vec![]);
         assert_eq!(propset.get_contradictions(), contradictions)
     }
@@ -213,8 +213,8 @@ mod tests {
         let y = Expression::Atomic((cardinality::<BuiltInAtom>() + 1).try_into().unwrap());
         let neg_x = Expression::Tuple(vec![neg.clone(), x.clone()]);
         let neg_y = Expression::Tuple(vec![neg.clone(), y.clone()]);
-        let propset = PropositionSet::new(vec![&Proposition(x.clone()), &Proposition(y.clone()), &Proposition(neg_x), &Proposition(neg_y)]);
-        let contradictions = PropositionSet::new(vec![&Proposition(x), &Proposition(y)]);
+        let propset = PropositionSet::new(vec![&x.clone(), &y.clone(), &neg_x, &neg_y]);
+        let contradictions = PropositionSet::new(vec![&x, &y]);
         assert_eq!(propset.get_contradictions(), contradictions)
     }
 
@@ -225,7 +225,7 @@ mod tests {
         let neg_x = Expression::Tuple(vec![neg.clone(), x.clone()]);
         let neg2_x = Expression::Tuple(vec![neg.clone(), neg_x.clone()]);
         let neg3_x = Expression::Tuple(vec![neg.clone(), neg2_x.clone()]);
-        let propset = PropositionSet::new(vec![&Proposition(x.clone()), &Proposition(neg3_x.clone())]);
+        let propset = PropositionSet::new(vec![&x.clone(), &neg3_x.clone()]);
         let contradictions = PropositionSet::new(vec![]);
         assert_eq!(propset.get_contradictions(), contradictions)
     }
@@ -236,7 +236,7 @@ mod tests {
         let x = Expression::Atomic(cardinality::<BuiltInAtom>().try_into().unwrap());
         let y = Expression::Atomic((cardinality::<BuiltInAtom>() + 1).try_into().unwrap());
         let neg_xy = Expression::Tuple(vec![neg.clone(), x.clone(), y.clone()]);
-        let propset = PropositionSet::new(vec![&Proposition(x.clone()), &Proposition(y.clone()), &Proposition(neg_xy)]);
+        let propset = PropositionSet::new(vec![&x.clone(), &y.clone(), &neg_xy]);
         let contradictions = PropositionSet::new(vec![]);
         assert_eq!(propset.get_contradictions(), contradictions)
     }
