@@ -6,8 +6,8 @@ use enum_iterator::Sequence;
 #[derive(Clone, Copy, PartialEq, Eq, Debug, Hash)]
 pub struct AtomId(pub u16);
 impl AtomId {
-    fn first() -> AtomId { AtomId(0) }
-    fn next(&self) -> AtomId { AtomId(self.0 + 1) }
+    pub fn first() -> AtomId { AtomId(0) }
+    pub fn next(&self) -> AtomId { AtomId(self.0 + 1) }
 }
 impl TryFrom<usize> for AtomId {
     type Error = TryFromIntError;

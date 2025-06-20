@@ -27,8 +27,8 @@ impl Proof {
 
     /// Get the implicit conclusions of this [Proof]; that is, each [Proposition] which this [Proof] which is proven but not explicitly returned
     pub fn implicit_conclusions(&self) -> PropositionSet {
-        let mut result = PropositionSet::new(&[]);
-        for subproof in &self.subproofs { result.merge(&subproof.implicit_conclusions()); }
+        let mut result = PropositionSet::new();
+        for subproof in &self.subproofs { result.extend(subproof.implicit_conclusions()); }
         result
     }
 
@@ -62,7 +62,7 @@ impl SubProof {
 
     /// Get the implicit conclusions of this [SubProof]; that is, each [Proposition] which this [SubProof] which is proven but not explicitly returned
     pub fn implicit_conclusions(&self) -> PropositionSet { match self {
-        SubProof::Atomic(inference) => PropositionSet::from(&inference.conclusions),
+        SubProof::Atomic(inference) => inference.conclusions.iter().cloned().collect(),
         SubProof::Composite(proof) => proof.implicit_conclusions(),
     }}
 

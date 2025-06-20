@@ -1,8 +1,10 @@
 pub mod inference_rules;
 pub mod validation_error;
 
+use std::collections::HashSet;
+
 use inference_rules::*;
-use tbl_structures::{proof::{error::{ErrorInProof, ResultInProof}, Proof, SubProof}, propositions::PropositionSet};
+use tbl_structures::{proof::{error::{ErrorInProof, ResultInProof}, Proof, SubProof}, propositions::{Proposition, PropositionSet}};
 use validation_error::ProofValidationError;
 
 /// Verify that the provided proof is sound under Tuple-Based logic, given some set of starting assumptions
@@ -12,19 +14,23 @@ pub fn verify_proof(proof: &Proof, assumptions: &PropositionSet) -> Result<bool,
     Ok(verify_proof_grounding(proof, assumptions))
 }
 
+/// Check that all of the premises of a given [Proof] are contained within some [PropositionSet]
+/// Used to check the "grounding" of a proof - that is, are all of the proof's premises assumed to be true? If they are, we can trust the proof's conclusions
 pub fn verify_proof_grounding(proof: &Proof, assumptions: &PropositionSet) -> bool {
-    PropositionSet::from(proof.premises()).subset_of(assumptions)
+    proof.premises().iter().all(|premise| assumptions.contains(premise))
 }
 
+/// 
 fn validate_proof(proof: &Proof) -> Result<(),ErrorInProof<ProofValidationError>> {
     // Create a list of [Proposition] objects which are considered at this time to be true
-    let mut proved = PropositionSet::from(&proof.premises().clone());
+    let mut proved = HashSet::<&Proposition>::from_iter(proof.premises());
     
     // Iterate through all steps in the proof
     for (i, subproof) in proof.subproofs().iter().enumerate() {
         // Throw an error if th assumptions of this step have not yet been proven
-        let assumptions_not_found = proved.subtracted(&PropositionSet::from(subproof.premises()));
-        if assumptions_not_found.len() != 0 { return Err(ErrorInProof::here(ProofValidationError::AssumptionsNotFound(assumptions_not_found))) }
+        let premises = HashSet::<&Proposition>::from_iter(subproof.premises());
+        let assumptions_not_found = &proved - &premises;
+        if assumptions_not_found.len() != 0 { return Err(ErrorInProof::here(ProofValidationError::AssumptionsNotFound(assumptions_not_found.into_iter().cloned().collect()))) }
         
         // Get the new propositions which have been proved by this step in the proof, assuming that the step is valid
         match subproof {
@@ -33,12 +39,12 @@ fn validate_proof(proof: &Proof) -> Result<(),ErrorInProof<ProofValidationError>
         }.resolve(i)?;
         
         // Add the new proved propositions to our set of proved propositions
-        proved.merge(subproof.conclusions());
+        proved.extend(subproof.conclusions());
     }
 
     // Throw an error if the supposed conclusions of this proof have not been derived
-    let conclusions_not_found = PropositionSet::from(proof.conclusions()).subtracted(&proved);
-    if conclusions_not_found.len() != 0 { return Err(ErrorInProof::here(ProofValidationError::ConclusionsNotFound(conclusions_not_found)))}
+    let conclusions_not_found = &HashSet::from_iter(proof.conclusions()) - &proved;
+    if conclusions_not_found.len() != 0 { return Err(ErrorInProof::here(ProofValidationError::ConclusionsNotFound(conclusions_not_found.into_iter().cloned().collect())))}
 
     // 
     Ok(())
