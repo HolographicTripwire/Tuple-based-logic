@@ -43,12 +43,16 @@ impl Expression {
         }
     }
 
+    /// Check if this expression is the negation of another
     pub fn is_negation_of(&self, other: &Expression) -> bool {
         let Ok([negation_atom, remainder]) = TUPLE_OR_NONE.as_slice(self) else { return false; };
         if negation_atom != &BuiltInAtom::Negation.into() { return false; }
         else { return remainder == other }
     }
 
+    /// Get the number of negations that this proposition begins with
+    /// Note that a negation level is only counted if that level contains two terms - where one is the negation.
+    /// So, (¬,(¬,P)) counts as two, but (¬,(¬,P,Q)) and (¬,(¬)) only count as one
     pub fn negation_level(&self) -> usize {
         let Ok([negation_atom, remainder]) = TUPLE_OR_NONE.as_slice(self) else { return 0; };
         if negation_atom != &BuiltInAtom::Negation.into() { return 0; }
