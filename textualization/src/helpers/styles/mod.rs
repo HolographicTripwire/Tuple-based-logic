@@ -1,14 +1,17 @@
-use std::fmt::Display;
+use std::{fmt::{Debug, Display}, hash::Hash};
+
+use parsertools::parsers::Parser;
 
 pub trait Style<Sb: Stylable>: Sized + Clone {
     fn stringify(&self, stylable: &Sb) -> String;
+    fn parser<'a>(&self) -> Parser<'a,char,Sb>;
 }
 
-pub trait Stylable: Sized + Clone {
+pub trait Stylable: Sized + Clone + Eq + Hash + Debug {
     fn styled<S: Style<Self>>(&self, style: &S) -> Styled<Self,S>
         { Styled::new(self.clone(), style.clone()) }
 }
-impl <Sb: Sized + Clone> Stylable for Sb {}
+impl <Sb: Sized + Clone + Eq + Hash + Debug> Stylable for Sb {}
 
 pub struct Styled<Sb: Stylable, S: Style<Sb>> {
     stylable: Sb,
