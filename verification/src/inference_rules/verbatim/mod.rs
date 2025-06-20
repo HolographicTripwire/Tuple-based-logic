@@ -12,7 +12,7 @@ use crate::validation_error::ProofValidationError;
 use super::TUPLE_OR_ERROR;
 
 fn resolve_verbatim(verbatim_expr: &Expression) -> Result<&Expression,ProofValidationError>{
-    let [verbatim_head, verbatim_tail] = TUPLE_OR_ERROR.expr_as_slice(verbatim_expr)? else { return Err(ProofValidationError::InvalidStepSpecification) };
+    let [verbatim_head, verbatim_tail] = TUPLE_OR_ERROR.as_slice(verbatim_expr)? else { return Err(ProofValidationError::InvalidStepSpecification) };
     if verbatim_head != &BuiltInAtom::Verbatim.into() { return Err(ProofValidationError::InvalidStepSpecification) }
     Ok(verbatim_tail)
 }

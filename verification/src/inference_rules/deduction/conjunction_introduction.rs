@@ -10,14 +10,14 @@ pub fn verify_conjunction_introduction(assumptions: &Vec<Proposition>, conclusio
     let [assumption_left, assumption_right] = assumptions.as_slice() else { return Err(ProofValidationError::InvalidStepSpecification) };
 
     // Throw an error if there are not three expressions in the conclusion
-    let [conjunction_head, conjunction_left, conjunction_right] = TUPLE_OR_ERROR.prop_as_slice(conclusion)? else { return Err(ProofValidationError::InvalidStepSpecification) };
+    let [conjunction_head, conjunction_left, conjunction_right] = TUPLE_OR_ERROR.as_slice(conclusion)? else { return Err(ProofValidationError::InvalidStepSpecification) };
 
     // Throw an error if the head of the conjunction is incorrect
     if conjunction_head != &BuiltInAtom::Conjunction.into() { return Err(ProofValidationError::InvalidStepSpecification) }
     // Throw an error if the left half of the conjunction is incorrect
-    if conjunction_left != &assumption_left.0 { return Err(ProofValidationError::InvalidStepSpecification) }
+    if conjunction_left != assumption_left { return Err(ProofValidationError::InvalidStepSpecification) }
     // Throw an error if the right half of the conjunction is incorrect
-    if conjunction_right != &assumption_right.0 { return Err(ProofValidationError::InvalidStepSpecification) }
+    if conjunction_right != assumption_right { return Err(ProofValidationError::InvalidStepSpecification) }
     
     // If none of the errors were triggered, then this step was successfully verified
     return Ok(())

@@ -12,12 +12,12 @@ pub fn verify_atom_differentiation(assumptions: &Vec<Proposition>, conclusions: 
     if assumptions.len() != 0 { return Err(ProofValidationError::InvalidStepSpecification) }
     
     // Throw an error if there are not two expressions in the conclusion
-    let [negation_head, identity] = TUPLE_OR_ERROR.prop_as_slice(conclusion)? else { return Err(ProofValidationError::InvalidStepSpecification) };
+    let [negation_head, identity] = TUPLE_OR_ERROR.as_slice(conclusion)? else { return Err(ProofValidationError::InvalidStepSpecification) };
     // Throw an error if the head of the conclusion is incorrect
     if negation_head != &BuiltInAtom::Negation.into() { return Err(ProofValidationError::InvalidStepSpecification) }
     
     // Throw an error if there are not three expressions in the identity
-    let [identity_head, identity_left, identity_right] = TUPLE_OR_ERROR.expr_as_slice(identity)? else { return Err(ProofValidationError::InvalidStepSpecification) };
+    let [identity_head, identity_left, identity_right] = TUPLE_OR_ERROR.as_slice(identity)? else { return Err(ProofValidationError::InvalidStepSpecification) };
     // Throw an error if the head of the identity is incorrect
     if identity_head != &BuiltInAtom::Identity.into() { return Err(ProofValidationError::InvalidStepSpecification) }
 

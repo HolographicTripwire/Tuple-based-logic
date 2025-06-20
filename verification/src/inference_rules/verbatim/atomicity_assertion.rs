@@ -12,7 +12,7 @@ pub fn verify_atomicity_assertion(assumptions: &Vec<Proposition>, conclusions: &
     if assumptions.len() != 0 { return Err(ProofValidationError::InvalidStepSpecification) }
     
     // Throw an error if there are not three expressions in the conclusion
-    let [atomicity_head, verbatim_expr] = TUPLE_OR_ERROR.prop_as_slice(conclusion)? else { return Err(ProofValidationError::InvalidStepSpecification) };
+    let [atomicity_head, verbatim_expr] = TUPLE_OR_ERROR.as_slice(conclusion)? else { return Err(ProofValidationError::InvalidStepSpecification) };
     
     // Throw an error if the head of the conclusion is incorrect
     if atomicity_head != &BuiltInAtom::Atomic.into() { return Err(ProofValidationError::InvalidStepSpecification) }

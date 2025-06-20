@@ -10,14 +10,14 @@ pub fn verify_implication_elimination(assumptions: &Vec<Proposition>, conclusion
     let [prior, implication] = assumptions.as_slice() else { return Err(ProofValidationError::InvalidStepSpecification) };
     
     // Throw an error if the implication does not contain three expressions
-    let [implication_head, antecedent, consequent] = TUPLE_OR_ERROR.prop_as_slice(implication)? else { return Err(ProofValidationError::InvalidStepSpecification) };
+    let [implication_head, antecedent, consequent] = TUPLE_OR_ERROR.as_slice(implication)? else { return Err(ProofValidationError::InvalidStepSpecification) };
 
     // Throw an error if the head of the implication is incorrect
     if implication_head != &BuiltInAtom::Implication.into() { return Err(ProofValidationError::InvalidStepSpecification) }
     // Throw an error if the left half of the implication is incorrect
-    if antecedent != &prior.0 { return Err(ProofValidationError::InvalidStepSpecification) }
+    if antecedent != prior { return Err(ProofValidationError::InvalidStepSpecification) }
     // Throw an error if the right half of the implication is incorrect
-    if consequent != &conclusion.0 { return Err(ProofValidationError::InvalidStepSpecification) }
+    if consequent != conclusion { return Err(ProofValidationError::InvalidStepSpecification) }
 
     return Ok(());
 }
