@@ -24,3 +24,104 @@ const SPECIAL_CASES: LazyLock<SpecialCases> = LazyLock::new(|| SpecialCasesBuild
 pub const EXPRESSION_STYLE: LazyLock<ExpressionStyle> = LazyLock::new(|| -> ExpressionStyle {
     ExpressionStyle::new(RAW_EXPRESSION_STYLE.clone(), Arc::new(SPECIAL_CASES.clone()))
 });
+
+#[cfg(test)]
+mod tests {
+    use std::{collections::HashMap};
+
+    use tbl_structures::{atoms::BuiltInAtom, propositions::Expression};
+    use tbl_textualization::{helpers::styles::Stylable, structures::expressions::expression_parser};
+
+    use super::*;
+
+    static CONVERSIONS: LazyLock<HashMap<&str,Expression>> = LazyLock::new(|| -> HashMap<&str,Expression> { 
+        let conjunction = || Expression::from(BuiltInAtom::Conjunction);
+        let implication = || Expression::from(BuiltInAtom::Implication);
+        HashMap::from_iter(vec![
+            ("∧",conjunction()),
+            ("(∧)",Expression::Tuple(vec![conjunction()])),
+            ("(∧, →)",Expression::Tuple(vec![conjunction(),implication()])),
+            ("((∧), →)", Expression::from(vec![Expression::from(vec![conjunction()]),implication()])),
+        ].into_iter())
+    });
+
+    #[test]
+    fn test_stringify_atom() {
+        // Get the string and expression to test
+        let str = "∧";
+        let expression = CONVERSIONS.get(str).unwrap();
+        // Test stringification
+        let expression_stringified = expression.styled(&EXPRESSION_STYLE.clone()).to_string();
+        assert_eq!(expression_stringified,str.to_string());
+    }
+    #[test]
+    fn test_destringify_atom() {
+        // Get the string and expression to test
+        let str = "∧";
+        let expression = CONVERSIONS.get(str).unwrap();
+        // Test destringification
+        let parser = expression_parser(EXPRESSION_STYLE.clone());
+        let str_as_expression = parser.parse(str.chars());
+        assert_eq!(Ok(expression.clone()),str_as_expression);
+    }
+
+    #[test]
+    fn test_stringify_unary_tuple() {
+        // Get the string and expression to test
+        let str = "(∧)";
+        let expression = CONVERSIONS.get(str).unwrap();
+        // Test stringification
+        let expression_stringified = expression.styled(&EXPRESSION_STYLE.clone()).to_string();
+        assert_eq!(expression_stringified,str.to_string());
+    }
+    #[test]
+    fn test_destringify_unary_tuple() {
+        // Get the string and expression to test
+        let str = "(∧)";
+        let expression = CONVERSIONS.get(str).unwrap();
+        // Test destringification
+        let parser = expression_parser(EXPRESSION_STYLE.clone());
+        let str_as_expression = parser.parse(str.chars());
+        assert_eq!(Ok(expression.clone()),str_as_expression);
+    }
+
+    #[test]
+    fn test_stringify_binary_tuple() {
+        // Get the string and expression to test
+        let str = "(∧, →)";
+        let expression = CONVERSIONS.get(str).unwrap();
+        // Test stringification
+        let expression_stringified = expression.styled(&EXPRESSION_STYLE.clone()).to_string();
+        assert_eq!(expression_stringified,str.to_string());
+    }
+    #[test]
+    fn test_destringify_binary_tuple() {
+        // Get the string and expression to test
+        let str = "(∧, →)";
+        let expression = CONVERSIONS.get(str).unwrap();
+        // Test destringification
+        let parser = expression_parser(EXPRESSION_STYLE.clone());
+        let str_as_expression = parser.parse(str.chars());
+        assert_eq!(Ok(expression.clone()),str_as_expression);
+    }
+
+    #[test]
+    fn test_stringify_nested_tuple() {
+        // Get the string and expression to test
+        let str = "((∧), →)";
+        let expression = CONVERSIONS.get(str).unwrap();
+        // Test stringification
+        let expression_stringified = expression.styled(&EXPRESSION_STYLE.clone()).to_string();
+        assert_eq!(expression_stringified,str.to_string());
+    }
+    #[test]
+    fn test_destringify_nested_tuple() {
+        // Get the string and expression to test
+        let str = "((∧), →)";
+        let expression = CONVERSIONS.get(str).unwrap();
+        // Test destringification
+        let parser = expression_parser(EXPRESSION_STYLE.clone());
+        let str_as_expression = parser.parse(str.chars());
+        assert_eq!(Ok(expression.clone()),str_as_expression);
+    }
+}
