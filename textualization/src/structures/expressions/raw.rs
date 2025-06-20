@@ -36,6 +36,8 @@ impl RawExpressionStyle {
         { self.tuple_closer.clone() + &subexprs.into_iter().collect::<Vec<String>>().join(&self.delimiter) + &self.tuple_closer }
 }
 impl Style<Expression> for RawExpressionStyle {
+    type ParseParams = ();
+
     fn stringify(&self, expr: &Expression) -> String {
         match expr {
             Expression::Atomic(atom_id) => self.atom_style.stringify(atom_id),
@@ -43,7 +45,7 @@ impl Style<Expression> for RawExpressionStyle {
         }
     }
     
-    fn parser<'a>(&self) -> Parser<'a,char,Expression> {
+    fn parser<'a>(&self, _: Self::ParseParams) -> Parser<'a,char,Expression> {
         let opener = string_parser(self.tuple_opener()).unwrap();
         let closer = string_parser(self.tuple_closer()).unwrap();
         let atom = atomic_expression_parser(self);
@@ -58,7 +60,7 @@ fn raw_expression_series_parser<'a>(style: RawExpressionStyle) -> Parser<'a,char
     let delimiter = string_parser(style.delimiter()).unwrap();
     
     let binding = style.clone();
-    let unary = lazy(move || binding.parser())
+    let unary = lazy(move || binding.parser(()))
         .map(|expr| Expression::Tuple(vec![expr]));
     
     let series = lazy(move || raw_expression_series_parser(style.clone()));
@@ -69,7 +71,7 @@ fn raw_expression_series_parser<'a>(style: RawExpressionStyle) -> Parser<'a,char
 }
 
 fn atomic_expression_parser<'a>(style: &RawExpressionStyle) -> Parser<'a, char, Expression> {
-    style.atom_style().parser().map(|atom| Expression::from(atom))
+    style.atom_style().parser(()).map(|atom| Expression::from(atom))
 }
 
 #[cfg(test)]
@@ -140,28 +142,28 @@ pub (crate) mod tests {
     #[test]
     fn test_expression_parser_with_atom_id() {
         let expected = Ok(Expression::Atomic(AtomId(1124).into()));
-        assert_eq!(parse_str(TEST_RAW_EXPRESSION_STYLE.parser(), "#1124"), expected)
+        assert_eq!(parse_str(TEST_RAW_EXPRESSION_STYLE.parser(()), "#1124"), expected)
     }
     #[test]
     fn test_expression_parser_with_plain_num() {
-        assert!(parse_str(TEST_RAW_EXPRESSION_STYLE.parser(), "1124").is_err())
+        assert!(parse_str(TEST_RAW_EXPRESSION_STYLE.parser(()), "1124").is_err())
     }
     #[test]
     fn test_expression_parser_with_atom_id_tuple() {
         let expected = Ok(Expression::Tuple(vec![AtomId(8).into(),AtomId(241).into()]));
-        assert_eq!(parse_str(TEST_RAW_EXPRESSION_STYLE.parser(), "(#8,#241)"), expected)
+        assert_eq!(parse_str(TEST_RAW_EXPRESSION_STYLE.parser(()), "(#8,#241)"), expected)
     }
     #[test]
     fn test_expression_parser_with_nested_tuple() {
         let neg_p = Expression::Tuple(vec![AtomId(3).into(),AtomId(8).into()]);
         let neg_neg_p = Expression::Tuple(vec![AtomId(3).into(),neg_p]);
         let expected = Ok(Expression::Tuple(vec![AtomId(4).into(),AtomId(8).into(),neg_neg_p]));
-        assert_eq!(parse_str(TEST_RAW_EXPRESSION_STYLE.parser(), "(#4,#8,(#3,(#3,#8)))"), expected)
+        assert_eq!(parse_str(TEST_RAW_EXPRESSION_STYLE.parser(()), "(#4,#8,(#3,(#3,#8)))"), expected)
     }
     #[test]
     fn test_expression_parser_with_empty_tuple() {
         let empty = Expression::Tuple(vec![]);
         let expected = Ok(Expression::Tuple(vec![AtomId(4).into(),AtomId(13).into(),empty]));
-        assert_eq!(parse_str(TEST_RAW_EXPRESSION_STYLE.parser(), "(#4,#13,())"), expected)
+        assert_eq!(parse_str(TEST_RAW_EXPRESSION_STYLE.parser(()), "(#4,#13,())"), expected)
     }
 }

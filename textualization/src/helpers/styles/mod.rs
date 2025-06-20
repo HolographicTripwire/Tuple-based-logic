@@ -3,8 +3,10 @@ use std::{fmt::{Debug, Display}, hash::Hash};
 use parsertools::parsers::Parser;
 
 pub trait Style<Sb: Stylable>: Sized + Clone {
+    type ParseParams;
+
     fn stringify(&self, stylable: &Sb) -> String;
-    fn parser<'a>(&self) -> Parser<'a,char,Sb>;
+    fn parser<'a>(&self, params: Self::ParseParams) -> Parser<'a,char,Sb>;
 }
 
 pub trait Stylable: Sized + Clone + Eq + Hash + Debug {

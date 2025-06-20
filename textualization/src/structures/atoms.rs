@@ -23,11 +23,13 @@ impl AtomStyle {
     pub fn to_id(&self, num: usize) -> String { self.atom_id_indicator.clone() + &num.to_string() }
 }
 impl Style<AtomId> for AtomStyle {
+    type ParseParams = ();
+
     fn stringify(&self, atom: &AtomId) -> String {
         self.to_id(atom.0 as usize)
     }
     
-    fn parser<'a>(&self) -> Parser<'a,char,AtomId> {
+    fn parser<'a>(&self, _: Self::ParseParams) -> Parser<'a,char,AtomId> {
         string_parser(self.id_indicator()).unwrap().then(
             num_parser()
         ).map(|(_, uint)| -> AtomId { AtomId::try_from(uint).unwrap() })
@@ -48,14 +50,14 @@ pub (crate) mod tests {
     
     #[test]
     fn test_id_parser_with_atom_id() {
-        assert_eq!(parse_str(TEST_ATOM_STYLE.parser(), "#1124"),Ok(AtomId(1124)))
+        assert_eq!(parse_str(TEST_ATOM_STYLE.parser(()), "#1124"),Ok(AtomId(1124)))
     }
     #[test]
     fn test_id_parser_with_plain_num() {
-        assert!(parse_str(TEST_ATOM_STYLE.parser(), "1124").is_err())
+        assert!(parse_str(TEST_ATOM_STYLE.parser(()), "1124").is_err())
     }
     #[test]
     fn test_id_parser_with_atom_symbol() {
-        assert!(parse_str(TEST_ATOM_STYLE.parser(), "P").is_err())
+        assert!(parse_str(TEST_ATOM_STYLE.parser(()), "P").is_err())
     }
 }
