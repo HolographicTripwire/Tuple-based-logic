@@ -16,6 +16,21 @@ impl <Rules: InferenceRule> Inference<Rules> {
         let Some(proposition) = vec.get(path.proposition_index) else { return Err(()) };
         proposition.get_subexpression(&path.subexpression_path)
     }
+
+    pub fn get_located_assumptions(&self) -> Vec<SubexpressionInInference> {
+        (0..self.assumptions.len())
+        .map(|index| SubexpressionInInference::new(self,
+                InferenceSubexpressionPath::assumption(index, vec![])
+            ).expect(&format!("Assumption {index} not found"))
+        ).collect::<Vec<SubexpressionInInference>>()
+    }
+    pub fn get_located_conclusions(&self) -> Vec<SubexpressionInInference> {
+        (0..self.conclusions.len())
+        .map(|index| SubexpressionInInference::new(self,
+                InferenceSubexpressionPath::conclusion(index, vec![])
+            ).expect(&format!("Conclusion {index} not found"))
+        ).collect::<Vec<SubexpressionInInference>>()
+    }
 }
 
 pub trait InferenceRule: Clone {}
