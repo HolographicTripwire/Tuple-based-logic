@@ -3,16 +3,16 @@ pub mod error;
 
 use step::ProofStep;
 
-use crate::{inference::{Inference, InferenceRules}, propositions::{Proposition, PropositionSet}};
+use crate::{inference::{Inference, InferenceRule}, propositions::{Proposition, PropositionSet}};
 
 #[derive(Clone)]
-pub struct Proof<Rules: InferenceRules> {
+pub struct Proof<Rule: InferenceRule> {
     premises: Vec<Proposition>,
-    subproofs: Vec<SubProof<Rules>>,
+    subproofs: Vec<SubProof<Rule>>,
     conclusions: Vec<Proposition>
 }
 
-impl <Rules: InferenceRules> Proof<Rules> {
+impl <Rules: InferenceRule> Proof<Rules> {
     /// Create a new [Proof] with the given premises, subproofs, and conclusions
     pub fn new(premises: Vec<Proposition>, subproofs: Vec<SubProof<Rules>>, conclusions: Vec<Proposition>) -> Self
         { Self { premises, subproofs, conclusions } }
@@ -42,12 +42,12 @@ impl <Rules: InferenceRules> Proof<Rules> {
 
 /// This struct represents a step within a larger proof
 #[derive(Clone)]
-pub enum SubProof<Rules: InferenceRules> {
+pub enum SubProof<Rules: InferenceRule> {
     Atomic(Inference<Rules>), // A single inference step
     Composite(Proof<Rules>)   // A composite proof made of further subproofs
 }
 
-impl <Rules: InferenceRules> SubProof<Rules> {
+impl <Rules: InferenceRule> SubProof<Rules> {
     /// Get the premises of this [SubProof]
     pub fn premises(&self) -> &Vec<Proposition> { match self {
             SubProof::Atomic(proof_step) => &proof_step.assumptions,
