@@ -34,15 +34,6 @@ impl Expression {
         }
     }
 
-    /// Get the subexpression within this expression at the provided index if it exists, otherwise throw an error.
-    pub fn get_subexpr(&self, index: usize) -> Result<&Expression,()> {
-        let exprs= self.as_vec()?;
-        match exprs.get(index) {
-            Some(expr) => Ok(expr),
-            None => Err(()),
-        }
-    }
-
     /// Check if this expression is the negation of another
     pub fn is_negation_of(&self, other: &Expression) -> bool {
         let Ok([negation_atom, remainder]) = TUPLE_OR_NONE.as_slice(self) else { return false; };
@@ -119,30 +110,6 @@ mod tests {
         for i in 0..10 {
             let atomic_expr = Expression::from(vec![Expression::from(AtomId(i))]);
             assert_eq!(atomic_expr.as_slice(), Ok(vec![Expression::from(AtomId(i))].as_slice()));
-        }
-    }
-
-    #[test]
-    fn test_get_subexpr_on_atom() {
-        for i in 0..10 {
-            let atomic_expr = Expression::from(AtomId(i));
-            assert_eq!(atomic_expr.get_subexpr(0), Err(()));
-        }
-    }
-
-    #[test]
-    fn test_get_subexpr_on_tuple() {
-        for i in 0..10 {
-            let atomic_expr = Expression::from(vec![Expression::from(AtomId(i))]);
-            assert_eq!(atomic_expr.get_subexpr(0), Ok(&Expression::from(AtomId(i))));
-        }
-    }
-
-    #[test]
-    fn test_get_subexpr_on_short_tuple() {
-        for i in 0..10 {
-            let atomic_expr = Expression::from(vec![Expression::from(AtomId(i))]);
-            assert_eq!(atomic_expr.get_subexpr(1), Err(()));
         }
     }
 }
