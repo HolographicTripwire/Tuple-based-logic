@@ -3,25 +3,25 @@ pub mod error;
 
 use step::ProofStep;
 
-use crate::{inference::Inference, propositions::{Proposition, PropositionSet}};
+use crate::{inference::{Inference, InferenceRules}, propositions::{Proposition, PropositionSet}};
 
 #[derive(Clone)]
-pub struct Proof {
+pub struct Proof<Rules: InferenceRules> {
     premises: Vec<Proposition>,
-    subproofs: Vec<SubProof>,
+    subproofs: Vec<SubProof<Rules>>,
     conclusions: Vec<Proposition>
 }
 
-impl Proof {
+impl <Rules: InferenceRules> Proof<Rules> {
     /// Create a new [Proof] with the given premises, subproofs, and conclusions
-    pub fn new(premises: Vec<Proposition>, subproofs: Vec<SubProof>, conclusions: Vec<Proposition>) -> Self
+    pub fn new(premises: Vec<Proposition>, subproofs: Vec<SubProof<Rules>>, conclusions: Vec<Proposition>) -> Self
         { Self { premises, subproofs, conclusions } }
 
     // Getters and setters
     /// Get the premises of this [Proof]
     pub fn premises(&self) -> &Vec<Proposition> { &self.premises }
     /// Get the subproofs within this [Proof]
-    pub fn subproofs(&self) -> &Vec<SubProof> { &self.subproofs }
+    pub fn subproofs(&self) -> &Vec<SubProof<Rules>> { &self.subproofs }
     /// Get the conclusions of this [Proof]
     pub fn conclusions(&self) -> &Vec<Proposition> { &self.conclusions }
 
@@ -33,7 +33,7 @@ impl Proof {
     }
 
     /// Get the [SubProof] within this [Proof] at a particular proof step, if there is one
-    pub fn subproof_at(&self, mut step: ProofStep) -> Result<&SubProof,()> {
+    pub fn subproof_at(&self, mut step: ProofStep) -> Result<&SubProof<Rules>,()> {
         let Some(incremental_step) = step.pop() else { return Err(()) };
         let Some(subproof) = self.subproofs.get(incremental_step) else { return Err(()) };
         subproof.subproof_at(step)
@@ -42,12 +42,12 @@ impl Proof {
 
 /// This struct represents a step within a larger proof
 #[derive(Clone)]
-pub enum SubProof {
-    Atomic(Inference), // A single inference step
-    Composite(Proof)   // A composite proof made of further subproofs
+pub enum SubProof<Rules: InferenceRules> {
+    Atomic(Inference<Rules>), // A single inference step
+    Composite(Proof<Rules>)   // A composite proof made of further subproofs
 }
 
-impl SubProof {
+impl <Rules: InferenceRules> SubProof<Rules> {
     /// Get the premises of this [SubProof]
     pub fn premises(&self) -> &Vec<Proposition> { match self {
             SubProof::Atomic(proof_step) => &proof_step.assumptions,
@@ -67,7 +67,7 @@ impl SubProof {
     }}
 
     /// Get the [SubProof] within this [SubProof] at a particular proof step, if there is one
-    pub fn subproof_at(&self, step: ProofStep) -> Result<&SubProof,()> {
+    pub fn subproof_at(&self, step: ProofStep) -> Result<&SubProof<Rules>,()> {
         if step.0.is_empty() { Ok(self) }
         else { match self {
             SubProof::Atomic(_) => Err(()),
