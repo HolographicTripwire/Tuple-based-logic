@@ -1,61 +1,41 @@
+pub mod assertions;
+pub mod error;
 mod deduction;
 mod verbatim;
 
 use deduction::*;
 use verbatim::*;
 
-use tbl_structures::{inference::{Inference, InferenceRule}, proof::{error::ErrorInProof, Proof, SubProof}, propositions::{Proposition,tuple_or_error::TupleOrError}};
+use tbl_structures::inference::Inference;
 
-use crate::ProofValidationError;
-
-pub (self) const TUPLE_OR_ERROR: TupleOrError<ProofValidationError> = TupleOrError{ error: ProofValidationError::InvalidStepSpecification };
+use crate::{inference_rules::error::{ProofStepSpecificationError, VerifiableInferenceRule}};
 
 /// A function that checks if a Proof step is valid, and if not returns an error of type E
-trait ProofStepVerifier: Fn(&[Proposition], &[Proposition]) -> Result<(),ProofValidationError> {}
-impl <F: Fn(&[Proposition], &[Proposition]) -> Result<(),ProofValidationError>> ProofStepVerifier for F {}
+trait InferenceVerifier<Rule: VerifiableInferenceRule>: Fn(&Inference<Rule>) -> Result<(),ProofStepSpecificationError> {}
+impl <Rule: VerifiableInferenceRule, F: Fn(&Inference<Rule>) -> Result<(),ProofStepSpecificationError>> InferenceVerifier<Rule> for F {}
 
-
-
-/// Check if all deduction rules in the proof are correct
-pub fn verify_proof_rules(proof: &Proof) -> Result<(),ErrorInProof<ProofValidationError>> {
-    // Iterate through all steps in the proof
-    for (i, subproof) in proof.subproofs().iter().enumerate() {
-        match subproof { 
-            SubProof::Atomic(proof_step) => {
-                // Verify that an atomic proof represents a step that correctly applies our production rules
-                match verify_rules_in_proof_step(proof_step) {
-                    Ok(()) => Ok(()),
-                    Err(err) => Err(ErrorInProof::<ProofValidationError>::at_substep( i,err)),
-                }},
-            SubProof::Composite(proof) => {
-                // Verify that a composite proof is valid
-                match verify_proof_rules(proof) {
-                    Ok(()) => Ok(()),
-                    Err(mut located_err) => {
-                        located_err.push_step(i);
-                        Err(located_err)
-                    },
-                }},
-        }?
-    }
-    Ok(())
+#[derive(Clone)]
+pub enum StandardInferenceRule {
+    // Deduction rules
+    ConjunctionIntroduction,
+    ImplicationElimination,
+    UniversalSubstitution,
+    // Verbatim rules
+    AtomicityAssertion,
+    AtomDifferentiation,
+    TupleAppendation,
 }
-
-pub fn verify_rules_in_proof_step(step: &Inference) -> Result<(),ProofValidationError> {
-    let verifier = get_proof_step_verifier_by_type(&step.inference_type);
-    verifier(&step.assumptions, &step.conclusions)
-}
-
-/// Get the verifier for a particular inference rule
-fn get_proof_step_verifier_by_type(step_type: &InferenceRule) -> impl ProofStepVerifier {
-    match step_type {
-        // Deduction rules
-        InferenceRule::ConjunctionIntroduction => verify_conjunction_introduction,
-        InferenceRule::ImplicationElimination => verify_implication_elimination,
-        InferenceRule::UniversalSubstitution => verify_universal_substitution,
-        // Verbatim rules
-        InferenceRule::AtomicityAssertion => verify_atomicity_assertion,
-        InferenceRule::AtomDifferentiation => verify_atom_differentiation,
-        InferenceRule::TupleAppendation => verify_tuple_appendation,
+impl VerifiableInferenceRule for StandardInferenceRule {
+    fn get_verifier(rule: &Self) -> impl InferenceVerifier<Self> {
+        match rule {
+            // Deduction rules
+            StandardInferenceRule::ConjunctionIntroduction => verify_conjunction_introduction,
+            StandardInferenceRule::ImplicationElimination => verify_implication_elimination,
+            StandardInferenceRule::UniversalSubstitution => verify_universal_substitution,
+            // Verbatim rules
+            StandardInferenceRule::AtomicityAssertion => verify_atomicity_assertion,
+            StandardInferenceRule::AtomDifferentiation => verify_atom_differentiation,
+            StandardInferenceRule::TupleAppendation => verify_tuple_appendation,
+        }
     }
 }
