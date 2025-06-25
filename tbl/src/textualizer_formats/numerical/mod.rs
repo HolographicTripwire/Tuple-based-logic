@@ -44,7 +44,7 @@ mod tests {
         let expression = CONVERSIONS.get(str).unwrap();
         // Test destringification
         let parser = expression_parser(EXPRESSION_STYLE.clone());
-        let str_as_expression = parser.parse(str.chars());
+        let str_as_expression = parser.parse_unambiguous(str.chars());
         assert_eq!(Ok(expression.clone()),str_as_expression);
     }
 
@@ -64,7 +64,7 @@ mod tests {
         let expression = CONVERSIONS.get(str).unwrap();
         // Test destringification
         let parser = expression_parser(EXPRESSION_STYLE.clone());
-        let str_as_expression = parser.parse(str.chars());
+        let str_as_expression = parser.parse_unambiguous(str.chars());
         assert_eq!(Ok(expression.clone()),str_as_expression);
     }
 
@@ -84,7 +84,7 @@ mod tests {
         let expression = CONVERSIONS.get(str).unwrap();
         // Test destringification
         let parser = expression_parser(EXPRESSION_STYLE.clone());
-        let str_as_expression = parser.parse(str.chars());
+        let str_as_expression = parser.parse_unambiguous(str.chars());
         assert_eq!(Ok(expression.clone()),str_as_expression);
     }
 
@@ -104,7 +104,7 @@ mod tests {
         let expression = CONVERSIONS.get(str).unwrap();
         // Test destringification
         let parser = expression_parser(EXPRESSION_STYLE.clone());
-        let str_as_expression = parser.parse(str.chars());
+        let str_as_expression = parser.parse_unambiguous(str.chars());
         assert_eq!(Ok(expression.clone()),str_as_expression);
     }
 }

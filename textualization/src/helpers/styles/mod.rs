@@ -1,6 +1,6 @@
 use std::{fmt::{Debug, Display}, hash::Hash};
 
-use parsertools::parsers::Parser;
+use parsertools::Parser;
 
 pub trait Style<Sb: Stylable>: Sized + Clone {
     type ParseParams;

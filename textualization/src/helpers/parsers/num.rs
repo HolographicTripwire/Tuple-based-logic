@@ -1,4 +1,4 @@
-use parsertools::parsers::{tokens::pred, transformers::series, Parser};
+use parsertools::{tokens::pred, transformers::series, Parser};
 
 pub fn num_parser<'a>() -> Parser<'a, char, usize> {
     series(digit_parser_inner())

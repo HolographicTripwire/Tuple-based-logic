@@ -1,6 +1,6 @@
 use std::collections::HashSet;
 
-use parsertools::parsers::Parser;
+use parsertools::Parser;
 use tbl_structures::atoms::AtomId;
 
 use crate::helpers::{parsers::{num_parser, string_parser}, styles::Style};

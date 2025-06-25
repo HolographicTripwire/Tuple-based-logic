@@ -1,7 +1,7 @@
 
 use std::collections::HashSet;
 
-use parsertools::parsers::{helpers::lazy, Parser};
+use parsertools::{helpers::lazy, Parser};
 use tbl_structures::propositions::Expression;
 
 use crate::{helpers::{parsers::string_parser, styles::Style},structures::atoms::AtomStyle};

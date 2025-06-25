@@ -1,9 +1,10 @@
 use hashable::HashableHashSet;
-use parsertools::parsers::{transformers::conjoin, Parser};
+use parsertools::{transformers::conjoin, Parser};
 
-use crate::structures::expressions::patterns::components::{pattern_component_parser, ExprPatternAssignment, ExprPatternComponent};
+use crate::structures::expressions::patterns::{assignments::{pattern_assignment_parser, ExprPatternAssignment}, components::ExprPatternComponent};
 
 pub mod components;
+pub mod assignments;
 pub mod parser;
 pub mod special_case;
 
@@ -55,7 +56,7 @@ impl ExprPatternAssignments {
 
 fn expr_pattern_matcher<'a>(pattern: ExprPattern) -> Parser<'a, char, ExprPatternAssignments> {
     let components = pattern.components.into_iter()
-        .map(|component| pattern_component_parser(component));
+        .map(|component| pattern_assignment_parser(component));
     conjoin(components).map(|assignments| ExprPatternAssignments::new(assignments))
 }
 
@@ -63,7 +64,7 @@ fn expr_pattern_matcher<'a>(pattern: ExprPattern) -> Parser<'a, char, ExprPatter
 mod tests {
     use std::collections::HashSet;
 
-    use crate::{structures::expressions::patterns::parser::{expr_pattern_parser}, test_helpers::{parse_all_str, parse_str}};
+    use crate::{helpers::styles::Style, test_helpers::{parse_all_str, parse_str}};
 
     use super::*;
 
@@ -134,8 +135,8 @@ mod tests {
 
     fn pre_test_matcher(pattern_str: &str, match_str: &str, assignments_vec: Vec<(Vec<(&str,&str)>,Vec<(&str,&str,Vec<&str>)>)>) -> (HashSet<ExprPatternAssignments>,HashSet<ExprPatternAssignments>) {
         let style = parser::TEST_PATTERN_STYLE;
-        let blacklist = parser::TEST_BLACKLIST;
-        let parser = expr_pattern_parser(&style, &blacklist);
+        let blacklist = parser::TEST_BLACKLIST.clone();
+        let parser = style.parser(blacklist);
         let pattern = parse_str(parser,pattern_str).unwrap();
         let assignments = parse_all_str(expr_pattern_matcher(pattern), match_str);
         

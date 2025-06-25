@@ -34,3 +34,4 @@ impl <Rules: InferenceRule> Inference<Rules> {
 }
 
 pub trait InferenceRule: Clone {}
+impl <T: Clone> InferenceRule for T {}

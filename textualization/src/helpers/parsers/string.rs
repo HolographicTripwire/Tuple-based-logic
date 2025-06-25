@@ -1,4 +1,4 @@
-use parsertools::parsers::{tokens::{pred, tok}, transformers::{conjoin, series}, Parser};
+use parsertools::{tokens::{pred, tok}, transformers::{conjoin, series}, Parser};
 
 pub fn string_parser<'a>(input: &str) -> Result<Parser<'a, char, String>,()> {
     if input.len() == 0 { return Err(()) }
