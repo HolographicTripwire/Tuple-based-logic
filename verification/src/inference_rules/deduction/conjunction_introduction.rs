@@ -1,24 +1,19 @@
-use tbl_structures::{atoms::BuiltInAtom, propositions::Proposition};
+use tbl_structures::{atoms::BuiltInAtom, inference::Inference};
 
-use crate::{inference_rules::TUPLE_OR_ERROR, ProofValidationError};
+use crate::inference_rules::{error::ProofStepSpecificationError, StandardInferenceRule};
+use crate::assertions::*;
 
 /// Verify that the assumptions and the conclusion form a valid instance of conjunction introduction ("a" and "b" entails "a and b")
-pub fn verify_conjunction_introduction(assumptions: &[Proposition], conclusions: &[Proposition]) -> Result<(),ProofValidationError> {
+pub fn verify_conjunction_introduction(inference: &Inference<StandardInferenceRule>) -> Result<(),ProofStepSpecificationError> {
     // Throw an error if there is not exactly one conclusion
-    let [conclusion] = conclusions else { return Err(ProofValidationError::InvalidStepSpecification) };
-    // Throw an error if there are not two assumptions
-    let [assumption_left, assumption_right] = assumptions else { return Err(ProofValidationError::InvalidStepSpecification) };
-
+    let [conclusion] = &*conclusions_as_sized_slice(inference)?;
+    // Throw an error if there are not exactly two assumptions
+    let [assumption_left, assumption_right] = &*assumptions_as_sized_slice(inference)?;
     // Throw an error if there are not three expressions in the conclusion
-    let [conjunction_head, conjunction_left, conjunction_right] = TUPLE_OR_ERROR.as_slice(conclusion)? else { return Err(ProofValidationError::InvalidStepSpecification) };
-
-    // Throw an error if the head of the conjunction is incorrect
-    if conjunction_head != &BuiltInAtom::Conjunction.into() { return Err(ProofValidationError::InvalidStepSpecification) }
-    // Throw an error if the left half of the conjunction is incorrect
-    if conjunction_left != assumption_left { return Err(ProofValidationError::InvalidStepSpecification) }
-    // Throw an error if the right half of the conjunction is incorrect
-    if conjunction_right != assumption_right { return Err(ProofValidationError::InvalidStepSpecification) }
-    
-    // If none of the errors were triggered, then this step was successfully verified
-    return Ok(())
+    let [conjunction_head, conjunction_left, conjunction_right] = &*expression_as_sized_slice(conclusion)?; 
+    // Throw errors if the values of the inference components are incorrect
+    assert_expression_value(conjunction_head, &BuiltInAtom::Conjunction.into())?;
+    assert_value_match(assumption_left,conjunction_left)?;
+    assert_value_match(assumption_right,conjunction_right)?;
+    Ok(())
 }
