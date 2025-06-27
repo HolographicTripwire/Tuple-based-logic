@@ -16,10 +16,13 @@ pub fn conclusions_as_sized_slice<'a, const expected_size: usize, Rule: Inferenc
     )
 }
 
+pub fn expression_as_slice<'a>(expression: &'a SubexpressionInInference) -> Result<Box<[SubexpressionInInference<'a>]>,ProofStepSpecificationError> {
+    if let Ok(subexpressions) = expression.subexpressions() { Ok(Box::from(subexpressions)) }
+    else { Err(ProofStepSpecificationError::WrongAtomicity(expression.path().clone(), false)) }
+}
+
 pub fn expression_as_sized_slice<'a, const expected_size: usize>(expression: &'a SubexpressionInInference) -> Result<Box<[SubexpressionInInference<'a>; expected_size]>,ProofStepSpecificationError> {
-    let error = ProofStepSpecificationError::WrongLength(expression.path().clone(), expected_size);
-    let Ok(subexpressions) = expression.subexpressions() else { return Err(error) };
-    expressions_as_sized_slice::<expected_size>(subexpressions,error)
+    expressions_as_sized_slice::<expected_size>(expression_as_slice(expression)?.to_vec(),ProofStepSpecificationError::WrongLength(expression.path().clone(), expected_size))
 }
 pub fn expressions_as_sized_slice<'a, const expected_size: usize>(expressions: Vec<SubexpressionInInference<'a>>, err: ProofStepSpecificationError) -> Result<Box<[SubexpressionInInference<'a>; expected_size]>,ProofStepSpecificationError> {
     let result: Result<&[SubexpressionInInference<'a>; expected_size],_> = expressions.as_slice().try_into();
@@ -34,6 +37,12 @@ pub fn assert_expression_value<'a,'b>(expression: &SubexpressionInInference<'a>,
     if expression.expression() == check { Ok(()) }
     else { Err(ProofStepSpecificationError::WrongValue(expression.path().clone(), check.clone())) }
 }
+
+pub fn assert_expression_atomicity<'a,'b>(expression: &SubexpressionInInference<'a>, should_be_atomic: bool) -> Result<(),ProofStepSpecificationError> {
+    if expression.expression().as_atom().is_ok() == should_be_atomic { Ok(()) }
+    else { Err(ProofStepSpecificationError::WrongAtomicity(expression.path().clone(), should_be_atomic)) }
+}
+
 
 pub fn assert_length_match(a: &SubexpressionInInference, b: &SubexpressionInInference) -> Result<(),ProofStepSpecificationError> {
     let error = Err(ProofStepSpecificationError::MismatchedLengths(a.path().clone(), b.path().clone()));

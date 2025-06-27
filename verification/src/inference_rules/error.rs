@@ -6,6 +6,7 @@ use crate::{inference_rules::InferenceVerifier, validation_error::ProofValidatio
 pub enum ProofStepSpecificationError {
     WrongAssumptionCount(usize),
     WrongConclusionCount(usize),
+    WrongAtomicity(InferenceSubexpressionPath,bool),
     WrongLength(InferenceSubexpressionPath,usize),
     WrongValue(InferenceSubexpressionPath,Expression),
     MismatchedLengths(InferenceSubexpressionPath,InferenceSubexpressionPath),
