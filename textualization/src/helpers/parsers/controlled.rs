@@ -1,6 +1,6 @@
 use std::collections::HashSet;
 
-use parsertools::parsers::{results::ParseError, transformers::{alternating, disjunction, series}, Parser};
+use parsertools::{results::ParseError, transformers::{alternating, disjunction, series}, Parser};
 
 use crate::helpers::parsers::{string_parser, word_parser};
 
@@ -18,22 +18,22 @@ impl ControlStrings {
     pub fn non_escape_controls(&self) -> &HashSet<String> { &self.others }
 }
 
-pub fn control_parser<'a>(controls: &'a ControlStrings) -> Parser<'a,char,String>
+pub fn control_parser<'a>(controls: &ControlStrings) -> Parser<'a,char,String>
     { escape_control_parser(controls).or(other_control_parser(controls)) }
-pub fn escape_control_parser<'a>(controls: &'a ControlStrings) -> Parser<'a, char,String>
+pub fn escape_control_parser<'a>(controls: &ControlStrings) -> Parser<'a, char,String>
     { string_parser(controls.escape_control()).unwrap() }
-pub fn other_control_parser<'a>(controls: &'a ControlStrings) -> Parser<'a,char,String>
+pub fn other_control_parser<'a>(controls: &ControlStrings) -> Parser<'a,char,String>
     { disjunction(controls.non_escape_controls().iter().map(|s| string_parser(s).unwrap())) }
 
-pub fn controlled_word_parser<'a>(controls: &'a ControlStrings) -> Parser<'a,char,String> {
+pub fn controlled_word_parser<'a>(controls: ControlStrings) -> Parser<'a,char,String> {
     let word_not_containing_control = word_not_containing_parser(controls.controls());
     let series_of_escaped_controls = series(escaped_control_parser(controls)).map(|vec| vec.concat());
     alternating(word_not_containing_control, series_of_escaped_controls).map(|strings| strings.concat())
 }
 
-fn escaped_control_parser<'a>(controls: &'a ControlStrings) -> Parser<'a,char,String> {
-    escape_control_parser(controls)
-        .then(escape_control_parser(controls).or(other_control_parser(controls)))
+fn escaped_control_parser<'a>(controls: ControlStrings) -> Parser<'a,char,String> {
+    escape_control_parser(&controls)
+        .then(escape_control_parser(&controls).or(other_control_parser(&controls)))
         .map(|(_,s)| s)
 }
 
@@ -74,45 +74,45 @@ mod tests {
 
     #[test]
     pub fn test_controlled_parser_with_no_controls() {
-        assert_eq!(parse_str(controlled_word_parser(&TEST_CONTROL_STRINGS), "Hello"),Ok("Hello".to_string()))
+        assert_eq!(parse_str(controlled_word_parser(TEST_CONTROL_STRINGS.clone()), "Hello"),Ok("Hello".to_string()))
     }
 
     #[test]
     pub fn test_controlled_parser_with_single_char_control() {
-        let parsed = parse_str(controlled_word_parser(&TEST_CONTROL_STRINGS), "Hel#lo");
+        let parsed = parse_str(controlled_word_parser(TEST_CONTROL_STRINGS.clone()), "Hel#lo");
         assert!(parsed.is_err())
     }
 
     #[test]
     pub fn test_controlled_parser_with_multi_char_control() {
-        let parsed = parse_str(controlled_word_parser(&TEST_CONTROL_STRINGS), "Hel..lo");
+        let parsed = parse_str(controlled_word_parser(TEST_CONTROL_STRINGS.clone()), "Hel..lo");
         assert!(parsed.is_err())
     }
 
     #[test]
     pub fn test_controlled_parser_with_escaped_single_char_control() {
-        assert_eq!(parse_str(controlled_word_parser(&TEST_CONTROL_STRINGS), "Hel\\#lo"),Ok("Hel#lo".to_string()))
+        assert_eq!(parse_str(controlled_word_parser(TEST_CONTROL_STRINGS.clone()), "Hel\\#lo"),Ok("Hel#lo".to_string()))
     }
 
     #[test]
     pub fn test_controlled_parser_with_escaped_multi_char_control() {
-        assert_eq!(parse_str(controlled_word_parser(&TEST_CONTROL_STRINGS), "Hel\\..lo"),Ok("Hel..lo".to_string()))
+        assert_eq!(parse_str(controlled_word_parser(TEST_CONTROL_STRINGS.clone()), "Hel\\..lo"),Ok("Hel..lo".to_string()))
     }
 
     #[test]
     pub fn test_controlled_parser_with_single_escape() {
-        let parsed = parse_str(controlled_word_parser(&TEST_CONTROL_STRINGS), r#"Hel\lo"#);
+        let parsed = parse_str(controlled_word_parser(TEST_CONTROL_STRINGS.clone()), r#"Hel\lo"#);
         assert!(parsed.is_err())
     }
 
     #[test]
     pub fn test_controlled_parser_with_double_escape() {
-        assert_eq!(parse_str(controlled_word_parser(&TEST_CONTROL_STRINGS), r#"Hel\\lo"#),Ok(r#"Hel\lo"#.to_string()))
+        assert_eq!(parse_str(controlled_word_parser(TEST_CONTROL_STRINGS.clone()), r#"Hel\\lo"#),Ok(r#"Hel\lo"#.to_string()))
     }
 
     #[test]
     pub fn test_controlled_parser_with_triple_escape() {
-        let parsed = parse_str(controlled_word_parser(&TEST_CONTROL_STRINGS), r#"Hel\\\lo"#);
+        let parsed = parse_str(controlled_word_parser(TEST_CONTROL_STRINGS.clone()), r#"Hel\\\lo"#);
         assert!(parsed.is_err())
     }
 }
