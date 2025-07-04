@@ -1,54 +1,54 @@
-use tbl_structures::{propositions::Proposition,proof::{error::ErrorInProof, Proof, SubProof}};
+use tbl_structures::{inference::InferenceRule, proof::{error::ErrorInProof, CompositeProof, Proof}, propositions::Proposition};
 
-pub trait ProofGenerator<G: ProofGenerator<G>>: Clone {
-    fn generate(&self, conclusions: &[Proposition]) -> Result<SubProofPromise<G>,ProofGenerationError>;
+pub trait ProofGenerator<Rule: InferenceRule, G: ProofGenerator<Rule, G>>: Clone {
+    fn generate(&self, conclusions: &[Proposition]) -> Result<ProofPromise<Rule,G>,ProofGenerationError>;
 }
 
 #[derive(Clone)]
-pub struct ProofPromise<G: ProofGenerator<G>> {
+pub enum ProofPromise<Rule: InferenceRule, G: ProofGenerator<Rule,G>> {
+    Resolved(Proof<Rule>),
+    Composite(CompositeProofPromise<Rule,G>),
+    Generator(G,Vec<Proposition>)
+}
+
+impl <Rule: InferenceRule, G: ProofGenerator<Rule,G>> ProofPromise<Rule,G> {
+    pub fn resolve_once(&self) -> Result<ProofPromise<Rule,G>,ProofGenerationError> {
+        Ok(match self {
+            ProofPromise::Resolved(_) | ProofPromise::Composite(_) => self.clone(),
+            ProofPromise::Generator(generator, conclusions) => generator.generate(conclusions)?,
+        })
+    }
+
+    pub fn resolve(&self) -> Result<Proof<Rule>,ProofGenerationError> {
+        Ok(match self {
+            ProofPromise::Resolved(sub_proof) => sub_proof.clone(),
+            ProofPromise::Composite(proof_promise) => Proof::Composite(proof_promise.resolve()?),
+            ProofPromise::Generator(generator, conclusions) => generator.generate(conclusions)?.resolve()?,
+        })
+    }
+}
+
+#[derive(Clone)]
+pub struct CompositeProofPromise<Rule: InferenceRule, G: ProofGenerator<Rule,G>> {
     pub premises: Vec<Proposition>,
-    pub subproofs: Vec<SubProofPromise<G>>,
+    pub subproofs: Vec<ProofPromise<Rule,G>>,
     pub conclusions: Vec<Proposition>
 }
 
-impl <G: ProofGenerator<G>> ProofPromise<G> {
-    pub fn resolve_once(&self) -> Result<ProofPromise<G>,ErrorInProof<ProofGenerationError>> {
+impl <Rule: InferenceRule, G: ProofGenerator<Rule,G>> CompositeProofPromise<Rule,G> {
+    pub fn resolve_once(&self) -> Result<CompositeProofPromise<Rule,G>,ErrorInProof<ProofGenerationError>> {
         let mut subproofs = Vec::new();
         for (i, proof) in self.subproofs.iter().enumerate() { match proof.resolve_once() {
             Ok(subproof) => subproofs.push(subproof),
             Err(err) => return Err(ErrorInProof::at_substep(i, err)),
         }}
-        Ok(ProofPromise { premises: self.premises.clone(), subproofs, conclusions: self.conclusions.clone() })
+        Ok(CompositeProofPromise { premises: self.premises.clone(), subproofs, conclusions: self.conclusions.clone() })
     }
 
-    pub fn resolve(&self) -> Result<Proof,ProofGenerationError> {
+    pub fn resolve(&self) -> Result<CompositeProof<Rule>,ProofGenerationError> {
         let mut subproofs = Vec::new();
         for proof in &self.subproofs { subproofs.push(proof.resolve()?) }
-        Ok(Proof::new(self.premises.clone(), subproofs, self.conclusions.clone()))
-    }
-}
-
-#[derive(Clone)]
-pub enum SubProofPromise<G: ProofGenerator<G>> {
-    Resolved(SubProof),
-    Composite(ProofPromise<G>),
-    Generator(G,Vec<Proposition>)
-}
-
-impl <G: ProofGenerator<G>> SubProofPromise<G> {
-    pub fn resolve_once(&self) -> Result<SubProofPromise<G>,ProofGenerationError> {
-        Ok(match self {
-            SubProofPromise::Resolved(_) | SubProofPromise::Composite(_) => self.clone(),
-            SubProofPromise::Generator(generator, conclusions) => generator.generate(conclusions)?,
-        })
-    }
-
-    pub fn resolve(&self) -> Result<SubProof,ProofGenerationError> {
-        Ok(match self {
-            SubProofPromise::Resolved(sub_proof) => sub_proof.clone(),
-            SubProofPromise::Composite(proof_promise) => SubProof::Composite(proof_promise.resolve()?),
-            SubProofPromise::Generator(generator, conclusions) => generator.generate(conclusions)?.resolve()?,
-        })
+        Ok(CompositeProof::new(self.premises.clone(), subproofs, self.conclusions.clone()))
     }
 }
 
