@@ -1,8 +1,8 @@
 use std::marker::PhantomData;
 
-use path_lib::{paths::{PathPair, PathPrimitive}, HasChildren};
+use path_lib::{paths::{PathPair, PathPrimitive}, AtPath, HasChildren};
 
-use crate::{inference::{Inference, InferenceRule}, propositions::{Proposition, SubexpressionPath}};
+use crate::{inference::{Inference, InferenceRule}, propositions::{Expression, Proposition, SubexpressionPath}};
 
 #[derive(Clone)]
 pub struct InferencePropositionPath<Rule: InferenceRule> {
@@ -28,6 +28,8 @@ impl <'a, Rule: 'a + InferenceRule> HasChildren<'a,InferencePropositionPath<Rule
     }
 }
 
+pub type PropositionInInference<'a,Rule> = AtPath<'a,InferencePropositionPath<Rule>,Proposition>;
+
 #[derive(Clone)]
 pub struct InferenceSubexpressionPath<Rule: InferenceRule>(InferencePropositionPath<Rule>,SubexpressionPath);
 impl <Rule: InferenceRule> InferenceSubexpressionPath<Rule> {
@@ -44,3 +46,5 @@ impl <Rule: InferenceRule> Into<PathPair<InferencePropositionPath<Rule>,Subexpre
 impl <Rule: InferenceRule, IL: Into<InferencePropositionPath<Rule>>, IR: Into<SubexpressionPath>> From<(IL,IR)> for InferenceSubexpressionPath<Rule> {
     fn from(value: (IL,IR)) -> Self { Self(value.0.into(),value.1.into()) }
 }
+
+pub type SubexpressionInInference<'a,Rule> = AtPath<'a,InferenceSubexpressionPath<Rule>,Expression>;

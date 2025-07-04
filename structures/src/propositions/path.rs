@@ -1,5 +1,5 @@
 
-use path_lib::{paths::{PathPrimitive, PathSeries}, HasChildren};
+use path_lib::{paths::{PathPrimitive, PathSeries}, AtPath, HasChildren};
 
 use crate::propositions::Expression;
 
@@ -22,6 +22,9 @@ impl <'a> HasChildren<'a,AtomicSubexpressionPath,Expression> for Expression {
         self.as_vec()?.get(path.0).ok_or(())
     }
 }
+
+pub type SubexpressionInExpression<'a> = AtPath<'a,Expression,Expression>;
+
 
 #[cfg(test)]
 mod tests {
