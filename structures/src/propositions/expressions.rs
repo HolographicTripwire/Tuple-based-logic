@@ -12,15 +12,15 @@ pub enum Expression {
 impl Expression {
     // If this expression is an Atom, get its id. Otherwise throw an error
     pub fn as_atom(&self) -> Result<AtomId,()> {
-        match &self {
+        match self {
             Expression::Atomic(entity_id) => Ok(*entity_id),
             Expression::Tuple(_) => Err(()),
         }
     }
 
     /// If this expression is a Tuple, get its expressions. Otherwise throw an error 
-    pub fn as_vec(&self) -> Result<&Vec<Expression>,()> { 
-        match &self {
+    pub fn as_vec<'a>(&'a self) -> Result<&'a Vec<Expression>,()> { 
+        match self {
             Expression::Atomic(_) => Err(()),
             Expression::Tuple(proposition_exprs) => Ok(proposition_exprs),
         }
@@ -28,7 +28,7 @@ impl Expression {
 
     /// If this expression is a Tuple, get its subexpressions. Otherwise throw an error 
     pub fn as_slice(&self) -> Result<&[Expression], ()> {
-        match &self {
+        match self {
             Expression::Atomic(_) => Err(()),
             Expression::Tuple(proposition_exprs) => Ok(proposition_exprs.as_slice()),
         }

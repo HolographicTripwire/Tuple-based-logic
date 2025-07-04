@@ -1,55 +1,24 @@
-use crate::{inference::{Inference, InferenceRule}, propositions::{Expression, SubexpressionPath}};
+use std::marker::PhantomData;
+
+use path_lib::{paths::{PathPair, PathPrimitive}, HasChildren};
+
+use crate::{inference::{Inference, InferenceRule}, propositions::{Proposition, SubexpressionPath}};
 
 #[derive(Clone)]
-pub struct InferenceSubexpressionPath {
-    pub is_conclusion: bool,
-    pub proposition_index: usize,
-    pub subexpression_path: SubexpressionPath
+pub struct InferencePropositionPath<Rule: InferenceRule> {
+    is_conclusion: bool,
+    proposition_index: usize,
+    phantom: PhantomData<Rule>
 }
-impl InferenceSubexpressionPath {
-    pub fn new(is_conclusion: bool, expression_index: usize, subexpression_path: impl Into<SubexpressionPath>) -> Self
-        { Self {is_conclusion, proposition_index: expression_index, subexpression_path: subexpression_path.into()} }
-    
-    pub fn assumption(assumption_index: usize, assumption_subpath: impl Into<SubexpressionPath>) -> Self
-        { Self::new(false,assumption_index,assumption_subpath.into()) }
-    pub fn conclusion(conclusion_index: usize, conclusion_subpath: impl Into<SubexpressionPath>) -> Self
-        { Self::new(true, conclusion_index, conclusion_subpath.into()) }
+impl <Rule: InferenceRule> PathPrimitive for InferencePropositionPath<Rule> {}
 
-    pub fn join<'a>(&self, subpath: impl Into<&'a SubexpressionPath>) -> Self {
-        Self {
-            is_conclusion: self.is_conclusion,
-            proposition_index: self.proposition_index,
-            subexpression_path: self.subexpression_path.join(subpath)
-        }
-    }
-}
-
-#[derive(Clone)]
-pub struct SubexpressionInInference<'a> {
-    expression: &'a Expression,
-    path: InferenceSubexpressionPath
-}
-impl <'a> SubexpressionInInference<'a> {
-    pub fn new<Rule: InferenceRule>(inference: &'a Inference<Rule>, path: InferenceSubexpressionPath) -> Result<Self,()> {
-        let expression = inference.get_subexpression(&path)?;
-        Ok(Self { expression, path })
+impl <'a, Rule: 'a + InferenceRule> HasChildren<'a,InferencePropositionPath<Rule>, Proposition> for Inference<Rule> {
+    fn children(&'a self) -> impl IntoIterator<Item = &'a Proposition> {
+        self.assumptions.iter().chain(self.conclusions.iter())
     }
 
-    pub fn expression(&self) -> &'a Expression { self.expression }
-    pub fn path(&self) -> &InferenceSubexpressionPath { &self.path }
-
-    pub fn join<'b>(&self, subpath: impl Into<&'b SubexpressionPath>) -> Result<Self,()> {
-        let subpath = subpath.into();
-        Ok(Self {
-            expression: self.expression.get_subexpression(subpath)?,
-            path: self.path.join(subpath)
-        })
-    }
-
-    pub fn subexpressions(&self) -> Result<Vec<SubexpressionInInference>,()> {
-        let vec = self.expression.as_vec()?;
-        Ok((0..vec.len())
-            .map(|index| self.join(&vec![index].into()).expect(&format!("Conclusion {index} not found")))
-            .collect::<Vec<SubexpressionInInference>>())
+    fn get_child(&'a self, path: &InferencePropositionPath<Rule>) -> Result<&'a Proposition,()> {
+        let propositions = if path.is_conclusion { &self.assumptions } else { &self.conclusions };
+        propositions.get(path.proposition_index).ok_or(())
     }
 }
