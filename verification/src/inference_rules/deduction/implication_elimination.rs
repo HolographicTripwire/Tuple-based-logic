@@ -8,7 +8,7 @@ use crate::assertions::*;
 pub fn verify_implication_elimination(inference: &Inference<StandardInferenceRule>) -> Result<(), ProofStepSpecificationError> {
     // Throw an error if there is not exactly one conclusion
     let [conclusion] = &*conclusions_as_sized_slice(inference)?;
-    // Throw an error if there are not two assumptions
+    // Throw an error if there are not exactly two assumptions
     let [prior, implication] = &*assumptions_as_sized_slice(inference)?;
     // Throw an error if the implication does not contain three expressions
     let [implication_head, antecedent, consequent] = &*expression_as_sized_slice(implication)?;
