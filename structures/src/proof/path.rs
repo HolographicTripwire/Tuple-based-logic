@@ -2,7 +2,7 @@ use path_lib::{paths::{PathPrimitive, PathSeries}, HasChildren};
 
 use crate::{inference::InferenceRule, proof::Proof};
 
-#[derive(Clone)]
+#[derive(Clone,PartialEq,Eq,Debug)]
 /// Identifies a particular step iwthin a [`Proof`], and can be given to such a [`Proof`] to retreive the [`SubProof`] at that step
 pub struct AtomicSubproofPath(usize);
 impl PathPrimitive for AtomicSubproofPath {}

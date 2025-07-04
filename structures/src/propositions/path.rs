@@ -6,17 +6,16 @@ use crate::propositions::Expression;
 #[derive(Clone)]
 pub struct AtomicSubexpressionPath(usize);
 impl PathPrimitive for AtomicSubexpressionPath {}
-impl Into<AtomicSubexpressionPath> for usize {
-    fn into(self) -> AtomicSubexpressionPath { AtomicSubexpressionPath(self) }
+impl From<usize> for AtomicSubexpressionPath {
+    fn from(value: usize) -> Self { Self(value) }
 }
 pub type SubexpressionPath = PathSeries<AtomicSubexpressionPath>;
 
 impl <'a> HasChildren<'a,AtomicSubexpressionPath,Expression> for Expression {
     fn children(&'a self) -> impl IntoIterator<Item = &'a Expression> {
-        match self.as_vec() {
-            Ok(vec) => vec.iter().collect(),
-            Err(_) => vec![],
-        }
+        if let Ok(vec) = self.as_vec()
+            { vec.iter().collect() }
+        else { vec![] }
     }
 
     fn get_child(&'a self, path: &AtomicSubexpressionPath) -> Result<&'a Expression,()> {

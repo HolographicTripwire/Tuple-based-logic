@@ -1,27 +1,27 @@
-use super::ProofStep;
+use crate::proof::path::{AtomicSubproofPath, SubproofPath};
 
-#[derive(Clone)]
-pub struct ErrorInProof<E: Clone>(ProofStep,E);
+#[derive(Clone,PartialEq,Eq,Debug)]
+pub struct ErrorInProof<E: Clone>(SubproofPath,E);
 
 /// An error that is located at a particular step of a proof
 /// This can even include substeps of substeps
 impl <E: Clone> ErrorInProof<E> {
     /// Create a new error, which is located at the current step of the proof
-    pub fn here(err: E) -> Self { Self(ProofStep::here(),err) }
+    pub fn here(err: E) -> Self { Self(SubproofPath::empty(),err) }
     /// Create a new error, located at a given substep of the current step of the proof.
-    pub fn at_substep(step: usize, err: E) -> Self { Self(ProofStep::at_substep(step),err) }
+    pub fn at_substep(step: usize, err: E) -> Self { Self(SubproofPath::new([step]),err) }
 
     /// Add a new step to this error and return self
     /// This should be used for 
-    pub fn push_step(&mut self, step: usize) -> &Self { self.0.push(step); self }
+    pub fn push_step(&mut self, step: usize) -> &Self { self.0.prepend(step); self }
     /// Add a new step to this error and return self
     /// This should be used for 
-    pub fn pop_step(&mut self) -> Option<usize> { self.0.pop() }
+    pub fn pop_step(&mut self) -> Option<AtomicSubproofPath> { self.0.pop() }
 
     // Getters and setters
     /// Get the location in the proof that this error is located at
     /// For instance, an error at step 1.2.1 would return a Vec containing 1, 2, 1, in that order
-    pub fn location(&self) -> &ProofStep { &self.0 }
+    pub fn location(&self) -> &SubproofPath { &self.0 }
     pub fn err(&self) -> &E { &self.1 }
 }
 
@@ -66,14 +66,14 @@ mod tests {
     #[test]
     fn test_here() {
         let step = ErrorInProof::here(TestError::Error);
-        assert_eq!(step.location().0, vec![]);
+        assert_eq!(step.location().paths(), &vec![]);
         assert_eq!(step.err(), &TestError::Error);
     }
 
     #[test]
     fn test_at_substep() {
         let step = ErrorInProof::at_substep(1,TestError::Error);
-        assert_eq!(step.location().0, vec![1]);
+        assert_eq!(step.location().paths(), &vec![1.into()]);
         assert_eq!(step.err(), &TestError::Error);
     }
 
@@ -81,7 +81,7 @@ mod tests {
     fn test_push() {
         let mut step = ErrorInProof::at_substep(1, TestError::Error);
         step.push_step(2);
-        assert_eq!(step.location().0, vec![2,1]);
+        assert_eq!(step.location().paths(), &vec![2.into(),1.into()]);
         assert_eq!(step.err(), &TestError::Error);
     }
 
@@ -89,7 +89,7 @@ mod tests {
     fn test_pop() {
         let mut step = ErrorInProof::at_substep(1,TestError::Error);
         step.push_step(2);
-        assert_eq!(step.pop_step(), Some(1));
+        assert_eq!(step.pop_step(), Some(1.into()));
         assert_eq!(step.err(), &TestError::Error);
     }
 }

@@ -3,8 +3,6 @@ pub mod error;
 
 use std::collections::HashSet;
 
-use path::AtomicSubproofPath;
-
 use crate::{inference::{Inference, InferenceRule}, propositions::{Proposition}};
 
 /// This struct represents a step within a larger proof
@@ -45,11 +43,11 @@ impl <Rules: InferenceRule> Proof<Rules> {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
+    use crate::proof::path::SubproofPath;    
 
     #[test]
     fn test_getters() {
-        let step = AtomicSubproofPath::here();
-        assert_eq!(step.0, vec![])
+        let step = SubproofPath::empty();
+        assert_eq!(step.paths(), &vec![])
     }
 }
