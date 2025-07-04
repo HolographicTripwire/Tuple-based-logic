@@ -17,7 +17,10 @@ pub struct CompositeProof<Rule: InferenceRule> {
     pub assumptions: Vec<Proposition>,
     pub subproofs: Vec<Proof<Rule>>,
     pub explicit_conclusions: Vec<Proposition>,
-
+}
+impl <Rule: InferenceRule> CompositeProof<Rule> {
+    pub fn new(assumptions: Vec<Proposition>, subproofs: Vec<Proof<Rule>>, explicit_conclusions: Vec<Proposition>) -> Self
+        { Self { assumptions, subproofs, explicit_conclusions } }
 }
 
 impl <Rule: InferenceRule> Proof<Rule> {

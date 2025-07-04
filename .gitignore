@@ -31,3 +31,4 @@ rust-project.json
 _ignore
 # Parsertools is an imported external github repo
 parsertools/
+path_lib/
