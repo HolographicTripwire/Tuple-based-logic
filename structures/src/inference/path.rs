@@ -22,3 +22,12 @@ impl <'a, Rule: 'a + InferenceRule> HasChildren<'a,InferencePropositionPath<Rule
         propositions.get(path.proposition_index).ok_or(())
     }
 }
+
+#[derive(Clone)]
+pub struct InferenceSubexpressionPath<Rule: InferenceRule>(InferencePropositionPath<Rule>,SubexpressionPath);
+impl <Rule: InferenceRule> Into<PathPair<InferencePropositionPath<Rule>,SubexpressionPath>> for InferenceSubexpressionPath<Rule> {
+    fn into(self) -> PathPair<InferencePropositionPath<Rule>,SubexpressionPath> { PathPair::new(self.0,self.1) }
+}
+impl <Rule: InferenceRule> From<(InferencePropositionPath<Rule>,SubexpressionPath)> for InferenceSubexpressionPath<Rule> {
+    fn from(value: (InferencePropositionPath<Rule>,SubexpressionPath)) -> Self { Self(value.0,value.1) }
+}
