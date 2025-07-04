@@ -3,7 +3,25 @@ pub mod error;
 
 use std::collections::HashSet;
 
-use crate::{inference::{Inference, InferenceRule}, propositions::{Proposition}};
+use path_lib::HasChildren;
+
+use crate::{inference::{Inference, InferenceRule}, proof::path::{AtomicSubproofPath}, propositions::Proposition};
+
+pub trait ProofStep<'a, Rule:'a + InferenceRule>: HasChildren<'a,AtomicSubproofPath,Proof<Rule>> {
+    fn assumptions(&self) -> &Vec<Proposition>;
+    fn explicit_conclusions(&self) -> &Vec<Proposition>;
+    
+    fn subproofs(&'a self) -> impl IntoIterator<Item=&'a Proof<Rule>> { self.children() }
+    fn conclusions(&'a self) -> HashSet<&'a Proposition> {
+        self.subproofs().into_iter().fold(HashSet::from_iter(self.explicit_conclusions()), 
+            |mut acc,next| { acc.extend(next.conclusions().iter()); acc }
+        )
+    }
+    fn implicit_conclusions(&'a self) -> HashSet<&'a Proposition> {
+        let explicits = HashSet::from_iter(self.explicit_conclusions());
+        self.conclusions().difference(&explicits).cloned().collect()
+    }
+}
 
 /// This struct represents a step within a larger proof
 #[derive(Clone,PartialEq,Eq,Debug)]
@@ -12,28 +30,14 @@ pub enum Proof<Rule: InferenceRule> {
     Composite(CompositeProof<Rule>) // A composite proof made of further subproofs
 }
 
-impl <Rule: InferenceRule> Proof<Rule> {
-    /// Get the premises of this [Proof]
-    pub fn assumptions(&self) -> &Vec<Proposition> { match self {
-        Proof::Atomic(proof_step) => &proof_step.assumptions,
-        Proof::Composite(composite) => &composite.assumptions,
+impl <'a,Rule: 'a + InferenceRule> ProofStep<'a,Rule> for Proof<Rule> {
+    fn assumptions(&self) -> &Vec<Proposition> { match self {
+        Proof::Atomic(inference) => inference.assumptions(),
+        Proof::Composite(composite) => composite.assumptions(),
     }}
-
-    /// Get the explicit conclusions of this [Proof]
-    pub fn explicit_conclusions(&self) -> &Vec<Proposition> { match self {
-        Proof::Atomic(proof_step) => &proof_step.conclusions,
-        Proof::Composite(composite) => &composite.explicit_conclusions,
-    }}
-
-    /// Get the implicit conclusions of this [Proof]; that is, each [Proposition] which this [Proof] which is proven but not explicitly returned
-    pub fn implicit_conclusions(&self) -> HashSet<&Proposition> {
-        let explicits = HashSet::from_iter(self.explicit_conclusions());
-        self.conclusions().difference(&explicits).cloned().collect()
-    }
-
-    fn conclusions(&self) -> HashSet<&Proposition> { match self {
-        Proof::Atomic(inference) => HashSet::from_iter(inference.conclusions.iter()),
-        Proof::Composite(composite) => { composite.conclusions() },
+    fn explicit_conclusions(&self) -> &Vec<Proposition> { match self {
+        Proof::Atomic(inference) => inference.explicit_conclusions(),
+        Proof::Composite(composite) => composite.explicit_conclusions(),
     }}
 }
 
@@ -46,19 +50,10 @@ pub struct CompositeProof<Rule: InferenceRule> {
 impl <Rule: InferenceRule> CompositeProof<Rule> {
     pub fn new(assumptions: Vec<Proposition>, subproofs: Vec<Proof<Rule>>, explicit_conclusions: Vec<Proposition>) -> Self
         { Self { assumptions, subproofs, explicit_conclusions } }
-
-        pub fn assumptions(&self) -> &Vec<Proposition> { &self.assumptions }
-        pub fn subproofs(&self) -> &Vec<Proof<Rule>> { &self.subproofs }
-        pub fn explicit_conclusions(&self) -> &Vec<Proposition> { &self.explicit_conclusions }
-        pub fn implicit_conclusions(&self) -> HashSet<&Proposition> {
-            let explicits = HashSet::from_iter(self.explicit_conclusions());
-            self.conclusions().difference(&explicits).cloned().collect()
-        }
-        pub fn conclusions(&self) -> HashSet<&Proposition> { 
-            self.subproofs.iter().fold(HashSet::from_iter(&self.explicit_conclusions), 
-            |mut acc,next| { acc.extend(next.conclusions().iter()); acc }
-            )
-        }
+}
+impl <'a,Rule: 'a + InferenceRule> ProofStep<'a,Rule> for CompositeProof<Rule> {
+    fn assumptions(&self) -> &Vec<Proposition> { &self.assumptions }
+    fn explicit_conclusions(&self) -> &Vec<Proposition> { &self.explicit_conclusions }
 }
 
 #[cfg(test)]

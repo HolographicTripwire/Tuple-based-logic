@@ -1,4 +1,4 @@
-use crate::propositions::Proposition;
+use crate::{proof::ProofStep, propositions::Proposition};
 
 pub mod path;
 
@@ -11,9 +11,9 @@ pub struct Inference<Rule:InferenceRule> {
     pub conclusions: Vec<Proposition>
 }
 
-impl <Rule:InferenceRule> Inference<Rule> {
-    pub fn assumptions(&self) -> &Vec<Proposition> { &self.assumptions }
-    pub fn conclusions(&self) -> &Vec<Proposition> { &self.conclusions }
+impl <'a, Rule:'a + InferenceRule> ProofStep<'a,Rule> for Inference<Rule> {
+    fn assumptions(&self) -> &Vec<Proposition> { &self.assumptions }
+    fn explicit_conclusions(&self) -> &Vec<Proposition> { &self.conclusions }
 }
 
 pub trait InferenceRule: Clone {}
