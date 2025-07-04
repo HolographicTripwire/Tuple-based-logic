@@ -28,6 +28,6 @@ pub struct InferenceSubexpressionPath<Rule: InferenceRule>(InferencePropositionP
 impl <Rule: InferenceRule> Into<PathPair<InferencePropositionPath<Rule>,SubexpressionPath>> for InferenceSubexpressionPath<Rule> {
     fn into(self) -> PathPair<InferencePropositionPath<Rule>,SubexpressionPath> { PathPair::new(self.0,self.1) }
 }
-impl <Rule: InferenceRule> From<(InferencePropositionPath<Rule>,SubexpressionPath)> for InferenceSubexpressionPath<Rule> {
-    fn from(value: (InferencePropositionPath<Rule>,SubexpressionPath)) -> Self { Self(value.0,value.1) }
+impl <Rule: InferenceRule, IL: Into<InferencePropositionPath<Rule>>, IR: Into<SubexpressionPath>> From<(IL,IR)> for InferenceSubexpressionPath<Rule> {
+    fn from(value: (IL,IR)) -> Self { Self(value.0.into(),value.1.into()) }
 }
