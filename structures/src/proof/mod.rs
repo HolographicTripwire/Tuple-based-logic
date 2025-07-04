@@ -1,79 +1,46 @@
-pub mod step;
+pub mod path;
 pub mod error;
 
-use step::ProofStep;
+use std::collections::HashSet;
 
-use crate::{inference::{Inference, InferenceRule}, propositions::{Proposition, PropositionSet}};
+use path::AtomicSubproofPath;
 
-#[derive(Clone)]
-pub struct Proof<Rule: InferenceRule> {
-    premises: Vec<Proposition>,
-    subproofs: Vec<SubProof<Rule>>,
-    conclusions: Vec<Proposition>
-}
-
-impl <Rules: InferenceRule> Proof<Rules> {
-    /// Create a new [Proof] with the given premises, subproofs, and conclusions
-    pub fn new(premises: Vec<Proposition>, subproofs: Vec<SubProof<Rules>>, conclusions: Vec<Proposition>) -> Self
-        { Self { premises, subproofs, conclusions } }
-
-    // Getters and setters
-    /// Get the premises of this [Proof]
-    pub fn premises(&self) -> &Vec<Proposition> { &self.premises }
-    /// Get the subproofs within this [Proof]
-    pub fn subproofs(&self) -> &Vec<SubProof<Rules>> { &self.subproofs }
-    /// Get the conclusions of this [Proof]
-    pub fn conclusions(&self) -> &Vec<Proposition> { &self.conclusions }
-
-    /// Get the implicit conclusions of this [Proof]; that is, each [Proposition] which this [Proof] which is proven but not explicitly returned
-    pub fn implicit_conclusions(&self) -> PropositionSet {
-        let mut result = PropositionSet::new();
-        for subproof in &self.subproofs { result.extend(subproof.implicit_conclusions()); }
-        result
-    }
-
-    /// Get the [SubProof] within this [Proof] at a particular proof step, if there is one
-    pub fn subproof_at(&self, mut step: ProofStep) -> Result<&SubProof<Rules>,()> {
-        let Some(incremental_step) = step.pop() else { return Err(()) };
-        let Some(subproof) = self.subproofs.get(incremental_step) else { return Err(()) };
-        subproof.subproof_at(step)
-    }
-}
+use crate::{inference::{Inference, InferenceRule}, propositions::{Proposition}};
 
 /// This struct represents a step within a larger proof
 #[derive(Clone)]
-pub enum SubProof<Rules: InferenceRule> {
+pub enum Proof<Rules: InferenceRule> {
     Atomic(Inference<Rules>), // A single inference step
-    Composite(Proof<Rules>)   // A composite proof made of further subproofs
+    Composite(Vec<Proposition>,Vec<Proof<Rules>>,Vec<Proposition>) // A composite proof made of further subproofs
 }
 
-impl <Rules: InferenceRule> SubProof<Rules> {
-    /// Get the premises of this [SubProof]
+impl <Rules: InferenceRule> Proof<Rules> {
+    /// Get the premises of this [Proof]
     pub fn premises(&self) -> &Vec<Proposition> { match self {
-            SubProof::Atomic(proof_step) => &proof_step.assumptions,
-            SubProof::Composite(proof) => &proof.premises,
+        Proof::Atomic(proof_step) => &proof_step.assumptions,
+        Proof::Composite(premises, _, _) => premises,
     }}
 
-    /// Get the conclusions of this [SubProof]
-    pub fn conclusions(&self) -> &Vec<Proposition> { match self {
-        SubProof::Atomic(proof_step) => &proof_step.conclusions,
-        SubProof::Composite(proof) => &proof.conclusions,
+    /// Get the explicit conclusions of this [Proof]
+    pub fn explicit_conclusions(&self) -> &Vec<Proposition> { match self {
+        Proof::Atomic(proof_step) => &proof_step.conclusions,
+        Proof::Composite(_,_,explicit_conclusions) => explicit_conclusions,
     }}
 
-    /// Get the implicit conclusions of this [SubProof]; that is, each [Proposition] which this [SubProof] which is proven but not explicitly returned
-    pub fn implicit_conclusions(&self) -> PropositionSet { match self {
-        SubProof::Atomic(inference) => inference.conclusions.iter().cloned().collect(),
-        SubProof::Composite(proof) => proof.implicit_conclusions(),
-    }}
-
-    /// Get the [SubProof] within this [SubProof] at a particular proof step, if there is one
-    pub fn subproof_at(&self, step: ProofStep) -> Result<&SubProof<Rules>,()> {
-        if step.0.is_empty() { Ok(self) }
-        else { match self {
-            SubProof::Atomic(_) => Err(()),
-            SubProof::Composite(proof) => proof.subproof_at(step),
-        }}
+    /// Get the implicit conclusions of this [Proof]; that is, each [Proposition] which this [Proof] which is proven but not explicitly returned
+    pub fn implicit_conclusions(&self) -> HashSet<&Proposition> {
+        let explicits = HashSet::from_iter(self.explicit_conclusions());
+        self.conclusions().difference(&explicits).cloned().collect()
     }
+
+    fn conclusions(&self) -> HashSet<&Proposition> { match self {
+        Proof::Atomic(inference) => HashSet::from_iter(inference.conclusions.iter()),
+        Proof::Composite(_, subproofs, explicit_conclusions) => {
+            subproofs.iter().fold(HashSet::from_iter(explicit_conclusions), 
+            |mut acc,next| { acc.extend(next.conclusions().iter()); acc }
+            )
+        },
+    }}
 }
 
 #[cfg(test)]
@@ -82,7 +49,7 @@ mod tests {
 
     #[test]
     fn test_getters() {
-        let step = ProofStep::here();
+        let step = AtomicSubproofPath::here();
         assert_eq!(step.0, vec![])
     }
 }
