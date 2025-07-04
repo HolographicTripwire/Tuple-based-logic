@@ -4,6 +4,8 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
+path_lib = { path = "../path_lib" }
+
 enum-iterator = { version = "2.1.0" }
 
 [lints.clippy]

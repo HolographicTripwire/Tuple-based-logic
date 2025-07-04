@@ -30,6 +30,14 @@ impl <'a, Rule: 'a + InferenceRule> HasChildren<'a,InferencePropositionPath<Rule
 
 #[derive(Clone)]
 pub struct InferenceSubexpressionPath<Rule: InferenceRule>(InferencePropositionPath<Rule>,SubexpressionPath);
+impl <Rule: InferenceRule> InferenceSubexpressionPath<Rule> {
+    pub fn new(is_conclusion: bool, proposition_index: usize, subexpression_path: impl Into<SubexpressionPath>) -> Self
+        { (InferencePropositionPath::new(is_conclusion, proposition_index), subexpression_path).into() }
+    pub fn assumption(assumption_index: usize, subexpression_path: impl Into<SubexpressionPath>) -> Self
+        { (InferencePropositionPath::assumption(assumption_index), subexpression_path).into() }
+    pub fn conclusion(conclusion_index: usize, subexpression_path: impl Into<SubexpressionPath>) -> Self
+        { (InferencePropositionPath::conclusion(conclusion_index), subexpression_path).into() }
+}
 impl <Rule: InferenceRule> Into<PathPair<InferencePropositionPath<Rule>,SubexpressionPath>> for InferenceSubexpressionPath<Rule> {
     fn into(self) -> PathPair<InferencePropositionPath<Rule>,SubexpressionPath> { PathPair::new(self.0,self.1) }
 }
