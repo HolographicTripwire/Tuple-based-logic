@@ -10,6 +10,11 @@ pub struct InferencePropositionPath<Rule: InferenceRule> {
     proposition_index: usize,
     phantom: PhantomData<Rule>
 }
+impl <Rule: InferenceRule> InferencePropositionPath<Rule> {
+    pub fn new(is_conclusion: bool, proposition_index: usize) -> Self { Self { is_conclusion, proposition_index, phantom: PhantomData } }
+    pub fn assumption(assumption_index: usize) -> Self { Self::new(false, assumption_index) }
+    pub fn conclusion(conclusion_index: usize) -> Self { Self::new(true, conclusion_index) }
+}
 impl <Rule: InferenceRule> PathPrimitive for InferencePropositionPath<Rule> {}
 
 impl <'a, Rule: 'a + InferenceRule> HasChildren<'a,InferencePropositionPath<Rule>, Proposition> for Inference<Rule> {
