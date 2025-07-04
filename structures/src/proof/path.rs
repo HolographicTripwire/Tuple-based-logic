@@ -14,14 +14,14 @@ pub type SubproofPath = PathSeries<AtomicSubproofPath>;
 
 impl <'a,Rule:'a + InferenceRule> HasChildren<'a,AtomicSubproofPath,Proof<Rule>> for Proof<Rule> {
     fn children(&'a self) -> impl IntoIterator<Item = &'a Proof<Rule>> {
-        if let Proof::Composite(_,subproofs,_) = self
-            { subproofs.into_iter().collect() }
+        if let Proof::Composite(composite) = self
+            { composite.subproofs.iter().collect() }
         else { vec![] }
     }
 
     fn get_child(&'a self, path: &AtomicSubproofPath) -> Result<&'a Proof<Rule>,()> {
-        if let Proof::Composite(_,subproofs,_) = self
-            { subproofs.get(path.0).ok_or(()) }
+        if let Proof::Composite(composite) = self
+            { composite.subproofs.get(path.0).ok_or(()) }
         else { Err(()) }
     }
 }
