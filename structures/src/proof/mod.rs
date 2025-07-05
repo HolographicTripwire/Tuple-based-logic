@@ -5,13 +5,13 @@ use std::collections::HashSet;
 
 use path_lib::HasChildren;
 
-use crate::{inference::{Inference, InferenceRule}, proof::path::{AtomicSubproofPath}, propositions::Proposition};
+use crate::{inference::{Inference, InferenceRule}, propositions::Proposition};
 
-pub trait ProofStep<'a, Rule:'a + InferenceRule>: HasChildren<'a,AtomicSubproofPath,Proof<Rule>> {
+pub trait ProofStep<'a, Rule:'a + InferenceRule> {
     fn assumptions(&self) -> &Vec<Proposition>;
     fn explicit_conclusions(&self) -> &Vec<Proposition>;
+    fn subproofs(&'a self) -> impl IntoIterator<Item=&'a Proof<Rule>>;
     
-    fn subproofs(&'a self) -> impl IntoIterator<Item=&'a Proof<Rule>> { self.children() }
     fn conclusions(&'a self) -> HashSet<&'a Proposition> {
         self.subproofs().into_iter().fold(HashSet::from_iter(self.explicit_conclusions()), 
             |mut acc,next| { acc.extend(next.conclusions().iter()); acc }
@@ -39,6 +39,8 @@ impl <'a,Rule: 'a + InferenceRule> ProofStep<'a,Rule> for Proof<Rule> {
         Proof::Atomic(inference) => inference.explicit_conclusions(),
         Proof::Composite(composite) => composite.explicit_conclusions(),
     }}
+    
+    fn subproofs(&'a self) -> impl IntoIterator<Item=&'a Proof<Rule>> { self.children() }
 }
 
 #[derive(Clone,PartialEq,Eq,Debug)]
@@ -54,6 +56,7 @@ impl <Rule: InferenceRule> CompositeProof<Rule> {
 impl <'a,Rule: 'a + InferenceRule> ProofStep<'a,Rule> for CompositeProof<Rule> {
     fn assumptions(&self) -> &Vec<Proposition> { &self.assumptions }
     fn explicit_conclusions(&self) -> &Vec<Proposition> { &self.explicit_conclusions }
+    fn subproofs(&'a self) -> impl IntoIterator<Item=&'a Proof<Rule>> { self.children() }
 }
 
 #[cfg(test)]

@@ -14,6 +14,8 @@ pub struct Inference<Rule:InferenceRule> {
 impl <'a, Rule:'a + InferenceRule> ProofStep<'a,Rule> for Inference<Rule> {
     fn assumptions(&self) -> &Vec<Proposition> { &self.assumptions }
     fn explicit_conclusions(&self) -> &Vec<Proposition> { &self.conclusions }
+    fn subproofs(&'a self) -> impl IntoIterator<Item=&'a crate::proof::Proof<Rule>> { [] }
+    
 }
 
 pub trait InferenceRule: Clone {}
