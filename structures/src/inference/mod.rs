@@ -1,4 +1,6 @@
-use crate::{proof::ProofStep, propositions::Proposition};
+use path_lib::HasChildren;
+
+use crate::{inference::path::ProofPropositionPath, proof::ProofStep, propositions::Proposition};
 
 pub mod path;
 
@@ -15,7 +17,10 @@ impl <'a, Rule:'a + InferenceRule> ProofStep<'a,Rule> for Inference<Rule> {
     fn assumptions(&self) -> &Vec<Proposition> { &self.assumptions }
     fn explicit_conclusions(&self) -> &Vec<Proposition> { &self.conclusions }
     fn subproofs(&'a self) -> impl IntoIterator<Item=&'a crate::proof::Proof<Rule>> { [] }
-    
+}
+impl <'a, Rule:'a + InferenceRule> HasChildren<'a,ProofPropositionPath,Proposition> for Inference<Rule> {
+    fn valid_primitive_paths(&'a self) -> impl IntoIterator<Item = ProofPropositionPath> { self._valid_primitive_paths() }
+    fn get_child(&'a self, path: &ProofPropositionPath) -> Result<&'a Proposition,()> { self._get_child(path) }
 }
 
 pub trait InferenceRule: Clone {}

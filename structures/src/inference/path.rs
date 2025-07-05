@@ -1,52 +1,36 @@
-use std::marker::PhantomData;
+use path_lib::{paths::{PathPair, PathPrimitive}, ObjAtPath};
 
-use path_lib::{paths::{PathPair, PathPrimitive}, ObjAtPath, HasChildren};
-
-use crate::{inference::{Inference, InferenceRule}, propositions::{Expression, Proposition, SubexpressionPath}};
+use crate::propositions::{Expression, Proposition, SubexpressionPath};
 
 #[derive(Clone)]
-pub struct InferencePropositionPath<Rule: InferenceRule> {
-    is_conclusion: bool,
-    proposition_index: usize,
-    phantom: PhantomData<Rule>
+pub struct ProofPropositionPath {
+    pub is_conclusion: bool,
+    pub proposition_index: usize
 }
-impl <Rule: InferenceRule> InferencePropositionPath<Rule> {
-    pub fn new(is_conclusion: bool, proposition_index: usize) -> Self { Self { is_conclusion, proposition_index, phantom: PhantomData } }
+impl ProofPropositionPath {
+    pub fn new(is_conclusion: bool, proposition_index: usize) -> Self { Self { is_conclusion, proposition_index } }
     pub fn assumption(assumption_index: usize) -> Self { Self::new(false, assumption_index) }
     pub fn conclusion(conclusion_index: usize) -> Self { Self::new(true, conclusion_index) }
 }
-impl <Rule: InferenceRule> PathPrimitive for InferencePropositionPath<Rule> {}
+impl PathPrimitive for ProofPropositionPath {}
 
-impl <'a, Rule: 'a + InferenceRule> HasChildren<'a,InferencePropositionPath<Rule>, Proposition> for Inference<Rule> {
-    fn valid_primitive_paths(&'a self) -> impl IntoIterator<Item = InferencePropositionPath<Rule>> {
-        let assumptions = (0..self.assumptions.len()).map(|ix| InferencePropositionPath::assumption(ix));
-        let conclusions = (0..self.conclusions.len()).map(|ix| InferencePropositionPath::conclusion(ix));
-        assumptions.chain(conclusions)
-    }
-
-    fn get_child(&'a self, path: &InferencePropositionPath<Rule>) -> Result<&'a Proposition,()> {
-        let propositions = if path.is_conclusion { &self.assumptions } else { &self.conclusions };
-        propositions.get(path.proposition_index).ok_or(())
-    }
-}
-
-pub type PropositionInInference<'a,Rule> = ObjAtPath<'a,Proposition,InferencePropositionPath<Rule>>;
+pub type PropositionInInference<'a> = ObjAtPath<'a,Proposition,ProofPropositionPath>;
 
 #[derive(Clone)]
-pub struct InferenceSubexpressionPath<Rule: InferenceRule>(InferencePropositionPath<Rule>,SubexpressionPath);
-impl <Rule: InferenceRule> InferenceSubexpressionPath<Rule> {
+pub struct ProofSubexpressionPath(ProofPropositionPath,SubexpressionPath);
+impl ProofSubexpressionPath {
     pub fn new(is_conclusion: bool, proposition_index: usize, subexpression_path: impl Into<SubexpressionPath>) -> Self
-        { (InferencePropositionPath::new(is_conclusion, proposition_index), subexpression_path).into() }
+        { (ProofPropositionPath::new(is_conclusion, proposition_index), subexpression_path).into() }
     pub fn assumption(assumption_index: usize, subexpression_path: impl Into<SubexpressionPath>) -> Self
-        { (InferencePropositionPath::assumption(assumption_index), subexpression_path).into() }
+        { (ProofPropositionPath::assumption(assumption_index), subexpression_path).into() }
     pub fn conclusion(conclusion_index: usize, subexpression_path: impl Into<SubexpressionPath>) -> Self
-        { (InferencePropositionPath::conclusion(conclusion_index), subexpression_path).into() }
+        { (ProofPropositionPath::conclusion(conclusion_index), subexpression_path).into() }
 }
-impl <Rule: InferenceRule> Into<PathPair<InferencePropositionPath<Rule>,SubexpressionPath>> for InferenceSubexpressionPath<Rule> {
-    fn into(self) -> PathPair<InferencePropositionPath<Rule>,SubexpressionPath> { PathPair::new(self.0,self.1) }
+impl Into<PathPair<ProofPropositionPath,SubexpressionPath>> for ProofSubexpressionPath {
+    fn into(self) -> PathPair<ProofPropositionPath,SubexpressionPath> { PathPair::new(self.0,self.1) }
 }
-impl <Rule: InferenceRule, IL: Into<InferencePropositionPath<Rule>>, IR: Into<SubexpressionPath>> From<(IL,IR)> for InferenceSubexpressionPath<Rule> {
+impl <IL: Into<ProofPropositionPath>, IR: Into<SubexpressionPath>> From<(IL,IR)> for ProofSubexpressionPath {
     fn from(value: (IL,IR)) -> Self { Self(value.0.into(),value.1.into()) }
 }
 
-pub type SubexpressionInInference<'a,Rule> = ObjAtPath<'a,Expression,InferenceSubexpressionPath<Rule>>;
+pub type SubexpressionInProof<'a> = ObjAtPath<'a,Expression,ProofSubexpressionPath>;
