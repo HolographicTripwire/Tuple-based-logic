@@ -1,4 +1,4 @@
-use path_lib::{paths::{PathPrimitive, PathSeries}, AtPath, HasChildren};
+use path_lib::{paths::{PathPrimitive, PathSeries}, ObjAtPath, HasChildren};
 
 use crate::{inference::InferenceRule, proof::{CompositeProof, Proof}};
 
@@ -12,7 +12,7 @@ impl From<usize> for AtomicSubproofPath {
 
 pub type SubproofPath = PathSeries<AtomicSubproofPath>;
 
-pub type SubproofInProof<'a,Rule> = AtPath<'a,Proof<Rule>,SubproofPath>;
+pub type SubproofInProof<'a,Rule> = ObjAtPath<'a,Proof<Rule>,SubproofPath>;
 
 impl <'a,Rule:'a + InferenceRule> HasChildren<'a,AtomicSubproofPath,Proof<Rule>> for Proof<Rule> {
     fn children(&'a self) -> impl IntoIterator<Item = &'a Proof<Rule>> {

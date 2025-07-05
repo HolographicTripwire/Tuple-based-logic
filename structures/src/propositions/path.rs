@@ -1,5 +1,5 @@
 
-use path_lib::{paths::{PathPrimitive, PathSeries}, AtPath, HasChildren};
+use path_lib::{paths::{PathPrimitive, PathSeries}, ObjAtPath, HasChildren};
 
 use crate::propositions::Expression;
 
@@ -23,8 +23,7 @@ impl <'a> HasChildren<'a,AtomicSubexpressionPath,Expression> for Expression {
     }
 }
 
-pub type SubexpressionInExpression<'a> = AtPath<'a,Expression,Expression>;
-
+pub type SubexpressionInExpression<'a> = ObjAtPath<'a,Expression,SubexpressionPath>;
 
 #[cfg(test)]
 mod tests {
