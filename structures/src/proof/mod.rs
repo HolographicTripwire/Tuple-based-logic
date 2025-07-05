@@ -40,7 +40,7 @@ impl <'a,Rule: 'a + InferenceRule> ProofStep<'a,Rule> for Proof<Rule> {
         Proof::Composite(composite) => composite.explicit_conclusions(),
     }}
     
-    fn subproofs(&'a self) -> impl IntoIterator<Item=&'a Proof<Rule>> { self.children() }
+    fn subproofs(&'a self) -> impl IntoIterator<Item=&'a Proof<Rule>> { self.get_children() }
 }
 
 #[derive(Clone,PartialEq,Eq,Debug)]
@@ -56,7 +56,7 @@ impl <Rule: InferenceRule> CompositeProof<Rule> {
 impl <'a,Rule: 'a + InferenceRule> ProofStep<'a,Rule> for CompositeProof<Rule> {
     fn assumptions(&self) -> &Vec<Proposition> { &self.assumptions }
     fn explicit_conclusions(&self) -> &Vec<Proposition> { &self.explicit_conclusions }
-    fn subproofs(&'a self) -> impl IntoIterator<Item=&'a Proof<Rule>> { self.children() }
+    fn subproofs(&'a self) -> impl IntoIterator<Item=&'a Proof<Rule>> { self.get_children() }
 }
 
 #[cfg(test)]

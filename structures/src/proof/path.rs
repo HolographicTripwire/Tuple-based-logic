@@ -15,10 +15,10 @@ pub type SubproofPath = PathSeries<AtomicSubproofPath>;
 pub type SubproofInProof<'a,Rule> = ObjAtPath<'a,Proof<Rule>,SubproofPath>;
 
 impl <'a,Rule:'a + InferenceRule> HasChildren<'a,AtomicSubproofPath,Proof<Rule>> for Proof<Rule> {
-    fn children(&'a self) -> impl IntoIterator<Item = &'a Proof<Rule>> {
-        if let Proof::Composite(composite) = self
-            { composite.subproofs.iter().collect() }
-        else { vec![] }
+    fn valid_primitive_paths(&'a self) -> impl IntoIterator<Item = AtomicSubproofPath> {
+        let max = if let Proof::Composite(composite) = self
+            { composite.subproofs.len() } else { 0 };
+        (0..max).map(|ix| ix.into())
     }
 
     fn get_child(&'a self, path: &AtomicSubproofPath) -> Result<&'a Proof<Rule>,()> {
@@ -29,7 +29,8 @@ impl <'a,Rule:'a + InferenceRule> HasChildren<'a,AtomicSubproofPath,Proof<Rule>>
 }
 
 impl <'a,Rule:'a + InferenceRule> HasChildren<'a,AtomicSubproofPath,Proof<Rule>> for CompositeProof<Rule> {
-    fn children(&'a self) -> impl IntoIterator<Item = &'a Proof<Rule>> { self.subproofs.iter() }
+    fn valid_primitive_paths(&'a self) -> impl IntoIterator<Item = AtomicSubproofPath> 
+        { (0..self.subproofs.len()).map(|ix| ix.into()) }
     fn get_child(&'a self, path: &AtomicSubproofPath) -> Result<&'a Proof<Rule>,()>
         { self.subproofs.get(path.0).ok_or(()) }
 }

@@ -18,8 +18,10 @@ impl <Rule: InferenceRule> InferencePropositionPath<Rule> {
 impl <Rule: InferenceRule> PathPrimitive for InferencePropositionPath<Rule> {}
 
 impl <'a, Rule: 'a + InferenceRule> HasChildren<'a,InferencePropositionPath<Rule>, Proposition> for Inference<Rule> {
-    fn children(&'a self) -> impl IntoIterator<Item = &'a Proposition> {
-        self.assumptions.iter().chain(self.conclusions.iter())
+    fn valid_primitive_paths(&'a self) -> impl IntoIterator<Item = InferencePropositionPath<Rule>> {
+        let assumptions = (0..self.assumptions.len()).map(|ix| InferencePropositionPath::assumption(ix));
+        let conclusions = (0..self.conclusions.len()).map(|ix| InferencePropositionPath::conclusion(ix));
+        assumptions.chain(conclusions)
     }
 
     fn get_child(&'a self, path: &InferencePropositionPath<Rule>) -> Result<&'a Proposition,()> {

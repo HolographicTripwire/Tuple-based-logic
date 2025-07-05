@@ -12,10 +12,10 @@ impl From<usize> for AtomicSubexpressionPath {
 pub type SubexpressionPath = PathSeries<AtomicSubexpressionPath>;
 
 impl <'a> HasChildren<'a,AtomicSubexpressionPath,Expression> for Expression {
-    fn children(&'a self) -> impl IntoIterator<Item = &'a Expression> {
-        if let Ok(vec) = self.as_vec()
-            { vec.iter().collect() }
-        else { vec![] }
+    fn valid_primitive_paths(&'a self) -> impl IntoIterator<Item = AtomicSubexpressionPath> {
+        let max = if let Ok(vec) = self.as_vec()
+            { vec.len() } else { 0 };
+        (0..max).map(|ix| ix.into())
     }
 
     fn get_child(&'a self, path: &AtomicSubexpressionPath) -> Result<&'a Expression,()> {
