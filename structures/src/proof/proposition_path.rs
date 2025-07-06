@@ -15,13 +15,3 @@ impl ProofPropositionPath {
 impl PathPrimitive for ProofPropositionPath {}
 
 pub type PropositionInInference<'a> = ObjAtPath<'a,Proposition,ProofPropositionPath>;
-
-mod into {
-    use path_lib::paths::PathSeries;
-
-    use super::*;
-
-    impl Into<PathSeries<ProofPropositionPath>> for ProofPropositionPath {
-        fn into(self) -> PathSeries<ProofPropositionPath> { PathSeries::new([self]) }
-    }
-}

@@ -27,13 +27,6 @@ mod from {
         fn from(value: usize) -> Self { Self(value) }
     }
 }
-mod into {
-    use super::*;
-
-    impl Into<PathSeries<AtomicSubexpressionPath>> for AtomicSubexpressionPath {
-        fn into(self) -> PathSeries<AtomicSubexpressionPath> { PathSeries::new([self]) }
-    }
-}
 
 pub type SubexpressionInExpression<'a> = ObjAtPath<'a,Expression,SubexpressionPath>;
 

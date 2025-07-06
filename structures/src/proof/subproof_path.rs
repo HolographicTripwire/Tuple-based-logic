@@ -32,14 +32,8 @@ impl <'a,Rule:'a + InferenceRule> HasChildren<'a,AtomicSubproofPath,Proof<Rule>>
         { self.subproofs.get(path.0).ok_or(()) }
 }
 
-mod into {
-    use path_lib::paths::PathSeries;
-
+mod from {
     use crate::proof::{AtomicSubproofPath};
-
-    impl Into<PathSeries<AtomicSubproofPath>> for AtomicSubproofPath {
-        fn into(self) -> PathSeries<AtomicSubproofPath> { PathSeries::new([self]) }
-    }
     
     impl <I: Into<usize>> From<I> for AtomicSubproofPath {
         fn from(value: I) -> Self { Self(value.into()) }

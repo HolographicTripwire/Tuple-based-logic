@@ -3,7 +3,7 @@ pub mod tuple_or_error;
 mod subexpression_path;
 
 pub use propositions::{Proposition,PropositionSet,get_contradictions};
-pub use subexpression_path::{SubexpressionPath,SubexpressionInExpression};
+pub use subexpression_path::*;
 
 use crate::atoms::{AtomId, BuiltInAtom};
 
