@@ -73,7 +73,7 @@ mod tests {
     #[test]
     fn test_at_substep() {
         let step = ErrorInProof::at_substep(1,TestError::Error);
-        assert_eq!(step.location().paths(), &vec![1.into()]);
+        assert_eq!(step.location().paths(), &vec![(1 as usize).into()]);
         assert_eq!(step.err(), &TestError::Error);
     }
 
@@ -81,7 +81,7 @@ mod tests {
     fn test_push() {
         let mut step = ErrorInProof::at_substep(1, TestError::Error);
         step.push_step(2);
-        assert_eq!(step.location().paths(), &vec![2.into(),1.into()]);
+        assert_eq!(step.location().paths(), &vec![(2 as usize).into(),(1 as usize).into()]);
         assert_eq!(step.err(), &TestError::Error);
     }
 
@@ -89,7 +89,7 @@ mod tests {
     fn test_pop() {
         let mut step = ErrorInProof::at_substep(1,TestError::Error);
         step.push_step(2);
-        assert_eq!(step.pop_step(), Some(1.into()));
+        assert_eq!(step.pop_step(), Some((1 as usize).into()));
         assert_eq!(step.err(), &TestError::Error);
     }
 }

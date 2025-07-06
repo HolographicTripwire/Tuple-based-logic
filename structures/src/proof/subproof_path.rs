@@ -6,9 +6,6 @@ use crate::{inference::InferenceRule, proof::{CompositeProof, Proof}};
 /// Identifies a particular step iwthin a [`Proof`], and can be given to such a [`Proof`] to retreive the [`SubProof`] at that step
 pub struct AtomicSubproofPath(usize);
 impl PathPrimitive for AtomicSubproofPath {}
-impl From<usize> for AtomicSubproofPath {
-    fn from(value: usize) -> Self { Self(value) }
-}
 
 pub type SubproofPath = PathSeries<AtomicSubproofPath>;
 
@@ -33,4 +30,18 @@ impl <'a,Rule:'a + InferenceRule> HasChildren<'a,AtomicSubproofPath,Proof<Rule>>
         { (0..self.subproofs.len()).map(|ix| ix.into()) }
     fn get_child(&'a self, path: &AtomicSubproofPath) -> Result<&'a Proof<Rule>,()>
         { self.subproofs.get(path.0).ok_or(()) }
+}
+
+mod into {
+    use path_lib::paths::PathSeries;
+
+    use crate::proof::{AtomicSubproofPath};
+
+    impl Into<PathSeries<AtomicSubproofPath>> for AtomicSubproofPath {
+        fn into(self) -> PathSeries<AtomicSubproofPath> { PathSeries::new([self]) }
+    }
+    
+    impl <I: Into<usize>> From<I> for AtomicSubproofPath {
+        fn from(value: I) -> Self { Self(value.into()) }
+    }    
 }

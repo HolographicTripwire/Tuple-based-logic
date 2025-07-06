@@ -6,9 +6,6 @@ use crate::expressions::Expression;
 #[derive(Clone)]
 pub struct AtomicSubexpressionPath(usize);
 impl PathPrimitive for AtomicSubexpressionPath {}
-impl From<usize> for AtomicSubexpressionPath {
-    fn from(value: usize) -> Self { Self(value) }
-}
 pub type SubexpressionPath = PathSeries<AtomicSubexpressionPath>;
 
 impl <'a> HasChildren<'a,AtomicSubexpressionPath,Expression> for Expression {
@@ -20,6 +17,21 @@ impl <'a> HasChildren<'a,AtomicSubexpressionPath,Expression> for Expression {
 
     fn get_child(&'a self, path: &AtomicSubexpressionPath) -> Result<&'a Expression,()> {
         self.as_vec()?.get(path.0).ok_or(())
+    }
+}
+
+mod from {
+    use super::*;
+    
+    impl From<usize> for AtomicSubexpressionPath {
+        fn from(value: usize) -> Self { Self(value) }
+    }
+}
+mod into {
+    use super::*;
+
+    impl Into<PathSeries<AtomicSubexpressionPath>> for AtomicSubexpressionPath {
+        fn into(self) -> PathSeries<AtomicSubexpressionPath> { PathSeries::new([self]) }
     }
 }
 
