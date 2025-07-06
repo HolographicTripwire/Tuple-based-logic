@@ -1,11 +1,17 @@
-pub mod path;
+mod subproof_path;
+mod proposition_path;
+mod subexpression_path;
 pub mod error;
 
 use std::collections::HashSet;
 
 use path_lib::HasChildren;
 
-use crate::{inference::{path::ProofPropositionPath, Inference, InferenceRule}, proof::path::AtomicSubproofPath, propositions::Proposition};
+pub use subproof_path::*;
+pub use proposition_path::*;
+pub use subexpression_path::*;
+
+use crate::{inference::{Inference, InferenceRule}, expressions::Proposition};
 
 pub trait ProofStep<'a, Rule:'a + InferenceRule> : HasChildren<'a,ProofPropositionPath,Proposition> {
     fn assumptions(&self) -> &Vec<Proposition>;
@@ -56,7 +62,7 @@ impl <'a,Rule: 'a + InferenceRule> ProofStep<'a,Rule> for Proof<Rule> {
 }
 
 impl <'a, Rule:'a + InferenceRule> HasChildren<'a,ProofPropositionPath,Proposition> for Proof<Rule> {
-    fn valid_primitive_paths(&'a self) -> impl IntoIterator<Item = ProofPropositionPath> { self._valid_primitive_paths() }
+    fn valid_primitive_paths(&self) -> impl IntoIterator<Item = ProofPropositionPath> { self._valid_primitive_paths() }
     fn get_child(&'a self, path: &ProofPropositionPath) -> Result<&'a Proposition,()> { self._get_child(path) }
 }
 
@@ -78,13 +84,13 @@ impl <'a,Rule: 'a + InferenceRule> ProofStep<'a,Rule> for CompositeProof<Rule> {
 }
 
 impl <'a, Rule:'a + InferenceRule> HasChildren<'a,ProofPropositionPath,Proposition> for CompositeProof<Rule> {
-    fn valid_primitive_paths(&'a self) -> impl IntoIterator<Item = ProofPropositionPath> { self._valid_primitive_paths() }
+    fn valid_primitive_paths(&self) -> impl IntoIterator<Item = ProofPropositionPath> { self._valid_primitive_paths() }
     fn get_child(&'a self, path: &ProofPropositionPath) -> Result<&'a Proposition,()> { self._get_child(path) }
 }
 
 #[cfg(test)]
 mod tests {
-    use crate::proof::path::SubproofPath;    
+    use crate::proof::subproof_path::SubproofPath;    
 
     #[test]
     fn test_getters() {

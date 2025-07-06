@@ -1,7 +1,7 @@
 
-use path_lib::{paths::{PathPrimitive, PathSeries}, ObjAtPath, HasChildren};
+use path_lib::{obj_at_path::ObjAtPath, paths::{PathPrimitive, PathSeries}, HasChildren};
 
-use crate::propositions::Expression;
+use crate::expressions::Expression;
 
 #[derive(Clone)]
 pub struct AtomicSubexpressionPath(usize);
@@ -12,7 +12,7 @@ impl From<usize> for AtomicSubexpressionPath {
 pub type SubexpressionPath = PathSeries<AtomicSubexpressionPath>;
 
 impl <'a> HasChildren<'a,AtomicSubexpressionPath,Expression> for Expression {
-    fn valid_primitive_paths(&'a self) -> impl IntoIterator<Item = AtomicSubexpressionPath> {
+    fn valid_primitive_paths(&self) -> impl IntoIterator<Item = AtomicSubexpressionPath> {
         let max = if let Ok(vec) = self.as_vec()
             { vec.len() } else { 0 };
         (0..max).map(|ix| ix.into())

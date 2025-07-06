@@ -1,23 +1,10 @@
-use path_lib::{paths::{PathPair, PathPrimitive}, ObjAtPath};
+use path_lib::{obj_at_path::ObjAtPath, paths::PathPair, Path};
 
-use crate::propositions::{Expression, Proposition, SubexpressionPath};
-
-#[derive(Clone)]
-pub struct ProofPropositionPath {
-    pub is_conclusion: bool,
-    pub proposition_index: usize
-}
-impl ProofPropositionPath {
-    pub fn new(is_conclusion: bool, proposition_index: usize) -> Self { Self { is_conclusion, proposition_index } }
-    pub fn assumption(assumption_index: usize) -> Self { Self::new(false, assumption_index) }
-    pub fn conclusion(conclusion_index: usize) -> Self { Self::new(true, conclusion_index) }
-}
-impl PathPrimitive for ProofPropositionPath {}
-
-pub type PropositionInInference<'a> = ObjAtPath<'a,Proposition,ProofPropositionPath>;
+use crate::{proof::ProofPropositionPath, expressions::{Expression, SubexpressionPath}};
 
 #[derive(Clone)]
 pub struct ProofSubexpressionPath(ProofPropositionPath,SubexpressionPath);
+impl Path for ProofSubexpressionPath {}
 impl ProofSubexpressionPath {
     pub fn new(is_conclusion: bool, proposition_index: usize, subexpression_path: impl Into<SubexpressionPath>) -> Self
         { (ProofPropositionPath::new(is_conclusion, proposition_index), subexpression_path).into() }

@@ -1,8 +1,6 @@
 use path_lib::HasChildren;
 
-use crate::{inference::path::ProofPropositionPath, proof::ProofStep, propositions::Proposition};
-
-pub mod path;
+use crate::{expressions::Proposition, proof::{ProofPropositionPath, ProofStep}};
 
 #[derive(Clone,PartialEq,Eq,Debug)]
 /// A struct representing a single inference step within a proof
@@ -19,7 +17,7 @@ impl <'a, Rule:'a + InferenceRule> ProofStep<'a,Rule> for Inference<Rule> {
     fn subproofs(&'a self) -> impl IntoIterator<Item=&'a crate::proof::Proof<Rule>> { [] }
 }
 impl <'a, Rule:'a + InferenceRule> HasChildren<'a,ProofPropositionPath,Proposition> for Inference<Rule> {
-    fn valid_primitive_paths(&'a self) -> impl IntoIterator<Item = ProofPropositionPath> { self._valid_primitive_paths() }
+    fn valid_primitive_paths(&self) -> impl IntoIterator<Item = ProofPropositionPath> { self._valid_primitive_paths() }
     fn get_child(&'a self, path: &ProofPropositionPath) -> Result<&'a Proposition,()> { self._get_child(path) }
 }
 

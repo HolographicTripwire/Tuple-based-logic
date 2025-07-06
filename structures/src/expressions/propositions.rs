@@ -1,6 +1,9 @@
 use std::{collections::{HashMap, HashSet}};
 
-use super::Proposition;
+use crate::expressions::Expression;
+
+/// Every [Proposition] within Tuple-based Logic is simply an [Expression] whose truth value is to be considered
+pub type Proposition = Expression;
 
 pub type PropositionSet = HashSet<Proposition>;
 
@@ -50,7 +53,7 @@ pub fn get_contradictions<'a, I: IntoIterator<Item=&'a Proposition>>(proposition
 mod tests {
     use enum_iterator::cardinality;
 
-    use crate::{atoms::{BuiltInAtom}, propositions::{Expression}};
+    use crate::{atoms::{BuiltInAtom}, expressions::{Expression}};
 
     use super::*;
 

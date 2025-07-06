@@ -1,4 +1,4 @@
-use crate::proof::path::{AtomicSubproofPath, SubproofPath};
+use crate::proof::subproof_path::{AtomicSubproofPath, SubproofPath};
 
 #[derive(Clone,PartialEq,Eq,Debug)]
 pub struct ErrorInProof<E: Clone>(SubproofPath,E);

@@ -1,6 +1,6 @@
-use crate::{propositions::{Expression}};
+use crate::{expressions::{Expression}};
 
-pub const TUPLE_OR_NONE: TupleOrError<()> = TupleOrError{ error: () };
+pub const TUPLE_OR_UNIT: TupleOrError<()> = TupleOrError{ error: () };
 
 // Converts expressions to a given type of they are a tuple. Otherwise throws the stored error
 pub struct TupleOrError<E: Clone> {
@@ -35,26 +35,26 @@ mod tests {
     #[test]
     fn test_expr_as_tuple_with_atom() {
         let expression = Expression::Atomic((AtomId::try_from(1)).unwrap());
-        assert_eq!(TUPLE_OR_NONE.as_tuple(&expression), Err(()));
+        assert_eq!(TUPLE_OR_UNIT.as_tuple(&expression), Err(()));
     }
 
     #[test]
     fn test_expr_as_tuple_with_tuple() {
         let expressions = atomic_expression_vec(vec![0,1,2]);
         let combined_expression = Expression::Tuple(expressions.clone());
-        assert_eq!(TUPLE_OR_NONE.as_tuple(&combined_expression), Ok(&expressions));
+        assert_eq!(TUPLE_OR_UNIT.as_tuple(&combined_expression), Ok(&expressions));
     }
 
     #[test]
     fn test_expr_as_slice_with_atom() {
         let expression = Expression::Atomic((AtomId::try_from(1)).unwrap());
-        assert_eq!(TUPLE_OR_NONE.as_slice(&expression), Err(()));
+        assert_eq!(TUPLE_OR_UNIT.as_slice(&expression), Err(()));
     }
 
     #[test]
     fn test_expr_as_slice_with_tuple() {
         let expressions = atomic_expression_vec(vec![0,1,2]);
         let combined_expression = Expression::Tuple(expressions.clone());
-        assert_eq!(TUPLE_OR_NONE.as_slice(&combined_expression), Ok(expressions.as_slice()));
+        assert_eq!(TUPLE_OR_UNIT.as_slice(&combined_expression), Ok(expressions.as_slice()));
     }
 }

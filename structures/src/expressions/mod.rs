@@ -1,6 +1,13 @@
+mod propositions;
+pub mod tuple_or_error;
+mod subexpression_path;
+
+pub use propositions::{Proposition,PropositionSet,get_contradictions};
+pub use subexpression_path::{SubexpressionPath,SubexpressionInExpression};
+
 use crate::atoms::{AtomId, BuiltInAtom};
 
-use super::tuple_or_error::TUPLE_OR_NONE;
+use tuple_or_error::TUPLE_OR_UNIT;
 
 /// Components used in the construction of [Proposition] objects
 #[derive(Debug,Clone,PartialEq,Eq,Hash)]
@@ -36,7 +43,7 @@ impl Expression {
 
     /// Check if this expression is the negation of another
     pub fn is_negation_of(&self, other: &Expression) -> bool {
-        let Ok([negation_atom, remainder]) = TUPLE_OR_NONE.as_slice(self) else { return false; };
+        let Ok([negation_atom, remainder]) = TUPLE_OR_UNIT.as_slice(self) else { return false; };
         if negation_atom != &BuiltInAtom::Negation.into() { return false; }
         else { return remainder == other }
     }
@@ -45,7 +52,7 @@ impl Expression {
     /// Note that a negation level is only counted if that level contains two terms - where one is the negation.
     /// So, (¬,(¬,P)) counts as two, but (¬,(¬,P,Q)) and (¬,(¬)) only count as one
     pub fn negation_level(&self) -> usize {
-        let Ok([negation_atom, remainder]) = TUPLE_OR_NONE.as_slice(self) else { return 0; };
+        let Ok([negation_atom, remainder]) = TUPLE_OR_UNIT.as_slice(self) else { return 0; };
         if negation_atom != &BuiltInAtom::Negation.into() { return 0; }
         else { return remainder.negation_level() + 1; }
     }
