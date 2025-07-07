@@ -5,7 +5,7 @@ pub mod error;
 
 use std::collections::HashSet;
 
-use path_lib::HasChildren;
+use path_lib::{obj_at_path::ObjAtPath, HasChildren, HasDescendants};
 
 pub use subproof_path::*;
 pub use proposition_path::*;
@@ -13,31 +13,44 @@ pub use subexpression_path::*;
 
 use crate::{inference::{Inference, InferenceRule}, expressions::Proposition};
 
-pub trait ProofStep<'a, Rule:'a + InferenceRule> : HasChildren<'a,ProofPropositionPath,Proposition> {
-    fn assumptions(&self) -> &Vec<Proposition>;
-    fn explicit_conclusions(&self) -> &Vec<Proposition>;
-    fn subproofs(&'a self) -> impl IntoIterator<Item=&'a Proof<Rule>>;
+pub trait ProofStep<'a, Rule:'a + InferenceRule> : HasChildren<'a,ProofPropositionPath,Proposition> + HasChildren<'a,AtomicSubproofPath,Proof<Rule>> {
+    fn assumption_paths(&self) -> impl IntoIterator<Item = ProofPropositionPath>;
+    fn explicit_conclusion_paths(&self) -> impl IntoIterator<Item = ProofPropositionPath>;
+    fn immediate_subproof_paths(&'a self) -> impl IntoIterator<Item=AtomicSubproofPath> { <Self as HasChildren<'a,AtomicSubproofPath,Proof<Rule>>>::valid_primitive_paths(self) }
     
-    fn conclusions(&'a self) -> HashSet<&'a Proposition> {
-        self.subproofs().into_iter().fold(HashSet::from_iter(self.explicit_conclusions()), 
-            |mut acc,next| { acc.extend(next.conclusions().iter()); acc }
+    fn get_assumptions(&'a self) -> impl IntoIterator<Item = &'a Proposition>
+        { self.assumption_paths().into_iter().map(|p| self.get_child(&p).unwrap()) }
+    fn get_located_assumptions(&'a self) -> impl IntoIterator<Item = ObjAtPath<'a,Proposition,ProofPropositionPath>>
+        { self.assumption_paths().into_iter().map(|p| self.get_located_child(p).unwrap()) }
+    fn get_explicit_conclusions(&'a self) -> impl IntoIterator<Item = &'a Proposition>
+        { self.explicit_conclusion_paths().into_iter().map(|p| self.get_child(&p).unwrap()) }
+    fn get_located_explicit_conclusions(&'a self) -> impl IntoIterator<Item = ObjAtPath<'a,Proposition,ProofPropositionPath>>
+        { self.explicit_conclusion_paths().into_iter().map(|p| self.get_located_child(p).unwrap()) }
+    fn get_immediate_subproofs(&'a self) -> impl IntoIterator<Item = &'a Proof<Rule>>
+        { self.immediate_subproof_paths().into_iter().map(|p| self.get_descendant(&p).unwrap()) }
+    fn get_located_immediate_subproofs(&'a self) -> impl IntoIterator<Item = ObjAtPath<'a,Proof<Rule>,AtomicSubproofPath>>
+        { self.immediate_subproof_paths().into_iter().map(|p| self.get_located_child(p).unwrap()) }
+
+    fn get_conclusions(&'a self) -> HashSet<&'a Proposition> {
+        self.get_immediate_subproofs().into_iter().fold(HashSet::from_iter(self.get_explicit_conclusions()), 
+            |mut acc,next| { acc.extend(next.get_conclusions().iter()); acc }
         )
     }
-    fn implicit_conclusions(&'a self) -> HashSet<&'a Proposition> {
-        let explicits = HashSet::from_iter(self.explicit_conclusions());
-        self.conclusions().difference(&explicits).cloned().collect()
+    fn get_implicit_conclusions(&'a self) -> HashSet<&'a Proposition> {
+        let explicits = HashSet::from_iter(self.get_explicit_conclusions());
+        self.get_conclusions().difference(&explicits).cloned().collect()
     }
-
-    fn _valid_primitive_paths(&'a self) -> impl IntoIterator<Item = ProofPropositionPath> {
-        let assumptions = (0..self.assumptions().len()).map(|ix| ProofPropositionPath::assumption(ix));
-        let conclusions = (0..self.conclusions().len()).map(|ix| ProofPropositionPath::conclusion(ix));
-        assumptions.chain(conclusions)
-    }
-
-    fn _get_child(&'a self, path: &ProofPropositionPath) -> Result<&'a Proposition,()> {
-        let propositions = if path.is_conclusion { self.assumptions() } else { self.explicit_conclusions() };
-        propositions.get(path.proposition_index).ok_or(())
-    }
+}
+pub (crate) fn valid_primitive_paths_inner<'a,Rule: 'a + InferenceRule, Step: ProofStep<'a,Rule>>(step: &'a Step) -> impl IntoIterator<Item = ProofPropositionPath> {
+    let assumptions = (0..step.assumption_paths().into_iter().count()).map(|ix| ProofPropositionPath::assumption(ix));
+    let conclusions = (0..step.get_conclusions().len()).map(|ix| ProofPropositionPath::conclusion(ix));
+    assumptions.chain(conclusions)
+}
+pub (crate) fn get_child_inner<'a,Rule: 'a + InferenceRule, Step: ProofStep<'a,Rule>>(step: &'a Step, path: &ProofPropositionPath) -> Result<&'a Proposition,()> {
+    let n = path.proposition_index;
+    if path.is_conclusion { step.get_assumptions().into_iter().nth(n) } 
+    else { step.get_explicit_conclusions().into_iter().nth(n) }
+    .ok_or(())
 }
 
 /// This struct represents a step within a larger proof
@@ -48,22 +61,22 @@ pub enum Proof<Rule: InferenceRule> {
 }
 
 impl <'a,Rule: 'a + InferenceRule> ProofStep<'a,Rule> for Proof<Rule> {
-    fn assumptions(&self) -> &Vec<Proposition> { match self {
-        Proof::Atomic(inference) => inference.assumptions(),
-        Proof::Composite(composite) => composite.assumptions(),
+    fn assumption_paths(&self) -> impl IntoIterator<Item = ProofPropositionPath> { match self {
+        Proof::Atomic(inference) => inference.assumption_paths().into_iter().collect::<Vec<_>>(),
+        Proof::Composite(composite) => composite.assumption_paths().into_iter().collect(),
     }}
-    fn explicit_conclusions(&self) -> &Vec<Proposition> { match self {
-        Proof::Atomic(inference) => inference.explicit_conclusions(),
-        Proof::Composite(composite) => composite.explicit_conclusions(),
+    fn explicit_conclusion_paths(&self) -> impl IntoIterator<Item = ProofPropositionPath> {match self {
+        Proof::Atomic(inference) => inference.explicit_conclusion_paths().into_iter().collect::<Vec<_>>(),
+        Proof::Composite(composite) => composite.explicit_conclusion_paths().into_iter().collect(),
     }}
     
-    fn subproofs(&'a self) -> impl IntoIterator<Item=&'a Proof<Rule>>
+    fn get_immediate_subproofs(&'a self) -> impl IntoIterator<Item=&'a Proof<Rule>>
         { <Self as HasChildren<'_, AtomicSubproofPath, Proof<Rule>>>::get_children(self) }
 }
 
 impl <'a, Rule:'a + InferenceRule> HasChildren<'a,ProofPropositionPath,Proposition> for Proof<Rule> {
-    fn valid_primitive_paths(&self) -> impl IntoIterator<Item = ProofPropositionPath> { self._valid_primitive_paths() }
-    fn get_child(&'a self, path: &ProofPropositionPath) -> Result<&'a Proposition,()> { self._get_child(path) }
+    fn valid_primitive_paths(&self) -> impl IntoIterator<Item = ProofPropositionPath> { valid_primitive_paths_inner(self) }
+    fn get_child(&'a self, path: &ProofPropositionPath) -> Result<&'a Proposition,()> { get_child_inner(self,path) }
 }
 
 #[derive(Clone,PartialEq,Eq,Debug)]
@@ -77,15 +90,20 @@ impl <Rule: InferenceRule> CompositeProof<Rule> {
         { Self { assumptions, subproofs, explicit_conclusions } }
 }
 impl <'a,Rule: 'a + InferenceRule> ProofStep<'a,Rule> for CompositeProof<Rule> {
-    fn assumptions(&self) -> &Vec<Proposition> { &self.assumptions }
-    fn explicit_conclusions(&self) -> &Vec<Proposition> { &self.explicit_conclusions }
-    fn subproofs(&'a self) -> impl IntoIterator<Item=&'a Proof<Rule>>
+    fn assumption_paths(&self) -> impl IntoIterator<Item = ProofPropositionPath>
+        { (0..self.assumptions.len()).map(|n| ProofPropositionPath::assumption(n)) }
+    fn explicit_conclusion_paths(&self) -> impl IntoIterator<Item = ProofPropositionPath>
+        { (0..self.explicit_conclusions.len()).map(|n| ProofPropositionPath::conclusion(n)) }
+
+    fn get_assumptions(&'a self) -> impl IntoIterator<Item = &'a Proposition> { &self.assumptions }
+    fn get_explicit_conclusions(&'a self) -> impl IntoIterator<Item = &'a Proposition> { &self.explicit_conclusions }
+    fn get_immediate_subproofs(&'a self) -> impl IntoIterator<Item=&'a Proof<Rule>>
         { <Self as HasChildren<'_, AtomicSubproofPath, Proof<Rule>>>::get_children(self) }
 }
 
 impl <'a, Rule:'a + InferenceRule> HasChildren<'a,ProofPropositionPath,Proposition> for CompositeProof<Rule> {
-    fn valid_primitive_paths(&self) -> impl IntoIterator<Item = ProofPropositionPath> { self._valid_primitive_paths() }
-    fn get_child(&'a self, path: &ProofPropositionPath) -> Result<&'a Proposition,()> { self._get_child(path) }
+    fn valid_primitive_paths(&self) -> impl IntoIterator<Item = ProofPropositionPath> { valid_primitive_paths_inner(self) }
+    fn get_child(&'a self, path: &ProofPropositionPath) -> Result<&'a Proposition,()> { get_child_inner(self,path) }
 }
 
 #[cfg(test)]
