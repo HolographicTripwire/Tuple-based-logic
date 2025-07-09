@@ -1,5 +1,5 @@
 
-use path_lib::{obj_at_path::ObjAtPath, paths::{PathPrimitive, PathSeries}, HasChildren};
+use path_lib::{obj_at_path::{ObjAtPath, OwnedObjAtPath}, paths::{PathPrimitive, PathSeries}, HasChildren};
 
 use crate::expressions::Expression;
 
@@ -29,6 +29,7 @@ mod from {
 }
 
 pub type SubexpressionInExpression<'a> = ObjAtPath<'a,Expression,SubexpressionPath>;
+pub type OwnedSubexpressionInExpression = OwnedObjAtPath<Expression,SubexpressionPath>;
 
 #[cfg(test)]
 mod tests {

@@ -1,4 +1,4 @@
-use path_lib::{obj_at_path::ObjAtPath, paths::PathPrimitive};
+use path_lib::{obj_at_path::{ObjAtPath, OwnedObjAtPath}, paths::PathPrimitive};
 
 use crate::expressions::Proposition;
 
@@ -14,4 +14,5 @@ impl ProofPropositionPath {
 }
 impl PathPrimitive for ProofPropositionPath {}
 
-pub type PropositionInInference<'a> = ObjAtPath<'a,Proposition,ProofPropositionPath>;
+pub type PropositionInProof<'a> = ObjAtPath<'a,Proposition,ProofPropositionPath>;
+pub type OwnedPropositionInProof = OwnedObjAtPath<Proposition,ProofPropositionPath>;

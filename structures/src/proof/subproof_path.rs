@@ -1,4 +1,4 @@
-use path_lib::{obj_at_path::ObjAtPath, paths::{PathPrimitive, PathSeries}, HasChildren};
+use path_lib::{obj_at_path::{ObjAtPath, OwnedObjAtPath}, paths::{PathPrimitive, PathSeries}, HasChildren};
 
 use crate::{inference::InferenceRule, proof::{CompositeProof, Proof}};
 
@@ -10,6 +10,7 @@ impl PathPrimitive for AtomicSubproofPath {}
 pub type SubproofPath = PathSeries<AtomicSubproofPath>;
 
 pub type SubproofInProof<'a,Rule> = ObjAtPath<'a,Proof<Rule>,SubproofPath>;
+pub type OwnedSubproofInProof<Rule> = OwnedObjAtPath<Proof<Rule>,SubproofPath>;
 
 impl <'a,Rule:'a + InferenceRule> HasChildren<'a,AtomicSubproofPath,Proof<Rule>> for Proof<Rule> {
     fn valid_primitive_paths(&self) -> impl IntoIterator<Item = AtomicSubproofPath> {

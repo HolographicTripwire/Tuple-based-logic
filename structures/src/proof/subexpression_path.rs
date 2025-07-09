@@ -1,4 +1,4 @@
-use path_lib::{obj_at_path::ObjAtPath, paths::{PathPair, PathSeries}, Path};
+use path_lib::{obj_at_path::{ObjAtPath, OwnedObjAtPath}, paths::{PathPair, PathSeries}, Path};
 
 use crate::{expressions::{Expression, SubexpressionPath}, proof::ProofPropositionPath};
 
@@ -18,6 +18,7 @@ impl ProofSubexpressionPath {
 }
 
 pub type SubexpressionInProof<'a> = ObjAtPath<'a,Expression,ProofSubexpressionPath>;
+pub type OwnedSubexpressionInProof = OwnedObjAtPath<Expression,ProofSubexpressionPath>;
 
 mod from {
     use super::*;

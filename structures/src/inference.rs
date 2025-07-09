@@ -30,5 +30,4 @@ impl <'a, Rule: 'a + InferenceRule> HasChildren<'a,AtomicSubproofPath,Proof<Rule
     fn get_child(&'a self, _: &AtomicSubproofPath) -> Result<&'a Proof<Rule>,()> { Err(()) }
 }
 
-pub trait InferenceRule: Clone + PartialEq {}
-impl <T: Clone + PartialEq> InferenceRule for T {}
+pub trait InferenceRule: 'static + Clone + PartialEq {}
