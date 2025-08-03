@@ -13,10 +13,10 @@ impl <E: Clone> ErrorInProof<E> {
 
     /// Add a new step to this error and return self
     /// This should be used for 
-    pub fn push_step(&mut self, step: usize) -> &Self { self.0.prepend(step); self }
+    pub fn push_step(&mut self, step: usize) -> &Self { self.0.0.prepend(step); self }
     /// Add a new step to this error and return self
     /// This should be used for 
-    pub fn pop_step(&mut self) -> Option<AtomicSubproofPath> { self.0.pop() }
+    pub fn pop_step(&mut self) -> Option<AtomicSubproofPath> { self.0.0.pop() }
 
     // Getters and setters
     /// Get the location in the proof that this error is located at
@@ -66,14 +66,14 @@ mod tests {
     #[test]
     fn test_here() {
         let step = ErrorInProof::here(TestError::Error);
-        assert_eq!(step.location().paths(), &vec![]);
+        assert_eq!(step.location().0.paths(), &vec![]);
         assert_eq!(step.err(), &TestError::Error);
     }
 
     #[test]
     fn test_at_substep() {
         let step = ErrorInProof::at_substep(1,TestError::Error);
-        assert_eq!(step.location().paths(), &vec![(1 as usize).into()]);
+        assert_eq!(step.location().0.paths(), &vec![(1 as usize).into()]);
         assert_eq!(step.err(), &TestError::Error);
     }
 
@@ -81,7 +81,7 @@ mod tests {
     fn test_push() {
         let mut step = ErrorInProof::at_substep(1, TestError::Error);
         step.push_step(2);
-        assert_eq!(step.location().paths(), &vec![(2 as usize).into(),(1 as usize).into()]);
+        assert_eq!(step.location().0.paths(), &vec![(2 as usize).into(),(1 as usize).into()]);
         assert_eq!(step.err(), &TestError::Error);
     }
 
