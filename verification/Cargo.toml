@@ -6,3 +6,5 @@ edition = "2024"
 [dependencies]
 path_lib = { path = "../path_lib" }
 tbl_structures = { path = "../structures" }
+
+dyn-clone = { version = "1.0.19" }
