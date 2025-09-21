@@ -1,8 +1,7 @@
 use std::fmt::Display;
-
 use dyn_clone::DynClone;
-use path_lib::{obj_at_path::OwnedObjAtPath, paths::PathSeries};
-use tbl_structures::{inference::{Inference, InferenceRule}, proof::{AtomicSubproofPath, OwnedPropositionInProof, OwnedSubexpressionInProof, OwnedSubproofInProof, Proof, ProofStep, PropositionInProof, SubexpressionInProof, SubproofInProof}};
+
+use tbl_structures::{inference::{Inference, InferenceRule}, proof::{OwnedPropositionInProof, OwnedSubexpressionInProof, OwnedSubproofInProof}};
 
 use crate::{errors::validation_error::ProofValidationError, inference_rules::InferenceVerifier};
 
@@ -68,4 +67,27 @@ pub fn verify_inference<Rule: VerifiableInferenceRule>(inference: &Inference<Rul
 
 pub trait VerifiableInferenceRule: InferenceRule {
     fn get_verifier(rule: &Self) -> impl InferenceVerifier<Self>;
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::errors::specification_error::StringifiablePredicate;
+
+    #[test]
+    fn test_evaluate_stringifiable_predicate_on_true() {
+        let predicate = |i: [i16; 2]| { i[0] < i[1] };
+        let stringifier = |i: [i16; 2]| { format!("First item ({}) was not less than second item ({})",i[0],i[1]) };
+        let str_pred = StringifiablePredicate::new(predicate, stringifier);
+        let result = str_pred.evaluate([1,2]);
+        assert!(result.is_ok())
+    }
+
+    #[test]
+    fn test_evaluate_stringifiable_predicate_on_false() {
+        let predicate = |i: [i16; 2]| { i[0] < i[1] };
+        let stringifier = |i: [i16; 2]| { format!("First item ({}) was not less than second item ({})",i[0],i[1]) };
+        let str_pred = StringifiablePredicate::new(predicate, stringifier);
+        let assignment = str_pred.evaluate([2,1]).unwrap_err();
+        assert_eq!(assignment.to_string(),"First item (2) was not less than second item (1)")
+    }
 }
