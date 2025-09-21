@@ -80,6 +80,8 @@ impl From<BuiltInAtom> for Expression {
 
 #[cfg(test)]
 mod tests {
+    use enum_iterator::cardinality;
+
     use super::*;
 
     #[test]
@@ -128,5 +130,30 @@ mod tests {
             let atomic_expr = Expression::from(vec![Expression::from(AtomId(i))]);
             assert_eq!(atomic_expr.as_slice(), Ok(vec![Expression::from(AtomId(i))].as_slice()));
         }
+    }
+
+
+    
+    #[test]
+    fn test_get_negated_on_non_negation() {
+        let x = Expression::Atomic(cardinality::<BuiltInAtom>().try_into().unwrap());
+        assert_eq!(x.get_negated(), None)
+    }
+
+    #[test]
+    fn test_get_negated_on_negation() {
+        let neg: Expression = BuiltInAtom::Negation.into();
+        let x = Expression::Atomic(cardinality::<BuiltInAtom>().try_into().unwrap());
+        let neg_x = Expression::Tuple(vec![neg,x.clone()]);
+        assert_eq!(neg_x.get_negated(), Some(&x))
+    }
+
+    #[test]
+    fn test_get_negated_on_double_negation() {
+        let neg: Expression = BuiltInAtom::Negation.into();
+        let x = Expression::Atomic(cardinality::<BuiltInAtom>().try_into().unwrap());
+        let neg_x = Expression::Tuple(vec![neg.clone(),x.clone()]);
+        let neg_neg_x = Expression::Tuple(vec![neg,neg_x.clone()]);
+        assert_eq!(neg_neg_x.get_negated(), Some(&neg_x))
     }
 }
