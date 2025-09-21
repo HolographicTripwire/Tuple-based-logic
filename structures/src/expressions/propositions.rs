@@ -58,6 +58,29 @@ mod tests {
     use super::*;
 
     #[test]
+    fn test_by_negation_level_with_empty_set() {
+        let propset = PropositionSet::new();
+        let expected = HashMap::new();
+        assert_eq!(by_negation_level(propset.iter()),expected)
+    }
+
+    #[test]
+    fn test_by_negation_level_with_full_set() {
+        let neg: Expression = BuiltInAtom::Negation.into();
+        let x = Expression::Atomic(cardinality::<BuiltInAtom>().try_into().unwrap());
+        let y = Expression::Atomic((cardinality::<BuiltInAtom>() + 1).try_into().unwrap());
+        let neg_x = Expression::Tuple(vec![neg.clone(), x.clone()]);
+        let neg_neg_x = Expression::Tuple(vec![neg.clone(), neg_x.clone()]);
+        let propset = PropositionSet::from_iter(vec![x.clone(), y.clone(), neg_x.clone(), neg_neg_x.clone()]);
+        let expected = [
+            (0,HashSet::from_iter([&x,&y])),
+            (1,HashSet::from_iter([&neg_x])),
+            (2,HashSet::from_iter([&neg_neg_x]))
+        ].iter().cloned().collect();
+        assert_eq!(by_negation_level(propset.iter()),expected)
+    }
+
+    #[test]
     fn test_get_contradictions_with_no_contradictions() {
         let neg = BuiltInAtom::Negation.into();
         let x = Expression::Atomic(cardinality::<BuiltInAtom>().try_into().unwrap());
