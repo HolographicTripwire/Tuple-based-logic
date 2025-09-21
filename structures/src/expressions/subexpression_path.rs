@@ -88,4 +88,42 @@ mod tests {
             assert_eq!(atomic_expr.get_descendant(&path), Err(()));
         }
     }
+
+    #[test]
+    fn test_display_on_atomic_path() {
+        for i in 0..10 {
+            let path: AtomicSubexpressionPath = i.into();
+            assert_eq!(path.to_string(), format!("{}",i));
+        }
+    }
+
+    #[test]
+    fn test_display_on_unary_path() {
+        for i in 0..10 {
+            let path: SubexpressionPath = [i].into();
+            assert_eq!(path.display(), format!("{}",i));
+        }
+    }
+
+    #[test]
+    fn test_display_on_binary_path() {
+        for i in 0..10 {
+            for j in 0..10 {
+                let path: SubexpressionPath = [i,j].into();
+                assert_eq!(path.display(), format!("{}.{}",i,j));
+            }
+        }
+    }
+
+    #[test]
+    fn test_display_on_ternary_path() {
+        for i in 0..10 {
+            for j in 0..10 {
+                for k in 0..10 {
+                    let path: SubexpressionPath = [i,j,k].into();
+                    assert_eq!(path.display(), format!("{}.{}.{}",i,j,k));
+                }
+            }
+        }
+    }
 }
