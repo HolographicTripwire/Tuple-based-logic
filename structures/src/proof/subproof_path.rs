@@ -1,6 +1,6 @@
 use std::fmt::Display;
 
-use path_lib::{obj_at_path::{ObjAtPath, OwnedObjAtPath}, paths::{PathPrimitive, PathSeries}, HasChildren, Path};
+use path_lib::{obj_at_path::{ObjAtPath, OwnedObjAtPath}, paths::{PathPrimitive, PathSeries}, HasChildren};
 
 use crate::{inference::InferenceRule, proof::{CompositeProof, Proof}, DisplayExt};
 

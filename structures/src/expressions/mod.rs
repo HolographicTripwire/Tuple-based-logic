@@ -9,7 +9,7 @@ use crate::atoms::{AtomId, BuiltInAtom};
 
 use tuple_or_error::TUPLE_OR_UNIT;
 
-/// Components used in the construction of [Proposition] objects
+/// A compound unit in Tuple-Based Logic, which are used to build up [Propositions](Proposition)
 #[derive(Debug,Clone,PartialEq,Eq,Hash)]
 pub enum Expression {
     Atomic(AtomId),
@@ -17,7 +17,7 @@ pub enum Expression {
 }
 
 impl Expression {
-    // If this expression is an Atom, get its id. Otherwise throw an error
+    /// If this expression is an Atom, get its id. Otherwise throw an error
     pub fn as_atom(&self) -> Result<AtomId,()> {
         match self {
             Expression::Atomic(entity_id) => Ok(*entity_id),
@@ -41,20 +41,30 @@ impl Expression {
         }
     }
 
-    /// Check if this expression is the negation of another
-    pub fn is_negation_of(&self, other: &Expression) -> bool {
-        let Ok([negation_atom, remainder]) = TUPLE_OR_UNIT.as_slice(self) else { return false; };
-        if negation_atom != &BuiltInAtom::Negation.into() { return false; }
-        else { return remainder == other }
+    /// Get the expression which is negated by this expression
+    /// Returns Some(&negated_expression) if this expression is the negation of some negated_expression, otherwise returns None
+    /// For example, get_negated((¬,(¬,P))) = (¬,P)
+    pub fn get_negated(&self) -> Option<&Expression> {
+        // Try splitting this atom into two components. On failure, this expression is not a well-formed negation, so return None
+        let Ok([negation_atom, negated_expression]) = TUPLE_OR_UNIT.as_slice(self) else { return None; };
+        // If the head of this expression is not a negation atom, this expression is not a well-formed negation, so return false
+        if negation_atom != &BuiltInAtom::Negation.into() { return None; }
+        // We now know that the expression is a well-formed negation, so we return the expression being negated
+        Some(negated_expression)
     }
+
+    /// Check if this expression is the negation of another
+    pub fn is_negation_of(&self, other: &Expression) -> bool { self.get_negated() == Some(other) }
 
     /// Get the number of negations that this proposition begins with
     /// Note that a negation level is only counted if that level contains two terms - where one is the negation.
     /// So, (¬,(¬,P)) counts as two, but (¬,(¬,P,Q)) and (¬,(¬)) only count as one
     pub fn negation_level(&self) -> usize {
-        let Ok([negation_atom, remainder]) = TUPLE_OR_UNIT.as_slice(self) else { return 0; };
-        if negation_atom != &BuiltInAtom::Negation.into() { return 0; }
-        else { return remainder.negation_level() + 1; }
+        // Inductive case; if this expression negates something, then its negation level is the negated expressoin's negation level plus one
+        if let Some(negated_expression) = self.get_negated()
+            { negated_expression.negation_level() + 1 }
+        // Base case; if this expression doesn't negate anything than the negation level is zero
+        else { 0 }
     }
 }
 
