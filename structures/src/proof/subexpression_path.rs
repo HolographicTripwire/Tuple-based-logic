@@ -1,20 +1,27 @@
+use std::fmt::Display;
+
 use path_lib::{obj_at_path::{ObjAtPath, OwnedObjAtPath}, paths::{PathPair, PathSeries}, Path};
 
-use crate::{expressions::{Expression, SubexpressionPath}, proof::ProofPropositionPath};
+use crate::{expressions::{Expression, SubexpressionPath}, proof::ProofStepPropositionPath, DisplayExt};
 
 #[derive(Clone)]
 pub struct ProofSubexpressionPath{
-    pub proposition: ProofPropositionPath,
+    pub proposition: ProofStepPropositionPath,
     pub subexpression: SubexpressionPath
 }
 impl Path for ProofSubexpressionPath {}
 impl ProofSubexpressionPath {
     pub fn new(is_conclusion: bool, proposition_index: usize, subexpression_path: impl Into<SubexpressionPath>) -> Self
-        { (ProofPropositionPath::new(is_conclusion, proposition_index), subexpression_path).into() }
+        { (ProofStepPropositionPath::new(is_conclusion, proposition_index), subexpression_path).into() }
     pub fn assumption(assumption_index: usize, subexpression_path: impl Into<SubexpressionPath>) -> Self
-        { (ProofPropositionPath::assumption(assumption_index), subexpression_path).into() }
+        { (ProofStepPropositionPath::assumption(assumption_index), subexpression_path).into() }
     pub fn conclusion(conclusion_index: usize, subexpression_path: impl Into<SubexpressionPath>) -> Self
-        { (ProofPropositionPath::conclusion(conclusion_index), subexpression_path).into() }
+        { (ProofStepPropositionPath::conclusion(conclusion_index), subexpression_path).into() }
+}
+impl Display for ProofSubexpressionPath {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f,"{}:{}",self.proposition,self.subexpression.display())
+    }
 }
 
 pub type SubexpressionInProof<'a> = ObjAtPath<'a,Expression,ProofSubexpressionPath>;
@@ -33,10 +40,10 @@ mod from {
 mod into {
     use super::*;
 
-    impl Into<PathPair<ProofPropositionPath,SubexpressionPath>> for ProofSubexpressionPath {
-        fn into(self) -> PathPair<ProofPropositionPath,SubexpressionPath> { PathPair::new(self.proposition,self.subexpression) }
+    impl Into<PathPair<ProofStepPropositionPath,SubexpressionPath>> for ProofSubexpressionPath {
+        fn into(self) -> PathPair<ProofStepPropositionPath,SubexpressionPath> { PathPair::new(self.proposition,self.subexpression) }
     }
-    impl <IL: Into<ProofPropositionPath>, IR: Into<SubexpressionPath>> From<(IL,IR)> for ProofSubexpressionPath {
+    impl <IL: Into<ProofStepPropositionPath>, IR: Into<SubexpressionPath>> From<(IL,IR)> for ProofSubexpressionPath {
         fn from(value: (IL,IR)) -> Self { Self{ proposition:value.0.into(), subexpression: value.1.into() } }
     }
 }

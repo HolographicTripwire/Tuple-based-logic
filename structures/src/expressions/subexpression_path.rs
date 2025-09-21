@@ -1,22 +1,43 @@
 
+use std::fmt::Display;
+
 use path_lib::{obj_at_path::{ObjAtPath, OwnedObjAtPath}, paths::{PathPrimitive, PathSeries}, HasChildren};
 
-use crate::expressions::Expression;
+use crate::{expressions::Expression, DisplayExt};
 
+/// The atomic object that makes up [SubexpressionPaths](SubexpressionPath)
+/// For example, within the [Expression] (a,(b,c),d), the [AtomicSubexpressionPath] 1 would lead to the [Expression] (b,c)
 #[derive(Clone)]
 pub struct AtomicSubexpressionPath(usize);
 impl PathPrimitive for AtomicSubexpressionPath {}
+/// A path to one [Expression], within another [Expression]
+/// For example, within the [Expression] (a,(b,c),d), the [AtomicSubexpressionPath] (1,0) would lead to the [Expression] (b)
 pub type SubexpressionPath = PathSeries<AtomicSubexpressionPath>;
 
 impl <'a> HasChildren<'a,AtomicSubexpressionPath,Expression> for Expression {
     fn valid_primitive_paths(&self) -> impl IntoIterator<Item = AtomicSubexpressionPath> {
         let max = if let Ok(vec) = self.as_vec()
-            { vec.len() } else { 0 };
+            { vec.len() }else { 0 };
         (0..max).map(|ix| ix.into())
     }
 
-    fn get_child(&'a self, path: &AtomicSubexpressionPath) -> Result<&'a Expression,()> {
-        self.as_vec()?.get(path.0).ok_or(())
+    fn get_child(&'a self, path: &AtomicSubexpressionPath) -> Result<&'a Expression,()>
+        { self.as_vec()?.get(path.0).ok_or(()) }
+}
+
+impl Display for AtomicSubexpressionPath {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f,"{}",self.0)
+    }
+}
+
+impl DisplayExt for SubexpressionPath {
+    fn display(&self) -> String {
+        self.paths()
+            .iter()
+            .map(|a| a.to_string())
+            .collect::<Vec<String>>()
+            .join(".")
     }
 }
 
@@ -28,7 +49,9 @@ mod from {
     }
 }
 
+/// A reference to an [Expression], located within another [Expression] by a [SubexpressionPath]
 pub type SubexpressionInExpression<'a> = ObjAtPath<'a,Expression,SubexpressionPath>;
+/// An [Expression], located within another [Expression] by a [SubexpressionPath]
 pub type OwnedSubexpressionInExpression = OwnedObjAtPath<Expression,SubexpressionPath>;
 
 #[cfg(test)]

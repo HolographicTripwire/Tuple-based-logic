@@ -4,7 +4,6 @@ use crate::expressions::Expression;
 
 /// Every [Proposition] within Tuple-based Logic is simply an [Expression] whose truth value is to be considered
 pub type Proposition = Expression;
-
 pub type PropositionSet = HashSet<Proposition>;
 
 /// Get HashMap mapping negation levels onto sets of propositions at that negation level
@@ -28,6 +27,7 @@ fn by_negation_level<'a, I: IntoIterator<Item=&'a Proposition>>(propositions: I)
     // Return the map
     result
 }
+
 /// Get the set of each [Proposition] within iterator which are contradicted by another [Proposition] within this iterator
 pub fn get_contradictions<'a, I: IntoIterator<Item=&'a Proposition>>(propositions: I) -> PropositionSet {
     let empty_hashset = HashSet::new(); // Simple binding of a new HashSet
