@@ -117,3 +117,90 @@ pub(super) fn allfix_function<'a>(input_head: &str, arity: usize, output_left: &
         ].concat())
     )
 }
+
+#[cfg(test)]
+mod tests {
+    use std::sync::LazyLock;
+
+    use parsertools::{results::ParseError, Parser};
+    use tbl_structures::{atoms::AtomId, expressions::Expression};
+
+    use crate::{helpers::styles::Style, structures::expressions::{functional::special_case::{symbol, symbol_atom, variadic_infix_function, variadic_prefix_function}, patterns::special_case::ExprPatternPair, raw::tests::TEST_RAW_EXPRESSION_STYLE, SpecialCase}};
+
+    fn pre_rtl_test(pair: ExprPatternPair, l: &str, r: &str) -> (Result<String, ParseError<char>>,Result<String, ParseError<char>>) {
+        let right = pair.left_to_right().parse_unambiguous(l.chars());
+        (right, Ok(r.to_string()))
+    }
+
+    fn pre_ltr_test(pair: ExprPatternPair, l: &str, r: &str) -> (Result<String, ParseError<char>>,Result<String, ParseError<char>>) {
+        let left = pair.right_to_left().parse_unambiguous(r.chars());
+        (left, Ok(l.to_string()))
+    }
+
+    #[test]
+    fn test_symbol_atom_ltr() {
+        let pair = symbol_atom(5, "hello", &TEST_RAW_EXPRESSION_STYLE);
+        let (r, r_check) = pre_ltr_test(pair, "#5", "hello");
+        assert_eq!(r, r_check)
+    }
+    #[test]
+    fn test_symbol_atom_rtl() {
+        let pair = symbol_atom(5, "hello", &TEST_RAW_EXPRESSION_STYLE);
+        let (l, l_check) = pre_rtl_test(pair, "#5", "hello");
+        assert_eq!(l, l_check)
+    }
+    #[test]
+    fn test_symbol_ltr() {
+        let pair = symbol("5", "hello");
+        let (r, r_check) = pre_ltr_test(pair, "5", "hello");
+        assert_eq!(r, r_check)
+    }
+    #[test]
+    fn test_symbol_rtl() {
+        let pair = symbol("5", "hello");
+        let (l, l_check) = pre_rtl_test(pair, "5", "hello");
+        assert_eq!(l, l_check)
+    }
+
+
+    #[test]
+    fn test_variadic_prefix_function_ltr() {
+        let pair = variadic_prefix_function("+", "+", &TEST_RAW_EXPRESSION_STYLE);
+        let (r, r_check) = pre_ltr_test(pair, "(+,1,2,3,4,5)", "+(1,2,3,4,5)");
+        assert_eq!(r, r_check)
+    }
+    #[test]
+    fn test_variadic_prefix_function_rtl() {
+        let pair = variadic_prefix_function("+", "+", &TEST_RAW_EXPRESSION_STYLE);
+        let (l, l_check) = pre_rtl_test(pair, "(+,1,2,3,4,5)", "+(1,2,3,4,5)");
+        assert_eq!(l, l_check)
+    }
+
+
+    #[test]
+    fn test_variadic_infix_function_ltr() {
+        let pair = variadic_infix_function("+", "+", &TEST_RAW_EXPRESSION_STYLE);
+        let (r, r_check) = pre_ltr_test(pair, "(+,1,2,3,4,5)", "(1+2+3+4+5)");
+        assert_eq!(r, r_check)
+    }
+    #[test]
+    fn test_variadic_infix_function_rtl() {
+        let pair = variadic_infix_function("+", "+", &TEST_RAW_EXPRESSION_STYLE);
+        let (l, l_check) = pre_rtl_test(pair, "(+,1,2,3,4,5)", "(1+2+3+4+5)");
+        assert_eq!(l, l_check)
+    }
+
+
+    #[test]
+    fn test_variadic_postfix_function_ltr() {
+        let pair = variadic_prefix_function("+", "+", &TEST_RAW_EXPRESSION_STYLE);
+        let (r, r_check) = pre_ltr_test(pair, "(+,1,2,3,4,5)", "+(1,2,3,4,5)");
+        assert_eq!(r, r_check)
+    }
+    #[test]
+    fn test_variadic_postfix_function_rtl() {
+        let pair = variadic_prefix_function("+", "+", &TEST_RAW_EXPRESSION_STYLE);
+        let (l, l_check) = pre_rtl_test(pair, "(+,1,2,3,4,5)", "(1,2,3,4,5)+");
+        assert_eq!(l, l_check)
+    }
+}
