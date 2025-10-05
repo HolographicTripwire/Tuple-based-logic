@@ -7,7 +7,7 @@ use crate::{expressions::Expression, DisplayExt};
 
 /// The atomic object that makes up [SubexpressionPaths](SubexpressionPath)
 /// For example, within the [Expression] (a,(b,c),d), the [AtomicSubexpressionPath] 1 would lead to the [Expression] (b,c)
-#[derive(Clone)]
+#[derive(Clone,Copy,PartialEq,Eq,Hash,Debug)]
 pub struct AtomicSubexpressionPath(usize);
 impl PathPrimitive for AtomicSubexpressionPath {}
 /// A path to one [Expression], within another [Expression]

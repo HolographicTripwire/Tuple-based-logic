@@ -4,7 +4,7 @@ use path_lib::{obj_at_path::{ObjAtPath, OwnedObjAtPath}, paths::PathPrimitive};
 
 use crate::expressions::Proposition;
 
-#[derive(Clone)]
+#[derive(Clone,Copy,PartialEq,Eq,Hash,Debug)]
 pub struct ProofStepPropositionPath {
     pub is_conclusion: bool,
     pub proposition_index: usize

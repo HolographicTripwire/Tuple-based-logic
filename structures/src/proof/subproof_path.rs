@@ -4,7 +4,7 @@ use path_lib::{obj_at_path::{ObjAtPath, OwnedObjAtPath}, paths::{PathPrimitive, 
 
 use crate::{inference::InferenceRule, proof::{CompositeProof, Proof}, DisplayExt};
 
-#[derive(Clone,PartialEq,Eq,Debug)]
+#[derive(Clone,Copy,PartialEq,Eq,Hash,Debug)]
 /// Identifies a particular step iwthin a [`Proof`], and can be given to such a [`Proof`] to retreive the [`SubProof`] at that step
 pub struct AtomicSubproofPath(usize);
 impl PathPrimitive for AtomicSubproofPath {}
