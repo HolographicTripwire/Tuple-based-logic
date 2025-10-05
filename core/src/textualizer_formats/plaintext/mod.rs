@@ -29,7 +29,7 @@ pub const EXPRESSION_STYLE: LazyLock<ExpressionStyle> = LazyLock::new(|| -> Expr
 mod tests {
     use std::{collections::HashMap};
 
-    use tbl_structures::{atoms::BuiltInAtom, propositions::Expression};
+    use tbl_structures::{atoms::BuiltInAtom, expressions::Expression};
     use tbl_textualization::{helpers::styles::Stylable, structures::expressions::expression_parser};
 
     use super::*;

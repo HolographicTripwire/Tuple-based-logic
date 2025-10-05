@@ -1,5 +1,5 @@
 [package]
-name = "tuple_based_logic"
+name = "tbl_core"
 version = "0.1.0"
 edition = "2024"
 
