@@ -2,7 +2,7 @@ use std::fmt::Display;
 
 use path_lib::{obj_at_path::{ObjAtPath, OwnedObjAtPath}, paths::{PathPair, PathSeries}, Path};
 
-use crate::{expressions::{Expression, SubexpressionPath}, proof::ProofStepPropositionPath, DisplayExt};
+use crate::{expressions::{AtomicSubexpressionPath, Expression, SubexpressionPath}, proof::ProofStepPropositionPath, DisplayExt};
 
 #[derive(Clone)]
 pub struct ProofSubexpressionPath{
@@ -21,6 +21,12 @@ impl ProofSubexpressionPath {
 impl Display for ProofSubexpressionPath {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f,"{}:{}",self.proposition,self.subexpression.display())
+    }
+}
+impl From<PathPair<ProofSubexpressionPath,AtomicSubexpressionPath>> for ProofSubexpressionPath {
+    fn from(mut value: PathPair<ProofSubexpressionPath,AtomicSubexpressionPath>) -> Self {
+        value.left.subexpression.append(value.right);
+        value.left
     }
 }
 
