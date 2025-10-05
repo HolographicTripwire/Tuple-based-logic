@@ -4,9 +4,9 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
+tbl_structures = { path = "../structures" }
+tbl_textualization = { path = "../textualization" }
 tbl_verification = { path = "../verification" }
 tbl_generation = { path = "../generation" }
-tbl_textualization = { path = "../textualization" }
-tbl_structures = { path = "../structures" }
 
 bimap = { version = "0.6.3" }
