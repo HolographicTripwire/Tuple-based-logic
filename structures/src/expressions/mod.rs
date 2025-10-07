@@ -1,7 +1,9 @@
+mod signatures;
 mod propositions;
 pub mod tuple_or_error;
 mod subexpression_path;
 
+pub use signatures::*;
 pub use propositions::{Proposition,PropositionSet,get_contradictions};
 pub use subexpression_path::*;
 
