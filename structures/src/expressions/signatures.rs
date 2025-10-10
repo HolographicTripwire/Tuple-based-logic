@@ -16,13 +16,15 @@ pub enum ExprStructureSignature {
 #[derive(Clone,PartialEq,Eq,Hash,Debug)]
 pub struct ExprContentsSignature(pub Vec<AtomId>);
 
-impl ExprSignatures {
-    pub fn new(expr: &Expression) -> Self {
+impl Expression {
+    pub fn as_signatures(&self) -> ExprSignatures {
         let mut contents = ExprContentsSignature(vec![]);
-        let structure = Self::from_expression_inner(expr, &mut contents);
+        let structure = ExprSignatures::from_expression_inner(self, &mut contents);
         ExprSignatures { structure, contents }
     }
+}
 
+impl ExprSignatures {
     pub fn as_expression(&self) -> Expression {
         Self::into_expression_inner(&self.structure, &self.contents, &mut 0)
     }
@@ -31,10 +33,10 @@ impl ExprSignatures {
     pub fn get_atoms(&self) -> &ExprContentsSignature { &self.contents }
 }
 
-impl From<Expression> for ExprSignatures
-    { fn from(expr: Expression) -> Self { Self::new(&expr) } }
+impl Into<ExprSignatures> for Expression
+    { fn into(self) -> ExprSignatures { self.as_signatures() } }
 impl Into<Expression> for ExprSignatures
-    { fn into(self) -> Expression { Self::as_expression(&self) } }
+    { fn into(self) -> Expression { self.as_expression() } }
 
 impl ExprSignatures {
     fn from_expression_inner(expr: &Expression, contents: &mut ExprContentsSignature) -> ExprStructureSignature {
