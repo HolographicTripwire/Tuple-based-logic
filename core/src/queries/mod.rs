@@ -1,3 +1,6 @@
+mod signatures;
+mod sources;
+
 use std::collections::HashMap;
 
 use tbl_structures::{atoms::AtomId, expressions::Proposition};
