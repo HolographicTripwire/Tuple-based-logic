@@ -22,7 +22,9 @@ impl <'a> HasChildren<'a,AtomicSubexpressionPath,Expression> for Expression {
     }
 
     fn get_child(&'a self, path: &AtomicSubexpressionPath) -> Result<&'a Expression,()>
-        { self.as_vec()?.get(path.0).ok_or(()) }
+        { self.as_vec()?.get(path.0).ok_or(()) }    
+    fn get_child_owned(&self, path: &AtomicSubexpressionPath) -> Result<Expression,()> where Expression: Clone
+        { self.as_vec()?.get(path.0).ok_or(()).cloned() }
 }
 
 impl Display for AtomicSubexpressionPath {

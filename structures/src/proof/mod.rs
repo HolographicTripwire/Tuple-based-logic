@@ -5,7 +5,7 @@ pub mod error;
 
 use std::collections::HashSet;
 
-use path_lib::{obj_at_path::ObjAtPath, HasChildren, HasDescendants};
+use path_lib::{obj_at_path::ObjAtPath, HasChildren};
 
 pub use subproof_path::*;
 pub use proposition_path::*;
@@ -20,7 +20,7 @@ pub trait ProofStep<'a, Rule:'a + InferenceRule> : HasChildren<'a,ProofStepPropo
     /// Get the [ProofPropositionPaths](ProofPropositionPath) of all explicit conclusions within this [ProofStep]
     fn explicit_conclusion_paths(&self) -> impl IntoIterator<Item = ProofStepPropositionPath>;
     /// Get the [AtomicSubproofPaths](AtomicSubproofPath) of all immediate subproofs within this [ProofStep]
-    fn immediate_subproof_paths(&'a self) -> impl IntoIterator<Item=AtomicSubproofPath> { <Self as HasChildren<'a,AtomicSubproofPath,Proof<Rule>>>::valid_primitive_paths(self) }
+    fn immediate_subproof_paths(&'a self) -> impl IntoIterator<Item=AtomicSubproofPath> { <Self as HasChildren<AtomicSubproofPath,Proof<Rule>>>::valid_primitive_paths(self) }
     
     /// Get all assumptions within this [ProofStep]
     fn get_assumptions(&'a self) -> impl IntoIterator<Item = &'a Proposition>
@@ -38,7 +38,7 @@ pub trait ProofStep<'a, Rule:'a + InferenceRule> : HasChildren<'a,ProofStepPropo
     
     /// Get all immediate subproofs within this [ProofStep]
     fn get_immediate_subproofs(&'a self) -> impl IntoIterator<Item = &'a Proof<Rule>>
-        { self.immediate_subproof_paths().into_iter().map(|p| self.get_descendant(&p).unwrap()) }
+        { self.immediate_subproof_paths().into_iter().map(|p| self.get_child(&p).unwrap()) }
     /// Get all immediate subproofs within this [ProofStep], located by their [AtomicSubproofPath]
     fn get_located_immediate_subproofs(&'a self) -> impl IntoIterator<Item = ObjAtPath<'a,Proof<Rule>,AtomicSubproofPath>>
         { self.immediate_subproof_paths().into_iter().map(|p| self.get_located_child(p).unwrap()) }
@@ -92,7 +92,10 @@ impl <'a,Rule: 'a + InferenceRule> ProofStep<'a,Rule> for Proof<Rule> {
 
 impl <'a, Rule:'a + InferenceRule> HasChildren<'a,ProofStepPropositionPath,Proposition> for Proof<Rule> {
     fn valid_primitive_paths(&self) -> impl IntoIterator<Item = ProofStepPropositionPath> { valid_primitive_paths_inner(self) }
+    
     fn get_child(&'a self, path: &ProofStepPropositionPath) -> Result<&'a Proposition,()> { get_child_inner(self,path) }
+    fn get_child_owned(&self, path: &ProofStepPropositionPath) -> Result<Proposition,()> where Proposition: Clone
+        { get_child_inner(self, path).cloned() }
 }
 
 #[derive(Clone,PartialEq,Eq,Debug)]
@@ -116,10 +119,12 @@ impl <'a,Rule: 'a + InferenceRule> ProofStep<'a,Rule> for CompositeProof<Rule> {
     fn get_immediate_subproofs(&'a self) -> impl IntoIterator<Item=&'a Proof<Rule>>
         { <Self as HasChildren<'_, AtomicSubproofPath, Proof<Rule>>>::get_children(self) }
 }
-
 impl <'a, Rule:'a + InferenceRule> HasChildren<'a,ProofStepPropositionPath,Proposition> for CompositeProof<Rule> {
     fn valid_primitive_paths(&self) -> impl IntoIterator<Item = ProofStepPropositionPath> { valid_primitive_paths_inner(self) }
+    
     fn get_child(&'a self, path: &ProofStepPropositionPath) -> Result<&'a Proposition,()> { get_child_inner(self,path) }
+    fn get_child_owned(&self, path: &ProofStepPropositionPath) -> Result<Proposition,()> where Proposition: Clone 
+        { get_child_inner(self,path).cloned() }
 }
 
 #[cfg(test)]

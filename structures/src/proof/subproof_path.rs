@@ -31,10 +31,16 @@ impl <'a,Rule:'a + InferenceRule> HasChildren<'a,AtomicSubproofPath,Proof<Rule>>
             { composite.subproofs.len() } else { 0 };
         (0..max).map(|ix| ix.into())
     }
-
+    
     fn get_child(&'a self, path: &AtomicSubproofPath) -> Result<&'a Proof<Rule>,()> {
         if let Proof::Composite(composite) = self
             { composite.get_child(path) }
+        else { Err(()) }
+    }
+    
+    fn get_child_owned(&self, path: &AtomicSubproofPath) -> Result<Proof<Rule>,()> where Proof<Rule>: Clone {
+        if let Proof::Composite(composite) = self
+            { composite.get_child_owned(path) }
         else { Err(()) }
     }
 }
@@ -44,6 +50,8 @@ impl <'a,Rule:'a + InferenceRule> HasChildren<'a,AtomicSubproofPath,Proof<Rule>>
         { (0..self.subproofs.len()).map(|ix| ix.into()) }
     fn get_child(&'a self, path: &AtomicSubproofPath) -> Result<&'a Proof<Rule>,()>
         { self.subproofs.get(path.0).ok_or(()) }
+    fn get_child_owned(&self, path: &AtomicSubproofPath) -> Result<Proof<Rule>,()> where Proof<Rule>: Clone
+        { self.subproofs.get(path.0).ok_or(()).cloned() }
 }
 
 mod from {

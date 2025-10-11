@@ -24,10 +24,14 @@ impl <'a, Rule:'a + InferenceRule> ProofStep<'a,Rule> for Inference<Rule> {
 impl <'a, Rule:'a + InferenceRule> HasChildren<'a,ProofStepPropositionPath,Proposition> for Inference<Rule> {
     fn valid_primitive_paths(&self) -> impl IntoIterator<Item = ProofStepPropositionPath> { valid_primitive_paths_inner(self) }
     fn get_child(&'a self, path: &ProofStepPropositionPath) -> Result<&'a Proposition,()> { get_child_inner(self,path) }
+    
+    fn get_child_owned(&self, path: &ProofStepPropositionPath) -> Result<Proposition,()> where Proposition: Clone
+        { get_child_inner(self,path).cloned() }
 }
 impl <'a, Rule: 'a + InferenceRule> HasChildren<'a,AtomicSubproofPath,Proof<Rule>> for Inference<Rule> {
     fn valid_primitive_paths(&self) -> impl IntoIterator<Item = AtomicSubproofPath> { [] }
     fn get_child(&'a self, _: &AtomicSubproofPath) -> Result<&'a Proof<Rule>,()> { Err(()) }
+    fn get_child_owned(&self, _: &AtomicSubproofPath) -> Result<Proof<Rule>,()> { Err(()) }
 }
 
 pub trait InferenceRule: 'static + Clone + PartialEq {}
