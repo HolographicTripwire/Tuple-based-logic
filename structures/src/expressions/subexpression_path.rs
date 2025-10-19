@@ -17,7 +17,7 @@ pub type SubexpressionPath = PathSeries<AtomicSubexpressionPath>;
 impl <'a> HasChildren<'a,AtomicSubexpressionPath,Expression> for Expression {
     fn valid_primitive_paths(&self) -> impl IntoIterator<Item = AtomicSubexpressionPath> {
         let max = if let Ok(vec) = self.as_vec()
-            { vec.len() }else { 0 };
+            { vec.len() } else { 0 };
         (0..max).map(|ix| ix.into())
     }
 

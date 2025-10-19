@@ -1,8 +1,8 @@
 use std::fmt::Display;
 
-use path_lib::{obj_at_path::{ObjAtPath, OwnedObjAtPath}, paths::PathPrimitive};
+use path_lib::{obj_at_path::{ObjAtPath, OwnedObjAtPath}, paths::PathPrimitive, Path};
 
-use crate::expressions::Proposition;
+use crate::{expressions::Proposition, proof::SubproofPath, DisplayExt};
 
 #[derive(Clone,Copy,PartialEq,Eq,Hash,Debug)]
 pub struct ProofStepPropositionPath {
@@ -20,6 +20,23 @@ impl Display for ProofStepPropositionPath {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         if self.is_conclusion { write!(f,"C{}",self.proposition_index) }
         else { write!(f,"A{}",self.proposition_index) }
+    }
+}
+
+#[derive(Clone)]
+pub struct ProofPropositionPath {
+    pub step_path: SubproofPath,
+    pub proposition_path: ProofStepPropositionPath,
+}
+impl ProofPropositionPath {
+    pub fn new(step: SubproofPath, proposition: ProofStepPropositionPath) -> Self { Self { step_path: step, proposition_path: proposition } }
+}
+impl Path for ProofPropositionPath {
+    
+}
+impl Display for ProofPropositionPath {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f,"{}{}",self.step_path.display(),self.proposition_path)
     }
 }
 
