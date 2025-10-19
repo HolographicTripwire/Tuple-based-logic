@@ -13,8 +13,8 @@ impl Display for AtomicSubproofPath {
         { write!(f, "{}", self.0) }
 }
 
-pub type SubproofPath = PathSeries<AtomicSubproofPath>;
-impl DisplayExt for SubproofPath {
+pub type ProofInProofPath = PathSeries<AtomicSubproofPath>;
+impl DisplayExt for ProofInProofPath {
     fn display(&self) -> String {
         self.paths().iter()
             .map(|atom| atom.to_string())
@@ -22,8 +22,8 @@ impl DisplayExt for SubproofPath {
     }
 }
 
-pub type SubproofInProof<'a,Rule> = ObjAtPath<'a,Proof<Rule>,SubproofPath>;
-pub type OwnedSubproofInProof<Rule> = OwnedObjAtPath<Proof<Rule>,SubproofPath>;
+pub type ProofInProof<'a,Rule> = ObjAtPath<'a,Proof<Rule>,ProofInProofPath>;
+pub type OwnedProofInProof<Rule> = OwnedObjAtPath<Proof<Rule>,ProofInProofPath>;
 
 impl <'a,Rule:'a + InferenceRule> HasChildren<'a,AtomicSubproofPath,Proof<Rule>> for Proof<Rule> {
     fn valid_primitive_paths(&self) -> impl IntoIterator<Item = AtomicSubproofPath> {

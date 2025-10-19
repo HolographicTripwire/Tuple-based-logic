@@ -1,15 +1,15 @@
-use crate::proof::subproof_path::{AtomicSubproofPath, SubproofPath};
+use crate::proof::subproof_path::{AtomicSubproofPath, ProofInProofPath};
 
 #[derive(Clone,PartialEq,Eq,Debug)]
-pub struct ErrorInProof<E: Clone>(SubproofPath,E);
+pub struct ErrorInProof<E: Clone>(ProofInProofPath,E);
 
 /// An error that is located at a particular step of a proof
 /// This can even include substeps of substeps
 impl <E: Clone> ErrorInProof<E> {
     /// Create a new error, which is located at the current step of the proof
-    pub fn here(err: E) -> Self { Self(SubproofPath::empty(),err) }
+    pub fn here(err: E) -> Self { Self(ProofInProofPath::empty(),err) }
     /// Create a new error, located at a given substep of the current step of the proof.
-    pub fn at_substep(step: usize, err: E) -> Self { Self(SubproofPath::new([step]),err) }
+    pub fn at_substep(step: usize, err: E) -> Self { Self(ProofInProofPath::new([step]),err) }
 
     /// Add a new step to this error and return self
     /// This should be used for 
@@ -21,7 +21,7 @@ impl <E: Clone> ErrorInProof<E> {
     // Getters and setters
     /// Get the location in the proof that this error is located at
     /// For instance, an error at step 1.2.1 would return a Vec containing 1, 2, 1, in that order
-    pub fn location(&self) -> &SubproofPath { &self.0 }
+    pub fn location(&self) -> &ProofInProofPath { &self.0 }
     pub fn err(&self) -> &E { &self.1 }
 }
 
