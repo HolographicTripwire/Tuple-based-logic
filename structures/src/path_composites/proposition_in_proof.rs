@@ -2,15 +2,15 @@ use std::fmt::Display;
 
 use path_lib::{obj_at_path::{ObjAtPath, OwnedObjAtPath}, Path};
 
-use crate::{expressions::Proposition, proof::{ProofInProofPath, PropositionInProofStepPath}, DisplayExt};
+use crate::{expressions::Proposition, proof::{ProofInProofPath, PropositionInInferencePath}, DisplayExt};
 
 #[derive(Clone,PartialEq,Eq)]
 pub struct PropositionInProofPath {
     pub step_path: ProofInProofPath,
-    pub proposition_path: PropositionInProofStepPath,
+    pub proposition_path: PropositionInInferencePath,
 }
 impl PropositionInProofPath {
-    pub fn new(step: ProofInProofPath, proposition: PropositionInProofStepPath) -> Self { Self { step_path: step, proposition_path: proposition } }
+    pub fn new(step: ProofInProofPath, proposition: PropositionInInferencePath) -> Self { Self { step_path: step, proposition_path: proposition } }
 }
 impl Path for PropositionInProofPath {}
 impl Display for PropositionInProofPath {
@@ -19,5 +19,5 @@ impl Display for PropositionInProofPath {
     }
 }
 
-pub type PropositionInProof<'a> = ObjAtPath<'a,Proposition,PropositionInProofStepPath>;
-pub type OwnedPropositionInProof = OwnedObjAtPath<Proposition,PropositionInProofStepPath>;
+pub type PropositionInProof<'a> = ObjAtPath<'a,Proposition,PropositionInInferencePath>;
+pub type OwnedPropositionInProof = OwnedObjAtPath<Proposition,PropositionInInferencePath>;

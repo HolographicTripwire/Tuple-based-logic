@@ -1,6 +1,6 @@
 use path_lib::HasChildren;
 
-use crate::{expressions::Proposition, proof::{get_child_inner, valid_primitive_paths_inner, AtomicSubproofPath, Proof, PropositionInProofStepPath, ProofStep}};
+use crate::{expressions::Proposition, proof::{get_child_inner, valid_primitive_paths_inner, AtomicSubproofPath, Proof, PropositionInInferencePath, ProofStep}};
 
 #[derive(Clone,PartialEq,Eq,Debug)]
 /// A struct representing a single inference step within a proof
@@ -12,20 +12,20 @@ pub struct Inference<Rule:InferenceRule> {
 }
 
 impl <'a, Rule:'a + InferenceRule> ProofStep<'a,Rule> for Inference<Rule> {
-    fn assumption_paths(&self) -> impl IntoIterator<Item = PropositionInProofStepPath>
-        { (0..self.assumptions.len()).map(|n| PropositionInProofStepPath::assumption(n)) }
-    fn explicit_conclusion_paths(&self) -> impl IntoIterator<Item = PropositionInProofStepPath>
-        { (0..self.conclusions.len()).map(|n| PropositionInProofStepPath::conclusion(n)) }
+    fn assumption_paths(&self) -> impl IntoIterator<Item = PropositionInInferencePath>
+        { (0..self.assumptions.len()).map(|n| PropositionInInferencePath::assumption(n)) }
+    fn explicit_conclusion_paths(&self) -> impl IntoIterator<Item = PropositionInInferencePath>
+        { (0..self.conclusions.len()).map(|n| PropositionInInferencePath::conclusion(n)) }
 
     // Faster versions of default members
     fn get_assumptions(&'a self) -> impl IntoIterator<Item = &'a Proposition> { &self.assumptions }
     fn get_explicit_conclusions(&'a self) -> impl IntoIterator<Item = &'a Proposition> { &self.conclusions }
 }
-impl <'a, Rule:'a + InferenceRule> HasChildren<'a,PropositionInProofStepPath,Proposition> for Inference<Rule> {
-    fn valid_primitive_paths(&self) -> impl IntoIterator<Item = PropositionInProofStepPath> { valid_primitive_paths_inner(self) }
-    fn get_child(&'a self, path: &PropositionInProofStepPath) -> Result<&'a Proposition,()> { get_child_inner(self,path) }
+impl <'a, Rule:'a + InferenceRule> HasChildren<'a,PropositionInInferencePath,Proposition> for Inference<Rule> {
+    fn valid_primitive_paths(&self) -> impl IntoIterator<Item = PropositionInInferencePath> { valid_primitive_paths_inner(self) }
+    fn get_child(&'a self, path: &PropositionInInferencePath) -> Result<&'a Proposition,()> { get_child_inner(self,path) }
     
-    fn get_child_owned(&self, path: &PropositionInProofStepPath) -> Result<Proposition,()> where Proposition: Clone
+    fn get_child_owned(&self, path: &PropositionInInferencePath) -> Result<Proposition,()> where Proposition: Clone
         { get_child_inner(self,path).cloned() }
 }
 impl <'a, Rule: 'a + InferenceRule> HasChildren<'a,AtomicSubproofPath,Proof<Rule>> for Inference<Rule> {

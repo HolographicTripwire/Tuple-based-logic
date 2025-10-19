@@ -2,12 +2,12 @@ use std::fmt::Display;
 
 use path_lib::{obj_at_path::{ObjAtPath, OwnedObjAtPath}, Path};
 
-use crate::{expressions::{Expression, ExpressionInExpressionPath}, proof::{ProofStepInProofPath, PropositionInProofStepPath}, DisplayExt};
+use crate::{expressions::{Expression, ExpressionInExpressionPath}, proof::{InferenceInProofPath, PropositionInInferencePath}, DisplayExt};
 
 #[derive(Clone,PartialEq,Eq)]
 pub struct ExpressionInProofPath{
-    pub step_path: ProofStepInProofPath,
-    pub proposition_path: PropositionInProofStepPath,
+    pub step_path: InferenceInProofPath,
+    pub proposition_path: PropositionInInferencePath,
     pub subexpression_path: ExpressionInExpressionPath
 }
 
