@@ -1,10 +1,11 @@
 [package]
 name = "tbl_verification"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2024"
 
 [dependencies]
 path_lib = { path = "../path_lib" }
 tbl_structures = { path = "../structures" }
+tbl_textualization = { path = "../textualization" }
 
 dyn-clone = { version = "1.0.19" }
