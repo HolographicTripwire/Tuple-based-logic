@@ -26,7 +26,7 @@ pub fn expression_value_check<'a>(value_expected: Expression, style: ExpressionS
 )}
 
 /// Check that the provided [Expression](OwnedSubexpressionInProof) has an atomicity equal to atomicty_expected, returning an error otherwise
-pub fn assert_expression_value<'a>(expr: OwnedExpressionInProof, value_expected: Expression, style: ExpressionStyle<'static>) -> Result<(), ProofStepSpecificationError<'a>> {
+pub fn assert_expression_value<'a>(expr: OwnedExpressionInProof, value_expected: Expression, style: ExpressionStyle<'a>) -> Result<(), ProofStepSpecificationError<'a>> {
     expression_value_check(value_expected, style).evaluate([expr])
         .map_err(|assertion| ProofStepSpecificationError::from_inner(assertion))
 }
