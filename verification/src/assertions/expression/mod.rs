@@ -1,14 +1,33 @@
 mod expression_atomicity_check;
+mod expression_atomicity_equality_check;
 mod expression_length_check;
+mod expression_length_equality_check;
 mod expression_value_check;
+mod expression_value_equality_check;
 
-pub use expression_atomicity_check::assert_expression_atomicity;
-pub use expression_length_check::{assert_expression_length, expression_length_stringifier};
-pub use expression_value_check::assert_expression_value;
+pub use expression_atomicity_check::*;
+pub use expression_atomicity_equality_check::*;
+pub use expression_length_check::*;
+pub use expression_length_equality_check::*;
+pub use expression_value_check::*;
+pub use expression_value_equality_check::*;
+
 use path_lib::{obj_at_path::{ObjAtPathWithChildren, ObjAtPathWithDescendants}, paths::PathPair};
-use tbl_structures::{expressions::ExpressionInExpressionPath, path_composites::{ExpressionInProof, ExpressionInProofPath, OwnedExpressionInProof}, DisplayExt};
+use tbl_structures::{expressions::{Expression, ExpressionInExpressionPath}, path_composites::{ExpressionInProof, ExpressionInProofPath, OwnedExpressionInProof}, DisplayExt};
 
 use crate::errors::{specification_error::NaryStringifier, ProofStepSpecificationError};
+
+/// Convert atomicity to string
+fn stringify_atomicity(is_atomic: bool) -> &'static str {
+    if is_atomic { "atomic" } else { "not-atomic" }
+}
+/// Convert length of an expression to string
+fn stringify_length(expr: &Expression) -> String {
+    match expr.as_slice() {
+        Ok(tuple) => tuple.len().to_string(),
+        Err(()) => stringify_atomicity(true).to_string()
+    }
+}
 
 pub fn expression_subpath_stringifier<'a>(subpath: ExpressionInExpressionPath) -> impl NaryStringifier<'a,1,OwnedExpressionInProof> {
     move |o: [OwnedExpressionInProof; 1]| format!(
