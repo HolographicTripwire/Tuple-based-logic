@@ -5,3 +5,58 @@ mod expression_value_check;
 pub use expression_atomicity_check::assert_expression_atomicity;
 pub use expression_length_check::{assert_expression_length, expression_length_stringifier};
 pub use expression_value_check::assert_expression_value;
+use path_lib::{obj_at_path::{ObjAtPathWithChildren, ObjAtPathWithDescendants}, paths::PathPair};
+use tbl_structures::{expressions::ExpressionInExpressionPath, path_composites::{ExpressionInProof, ExpressionInProofPath, OwnedExpressionInProof}, DisplayExt};
+
+use crate::errors::{specification_error::NaryStringifier, ProofStepSpecificationError};
+
+pub fn expression_subpath_stringifier<'a>(subpath: ExpressionInExpressionPath) -> impl NaryStringifier<'a,1,OwnedExpressionInProof> {
+    move |o: [OwnedExpressionInProof; 1]| format!(
+        "Expression at {path} has no subexpression at subpath {subpath}",
+        path=o[0].path().to_string(),
+        subpath=subpath.display()
+    )
+}
+
+pub fn subexpression<'a>(expression: &'a ExpressionInProof<'a>, subpath: ExpressionInExpressionPath) -> Result<ExpressionInProof<'a>,ProofStepSpecificationError<'a>> {
+    return match expression.get_located_descendant(subpath.clone()) {
+        Ok(c) => Ok(c.replace_path(
+            |p: PathPair<ExpressionInProofPath,ExpressionInExpressionPath>| p.into()
+        )), Err(_) => {
+            let inner = expression_subpath_stringifier(subpath);
+            let inner2 = inner.assign([expression.clone().into_owned()]);
+            Err(ProofStepSpecificationError::from_inner(inner2))
+        }
+    };
+    /* TODO: Delete or fix
+    let child: Result<ObjAtPath<'a, Expression, ProofSubexpressionPath>, ()> = expression
+        .get_located_child_owned(x())
+        .map(|e| e.replace_path(|p: PathPair<ProofSubexpressionPath,AtomicSubexpressionPath>| p.into()) );
+
+    for atom in subpath.paths() {
+        let child: Result<ObjAtPath<'a, Expression, ProofSubexpressionPath>, ()> = expression
+            .get_located_child( *atom)
+            .map(|e| e.replace_path(|p: PathPair<ProofSubexpressionPath,AtomicSubexpressionPath>| p.into()) );
+        match child {
+                Ok(e) => { expression = e; }
+                Err(_) => { return Err(ProofStepSpecificationError::from_inner(expression_subpath_stringifier(subpath).assign([expression.into_owned()]))) }
+        };
+    }
+    Ok(expression)
+     */
+}
+
+pub fn expression_as_slice(expression: &OwnedExpressionInProof) -> Vec<OwnedExpressionInProof> {
+    expression.get_located_children_owned()
+        .into_iter()
+        .map(|obj| obj.replace_path(|p| p.into()))
+        .collect::<Vec<OwnedExpressionInProof>>()
+}
+
+pub fn expression_as_sized_slice<'a,const expected_size: usize>(expression: &OwnedExpressionInProof) -> Result<Box<[OwnedExpressionInProof; expected_size]>,ProofStepSpecificationError<'a>> {
+    match expression_as_slice(expression)
+        .try_into() {
+            Ok(a) => Ok(a),
+            Err(_) => Err(ProofStepSpecificationError::from_inner(expression_length_stringifier(expected_size).assign([expression.to_owned()]))),
+        }
+}
