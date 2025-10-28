@@ -1,11 +1,18 @@
 mod proposition_atomicity_check;
+mod proposition_atomicity_equality_check;
 mod proposition_length_check;
+mod proposition_length_equality_check;
 mod proposition_value_check;
+mod proposition_value_equality_check;
+
+pub use proposition_atomicity_check::*;
+pub use proposition_atomicity_equality_check::*;
+pub use proposition_length_check::*;
+pub use proposition_length_equality_check::*;
+pub use proposition_value_check::*;
+pub use proposition_value_equality_check::*;
 
 use path_lib::obj_at_path::ObjAtPathWithChildren;
-pub use proposition_atomicity_check::assert_proposition_atomicity;
-pub use proposition_length_check::{assert_proposition_length, proposition_length_stringifier};
-pub use proposition_value_check::assert_proposition_value;
 use tbl_structures::path_composites::{OwnedExpressionInProof, OwnedPropositionInProof};
 
 use crate::errors::{specification_error::NaryStringifier, ProofStepSpecificationError};

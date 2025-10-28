@@ -3,13 +3,13 @@ use tbl_textualization::{helpers::styles::Style, structures::expressions::Expres
 
 use crate::errors::specification_error::{NaryPredicate, NaryStringifier, ProofStepSpecificationError, StringifiablePredicate};
 
-/// Get a [Predicate](NaryPredicate) which takes an [Expression](OwnedExpressionInProof) and checks if its atomicity is the expected value
+/// Get a [Predicate](NaryPredicate) which takes an [Expression](OwnedExpressionInProof) and checks if its value is the expected value
 fn expression_value_predicate<'a>(value_expected: Expression) -> impl NaryPredicate<'a,1,OwnedExpressionInProof> {
     move |o: [OwnedExpressionInProof; 1]| 
     o[0].obj() == &value_expected
 }
 
-/// Get a [Stringifier](NaryStringifier) which takes an [Expression](OwnedExpressionInProof) and returns an error message saying that this expression's atomicity is not the expected value
+/// Get a [Stringifier](NaryStringifier) which takes an [Expression](OwnedExpressionInProof) and returns an error message saying that this expression's value is not the expected value
 fn expression_value_stringifier<'a>(value_expected: Expression, style: ExpressionStyle<'a>) -> impl NaryStringifier<'a,1,OwnedExpressionInProof> {
     move |o: [OwnedExpressionInProof; 1]| {
     format!(
@@ -19,13 +19,13 @@ fn expression_value_stringifier<'a>(value_expected: Expression, style: Expressio
         value_actual_styled=style.stringify(o[0].obj())
     )}
 }
-/// Get a [Checker](StringifiablePredicate) which takes an [Expression](OwnedExpressionInProof) and returns an error message if this expression's atomicity is not the expected value
+/// Get a [Checker](StringifiablePredicate) which takes an [Expression](OwnedExpressionInProof) and returns an error message if this expression's value is not the expected value
 pub fn expression_value_check<'a>(value_expected: Expression, style: ExpressionStyle<'a>) -> StringifiablePredicate<'a,1,OwnedExpressionInProof> { StringifiablePredicate::new(
     expression_value_predicate(value_expected.clone()),
     expression_value_stringifier(value_expected, style),
 )}
 
-/// Check that the provided [Expression](OwnedExpressionInProof) has an atomicity equal to atomicty_expected, returning an error otherwise
+/// Check that the provided [Expression](OwnedExpressionInProof) has a value equal to value_expected, returning an error otherwise
 pub fn assert_expression_value<'a>(expr: OwnedExpressionInProof, value_expected: Expression, style: ExpressionStyle<'a>) -> Result<(), ProofStepSpecificationError<'a>> {
     expression_value_check(value_expected, style).evaluate([expr])
         .map_err(|assertion| ProofStepSpecificationError::from_inner(assertion))

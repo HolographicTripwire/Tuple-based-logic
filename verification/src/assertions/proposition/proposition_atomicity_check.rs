@@ -1,16 +1,13 @@
-use tbl_structures::{inference::InferenceRule, path_composites::{OwnedPropositionInProof}};
+use tbl_structures::{inference::InferenceRule, path_composites::OwnedPropositionInProof};
 
-use crate::errors::specification_error::{NaryPredicate, NaryStringifier, ProofStepSpecificationError, StringifiablePredicate};
+use crate::{assertions::expression::stringify_atomicity, errors::specification_error::{NaryPredicate, NaryStringifier, ProofStepSpecificationError, StringifiablePredicate}};
 
 /// Get a [Predicate](NaryPredicate) which takes an [Proposition](OwnedPropositionInProof) and checks if its atomicity is the expected value
 fn proposition_atomicity_predicate<'a>(atomicity_expected: bool) -> impl NaryPredicate<'a,1,OwnedPropositionInProof> {
     move |o: [OwnedPropositionInProof; 1]| 
     o[0].obj().as_atom().is_ok() == atomicity_expected
 }
-/// Convert atomicity to string
-fn stringify_atomicity(is_atomic: bool) -> &'static str {
-    if is_atomic { "atomic" } else { "not-atomic" }
-}
+
 /// Get a [Stringifier](NaryStringifier) which takes an [Proposition](OwnedPropositionInProof) and returns an error message saying that this proposition's atomicity is not the expected value
 fn proposition_atomicity_stringifier<'a>(atomicity_expected: bool) -> impl NaryStringifier<'a,1,OwnedPropositionInProof> {
     move |o: [OwnedPropositionInProof; 1]| format!(

@@ -18,11 +18,11 @@ use tbl_structures::{expressions::{Expression, ExpressionInExpressionPath}, path
 use crate::errors::{specification_error::NaryStringifier, ProofStepSpecificationError};
 
 /// Convert atomicity to string
-fn stringify_atomicity(is_atomic: bool) -> &'static str {
+pub(crate) fn stringify_atomicity(is_atomic: bool) -> &'static str {
     if is_atomic { "atomic" } else { "not-atomic" }
 }
 /// Convert length of an expression to string
-fn stringify_length(expr: &Expression) -> String {
+pub(crate) fn stringify_length(expr: &Expression) -> String {
     match expr.as_slice() {
         Ok(tuple) => tuple.len().to_string(),
         Err(()) => stringify_atomicity(true).to_string()
