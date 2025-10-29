@@ -1,4 +1,4 @@
-use tbl_structures::{inference::InferenceRule, path_composites::OwnedExpressionInProof};
+use tbl_structures::path_composites::OwnedExpressionInProof;
 
 use crate::{assertions::expression::stringify_atomicity, errors::specification_error::{NaryPredicate, NaryStringifier, ProofStepSpecificationError, StringifiablePredicate}};
 
@@ -30,8 +30,8 @@ pub fn expression_atomicity_equality_check<'a,const n: usize>() -> Stringifiable
     expression_atomicity_equality_stringifier(),
 )}
 
-/// Check that the provided [Expression](OwnedExpressionInProof) has an atomicity equal to atomicty_expected, returning an error otherwise
-pub fn assert_expression_atomicity_equality<'a,const n: usize, Rule:InferenceRule>(exprs: [OwnedExpressionInProof; n]) -> Result<(), ProofStepSpecificationError<'a>> {
+/// Check that the provided [Expressions](OwnedExpressionInProof) have equal atomicity, returning an error otherwise
+pub fn assert_expression_atomicity_equality<'a,const n: usize>(exprs: [OwnedExpressionInProof; n]) -> Result<(), ProofStepSpecificationError<'a>> {
     expression_atomicity_equality_check::<'a>()
         .evaluate(exprs)
         .map_err(|assertion| ProofStepSpecificationError::from_inner(assertion))

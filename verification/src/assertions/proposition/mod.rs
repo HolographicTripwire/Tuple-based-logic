@@ -1,16 +1,22 @@
 mod proposition_atomicity_check;
 mod proposition_atomicity_equality_check;
+mod proposition_atomicity_inequality_check;
 mod proposition_length_check;
 mod proposition_length_equality_check;
+mod proposition_length_inequality_check;
 mod proposition_value_check;
 mod proposition_value_equality_check;
+mod proposition_value_inequality_check;
 
 pub use proposition_atomicity_check::*;
 pub use proposition_atomicity_equality_check::*;
+pub use proposition_atomicity_inequality_check::*;
 pub use proposition_length_check::*;
 pub use proposition_length_equality_check::*;
+pub use proposition_length_inequality_check::*;
 pub use proposition_value_check::*;
 pub use proposition_value_equality_check::*;
+pub use proposition_value_inequality_check::*;
 
 use path_lib::obj_at_path::ObjAtPathWithChildren;
 use tbl_structures::path_composites::{OwnedExpressionInProof, OwnedPropositionInProof};

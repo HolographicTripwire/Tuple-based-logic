@@ -1,16 +1,22 @@
 mod expression_atomicity_check;
 mod expression_atomicity_equality_check;
+mod expression_atomicity_inequality_check;
 mod expression_length_check;
 mod expression_length_equality_check;
+mod expression_length_inequality_check;
 mod expression_value_check;
 mod expression_value_equality_check;
+mod expression_value_inequality_check;
 
 pub use expression_atomicity_check::*;
 pub use expression_atomicity_equality_check::*;
+pub use expression_atomicity_inequality_check::*;
 pub use expression_length_check::*;
 pub use expression_length_equality_check::*;
+pub use expression_length_inequality_check::*;
 pub use expression_value_check::*;
 pub use expression_value_equality_check::*;
+pub use expression_value_inequality_check::*;
 
 use path_lib::{obj_at_path::{ObjAtPathWithChildren, ObjAtPathWithDescendants}, paths::PathPair};
 use tbl_structures::{expressions::{Expression, ExpressionInExpressionPath}, path_composites::{ExpressionInProof, ExpressionInProofPath, OwnedExpressionInProof}, DisplayExt};
