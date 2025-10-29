@@ -3,13 +3,13 @@ use tbl_structures::{inference::InferenceRule, path_composites::OwnedExpressionI
 use crate::{assertions::expression::stringify_atomicity, errors::specification_error::{NaryPredicate, NaryStringifier, ProofStepSpecificationError, StringifiablePredicate}};
 
 /// Get a [Predicate](NaryPredicate) which takes an [Expression](OwnedExpressionInProof) and checks if its atomicity is the expected value
-fn expression_atomicity_predicate<'a>(atomicity_expected: bool) -> impl NaryPredicate<'a,1,OwnedExpressionInProof> {
+pub fn expression_atomicity_predicate<'a>(atomicity_expected: bool) -> impl NaryPredicate<'a,1,OwnedExpressionInProof> {
     move |o: [OwnedExpressionInProof; 1]| 
     o[0].obj().as_atom().is_ok() == atomicity_expected
 }
 
 /// Get a [Stringifier](NaryStringifier) which takes an [Expression](OwnedExpressionInProof) and returns an error message saying that this expression's atomicity is not the expected value
-fn expression_atomicity_stringifier<'a>(atomicity_expected: bool) -> impl NaryStringifier<'a,1,OwnedExpressionInProof> {
+pub fn expression_atomicity_stringifier<'a>(atomicity_expected: bool) -> impl NaryStringifier<'a,1,OwnedExpressionInProof> {
     move |o: [OwnedExpressionInProof; 1]| format!(
         "Expression at {path} has wrong atomicity (expected {atomicity_expected}; found {atomicity_actual})",
         path=o[0].path().to_string(),

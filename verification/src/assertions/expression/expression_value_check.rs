@@ -4,13 +4,13 @@ use tbl_textualization::{helpers::styles::Style, structures::expressions::Expres
 use crate::errors::specification_error::{NaryPredicate, NaryStringifier, ProofStepSpecificationError, StringifiablePredicate};
 
 /// Get a [Predicate](NaryPredicate) which takes an [Expression](OwnedExpressionInProof) and checks if its value is the expected value
-fn expression_value_predicate<'a>(value_expected: Expression) -> impl NaryPredicate<'a,1,OwnedExpressionInProof> {
+pub fn expression_value_predicate<'a>(value_expected: Expression) -> impl NaryPredicate<'a,1,OwnedExpressionInProof> {
     move |o: [OwnedExpressionInProof; 1]| 
     o[0].obj() == &value_expected
 }
 
 /// Get a [Stringifier](NaryStringifier) which takes an [Expression](OwnedExpressionInProof) and returns an error message saying that this expression's value is not the expected value
-fn expression_value_stringifier<'a>(value_expected: Expression, style: ExpressionStyle<'a>) -> impl NaryStringifier<'a,1,OwnedExpressionInProof> {
+pub fn expression_value_stringifier<'a>(value_expected: Expression, style: ExpressionStyle<'a>) -> impl NaryStringifier<'a,1,OwnedExpressionInProof> {
     move |o: [OwnedExpressionInProof; 1]| {
     format!(
         "Expression at {path} has wrong value (expected {value_expected_styled}; found {value_actual_styled})",

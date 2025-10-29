@@ -1,9 +1,9 @@
-use tbl_structures::{inference::InferenceRule, path_composites::OwnedExpressionInProof};
+use tbl_structures::{path_composites::OwnedExpressionInProof};
 
 use crate::{assertions::expression::stringify_length, errors::{specification_error::{NaryPredicate, NaryStringifier, StringifiablePredicate}, ProofStepSpecificationError}};
 
 /// Get a [Predicate](NaryPredicate) which takes n [Expressions](OwnedExpressionInProof) and checks if their lengths are equal
-fn expression_length_equality_predicate<'a,const n: usize>() -> impl NaryPredicate<'a,n,OwnedExpressionInProof> {
+pub fn expression_length_equality_predicate<'a,const n: usize>() -> impl NaryPredicate<'a,n,OwnedExpressionInProof> {
     move |os: [OwnedExpressionInProof; n]| { 
         let mut iter = os.iter().map(|o| o.obj().as_slice() );
         let first_length = iter.next().expect("Cannot check length equality for zero expressions");
@@ -31,7 +31,7 @@ pub fn expression_length_equality_check<'a, const n: usize>() -> StringifiablePr
 )}
 
 /// Check that the provided [Expressions](OwnedExpressionInProof) have equal length, returning an error otherwise
-pub fn assert_expression_length_equality<'a,const n: usize, Rule:InferenceRule>(exprs: [OwnedExpressionInProof; n]) -> Result<(), ProofStepSpecificationError<'a>> {
+pub fn assert_expression_length_equality<'a,const n: usize>(exprs: [OwnedExpressionInProof; n]) -> Result<(), ProofStepSpecificationError<'a>> {
     expression_length_equality_check().evaluate(exprs)
         .map_err(|assertion| ProofStepSpecificationError::from_inner(assertion))
 }

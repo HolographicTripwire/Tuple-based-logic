@@ -3,7 +3,7 @@ use tbl_structures::{inference::InferenceRule, path_composites::OwnedExpressionI
 use crate::{assertions::expression::stringify_atomicity, errors::specification_error::{NaryPredicate, NaryStringifier, ProofStepSpecificationError, StringifiablePredicate}};
 
 /// Get a [Predicate](NaryPredicate) which takes n [Expressions](OwnedExpressionInProof) and checks if their atomicities are equal
-fn expression_atomicity_equality_predicate<'a,const n: usize>() -> impl NaryPredicate<'a,n,OwnedExpressionInProof> {
+pub fn expression_atomicity_equality_predicate<'a,const n: usize>() -> impl NaryPredicate<'a,n,OwnedExpressionInProof> {
     move |os: [OwnedExpressionInProof; n]| { 
         let mut iter = os.iter().map(|o| o.obj().as_atom().is_ok());
         let first_atomicity = iter.next().expect("Cannot check atomicity equality for zero expressions");
@@ -14,7 +14,7 @@ fn expression_atomicity_equality_predicate<'a,const n: usize>() -> impl NaryPred
     }
 }
 /// Get a [Stringifier](NaryStringifier) which takes n [Expressions](OwnedExpressionInProof) and returns an error message saying that their atomicities aren't equal
-fn expression_atomicity_equality_stringifier<'a,const n: usize>() -> impl NaryStringifier<'a,n,OwnedExpressionInProof> {
+pub fn expression_atomicity_equality_stringifier<'a,const n: usize>() -> impl NaryStringifier<'a,n,OwnedExpressionInProof> {
     move |os: [OwnedExpressionInProof; n]| format!(
         "Expression atomicities expected to be equal, but weren't; {atomicities}",
         atomicities = os.map(|o| 

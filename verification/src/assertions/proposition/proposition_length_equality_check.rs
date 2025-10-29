@@ -1,4 +1,4 @@
-use tbl_structures::{inference::InferenceRule, path_composites::OwnedPropositionInProof};
+use tbl_structures::{path_composites::OwnedPropositionInProof};
 
 use crate::{assertions::expression::stringify_length, errors::{specification_error::{NaryPredicate, NaryStringifier, StringifiablePredicate}, ProofStepSpecificationError}};
 
@@ -31,7 +31,7 @@ pub fn proposition_length_equality_check<'a, const n: usize>() -> StringifiableP
 )}
 
 /// Check that the provided [Propositions](OwnedPropositionInProof) have equal length, returning an error otherwise
-pub fn assert_proposition_length_equality<'a,const n: usize, Rule:InferenceRule>(exprs: [OwnedPropositionInProof; n]) -> Result<(), ProofStepSpecificationError<'a>> {
+pub fn assert_proposition_length_equality<'a,const n: usize>(exprs: [OwnedPropositionInProof; n]) -> Result<(), ProofStepSpecificationError<'a>> {
     proposition_length_equality_check().evaluate(exprs)
         .map_err(|assertion| ProofStepSpecificationError::from_inner(assertion))
 }

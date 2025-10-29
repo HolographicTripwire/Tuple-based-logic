@@ -65,15 +65,16 @@ pub fn subexpression<'a>(expression: &'a ExpressionInProof<'a>, subpath: Express
      */
 }
 
-pub fn expression_as_slice(expression: &OwnedExpressionInProof) -> Vec<OwnedExpressionInProof> {
-    expression.get_located_children_owned()
+pub fn expression_as_slice<'a>(expression: &OwnedExpressionInProof) -> Result<Vec<OwnedExpressionInProof>,ProofStepSpecificationError<'a>> {
+    if let Expression::Atomic(_) = expression.obj() { return Err(ProofStepSpecificationError::from_inner(expression_atomicity_stringifier(false).assign([expression.clone()]))) };
+    Ok(expression.get_located_children_owned()
         .into_iter()
         .map(|obj| obj.replace_path(|p| p.into()))
-        .collect::<Vec<OwnedExpressionInProof>>()
+        .collect::<Vec<OwnedExpressionInProof>>())
 }
 
 pub fn expression_as_sized_slice<'a,const expected_size: usize>(expression: &OwnedExpressionInProof) -> Result<Box<[OwnedExpressionInProof; expected_size]>,ProofStepSpecificationError<'a>> {
-    match expression_as_slice(expression)
+    match expression_as_slice(expression)?
         .try_into() {
             Ok(a) => Ok(a),
             Err(_) => Err(ProofStepSpecificationError::from_inner(expression_length_stringifier(expected_size).assign([expression.to_owned()]))),

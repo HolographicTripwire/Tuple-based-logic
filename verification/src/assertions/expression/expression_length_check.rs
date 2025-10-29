@@ -3,7 +3,7 @@ use tbl_structures::path_composites::OwnedExpressionInProof;
 use crate::{assertions::expression::stringify_length, errors::{specification_error::{NaryPredicate, NaryStringifier, StringifiablePredicate}, ProofStepSpecificationError}};
 
 /// Get a [Predicate](NaryPredicate) which takes an [Expression](OwnedExpressionInProof) and checks if its length is not the expected value
-fn expression_length_predicate<'a>(expected_length: usize) -> impl NaryPredicate<'a,1,OwnedExpressionInProof> {
+pub fn expression_length_predicate<'a>(expected_length: usize) -> impl NaryPredicate<'a,1,OwnedExpressionInProof> {
     move |o: [OwnedExpressionInProof; 1]| { 
         match o[0].obj().as_slice() {
             Ok(tuple) => tuple.len() == expected_length,
