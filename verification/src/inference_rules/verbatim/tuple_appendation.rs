@@ -1,31 +1,31 @@
-use tbl_structures::{atoms::BuiltInAtom, propositions::{Proposition, Expression}};
+use tbl_structures::{atoms::BuiltInAtom, expressions::Expression, proof::OwnedInferenceInProof};
+use tbl_textualization::structures::expressions::ExpressionStyle;
 
-use crate::{inference_rules::TUPLE_OR_ERROR, ProofValidationError};
+
+use crate::{assertions::*, errors::specification_error::ProofStepSpecificationError, inference_rules::StandardInferenceRule};
 
 use super::resolve_verbatim;
 
-/// Verify that the assumptions and the conclusion form a valid instance of atomicity assertion ("Append(Verbatim((v1,v2,v3,...,vn)),Verbatim(vm)) = Verbatim((v1,v2,v3,...,vn,vm))" for any (v1,v2,v3,...,vn) and vm)
-pub fn verify_tuple_appendation(assumptions: &[Proposition], conclusions: &[Proposition]) -> Result<(),ProofValidationError> {
+/// Verify that the assumptions and the conclusion form a valid instance of atomicity assertion ("Verbatim((v1,v2,v3,...,vn,vm)) = Append(Verbatim((v1,v2,v3,...,vn)),Verbatim((vm)))" for any (v1,v2,v3,...,vn) and vm)
+pub fn verify_tuple_appendation<'a>(inference: &'a OwnedInferenceInProof<StandardInferenceRule>, style: ExpressionStyle<'a>) -> Result<(),ProofStepSpecificationError<'a>> {
     // Throw an error if there is not exactly one conclusion
-    let [conclusion] = conclusions else { return Err(ProofValidationError::InvalidStepSpecification) };
+    let [conclusion] = *explicit_conclusions_as_sized_slice(inference)?;
     // Throw ane rror if the rule has any assumptions (this rule requires none)
-    if assumptions.len() != 0 { return Err(ProofValidationError::InvalidStepSpecification) }
+    let [] = *assumptions_as_sized_slice(inference)?;
     
     // Throw an error if there are not three exprs in the conclusion
-    let [identity_head, appendation_expr, appended] = TUPLE_OR_ERROR.as_slice(conclusion)? else { return Err(ProofValidationError::InvalidStepSpecification) };
-    let [appendation_head, append_to, to_append] = TUPLE_OR_ERROR.as_slice(appendation_expr)? else { return Err(ProofValidationError::InvalidStepSpecification) };    
-
-    // Throw an error if the head of the conclusion is incorrect
-    if identity_head != &BuiltInAtom::Identity.into() { return Err(ProofValidationError::InvalidStepSpecification) }
-    if appendation_head != &BuiltInAtom::Concatenate.into() { return Err(ProofValidationError::InvalidStepSpecification) }
+    let [identity_head, appended, appendation_expr] = *proposition_as_sized_slice(&conclusion)?;
+    assert_expression_value(identity_head, BuiltInAtom::Identity.into(), style.clone())?;
+    // Throw an error if the appendation component doesn't consist of three components
+    let [appendation_head, append_to, to_append] = *expression_as_sized_slice(&appendation_expr)?;
+    assert_expression_value(appendation_head, BuiltInAtom::Concatenate.into(), style.clone())?;    
     
-    let append_to_verbatim = TUPLE_OR_ERROR.as_tuple(resolve_verbatim(append_to)?)?;
-    let to_append_verbatim = resolve_verbatim(to_append)?;
-    let appended_verbatim = resolve_verbatim(appended)?;
+    let append_to_verbatim = resolve_verbatim(append_to, style.clone())?;
+    let to_append_verbatim = resolve_verbatim(to_append, style.clone())?;
+    let appended_verbatim = resolve_verbatim(appended, style.clone())?;
 
     // Throw an error if the exprs aren't actually identical
-    if &resolve_appendation(append_to_verbatim.clone(), to_append_verbatim) != appended_verbatim { return Err(ProofValidationError::InvalidStepSpecification) };
-
+    assert_expression_value_equality([append_to_verbatim, to_append_verbatim, appended_verbatim], style)?;
     Ok(())
 }
 

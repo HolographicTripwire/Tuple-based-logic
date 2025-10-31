@@ -23,7 +23,7 @@ pub fn assumptions_as_sized_slice<'a,const expected_size: usize,Rule: InferenceR
         }
 }
 
-pub fn explicit_conclusions_as_slice<Rule: InferenceRule>(inference: &OwnedInferenceInProof<Rule>) -> Vec<OwnedPropositionInProof> {
+pub fn explicit_conclusions_as_slice<'a,Rule: InferenceRule>(inference: &OwnedInferenceInProof<Rule>) -> Vec<OwnedPropositionInProof> {
     inference.get_located_children_owned()
         .into_iter()
         .map(|obj| obj.replace_path(|p| p.into()))

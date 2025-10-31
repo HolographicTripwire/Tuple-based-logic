@@ -1,29 +1,37 @@
 use std::fmt::Display;
 use dyn_clone::DynClone;
 
-use tbl_structures::{inference::{Inference, InferenceRule}, proof::{OwnedPropositionInProof, OwnedSubexpressionInProof, OwnedSubproofInProof}};
+use tbl_structures::{inference::InferenceRule, path_composites::{OwnedExpressionInProof, OwnedPropositionInProof}, proof::{OwnedInferenceInProof, OwnedProofInProof}};
+use tbl_textualization::structures::expressions::ExpressionStyle;
 
 use crate::{errors::validation_error::ProofValidationError, inference_rules::InferenceVerifier};
 
-pub trait NaryPredicate<'a,const n: usize,T>: 'a + DynClone + Fn([T; n]) -> bool {}
+/// Represents a predicate which maps an n-size arrays of T onto [bool] objects
+pub trait NaryPredicate<'a,const n: usize,T>: DynClone + Fn([T; n]) -> bool {}
 impl <'a,P: 'static + Clone +  Fn([T; n]) -> bool, const n: usize,T> NaryPredicate<'a,n,T> for P {}
 impl <'a,const n: usize, T> Clone for Box<dyn NaryPredicate<'a,n,T>>
     { fn clone(&self) -> Self { dyn_clone::clone_box(&**self) } }
 
-pub trait NaryStringifier<'a,const n: usize,T: 'a + Clone>: 'a + DynClone + Fn([T; n]) -> String {
-    fn assign(&'a self, values: [T; n]) -> StringifiableAssignment<'a, n, T>
-        { StringifiableAssignment::new(Box::new(values), self.clone()) } 
+/// Represents a stringifier that maps n-size arrays of T onto [String] objects
+pub trait NaryStringifier<'a,const n: usize,T: 'a + Clone>: DynClone + Fn([T; n]) -> String {
+    fn assign(self, values: [T; n]) -> StringifiableAssignment<'a, n, T> where Self: Sized + 'a
+        { StringifiableAssignment::new(Box::new(values), self) } 
 }
+fn assign_nary_strigifier<'a,const n: usize, T: 'a + Clone, Stringifier: 'a + NaryStringifier<'a,n,T>>(s: Stringifier, v: [T; n]) -> StringifiableAssignment<'a,n,T> {
+    StringifiableAssignment::new(Box::new(v), s)
+}
+
 impl <'a,S: 'a + Clone +  Fn([T; n]) -> String, const n: usize,T: 'a + Clone> NaryStringifier<'a,n,T> for S {}
-impl <'a,const n: usize, T> Clone for Box<dyn NaryStringifier<'a,n,T>>
+impl <'a,const n: usize, T> Clone for Box<dyn NaryStringifier<'a,n,T> + 'a>
     { fn clone(&self) -> Self { dyn_clone::clone_box(&**self) }}
 
+/// Represents a checker that can evaluate an n-size array of T returning Ok if it matches the internal predicate, or creates a [StringifiableAssignment] from that array and the internal Stringifier otherwise
 pub struct StringifiablePredicate<'a,const n: usize, T> {
-    predicate: Box<dyn NaryPredicate<'a,n,T>>,
-    stringifier: Box<dyn NaryStringifier<'a,n,T>>
+    predicate: Box<dyn NaryPredicate<'a,n,T> + 'a>,
+    stringifier: Box<dyn NaryStringifier<'a,n,T> + 'a>
 }
 impl <'a,const n: usize, T:'a + Clone> StringifiablePredicate<'a,n,T> {
-    pub fn new<Predicate: NaryPredicate<'a,n,T>, Stringifier: NaryStringifier<'a,n,T>>(predicate: Predicate, stringifier: Stringifier) -> Self 
+    pub fn new<Predicate: 'a + NaryPredicate<'a,n,T>, Stringifier: 'a + NaryStringifier<'a,n,T>>(predicate: Predicate, stringifier: Stringifier) -> Self 
         { Self{predicate: Box::new(predicate), stringifier: Box::new(stringifier)} }
     pub fn evaluate(&self, values: [T;n]) -> Result<(),StringifiableAssignment<'a,n,T>> {
         if (self.predicate)(values.clone()) { Ok(()) }
@@ -34,10 +42,10 @@ impl <'a,const n: usize, T:'a + Clone> StringifiablePredicate<'a,n,T> {
 #[derive(Clone)]
 pub struct StringifiableAssignment<'a,const n: usize, T> {
     values: Box<[T;n]>,
-    stringifier: Box<dyn NaryStringifier<'a,n,T>>
+    stringifier: Box<dyn NaryStringifier<'a,n,T> + 'a>
 }
 impl <'a,const n: usize, T: Clone> StringifiableAssignment<'a,n,T> {
-    fn new<Stringifier: NaryStringifier<'a,n,T>>(values: Box<[T;n]>, stringifier: Stringifier) -> Self
+    fn new<Stringifier: 'a + NaryStringifier<'a,n,T>>(values: Box<[T;n]>, stringifier: Stringifier) -> Self
         { Self{values: values, stringifier: Box::new(stringifier)} }
 }
 impl <'a,const n: usize, T: Clone> Display for StringifiableAssignment<'a,n,T> {
@@ -46,9 +54,10 @@ impl <'a,const n: usize, T: Clone> Display for StringifiableAssignment<'a,n,T> {
     }
 }
 
-impl <'a,const n: usize, Rule: InferenceRule> ProofStepSpecificationErrorInner for StringifiableAssignment<'a,n,OwnedSubproofInProof<Rule>>{}
+impl <'a,const n: usize, Rule: InferenceRule> ProofStepSpecificationErrorInner for StringifiableAssignment<'a,n,OwnedProofInProof<Rule>>{}
+impl <'a,const n: usize,Rule: InferenceRule> ProofStepSpecificationErrorInner for StringifiableAssignment<'a,n,OwnedInferenceInProof<Rule>>{}
 impl <'a,const n: usize> ProofStepSpecificationErrorInner for StringifiableAssignment<'a,n,OwnedPropositionInProof>{}
-impl <'a,const n: usize> ProofStepSpecificationErrorInner for StringifiableAssignment<'a,n,OwnedSubexpressionInProof>{}
+impl <'a,const n: usize> ProofStepSpecificationErrorInner for StringifiableAssignment<'a,n,OwnedExpressionInProof>{}
 
 trait ProofStepSpecificationErrorInner: Display + DynClone {}
 dyn_clone::clone_trait_object!(ProofStepSpecificationErrorInner);
@@ -60,9 +69,9 @@ impl <'a> ProofStepSpecificationError<'a> {
         { Self(Box::new(inner)) }
 }
 
-pub fn verify_inference<Rule: VerifiableInferenceRule>(inference: &Inference<Rule>) -> Result<(),ProofValidationError> {
-    let verifier = Rule::get_verifier(&inference.inference_type);
-    match verifier(&inference) {
+pub fn verify_inference<'a, Rule: VerifiableInferenceRule>(inference: &'a OwnedInferenceInProof<Rule>, style: ExpressionStyle<'a>) -> Result<(),ProofValidationError<'a>> {
+    let verifier = Rule::get_verifier(&inference.obj().inference_type);
+    match verifier(inference, style) {
         Ok(()) => Ok(()),
         Err(err) => Err(ProofValidationError::InvalidStepSpecification(err)),
     }

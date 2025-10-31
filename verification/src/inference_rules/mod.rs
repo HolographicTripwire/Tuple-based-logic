@@ -1,20 +1,19 @@
-pub mod assertions;
-pub mod error;
 mod deduction;
 mod verbatim;
 
 use deduction::*;
+use tbl_textualization::structures::expressions::ExpressionStyle;
 use verbatim::*;
 
-use tbl_structures::inference::Inference;
+use tbl_structures::{inference::InferenceRule, proof::OwnedInferenceInProof};
 
-use crate::{inference_rules::error::{ProofStepSpecificationError, VerifiableInferenceRule}};
+use crate::errors::specification_error::{ProofStepSpecificationError, VerifiableInferenceRule};
 
 /// A function that checks if a Proof step is valid, and if not returns an error of type E
-trait InferenceVerifier<Rule: VerifiableInferenceRule>: Fn(&Inference<Rule>) -> Result<(),ProofStepSpecificationError> {}
-impl <Rule: VerifiableInferenceRule, F: Fn(&Inference<Rule>) -> Result<(),ProofStepSpecificationError>> InferenceVerifier<Rule> for F {}
+pub trait InferenceVerifier<'a, Rule: VerifiableInferenceRule>: Fn(&'a OwnedInferenceInProof<Rule>, ExpressionStyle<'a>) -> Result<(),ProofStepSpecificationError<'a>> {}
+impl <'a, Rule: VerifiableInferenceRule, F: Fn(&'a OwnedInferenceInProof<Rule>, ExpressionStyle<'a>) -> Result<(),ProofStepSpecificationError<'a>>> InferenceVerifier<'a,Rule> for F {}
 
-#[derive(Clone)]
+#[derive(Clone,PartialEq)]
 pub enum StandardInferenceRule {
     // Deduction rules
     ConjunctionIntroduction,
@@ -25,6 +24,7 @@ pub enum StandardInferenceRule {
     AtomDifferentiation,
     TupleAppendation,
 }
+impl InferenceRule for StandardInferenceRule {}
 impl VerifiableInferenceRule for StandardInferenceRule {
     fn get_verifier(rule: &Self) -> impl InferenceVerifier<Self> {
         match rule {

@@ -1,4 +1,4 @@
-use tbl_structures::{inference::InferenceRule, path_composites::OwnedExpressionInProof};
+use tbl_structures::path_composites::OwnedExpressionInProof;
 
 use crate::{assertions::expression::stringify_atomicity, errors::specification_error::{NaryPredicate, NaryStringifier, ProofStepSpecificationError, StringifiablePredicate}};
 
@@ -24,7 +24,7 @@ pub fn expression_atomicity_check<'a>(atomicity_expected: bool) -> Stringifiable
 )}
 
 /// Check that the provided [Expression](OwnedExpressionInProof) has an atomicity equal to atomicty_expected, returning an error otherwise
-pub fn assert_expression_atomicity<'a,Rule:InferenceRule>(expr: OwnedExpressionInProof, atomicity_expected: bool) -> Result<(), ProofStepSpecificationError<'a>> {
+pub fn assert_expression_atomicity<'a>(expr: OwnedExpressionInProof, atomicity_expected: bool) -> Result<(), ProofStepSpecificationError<'a>> {
     expression_atomicity_check::<'a>(atomicity_expected)
         .evaluate([expr])
         .map_err(|assertion| ProofStepSpecificationError::from_inner(assertion))

@@ -1,4 +1,4 @@
-use tbl_structures::{inference::InferenceRule, path_composites::OwnedExpressionInProof};
+use tbl_structures::path_composites::OwnedExpressionInProof;
 
 use crate::{assertions::expression::stringify_atomicity, errors::specification_error::{NaryPredicate, NaryStringifier, ProofStepSpecificationError, StringifiablePredicate}};
 
@@ -26,7 +26,7 @@ pub fn expression_atomicity_inequality_check<'a>() -> StringifiablePredicate<'a,
 )}
 
 /// Check that the provided [Expressions](OwnedExpressionInProof) have inequal atomicity, returning an error otherwise
-pub fn assert_expression_atomicity_inequality<'a,Rule:InferenceRule>(exprs: [OwnedExpressionInProof; 2]) -> Result<(), ProofStepSpecificationError<'a>> {
+pub fn assert_expression_atomicity_inequality<'a>(exprs: [OwnedExpressionInProof; 2]) -> Result<(), ProofStepSpecificationError<'a>> {
     expression_atomicity_inequality_check::<'a>()
         .evaluate(exprs)
         .map_err(|assertion| ProofStepSpecificationError::from_inner(assertion))
