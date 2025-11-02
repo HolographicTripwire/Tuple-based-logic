@@ -22,8 +22,10 @@ impl DisplayExt for ProofInProofPath {
     }
 }
 
-pub type ProofInProof<'a,Rule> = ObjAtPath<'a,Proof<Rule>,ProofInProofPath>;
-pub type OwnedProofInProof<Rule> = OwnedObjAtPath<Proof<Rule>,ProofInProofPath>;
+#[derive(Clone,PartialEq,Eq)]
+pub struct ProofInProof<'a,Rule: InferenceRule>(pub ObjAtPath<'a,Proof<Rule>,ProofInProofPath>);
+#[derive(Clone,PartialEq,Eq)]
+pub struct OwnedProofInProof<Rule: InferenceRule>(pub OwnedObjAtPath<Proof<Rule>,ProofInProofPath>);
 
 impl <'a,Rule:'a + InferenceRule> HasChildren<'a,AtomicSubproofPath,Proof<Rule>> for Proof<Rule> {
     fn valid_primitive_paths(&self) -> impl IntoIterator<Item = AtomicSubproofPath> {

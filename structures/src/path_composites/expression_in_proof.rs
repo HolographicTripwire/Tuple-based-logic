@@ -18,8 +18,10 @@ impl Display for ExpressionInProofPath {
     }
 }
 
-pub type ExpressionInProof<'a> = ObjAtPath<'a,Expression,ExpressionInProofPath>;
-pub type OwnedExpressionInProof = OwnedObjAtPath<Expression,ExpressionInProofPath>;
+#[derive(Clone,PartialEq,Eq)]
+pub struct ExpressionInProof<'a>(pub ObjAtPath<'a,Expression,ExpressionInProofPath>);
+#[derive(Clone,PartialEq,Eq)]
+pub struct OwnedExpressionInProof(pub OwnedObjAtPath<Expression,ExpressionInProofPath>);
 
 mod from {
     use path_lib::paths::PathSeries;

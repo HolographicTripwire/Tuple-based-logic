@@ -2,7 +2,7 @@ use std::fmt::Display;
 
 use path_lib::{obj_at_path::{ObjAtPath, OwnedObjAtPath}, Path};
 
-use crate::{inference::{Inference}, proof::ProofInProofPath, DisplayExt};
+use crate::{DisplayExt, inference::{Inference, InferenceRule}, proof::{ProofInProofPath}};
 
 #[derive(Clone,PartialEq,Eq)]
 pub struct InferenceInProofPath(pub ProofInProofPath);
@@ -12,5 +12,8 @@ impl Display for InferenceInProofPath {
         write!(f,"{}",self.0.display())
     }
 }
-pub type InferenceInProof<'a,Rule> = ObjAtPath<'a,Inference<Rule>,InferenceInProofPath>;
-pub type OwnedInferenceInProof<Rule> = OwnedObjAtPath<Inference<Rule>,InferenceInProofPath>;
+
+#[derive(Clone,PartialEq,Eq)]
+pub struct InferenceInProof<'a,Rule: InferenceRule>(pub ObjAtPath<'a,Inference<Rule>,InferenceInProofPath>);
+#[derive(Clone,PartialEq,Eq)]
+pub struct OwnedInferenceInProof<Rule: InferenceRule>(pub OwnedObjAtPath<Inference<Rule>,InferenceInProofPath>);

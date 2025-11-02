@@ -16,5 +16,7 @@ impl Display for ExpressionInInferencePath {
     }
 }
 
-pub type ExpressionInInference<'a> = ObjAtPath<'a,Expression,ExpressionInInferencePath>;
-pub type OwnedExpressionInInference = OwnedObjAtPath<Expression,ExpressionInInferencePath>;
+#[derive(Clone,PartialEq,Eq)]
+pub struct ExpressionInInference<'a>(pub ObjAtPath<'a,Expression,ExpressionInInferencePath>);
+#[derive(Clone,PartialEq,Eq)]
+pub struct OwnedExpressionInInference(pub OwnedObjAtPath<Expression,ExpressionInInferencePath>);

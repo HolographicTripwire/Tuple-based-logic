@@ -23,5 +23,7 @@ impl Display for PropositionInInferencePath {
     }
 }
 
-pub type PropositionInInference<'a> = ObjAtPath<'a,Proposition,PropositionInInferencePath>;
-pub type OwnedPropositionInInference = OwnedObjAtPath<Proposition,PropositionInInferencePath>;
+#[derive(Clone,PartialEq,Eq)]
+pub struct PropositionInInference<'a>(pub ObjAtPath<'a,Proposition,PropositionInInferencePath>);
+#[derive(Clone,PartialEq,Eq)]
+pub struct OwnedPropositionInInference(pub OwnedObjAtPath<Proposition,PropositionInInferencePath>);

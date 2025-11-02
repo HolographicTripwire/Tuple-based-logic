@@ -19,8 +19,10 @@ impl Display for PropositionInProofPath {
     }
 }
 
-pub type PropositionInProof<'a> = ObjAtPath<'a,Proposition,PropositionInProofPath>;
-pub type OwnedPropositionInProof = OwnedObjAtPath<Proposition,PropositionInProofPath>;
+#[derive(Clone,PartialEq,Eq)]
+pub struct PropositionInProof<'a>(pub ObjAtPath<'a,Proposition,PropositionInProofPath>);
+#[derive(Clone,PartialEq,Eq)]
+pub struct OwnedPropositionInProof(pub OwnedObjAtPath<Proposition,PropositionInProofPath>);
 
 mod from {
     use crate::proof::InferenceInProofPath;

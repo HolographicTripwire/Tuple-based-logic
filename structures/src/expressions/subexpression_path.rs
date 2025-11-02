@@ -52,9 +52,11 @@ mod from {
 }
 
 /// A reference to an [Expression], located within another [Expression] by a [SubexpressionPath]
-pub type ExpressionInExpression<'a> = ObjAtPath<'a,Expression,ExpressionInExpressionPath>;
+#[derive(Clone,PartialEq,Eq)]
+pub struct ExpressionInExpression<'a>(pub ObjAtPath<'a,Expression,ExpressionInExpressionPath>);
 /// An [Expression], located within another [Expression] by a [SubexpressionPath]
-pub type OwnedExpressionInExpression = OwnedObjAtPath<Expression,ExpressionInExpressionPath>;
+#[derive(Clone,PartialEq,Eq)]
+pub struct OwnedExpressionInExpression(pub OwnedObjAtPath<Expression,ExpressionInExpressionPath>);
 
 #[cfg(test)]
 mod tests {
