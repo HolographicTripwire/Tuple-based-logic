@@ -6,7 +6,7 @@ use crate::errors::specification_error::{NaryPredicate, NaryStringifier, ProofSt
 /// Get a [Predicate](NaryPredicate) which takes an [Expression](OwnedExpressionInProof) and checks if its value is the expected value
 pub fn expression_value_predicate<'a>(value_expected: Expression) -> impl NaryPredicate<'a,1,OwnedExpressionInProof> {
     move |o: [OwnedExpressionInProof; 1]| 
-    o[0].obj() == &value_expected
+    o[0].0.obj() == &value_expected
 }
 
 /// Get a [Stringifier](NaryStringifier) which takes an [Expression](OwnedExpressionInProof) and returns an error message saying that this expression's value is not the expected value
@@ -14,9 +14,9 @@ pub fn expression_value_stringifier<'a>(value_expected: Expression, style: Expre
     move |o: [OwnedExpressionInProof; 1]| {
     format!(
         "Expression at {path} has wrong value (expected {value_expected_styled}; found {value_actual_styled})",
-        path=o[0].path().to_string(),
+        path=o[0].0.path().to_string(),
         value_expected_styled=style.stringify(&value_expected),
-        value_actual_styled=style.stringify(o[0].obj())
+        value_actual_styled=style.stringify(o[0].0.obj())
     )}
 }
 /// Get a [Checker](StringifiablePredicate) which takes an [Expression](OwnedExpressionInProof) and returns an error message if this expression's value is not the expected value

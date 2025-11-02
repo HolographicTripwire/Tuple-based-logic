@@ -17,7 +17,7 @@ pub fn verify_universal_substitution<'a>(inference: &'a OwnedInferenceInProof<St
     // Throw an error if the head of the substitution is incorrect
     assert_expression_value(substitution_head, BuiltInAtom::UniversalQuantifier.into(), style.clone())?;
     // Check that remainder of the substitution is correct
-    substitution_comparison(expr_to_replace_within, expr_to_replace.obj(), conclusion.replace_path(|p| p.into()), style);
+    substitution_comparison(expr_to_replace_within, expr_to_replace.0.obj(), OwnedExpressionInProof(conclusion.0.replace_path(|p| p.into())), style);
     
     // If none of the errors were triggered, then this step was successfully verified
     return Ok(())
@@ -32,14 +32,14 @@ fn substitution_comparison<'a>(find_expr: OwnedExpressionInProof, replace_expr: 
     let mut ivm_paths = substitution_comparison_inner(find_expr, replace_expr, verify_expr)?.into_iter();
     if let Some(head) = ivm_paths.next() {
         for tail_expr in ivm_paths { assert_expression_value_equality([head.clone(), tail_expr], style.clone())? };
-        Ok(Some(head.obj().clone()))
+        Ok(Some(head.0.obj().clone()))
     } else { Ok(None) }
 }
 
 fn substitution_comparison_inner<'a>(find_expr: OwnedExpressionInProof, replace_expr: &Expression, verify_expr: OwnedExpressionInProof) -> Result<Vec<OwnedExpressionInProof>,ProofStepSpecificationError<'a>> {
     // If the find expression is the replace expression, then it must have been replaced with the verify expression so return that
-    if find_expr.obj() == replace_expr { return Ok(vec![verify_expr.clone()]) }
-    if find_expr.obj() == verify_expr.obj() { return Ok(vec![]) }
+    if find_expr.0.obj() == replace_expr { return Ok(vec![verify_expr.clone()]) }
+    if find_expr.0.obj() == verify_expr.0.obj() { return Ok(vec![]) }
     
     // Throw an error if find_expr or verify_expr is not a tuple
     let find_exprs = expression_as_slice(&find_expr)?;

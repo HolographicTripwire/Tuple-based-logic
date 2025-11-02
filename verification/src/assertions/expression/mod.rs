@@ -38,18 +38,18 @@ pub(crate) fn stringify_length(expr: &Expression) -> String {
 pub fn expression_subpath_stringifier<'a>(subpath: ExpressionInExpressionPath) -> impl NaryStringifier<'a,1,OwnedExpressionInProof> {
     move |o: [OwnedExpressionInProof; 1]| format!(
         "Expression at {path} has no subexpression at subpath {subpath}",
-        path=o[0].path().to_string(),
+        path=o[0].0.path().to_string(),
         subpath=subpath.display()
     )
 }
 
 pub fn subexpression<'a>(expression: &'a ExpressionInProof<'a>, subpath: ExpressionInExpressionPath) -> Result<ExpressionInProof<'a>,ProofStepSpecificationError<'a>> {
-    return match expression.get_located_descendant(subpath.clone()) {
-        Ok(c) => Ok(c.replace_path(
+    return match expression.0.get_located_descendant(subpath.clone()) {
+        Ok(c) => Ok(ExpressionInProof(c.replace_path(
             |p: PathPair<ExpressionInProofPath,ExpressionInExpressionPath>| p.into()
-        )), Err(_) => {
+        ))), Err(_) => {
             let inner = expression_subpath_stringifier(subpath);
-            let inner2 = inner.assign([expression.clone().into_owned()]);
+            let inner2 = inner.assign([OwnedExpressionInProof(expression.0.clone().into_owned())]);
             Err(ProofStepSpecificationError::from_inner(inner2))
         }
     };
@@ -72,10 +72,10 @@ pub fn subexpression<'a>(expression: &'a ExpressionInProof<'a>, subpath: Express
 }
 
 pub fn expression_as_slice<'a>(expression: &OwnedExpressionInProof) -> Result<Vec<OwnedExpressionInProof>,ProofStepSpecificationError<'a>> {
-    if let Expression::Atomic(_) = expression.obj() { return Err(ProofStepSpecificationError::from_inner(expression_atomicity_stringifier(false).assign([expression.clone()]))) };
-    Ok(expression.get_located_children_owned()
+    if let Expression::Atomic(_) = expression.0.obj() { return Err(ProofStepSpecificationError::from_inner(expression_atomicity_stringifier(false).assign([expression.clone()]))) };
+    Ok(expression.0.get_located_children_owned()
         .into_iter()
-        .map(|obj| obj.replace_path(|p| p.into()))
+        .map(|obj| OwnedExpressionInProof(obj.replace_path(|p| p.into())))
         .collect::<Vec<OwnedExpressionInProof>>())
 }
 

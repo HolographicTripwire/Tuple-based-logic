@@ -6,7 +6,7 @@ use crate::errors::specification_error::{NaryPredicate, NaryStringifier, ProofSt
 /// Get a [Predicate](NaryPredicate) which takes n [Propositions](OwnedPropositionInProof) and checks if their values are equal
 fn proposition_value_equality_predicate<'a,const n: usize>() -> impl NaryPredicate<'a,n,OwnedPropositionInProof> {
     move |os: [OwnedPropositionInProof; n]| { 
-        let mut iter = os.iter().map(|o| o.obj() );
+        let mut iter = os.iter().map(|o| o.0.obj() );
         let first_value = iter.next().expect("Cannot check value equality for zero propositions");
         for nth_value in iter {
             if nth_value != first_value { return false }
@@ -20,9 +20,9 @@ fn proposition_value_equality_stringifier<'a,const n:usize>(style: ExpressionSty
     move |os: [OwnedPropositionInProof; n]| format!(
         "Proposition values expected to be equal, but weren't; {values}",
         values = os.map(|o| 
-            o.path().to_string()
+            o.0.path().to_string()
             + " -> " +
-            &style.stringify(o.obj())
+            &style.stringify(o.0.obj())
         ).join(", ")
     )
 }

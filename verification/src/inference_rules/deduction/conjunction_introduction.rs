@@ -1,3 +1,4 @@
+use tbl_structures::path_composites::OwnedExpressionInProof;
 use tbl_structures::proof::OwnedInferenceInProof;
 use tbl_structures::atoms::BuiltInAtom;
 use tbl_textualization::structures::expressions::ExpressionStyle;
@@ -16,7 +17,7 @@ pub fn verify_conjunction_introduction<'a>(inference: &'a OwnedInferenceInProof<
     let [conjunction_head, conjunction_left, conjunction_right] = *proposition_as_sized_slice(conclusion)?; 
     // Throw errors if the values of the inference components are incorrect
     assert_expression_value(conjunction_head, BuiltInAtom::Conjunction.into(), style.clone())?;
-    assert_expression_value_equality([assumption_left.replace_path(|p| p.into()),conjunction_left], style.clone())?;
-    assert_expression_value_equality([assumption_right.replace_path(|p| p.into()),conjunction_right], style)?;
+    assert_expression_value_equality([OwnedExpressionInProof(assumption_left.0.replace_path(|p| p.into())),conjunction_left], style.clone())?;
+    assert_expression_value_equality([OwnedExpressionInProof(assumption_right.0.replace_path(|p| p.into())),conjunction_right], style)?;
     Ok(())
 }

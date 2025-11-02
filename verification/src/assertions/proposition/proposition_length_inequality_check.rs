@@ -8,7 +8,7 @@ use crate::{assertions::expression::stringify_length, errors::{specification_err
 pub fn proposition_length_inequality_predicate<'a,const n: usize>() -> impl NaryPredicate<'a,n,OwnedPropositionInProof> {
     move |os: [OwnedPropositionInProof; n]| { 
         let mut values = HashSet::new();
-        for value in os.iter().map(|o| o.obj().as_slice() )
+        for value in os.iter().map(|o| o.0.obj().as_slice() )
             { if !values.insert(value) { return false; } }
         true
     }
@@ -18,9 +18,9 @@ pub fn proposition_length_inequality_stringifier<'a, const n: usize>() -> impl N
     move |os: [OwnedPropositionInProof; n]| format!(
         "Proposition lengths expected to be inequal, but weren't; {atomicities}",
         atomicities = os.map(|o| 
-            o.path().to_string()
+            o.0.path().to_string()
             + " -> " +
-            &stringify_length(o.obj())
+            &stringify_length(o.0.obj())
         ).join(", ")
     )
 }

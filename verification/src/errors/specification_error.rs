@@ -70,7 +70,7 @@ impl <'a> ProofStepSpecificationError<'a> {
 }
 
 pub fn verify_inference<'a, Rule: VerifiableInferenceRule>(inference: &'a OwnedInferenceInProof<Rule>, style: ExpressionStyle<'a>) -> Result<(),ProofValidationError<'a>> {
-    let verifier = Rule::get_verifier(&inference.obj().inference_type);
+    let verifier = Rule::get_verifier(&inference.0.obj().inference_type);
     match verifier(inference, style) {
         Ok(()) => Ok(()),
         Err(err) => Err(ProofValidationError::InvalidStepSpecification(err)),

@@ -5,7 +5,7 @@ use crate::{assertions::expression::stringify_atomicity, errors::specification_e
 /// Get a [Predicate](NaryPredicate) which takes n [Expressions](OwnedExpressionInProof) and checks if their atomicities are equal
 pub fn expression_atomicity_equality_predicate<'a,const n: usize>() -> impl NaryPredicate<'a,n,OwnedExpressionInProof> {
     move |os: [OwnedExpressionInProof; n]| { 
-        let mut iter = os.iter().map(|o| o.obj().as_atom().is_ok());
+        let mut iter = os.iter().map(|o| o.0.obj().as_atom().is_ok());
         let first_atomicity = iter.next().expect("Cannot check atomicity equality for zero expressions");
         for nth_atomicity in iter {
             if nth_atomicity != first_atomicity { return false }
@@ -18,9 +18,9 @@ pub fn expression_atomicity_equality_stringifier<'a,const n: usize>() -> impl Na
     move |os: [OwnedExpressionInProof; n]| format!(
         "Expression atomicities expected to be equal, but weren't; {atomicities}",
         atomicities = os.map(|o| 
-            o.path().to_string()
+            o.0.path().to_string()
             + " -> " +
-            stringify_atomicity(o.obj().as_atom().is_ok())
+            stringify_atomicity(o.0.obj().as_atom().is_ok())
         ).join(", ")
     )
 }

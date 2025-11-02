@@ -5,7 +5,7 @@ use crate::{assertions::expression::stringify_length, errors::{specification_err
 /// Get a [Predicate](NaryPredicate) which takes an [Proposition](OwnedPropositionInProof) and checks if its length is not the expected value
 fn proposition_length_predicate<'a>(expected_length: usize) -> impl NaryPredicate<'a,1,OwnedPropositionInProof> {
     move |o: [OwnedPropositionInProof; 1]| { 
-        match o[0].obj().as_slice() {
+        match o[0].0.obj().as_slice() {
             Ok(tuple) => tuple.len() == expected_length,
             Err(()) => false
         }
@@ -15,8 +15,8 @@ fn proposition_length_predicate<'a>(expected_length: usize) -> impl NaryPredicat
 pub fn proposition_length_stringifier<'a>(length_expected: usize) -> impl NaryStringifier<'a,1,OwnedPropositionInProof> {
     move |o: [OwnedPropositionInProof; 1]| format!(
         "Proposition at {path} has wrong length (expected {length_expected}; found {length_actual})",
-        path=o[0].path().to_string(),
-        length_actual=stringify_length(o[0].obj())
+        path=o[0].0.path().to_string(),
+        length_actual=stringify_length(o[0].0.obj())
     )
 }
 /// Get a [Checker](StringifiablePredicate) which takes an [Proposition](OwnedPropositionInProof) and returns an error message if this proposition's length is not the expected value

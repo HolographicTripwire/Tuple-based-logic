@@ -6,7 +6,7 @@ use crate::errors::specification_error::{NaryPredicate, NaryStringifier, ProofSt
 /// Get a [Predicate](NaryPredicate) which takes an [Proposition](OwnedPropositionInProof) and checks if its value is the expected value
 fn proposition_value_predicate<'a>(value_expected: Proposition) -> impl NaryPredicate<'a,1,OwnedPropositionInProof> {
     move |o: [OwnedPropositionInProof; 1]| 
-    o[0].obj() == &value_expected
+    o[0].0.obj() == &value_expected
 }
 
 /// Get a [Stringifier](NaryStringifier) which takes an [Proposition](OwnedPropositionInProof) and returns an error message saying that this proposition's value is not the expected value
@@ -14,9 +14,9 @@ fn proposition_value_stringifier<'a>(value_expected: Proposition, style: Express
     move |o: [OwnedPropositionInProof; 1]| {
     format!(
         "Proposition at {path} has wrong value (expected {value_expected_styled}; found {value_actual_styled})",
-        path=o[0].path().to_string(),
+        path=o[0].0.path().to_string(),
         value_expected_styled=style.stringify(&value_expected),
-        value_actual_styled=style.stringify(o[0].obj())
+        value_actual_styled=style.stringify(o[0].0.obj())
     )}
 }
 /// Get a [Checker](StringifiablePredicate) which takes an [Proposition](OwnedPropositionInProof) and returns an error message if this proposition's value is not the expected value

@@ -1,3 +1,4 @@
+use tbl_structures::path_composites::OwnedExpressionInProof;
 use tbl_structures::proof::OwnedInferenceInProof;
 use tbl_structures::atoms::BuiltInAtom;
 use tbl_textualization::structures::expressions::ExpressionStyle;
@@ -17,7 +18,7 @@ pub fn verify_implication_elimination<'a>(inference: &'a OwnedInferenceInProof<S
     let [implication_head, antecedent, consequent] = *proposition_as_sized_slice(&implication)?;
     // Throw errors if the values of the inference components are incorrect
     assert_expression_value(implication_head, BuiltInAtom::Implication.into(), style.clone())?;
-    assert_expression_value_equality([antecedent, prior.replace_path(|p| p.into())], style.clone())?;
-    assert_expression_value_equality([consequent, conclusion.replace_path(|p| p.into())], style)?;
+    assert_expression_value_equality([antecedent, OwnedExpressionInProof(prior.0.replace_path(|p| p.into()))], style.clone())?;
+    assert_expression_value_equality([consequent, OwnedExpressionInProof(conclusion.0.replace_path(|p| p.into()))], style)?;
     Ok(())
 }

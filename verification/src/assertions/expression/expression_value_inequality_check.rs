@@ -9,7 +9,7 @@ use crate::errors::specification_error::{NaryPredicate, NaryStringifier, ProofSt
 pub fn expression_value_inequality_predicate<'a,const n: usize>() -> impl NaryPredicate<'a,n,OwnedExpressionInProof> {
     move |os: [OwnedExpressionInProof; n]| { 
         let mut values = HashSet::new();
-        for value in os.iter().map(|o| o.obj() )
+        for value in os.iter().map(|o| o.0.obj() )
             { if !values.insert(value) { return false; } }
         true
     }
@@ -20,9 +20,9 @@ pub fn expression_value_inequality_stringifier<'a,const n:usize>(style: Expressi
     move |os: [OwnedExpressionInProof; n]| format!(
         "Expression values expected to be inequal, but weren't; {values}",
         values = os.map(|o| 
-            o.path().to_string()
+            o.0.path().to_string()
             + " -> " +
-            &style.stringify(o.obj())
+            &style.stringify(o.0.obj())
         ).join(", ")
     )
 }

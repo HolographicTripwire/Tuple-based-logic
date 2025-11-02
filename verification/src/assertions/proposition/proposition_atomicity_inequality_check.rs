@@ -5,7 +5,7 @@ use crate::{assertions::expression::stringify_atomicity, errors::specification_e
 /// Get a [Predicate](NaryPredicate) which takes n [Propositions](OwnedPropositionInProof) and checks if their atomicities are equal
 pub fn proposition_atomicity_inequality_predicate<'a>() -> impl NaryPredicate<'a,2,OwnedPropositionInProof> {
     move |os: [OwnedPropositionInProof; 2]| { 
-        os[0].obj().as_atom().is_ok() != os[1].obj().as_atom().is_ok()
+        os[0].0.obj().as_atom().is_ok() != os[1].0.obj().as_atom().is_ok()
     }
 }
 /// Get a [Stringifier](NaryStringifier) which takes n [Propositions](OwnedPropositionInProof) and returns an error message saying that their atomicities aren't equal
@@ -13,9 +13,9 @@ pub fn proposition_atomicity_inequality_stringifier<'a>() -> impl NaryStringifie
     move |os: [OwnedPropositionInProof; 2]| format!(
         "Proposition atomicities expected to be inequal, but weren't; {atomicities}",
         atomicities = os.map(|o| 
-            o.path().to_string()
+            o.0.path().to_string()
             + " -> " +
-            stringify_atomicity(o.obj().as_atom().is_ok())
+            stringify_atomicity(o.0.obj().as_atom().is_ok())
         ).join(", ")
     )
 }

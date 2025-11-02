@@ -5,7 +5,7 @@ use crate::{assertions::expression::stringify_atomicity, errors::specification_e
 /// Get a [Predicate](NaryPredicate) which takes n [Propositions](OwnedPropositionInProof) and checks if their atomicities are equal
 fn proposition_atomicity_equality_predicate<'a,const n: usize>() -> impl NaryPredicate<'a,n,OwnedPropositionInProof> {
     move |os: [OwnedPropositionInProof; n]| { 
-        let mut iter = os.iter().map(|o| o.obj().as_atom().is_ok());
+        let mut iter = os.iter().map(|o| o.0.obj().as_atom().is_ok());
         let first_atomicity = iter.next().expect("Cannot check atomicity equality for zero propositions");
         for nth_atomicity in iter {
             if nth_atomicity != first_atomicity { return false }
@@ -18,9 +18,9 @@ fn proposition_atomicity_equality_stringifier<'a,const n: usize>() -> impl NaryS
     move |os: [OwnedPropositionInProof; n]| format!(
         "Proposition atomicities expected to be equal, but weren't; {atomicities}",
         atomicities = os.map(|o| 
-            o.path().to_string()
+            o.0.path().to_string()
             + " -> " +
-            stringify_atomicity(o.obj().as_atom().is_ok())
+            stringify_atomicity(o.0.obj().as_atom().is_ok())
         ).join(", ")
     )
 }

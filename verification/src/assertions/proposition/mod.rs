@@ -24,9 +24,9 @@ use tbl_structures::path_composites::{OwnedExpressionInProof, OwnedPropositionIn
 use crate::errors::{specification_error::NaryStringifier, ProofStepSpecificationError};
 
 pub fn proposition_as_slice(proposition: &OwnedPropositionInProof) -> Vec<OwnedExpressionInProof> {
-    proposition.get_located_children_owned()
+    proposition.0.get_located_children_owned()
         .into_iter()
-        .map(|obj| obj.replace_path(|p| p.into()))
+        .map(|obj| OwnedExpressionInProof(obj.replace_path(|p| p.into())))
         .collect::<Vec<OwnedExpressionInProof>>()
 }
 

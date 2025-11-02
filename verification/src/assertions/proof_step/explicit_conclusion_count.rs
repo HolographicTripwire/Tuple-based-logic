@@ -6,14 +6,14 @@ use crate::errors::specification_error::{NaryPredicate, NaryStringifier, ProofSt
 /// Get a [Predicate](NaryPredicate) which takes an [Inference](OwnedInferenceInProof) and checks if it has as expected_count assumptions
 fn explicit_conclusion_count_predicate<'a,Rule:InferenceRule>(expected_count: usize) -> impl NaryPredicate<'a,1,OwnedInferenceInProof<Rule>> {
     move |o: [OwnedInferenceInProof<Rule>; 1]| 
-    o[0].obj().explicit_conclusion_paths().into_iter().count() == expected_count
+    o[0].0.obj().explicit_conclusion_paths().into_iter().count() == expected_count
 }
 /// Get a [Stringifier](NaryPredicate) which takes an [Inference](OwnedInferenceInProof) and returns an error message saying that this subproof does not have expected_count explicit conclusions
 pub fn explicit_conclusion_count_stringifier<'a,Rule:InferenceRule>(expected_count: usize) -> impl NaryStringifier<'a,1,OwnedInferenceInProof<Rule>> {
     move |o: [OwnedInferenceInProof<Rule>; 1]| format!(
         "Proof at step {step} has wrong number of explicit conclusions (expected {num_expected}; found {num_actual}",
-        step=o[0].path().to_string(), num_expected=expected_count,
-        num_actual=o[0].obj().explicit_conclusion_paths().into_iter().count()
+        step=o[0].0.path().to_string(), num_expected=expected_count,
+        num_actual=o[0].0.obj().explicit_conclusion_paths().into_iter().count()
     )
 }
 /// Get a [Checker](StringifiablePredicate) which takes a [Inference](OwnedInferenceInProof) and returns an error message if this subproof does not have expected_count explicit conclusions
