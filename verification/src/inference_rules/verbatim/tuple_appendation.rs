@@ -1,4 +1,4 @@
-use tbl_structures::{atoms::BuiltInAtom, expressions::Expression, proof::OwnedInferenceInProof};
+use tbl_structures::{atoms::BuiltInAtom, expressions::Expression, proof::InferenceInProof};
 use tbl_textualization::structures::expressions::ExpressionStyle;
 
 
@@ -7,7 +7,7 @@ use crate::{assertions::*, errors::specification_error::ProofStepSpecificationEr
 use super::resolve_verbatim;
 
 /// Verify that the assumptions and the conclusion form a valid instance of atomicity assertion ("Verbatim((v1,v2,v3,...,vn,vm)) = Append(Verbatim((v1,v2,v3,...,vn)),Verbatim((vm)))" for any (v1,v2,v3,...,vn) and vm)
-pub fn verify_tuple_appendation<'a>(inference: &'a OwnedInferenceInProof<StandardInferenceRule>, style: ExpressionStyle<'a>) -> Result<(),ProofStepSpecificationError<'a>> {
+pub fn verify_tuple_appendation<'a>(inference: &InferenceInProof<StandardInferenceRule>, style: ExpressionStyle<'a>) -> Result<(),ProofStepSpecificationError<'a>> {
     // Throw an error if there is not exactly one conclusion
     let [conclusion] = *explicit_conclusions_as_sized_slice(inference)?;
     // Throw ane rror if the rule has any assumptions (this rule requires none)

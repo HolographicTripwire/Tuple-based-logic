@@ -5,13 +5,13 @@ use deduction::*;
 use tbl_textualization::structures::expressions::ExpressionStyle;
 use verbatim::*;
 
-use tbl_structures::{inference::InferenceRule, proof::OwnedInferenceInProof};
+use tbl_structures::{inference::InferenceRule, proof::{InferenceInProof}};
 
 use crate::errors::specification_error::{ProofStepSpecificationError, VerifiableInferenceRule};
 
 /// A function that checks if a Proof step is valid, and if not returns an error of type E
-pub trait InferenceVerifier<'a, Rule: VerifiableInferenceRule>: Fn(&'a OwnedInferenceInProof<Rule>, ExpressionStyle<'a>) -> Result<(),ProofStepSpecificationError<'a>> {}
-impl <'a, Rule: VerifiableInferenceRule, F: Fn(&'a OwnedInferenceInProof<Rule>, ExpressionStyle<'a>) -> Result<(),ProofStepSpecificationError<'a>>> InferenceVerifier<'a,Rule> for F {}
+pub trait InferenceVerifier<Rule: VerifiableInferenceRule>: for <'a> Fn(&InferenceInProof<Rule>, ExpressionStyle<'a>) -> Result<(),ProofStepSpecificationError<'a>> {}
+impl <Rule: VerifiableInferenceRule, F: for<'a> Fn(&InferenceInProof<Rule>, ExpressionStyle<'a>) -> Result<(),ProofStepSpecificationError<'a>>> InferenceVerifier<Rule> for F {}
 
 #[derive(Clone,PartialEq)]
 pub enum StandardInferenceRule {

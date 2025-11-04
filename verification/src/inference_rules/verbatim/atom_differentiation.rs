@@ -1,4 +1,4 @@
-use tbl_structures::{atoms::BuiltInAtom, proof::OwnedInferenceInProof};
+use tbl_structures::{atoms::BuiltInAtom, proof::InferenceInProof};
 use tbl_textualization::structures::expressions::ExpressionStyle;
 
 use crate::{assertions::*, errors::specification_error::ProofStepSpecificationError, inference_rules::StandardInferenceRule};
@@ -6,7 +6,7 @@ use crate::{assertions::*, errors::specification_error::ProofStepSpecificationEr
 use super::resolve_verbatim;
 
 /// Verify that the assumptions and the conclusion form a valid instance of atomicity assertion ("Not (Verbatim(a) = Verbatim(b))" for any two different atoms a and b)
-pub fn verify_atom_differentiation<'a>(inference: &'a OwnedInferenceInProof<StandardInferenceRule>, style: ExpressionStyle<'a>) -> Result<(),ProofStepSpecificationError<'a>> {
+pub fn verify_atom_differentiation<'a>(inference: &InferenceInProof<StandardInferenceRule>, style: ExpressionStyle<'a>) -> Result<(),ProofStepSpecificationError<'a>> {
     // Throw an error if there is not exactly one conclusion
     let [conclusion] = *explicit_conclusions_as_sized_slice(&inference)?;
     // Throw ane error if the rule has any assumptions (this rule requires none)

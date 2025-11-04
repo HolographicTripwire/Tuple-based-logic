@@ -4,8 +4,8 @@ pub mod inference_rules;
 
 use std::collections::HashSet;
 
-use path_lib::paths::PathSeries;
-use tbl_structures::{expressions::{Proposition, PropositionSet}, proof::{Proof, ProofInProof, ProofStep, error::{ErrorInProof, ResultInProof}}};
+use path_lib::{obj_at_path::ObjAtPath, paths::PathSeries};
+use tbl_structures::{expressions::{Proposition, PropositionSet}, proof::{InferenceInProof, InferenceInProofPath, OwnedProofInProof, Proof, ProofInProof, ProofStep, error::{ErrorInProof, ResultInProof}}};
 use errors::ProofValidationError;
 use tbl_textualization::structures::proofs::ProofStyle;
 
@@ -13,8 +13,8 @@ use crate::errors::specification_error::{verify_inference, VerifiableInferenceRu
 
 /// Verify that the provided proof is sound under Tuple-Based logic, given some set of starting assumptions
 /// If the proof is not valid, return a [VerificationError] as well as the step that it occurred at
-pub fn verify_proof<'a, Rule: VerifiableInferenceRule>(proof: &'a Proof<Rule>, assumptions: &PropositionSet) -> Result<bool,ErrorInProof<ProofValidationError<'a>>> {
-    validate_proof(proof)?;
+pub fn verify_proof<'a, Rule: VerifiableInferenceRule>(proof: &'a Proof<Rule>, assumptions: &PropositionSet, style: ProofStyle<'a,Rule>) -> Result<bool,ErrorInProof<ProofValidationError<'a>>> {
+    validate_proof(ProofInProof(ObjAtPath::from_at(proof,PathSeries::empty())), style)?;
     Ok(verify_proof_grounding(proof, assumptions))
 }
 
@@ -25,37 +25,37 @@ pub fn verify_proof_grounding<Rule: VerifiableInferenceRule>(proof: &Proof<Rule>
 }
 
 /// Check if a proof is valid. If not, return the first [ProofValidationError]
-fn validate_proof<'a,Rule: VerifiableInferenceRule>(proof: &Proof<Rule>, style: ProofStyle<'a,Rule>) -> Result<(),ErrorInProof<ProofValidationError<'a>>> {
+fn validate_proof<'a,Rule: VerifiableInferenceRule>(proof: ProofInProof<'a,Rule>, style: ProofStyle<'a,Rule>) -> Result<(),ErrorInProof<ProofValidationError<'a>>> {
     // Create a list of [Proposition] objects which are considered at this time to be true
-    let mut proved = HashSet::<&Proposition>::from_iter(proof.get_assumptions());
+    let mut proved = HashSet::<&Proposition>::from_iter(proof.0.obj().get_assumptions());
     
     // Iterate through all steps in the proof
-    for (i, subproof) in proof.get_located_immediate_subproofs() // Get steps
+    for (i, subproof) in proof.0.obj().get_located_immediate_subproofs() // Get steps
     .into_iter()
-    .map(|o| o.replace_path(|p| PathSeries::new([p]))) // Convert to [ProofInProof]
+    .map(|o| ProofInProof(o.replace_path(|p| PathSeries::new([p])))) // Convert to [ProofInProof]
     .enumerate() {
         // Throw an error if th assumptions of this step have not yet been proven
-        let premises = HashSet::from_iter(subproof.obj().get_assumptions());
+        let premises = HashSet::from_iter(subproof.0.obj().get_assumptions());
         let assumptions_not_found = &proved - &premises;
         if assumptions_not_found.len() != 0 { return Err(ErrorInProof::here(ProofValidationError::AssumptionsNotFound(assumptions_not_found.into_iter().cloned().collect()))) }
         
         // Get the new propositions which have been proved by this step in the proof, assuming that the step is valid
-        match subproof.obj() {
-            Proof::Atomic(proof_step) => ResultInProof::from(verify_inference(proof_step, style.inference_style().expression_style())),
-            Proof::Composite(proof) => {
-                let result_or_error: Result<(),ErrorInProof<ProofValidationError>> = proof.get_immediate_subproofs().into_iter()
-                    .map(|subproof| validate_proof(subproof))
+        match subproof.try_into() {
+            Ok(inference) => ResultInProof::from(verify_inference(&inference, style.inference_style().expression_style().clone())),
+            Err(proof) => {
+                let result_or_error: Result<(),ErrorInProof<ProofValidationError>> = proof.0.obj().get_located_immediate_subproofs().into_iter()
+                    .map(|subproof| validate_proof(ProofInProof(subproof.replace_path(|p| PathSeries::new([p]))), style.clone()))
                     .collect();
                 ResultInProof::from(result_or_error)
             }
         }.resolve(i)?;
         
         // Add the new proved propositions to our set of proved propositions
-        proved.extend(subproof.get_conclusions());
+        proved.extend(subproof.0.obj().get_conclusions());
     }
 
     // Throw an error if the supposed conclusions of this proof have not been derived
-    let conclusions_not_found = &HashSet::from_iter(proof.get_explicit_conclusions()) - &proved;
+    let conclusions_not_found = &HashSet::from_iter(proof.0.obj().get_explicit_conclusions()) - &proved;
     if conclusions_not_found.len() != 0 { return Err(ErrorInProof::here(ProofValidationError::ConclusionsNotFound(conclusions_not_found.into_iter().cloned().collect())))}
 
     // If no errors were thrown, the proof was valid

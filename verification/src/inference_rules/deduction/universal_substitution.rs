@@ -1,12 +1,13 @@
 use tbl_structures::path_composites::OwnedExpressionInProof;
-use tbl_structures::{atoms::BuiltInAtom, expressions::Expression, proof::OwnedInferenceInProof};
+use tbl_structures::proof::InferenceInProof;
+use tbl_structures::{atoms::BuiltInAtom, expressions::Expression};
 use tbl_textualization::structures::expressions::ExpressionStyle;
 
 use crate::inference_rules::{ProofStepSpecificationError, StandardInferenceRule};
 use crate::assertions::*;
 
 /// Verify that the assumptions and the conclusion form a valid instance of universal substitution ("for all x, P(x)" entails "P(y)" for any y)
-pub fn verify_universal_substitution<'a>(inference: &'a OwnedInferenceInProof<StandardInferenceRule>, style: ExpressionStyle<'a>) -> Result<(), ProofStepSpecificationError<'a>> {
+pub fn verify_universal_substitution<'a>(inference: &InferenceInProof<StandardInferenceRule>, style: ExpressionStyle<'a>) -> Result<(), ProofStepSpecificationError<'a>> {
     // Throw an error if there is not exactly one conclusion
     let [conclusion] = *explicit_conclusions_as_sized_slice(inference)?;
     // Throw an error if there is not exactly one assumption

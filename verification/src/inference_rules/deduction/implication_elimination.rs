@@ -1,5 +1,5 @@
 use tbl_structures::path_composites::OwnedExpressionInProof;
-use tbl_structures::proof::OwnedInferenceInProof;
+use tbl_structures::proof::InferenceInProof;
 use tbl_structures::atoms::BuiltInAtom;
 use tbl_textualization::structures::expressions::ExpressionStyle;
 
@@ -9,7 +9,7 @@ use crate::inference_rules::StandardInferenceRule;
 
 
 /// Verify that the assumptions and the conclusion form a valid instance of implication elimination ("a" and "a implies b" entails "b")
-pub fn verify_implication_elimination<'a>(inference: &'a OwnedInferenceInProof<StandardInferenceRule>, style: ExpressionStyle<'a>) -> Result<(), ProofStepSpecificationError<'a>> {
+pub fn verify_implication_elimination<'a>(inference: &InferenceInProof<StandardInferenceRule>, style: ExpressionStyle<'a>) -> Result<(), ProofStepSpecificationError<'a>> {
     // Throw an error if there is not exactly one conclusion
     let [conclusion] = *explicit_conclusions_as_sized_slice(inference)?;
     // Throw an error if there are not exactly two assumptions
