@@ -5,7 +5,7 @@ pub mod error;
 
 use std::collections::HashSet;
 
-use path_lib::{obj_at_path::ObjAtPath, HasChildren};
+use path_lib::{HasChildren, obj_at_path::{ObjAtPath, OwnedObjAtPath}};
 
 pub use subproof_path::*;
 pub use proposition_in_inference_path::*;
@@ -22,26 +22,44 @@ pub trait ProofStep<'a, Rule:'a + InferenceRule> : HasChildren<'a,PropositionInI
     /// Get the [AtomicSubproofPaths](AtomicSubproofPath) of all immediate subproofs within this [ProofStep]
     fn immediate_subproof_paths(&'a self) -> impl IntoIterator<Item=AtomicSubproofPath> { <Self as HasChildren<AtomicSubproofPath,Proof<Rule>>>::valid_primitive_paths(self) }
     
-    /// Get all assumptions within this [ProofStep]
+    /// Get references to all assumptions within this [ProofStep]
     fn get_assumptions(&'a self) -> impl IntoIterator<Item = &'a Proposition>
         { self.assumption_paths().into_iter().map(|p| self.get_child(&p).unwrap()) }
-    /// Get all assumptions within this [ProofStep], located by their [ProofPropositionPath]
+    /// Get all assumptions within this [ProofStep]
+    fn get_assumptions_owned(&'a self) -> impl IntoIterator<Item = Proposition>
+        { self.assumption_paths().into_iter().map(|p| self.get_child(&p).unwrap().to_owned()) }
+    /// Get references to all assumptions within this [ProofStep], located by their [ProofPropositionPath]
     fn get_located_assumptions(&'a self) -> impl IntoIterator<Item = ObjAtPath<'a,Proposition,PropositionInInferencePath>>
         { self.assumption_paths().into_iter().map(|p| self.get_located_child(p).unwrap()) }
+    /// Get all assumptions within this [ProofStep], located by their [ProofPropositionPath]
+    fn get_located_assumptions_owned(&'a self) -> impl IntoIterator<Item = OwnedObjAtPath<Proposition,PropositionInInferencePath>>
+        { self.assumption_paths().into_iter().map(|p| self.get_located_child_owned(p).unwrap()) }
     
     /// Get all explicit conclusions within this [ProofStep]
     fn get_explicit_conclusions(&'a self) -> impl IntoIterator<Item = &'a Proposition>
         { self.explicit_conclusion_paths().into_iter().map(|p| self.get_child(&p).unwrap()) }
+    /// Get owned versions of all explicit conclusions within this [ProofStep]
+    fn get_explicit_conclusions_owned(&'a self) -> impl IntoIterator<Item = Proposition>
+        { self.explicit_conclusion_paths().into_iter().map(|p| self.get_child(&p).unwrap().to_owned()) }
     /// Get all explicit conclusions within this [ProofStep], located by their [ProofPropositionPath]
     fn get_located_explicit_conclusions(&'a self) -> impl IntoIterator<Item = ObjAtPath<'a,Proposition,PropositionInInferencePath>>
         { self.explicit_conclusion_paths().into_iter().map(|p| self.get_located_child(p).unwrap()) }
+    /// Get owned versions of all explicit conclusions within this [ProofStep], located by their [ProofPropositionPath]
+    fn get_located_explicit_conclusions_owned(&'a self) -> impl IntoIterator<Item = OwnedObjAtPath<Proposition,PropositionInInferencePath>>
+        { self.explicit_conclusion_paths().into_iter().map(|p| self.get_located_child_owned(p).unwrap()) }
     
     /// Get all immediate subproofs within this [ProofStep]
     fn get_immediate_subproofs(&'a self) -> impl IntoIterator<Item = &'a Proof<Rule>>
         { self.immediate_subproof_paths().into_iter().map(|p| self.get_child(&p).unwrap()) }
+    /// Get owned versions of all immediate subproofs within this [ProofStep]
+    fn get_immediate_subproofs_owned(&'a self) -> impl IntoIterator<Item = Proof<Rule>>
+        { self.immediate_subproof_paths().into_iter().map(|p| self.get_child(&p).unwrap().to_owned()) }
     /// Get all immediate subproofs within this [ProofStep], located by their [AtomicSubproofPath]
     fn get_located_immediate_subproofs(&'a self) -> impl IntoIterator<Item = ObjAtPath<'a,Proof<Rule>,AtomicSubproofPath>>
         { self.immediate_subproof_paths().into_iter().map(|p| self.get_located_child(p).unwrap()) }
+    /// Get owned versions of all immediate subproofs within this [ProofStep], located by their [AtomicSubproofPath]
+    fn get_located_immediate_subproofs_owned(&'a self) -> impl IntoIterator<Item = OwnedObjAtPath<Proof<Rule>,AtomicSubproofPath>>
+        { self.immediate_subproof_paths().into_iter().map(|p| self.get_located_child_owned(p).unwrap()) }
 
     /// Get all conclusions of this [ProofStep]
     fn get_conclusions(&'a self) -> HashSet<&'a Proposition> {
@@ -51,10 +69,24 @@ pub trait ProofStep<'a, Rule:'a + InferenceRule> : HasChildren<'a,PropositionInI
             |mut acc,next| { acc.extend(next.get_conclusions().iter()); acc } // And the conclusions of this expression's children Subproofs
         )
     }
+    /// Get owned versions of all conclusions of this [ProofStep]
+    fn get_conclusions_owned(&'a self) -> HashSet<Proposition> {
+        self.get_immediate_subproofs().into_iter().fold(
+            // Combine
+            HashSet::from_iter(self.get_explicit_conclusions_owned()), // The explcit conclusions of this ProofStep
+            |mut acc,next| { acc.extend(next.get_conclusions_owned().into_iter()); acc } // And the conclusions of this expression's children Subproofs
+        )
+    }
+    
     /// Get all implicit conclusions of this [ProofStep]
     fn get_implicit_conclusions(&'a self) -> HashSet<&'a Proposition> {
         let explicits = HashSet::from_iter(self.get_explicit_conclusions());
         self.get_conclusions().difference(&explicits).cloned().collect()
+    }
+    /// Get owned versions of all implicit conclusions of this [ProofStep]
+    fn get_implicit_conclusions_owned(&'a self) -> HashSet<Proposition> {
+        let explicits = HashSet::from_iter(self.get_explicit_conclusions_owned());
+        self.get_conclusions_owned().difference(&explicits).cloned().collect()
     }
 }
 pub (crate) fn valid_primitive_paths_inner<'a,Rule: 'a + InferenceRule, Step: ProofStep<'a,Rule>>(step: &'a Step) -> impl IntoIterator<Item = PropositionInInferencePath> {
