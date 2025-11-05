@@ -1,17 +1,17 @@
 use tbl_structures::{expressions::Proposition, path_composites::OwnedPropositionInProof};
 use tbl_textualization::{helpers::styles::Style, structures::expressions::ExpressionStyle};
 
-use crate::errors::specification_error::{NaryPredicate, NaryStringifier, ProofStepSpecificationError, StringifiablePredicate};
+use crate::errors::specification_error::{Assessor, AssessedStringifier, ProofStepSpecificationError, StringifiablePredicate};
 
 /// Get a [Predicate](NaryPredicate) which takes an [Proposition](OwnedPropositionInProof) and checks if its value is the expected value
-fn proposition_value_predicate<'a>(value_expected: Proposition) -> impl NaryPredicate<'a,OwnedPropositionInProof> {
+fn proposition_value_predicate<'a>(value_expected: Proposition) -> impl Assessor<'a,OwnedPropositionInProof,()> {
     move |o: OwnedPropositionInProof| 
-    o.0.obj() == &value_expected
+    if o.0.obj() == &value_expected { Ok(()) } else { Err(()) }
 }
 
 /// Get a [Stringifier](NaryStringifier) which takes an [Proposition](OwnedPropositionInProof) and returns an error message saying that this proposition's value is not the expected value
-fn proposition_value_stringifier<'a>(value_expected: Proposition, style: ExpressionStyle<'a>) -> impl NaryStringifier<'a,OwnedPropositionInProof> {
-    move |o: OwnedPropositionInProof| {
+fn proposition_value_stringifier<'a>(value_expected: Proposition, style: ExpressionStyle<'a>) -> impl AssessedStringifier<'a,OwnedPropositionInProof,()> {
+    move |o: OwnedPropositionInProof,_| {
     format!(
         "Proposition at {path} has wrong value (expected {value_expected_styled}; found {value_actual_styled})",
         path=o.0.path().to_string(),
@@ -20,7 +20,7 @@ fn proposition_value_stringifier<'a>(value_expected: Proposition, style: Express
     )}
 }
 /// Get a [Checker](StringifiablePredicate) which takes an [Proposition](OwnedPropositionInProof) and returns an error message if this proposition's value is not the expected value
-pub fn proposition_value_check<'a>(value_expected: Proposition, style: ExpressionStyle<'a>) -> StringifiablePredicate<'a,OwnedPropositionInProof> { StringifiablePredicate::new(
+pub fn proposition_value_check<'a>(value_expected: Proposition, style: ExpressionStyle<'a>) -> StringifiablePredicate<'a,OwnedPropositionInProof,()> { StringifiablePredicate::new(
     proposition_value_predicate(value_expected.clone()),
     proposition_value_stringifier(value_expected, style),
 )}

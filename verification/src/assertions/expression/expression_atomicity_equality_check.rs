@@ -1,23 +1,23 @@
 use tbl_structures::path_composites::OwnedExpressionInProof;
 
-use crate::{assertions::expression::stringify_atomicity, errors::specification_error::{NaryPredicate, NaryStringifier, ProofStepSpecificationError, StringifiablePredicate}};
+use crate::{assertions::expression::stringify_atomicity, errors::specification_error::{Assessor, AssessedStringifier, ProofStepSpecificationError, StringifiablePredicate}};
 
 /// Get a [Predicate](NaryPredicate) which takes n [Expressions](OwnedExpressionInProof) and checks if their atomicities are equal
-pub fn expression_atomicity_equality_predicate<'a,const N: usize>() -> impl NaryPredicate<'a,[OwnedExpressionInProof;N]> {
+pub fn expression_atomicity_equality_predicate<'a,const N: usize>() -> impl Assessor<'a,[OwnedExpressionInProof;N],()> {
     move |os: [OwnedExpressionInProof; N]| { 
         let mut iter = os.iter().map(|o| o.0.obj().as_atom().is_ok());
         let first_atomicity = iter.next().expect("Cannot check atomicity equality for zero expressions");
         for nth_atomicity in iter {
-            if nth_atomicity != first_atomicity { return false }
+            if nth_atomicity != first_atomicity { return Err(()) }
         }
-        true
+        Ok(())
     }
 }
 /// Get a [Stringifier](NaryStringifier) which takes n [Expressions](OwnedExpressionInProof) and returns an error message saying that their atomicities aren't equal
-pub fn expression_atomicity_equality_stringifier<'a,const N: usize>() -> impl NaryStringifier<'a,[OwnedExpressionInProof;N]> {
-    move |os: [OwnedExpressionInProof; N]| format!(
+pub fn expression_atomicity_equality_stringifier<'a,const N: usize>() -> impl AssessedStringifier<'a,[OwnedExpressionInProof;N],()> {
+    move |os: [OwnedExpressionInProof; N],_| format!(
         "Expression atomicities expected to be equal, but weren't; {atomicities}",
-        atomicities = os.map(|o| 
+        atomicities = os.map(|o|
             o.0.path().to_string()
             + " -> " +
             stringify_atomicity(o.0.obj().as_atom().is_ok())
@@ -25,7 +25,7 @@ pub fn expression_atomicity_equality_stringifier<'a,const N: usize>() -> impl Na
     )
 }
 /// Get a [Checker](StringifiablePredicate) which takes n [Expression](OwnedExpressionInProof) and returns an error message if their atomicities aren't equal
-pub fn expression_atomicity_equality_check<'a,const N: usize>() -> StringifiablePredicate<'a,[OwnedExpressionInProof;N]> { StringifiablePredicate::new(
+pub fn expression_atomicity_equality_check<'a,const N: usize>() -> StringifiablePredicate<'a,[OwnedExpressionInProof;N],()> { StringifiablePredicate::new(
     expression_atomicity_equality_predicate(),
     expression_atomicity_equality_stringifier(),
 )}

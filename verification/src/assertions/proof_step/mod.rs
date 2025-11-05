@@ -6,7 +6,7 @@ pub use explicit_conclusion_count::*;
 use path_lib::obj_at_path::ObjAtPathWithChildren;
 use tbl_structures::{inference::InferenceRule, path_composites::OwnedPropositionInProof, proof::{InferenceInProof, OwnedInferenceInProof}};
 
-use crate::errors::{specification_error::NaryStringifier, ProofStepSpecificationError};
+use crate::errors::{specification_error::AssessedStringifier, ProofStepSpecificationError};
 
 pub fn assumptions_as_slice<Rule: InferenceRule>(inference: &InferenceInProof<Rule>) -> Vec<OwnedPropositionInProof> {
     inference.0.get_located_children_owned()
@@ -21,7 +21,7 @@ pub fn assumptions_as_sized_slice<'a,const EXPECTED_SIZE: usize,Rule: InferenceR
             Ok(a) => Ok(a),
             Err(_) => {
                 let inference = OwnedInferenceInProof(inference.0.clone().into_owned());
-                Err(ProofStepSpecificationError::from_inner(assumption_count_stringifier(EXPECTED_SIZE).assign(inference)))
+                Err(ProofStepSpecificationError::from_inner(assumption_count_stringifier(EXPECTED_SIZE).assign(inference,())))
             },
         }
 }
@@ -39,7 +39,7 @@ pub fn explicit_conclusions_as_sized_slice<'a,const EXPECTED_SIZE: usize,Rule: I
             Ok(a) => Ok(a),
             Err(_) => {
                 let inference = OwnedInferenceInProof(inference.0.clone().into_owned());
-                Err(ProofStepSpecificationError::from_inner(explicit_conclusion_count_stringifier(EXPECTED_SIZE).assign(inference)))
+                Err(ProofStepSpecificationError::from_inner(explicit_conclusion_count_stringifier(EXPECTED_SIZE).assign(inference,())))
             }
         }
 }

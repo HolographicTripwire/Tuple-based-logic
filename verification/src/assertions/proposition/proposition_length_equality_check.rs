@@ -1,21 +1,21 @@
 use tbl_structures::{path_composites::OwnedPropositionInProof};
 
-use crate::{assertions::expression::stringify_length, errors::{specification_error::{NaryPredicate, NaryStringifier, StringifiablePredicate}, ProofStepSpecificationError}};
+use crate::{assertions::expression::stringify_length, errors::{specification_error::{Assessor, AssessedStringifier, StringifiablePredicate}, ProofStepSpecificationError}};
 
 /// Get a [Predicate](NaryPredicate) which takes n [Propositions](OwnedPropositionInProof) and checks if their lengths are equal
-fn proposition_length_equality_predicate<'a,const N: usize>() -> impl NaryPredicate<'a,[OwnedPropositionInProof;N]> {
+fn proposition_length_equality_predicate<'a,const N: usize>() -> impl Assessor<'a,[OwnedPropositionInProof;N],()> {
     move |os: [OwnedPropositionInProof; N]| { 
         let mut iter = os.iter().map(|o| o.0.obj().as_slice() );
         let first_length = iter.next().expect("Cannot check length equality for zero propositions");
         for nth_length in iter {
-            if nth_length != first_length { return false }
+            if nth_length != first_length { return Err(()) }
         }
-        true
+        Ok(())
     }
 }
 /// Get a [Stringifier](NaryStringifier) which takes an [Propositions](OwnedPropositionInProof) and returns an error message saying that their lengths aren't equal
-pub fn proposition_length_equality_stringifier<'a, const N: usize>() -> impl NaryStringifier<'a,[OwnedPropositionInProof;N]> {
-    move |os: [OwnedPropositionInProof; N]| format!(
+pub fn proposition_length_equality_stringifier<'a, const N: usize>() -> impl AssessedStringifier<'a,[OwnedPropositionInProof;N],()> {
+    move |os: [OwnedPropositionInProof; N],_| format!(
         "Proposition lengths expected to be equal, but weren't; {atomicities}",
         atomicities = os.map(|o| 
             o.0.path().to_string()
@@ -25,7 +25,7 @@ pub fn proposition_length_equality_stringifier<'a, const N: usize>() -> impl Nar
     )
 }
 /// Get a [Checker](StringifiablePredicate) which takes n [Propositions](OwnedPropositionInProof) and returns an error message if their lengths aren't equal
-pub fn proposition_length_equality_check<'a, const N: usize>() -> StringifiablePredicate<'a,[OwnedPropositionInProof;N]> { StringifiablePredicate::new(
+pub fn proposition_length_equality_check<'a, const N: usize>() -> StringifiablePredicate<'a,[OwnedPropositionInProof;N],()> { StringifiablePredicate::new(
     proposition_length_equality_predicate(),
     proposition_length_equality_stringifier(),
 )}

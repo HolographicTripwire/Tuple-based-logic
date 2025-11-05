@@ -7,45 +7,48 @@ use tbl_textualization::structures::expressions::ExpressionStyle;
 use crate::{errors::validation_error::ProofValidationError, inference_rules::InferenceVerifier};
 
 /// Represents a predicate which maps an n-size arrays of T onto [bool] objects
-pub trait NaryPredicate<'a,I>: DynClone + Fn(I) -> bool {}
-impl <'a,P: 'static + Clone +  Fn(I) -> bool, I> NaryPredicate<'a,I> for P {}
-impl <'a,I> Clone for Box<dyn NaryPredicate<'a,I>>
+pub trait Assessor<'a,I,E>: DynClone + Fn(I) -> Result<(),E> {}
+impl <'a,P: 'static + Clone +  Fn(I) -> Result<(),E>, I,E> Assessor<'a,I,E> for P {}
+impl <'a,I,E> Clone for Box<dyn Assessor<'a,I,E>>
     { fn clone(&self) -> Self { dyn_clone::clone_box(&**self) } }
 
 /// Represents a stringifier that maps n-size arrays of T onto [String] objects
-pub trait NaryStringifier<'a,I: 'a + Clone>: DynClone + Fn(I) -> String {
-    fn assign(self, value: I) -> StringifiableAssignment<'a, I> where Self: Sized + 'a
-        { StringifiableAssignment::new(value, self) } 
+pub trait AssessedStringifier<'a,I: 'a + Clone,E>: DynClone + Fn(I,E) -> String {
+    fn assign(self, value: I, err: E) -> StringifiableAssignment<'a, I, E> where Self: Sized + 'a
+        { StringifiableAssignment::new(value, err, self) } 
 }
 
-impl <'a,S: 'a + Clone +  Fn(I) -> String, I: 'a + Clone> NaryStringifier<'a,I> for S {}
-impl <'a,I> Clone for Box<dyn NaryStringifier<'a,I> + 'a>
+impl <'a,S: 'a + Clone +  Fn(I,E) -> String, I: 'a + Clone,E> AssessedStringifier<'a,I,E> for S {}
+impl <'a,I,E> Clone for Box<dyn AssessedStringifier<'a,I,E> + 'a>
     { fn clone(&self) -> Self { dyn_clone::clone_box(&**self) }}
 
 /// Represents a checker that can evaluate an n-size array of T returning Ok if it matches the internal predicate, or creates a [StringifiableAssignment] from that array and the internal Stringifier otherwise
-pub struct StringifiablePredicate<'a,I> {
-    predicate: Box<dyn NaryPredicate<'a,I> + 'a>,
-    stringifier: Box<dyn NaryStringifier<'a,I> + 'a>
+pub struct StringifiablePredicate<'a,I,E> {
+    predicate: Box<dyn Assessor<'a,I,E> + 'a>,
+    stringifier: Box<dyn AssessedStringifier<'a,I,E> + 'a>
 }
-impl <'a,I:'a + Clone> StringifiablePredicate<'a,I> {
-    pub fn new<Predicate: 'a + NaryPredicate<'a,I>, Stringifier: 'a + NaryStringifier<'a,I>>(predicate: Predicate, stringifier: Stringifier) -> Self 
+impl <'a,I:'a + Clone,E> StringifiablePredicate<'a,I,E> {
+    pub fn new<Predicate: 'a + Assessor<'a,I,E>, Stringifier: 'a + AssessedStringifier<'a,I,E>>(predicate: Predicate, stringifier: Stringifier) -> Self 
         { Self{predicate: Box::new(predicate), stringifier: Box::new(stringifier)} }
-    pub fn evaluate(&self, value: I) -> Result<(),StringifiableAssignment<'a,I>> {
-        if (self.predicate)(value.clone()) { Ok(()) }
-        else { Err(StringifiableAssignment::new(value, self.stringifier.clone())) }
+    pub fn evaluate(&self, value: I) -> Result<(),StringifiableAssignment<'a,I,E>> {
+        match (self.predicate)(value.clone()) {
+            Ok(_) => { Ok(()) },
+            Err(err) => { Err(StringifiableAssignment::new(value, err, self.stringifier.clone())) }
+        }
     }
 }
 
 #[derive(Clone)]
-pub struct StringifiableAssignment<'a,I> {
+pub struct StringifiableAssignment<'a,I,E> {
     value: I,
-    stringifier: Box<dyn NaryStringifier<'a,I> + 'a>
+    err: E,
+    stringifier: Box<dyn AssessedStringifier<'a,I,E> + 'a>
 }
-impl <'a,I: Clone> StringifiableAssignment<'a,I> {
-    fn new<Stringifier: 'a + NaryStringifier<'a,I>>(value: I, stringifier: Stringifier) -> Self
-        { Self{value, stringifier: Box::new(stringifier)} }
+impl <'a,I: Clone,E> StringifiableAssignment<'a,I,E> {
+    fn new<Stringifier: 'a + AssessedStringifier<'a,I,E>>(value: I, err: E, stringifier: Stringifier) -> Self
+        { Self{value, err, stringifier: Box::new(stringifier)} }
 }
-impl <'a,I: Clone> Display for StringifiableAssignment<'a,I> {
+impl <'a,I: Clone,E> Display for StringifiableAssignment<'a,I,E> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "{}", (self.stringifier)(self.value.clone()))
     }
@@ -53,7 +56,7 @@ impl <'a,I: Clone> Display for StringifiableAssignment<'a,I> {
 
 pub trait ProofStepSpecificationErrorInner: Display + DynClone {}
 dyn_clone::clone_trait_object!(ProofStepSpecificationErrorInner);
-impl <'a,I: Clone> ProofStepSpecificationErrorInner for StringifiableAssignment<'a,I> {}
+impl <'a,I: Clone,E:Clone> ProofStepSpecificationErrorInner for StringifiableAssignment<'a,I,E> {}
 
 #[derive(Clone)]
 pub struct ProofStepSpecificationError<'a>(Box<dyn ProofStepSpecificationErrorInner + 'a>);
