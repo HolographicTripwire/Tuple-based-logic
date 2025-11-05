@@ -3,7 +3,7 @@ use tbl_structures::{inference::InferenceRule, path_composites::OwnedProposition
 use crate::{assertions::expression::stringify_atomicity, errors::specification_error::{NaryPredicate, NaryStringifier, ProofStepSpecificationError, StringifiablePredicate}};
 
 /// Get a [Predicate](NaryPredicate) which takes n [Propositions](OwnedPropositionInProof) and checks if their atomicities are equal
-fn proposition_atomicity_equality_predicate<'a,const N: usize>() -> impl NaryPredicate<'a,N,OwnedPropositionInProof> {
+fn proposition_atomicity_equality_predicate<'a,const N: usize>() -> impl NaryPredicate<'a,[OwnedPropositionInProof;N]> {
     move |os: [OwnedPropositionInProof; N]| { 
         let mut iter = os.iter().map(|o| o.0.obj().as_atom().is_ok());
         let first_atomicity = iter.next().expect("Cannot check atomicity equality for zero propositions");
@@ -14,7 +14,7 @@ fn proposition_atomicity_equality_predicate<'a,const N: usize>() -> impl NaryPre
     }
 }
 /// Get a [Stringifier](NaryStringifier) which takes n [Propositions](OwnedPropositionInProof) and returns an error message saying that their atomicities aren't equal
-fn proposition_atomicity_equality_stringifier<'a,const N: usize>() -> impl NaryStringifier<'a,N,OwnedPropositionInProof> {
+fn proposition_atomicity_equality_stringifier<'a,const N: usize>() -> impl NaryStringifier<'a,[OwnedPropositionInProof;N]> {
     move |os: [OwnedPropositionInProof; N]| format!(
         "Proposition atomicities expected to be equal, but weren't; {atomicities}",
         atomicities = os.map(|o| 
@@ -25,7 +25,7 @@ fn proposition_atomicity_equality_stringifier<'a,const N: usize>() -> impl NaryS
     )
 }
 /// Get a [Checker](StringifiablePredicate) which takes n [Proposition](OwnedPropositionInProof) and returns an error message if their atomicities aren't equal
-pub fn proposition_atomicity_equality_check<'a,const N: usize>() -> StringifiablePredicate<'a,N,OwnedPropositionInProof> { StringifiablePredicate::new(
+pub fn proposition_atomicity_equality_check<'a,const N: usize>() -> StringifiablePredicate<'a,[OwnedPropositionInProof;N]> { StringifiablePredicate::new(
     proposition_atomicity_equality_predicate(),
     proposition_atomicity_equality_stringifier(),
 )}

@@ -4,7 +4,7 @@ use tbl_textualization::{helpers::styles::Style, structures::expressions::Expres
 use crate::errors::specification_error::{NaryPredicate, NaryStringifier, ProofStepSpecificationError, StringifiablePredicate};
 
 /// Get a [Predicate](NaryPredicate) which takes n [Propositions](OwnedPropositionInProof) and checks if their values are equal
-fn proposition_value_equality_predicate<'a,const N: usize>() -> impl NaryPredicate<'a,N,OwnedPropositionInProof> {
+fn proposition_value_equality_predicate<'a,const N: usize>() -> impl NaryPredicate<'a,[OwnedPropositionInProof;N]> {
     move |os: [OwnedPropositionInProof; N]| { 
         let mut iter = os.iter().map(|o| o.0.obj() );
         let first_value = iter.next().expect("Cannot check value equality for zero propositions");
@@ -16,7 +16,7 @@ fn proposition_value_equality_predicate<'a,const N: usize>() -> impl NaryPredica
 }
 
 /// Get a [Stringifier](NaryStringifier) which takes n [Propositions](OwnedPropositionInProof) and returns an error message saying that these proposition's value aren't equal
-fn proposition_value_equality_stringifier<'a,const N:usize>(style: ExpressionStyle<'a>) -> impl NaryStringifier<'a,N,OwnedPropositionInProof> {
+fn proposition_value_equality_stringifier<'a,const N:usize>(style: ExpressionStyle<'a>) -> impl NaryStringifier<'a,[OwnedPropositionInProof;N]> {
     move |os: [OwnedPropositionInProof; N]| format!(
         "Proposition values expected to be equal, but weren't; {values}",
         values = os.map(|o| 
@@ -27,7 +27,7 @@ fn proposition_value_equality_stringifier<'a,const N:usize>(style: ExpressionSty
     )
 }
 /// Get a [Checker](StringifiablePredicate) which takes n [Propositions](OwnedPropositionInProof) and returns an error message if these propositions values are not equal
-pub fn proposition_value_equality_check<'a,const N: usize>(style: ExpressionStyle<'a>) -> StringifiablePredicate<'a,N,OwnedPropositionInProof> { StringifiablePredicate::new(
+pub fn proposition_value_equality_check<'a,const N: usize>(style: ExpressionStyle<'a>) -> StringifiablePredicate<'a,[OwnedPropositionInProof;N]> { StringifiablePredicate::new(
     proposition_value_equality_predicate(),
     proposition_value_equality_stringifier(style),
 )}

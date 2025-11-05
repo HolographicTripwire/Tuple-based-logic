@@ -35,10 +35,10 @@ pub(crate) fn stringify_length(expr: &Expression) -> String {
     }
 }
 
-pub fn expression_subpath_stringifier<'a>(subpath: ExpressionInExpressionPath) -> impl NaryStringifier<'a,1,OwnedExpressionInProof> {
-    move |o: [OwnedExpressionInProof; 1]| format!(
+pub fn expression_subpath_stringifier<'a>(subpath: ExpressionInExpressionPath) -> impl NaryStringifier<'a,OwnedExpressionInProof> {
+    move |o: OwnedExpressionInProof| format!(
         "Expression at {path} has no subexpression at subpath {subpath}",
-        path=o[0].0.path().to_string(),
+        path=o.0.path().to_string(),
         subpath=subpath.display()
     )
 }
@@ -49,7 +49,7 @@ pub fn subexpression<'a>(expression: &'a ExpressionInProof<'a>, subpath: Express
             |p: PathPair<ExpressionInProofPath,ExpressionInExpressionPath>| p.into()
         ))), Err(_) => {
             let inner = expression_subpath_stringifier(subpath);
-            let inner2 = inner.assign([OwnedExpressionInProof(expression.0.clone().into_owned())]);
+            let inner2 = inner.assign(OwnedExpressionInProof(expression.0.clone().into_owned()));
             Err(ProofStepSpecificationError::from_inner(inner2))
         }
     };
@@ -72,7 +72,7 @@ pub fn subexpression<'a>(expression: &'a ExpressionInProof<'a>, subpath: Express
 }
 
 pub fn expression_as_slice<'a>(expression: &OwnedExpressionInProof) -> Result<Vec<OwnedExpressionInProof>,ProofStepSpecificationError<'a>> {
-    if let Expression::Atomic(_) = expression.0.obj() { return Err(ProofStepSpecificationError::from_inner(expression_atomicity_stringifier(false).assign([expression.clone()]))) };
+    if let Expression::Atomic(_) = expression.0.obj() { return Err(ProofStepSpecificationError::from_inner(expression_atomicity_stringifier(false).assign(expression.clone()))) };
     Ok(expression.0.get_located_children_owned()
         .into_iter()
         .map(|obj| OwnedExpressionInProof(obj.replace_path(|p| p.into())))
@@ -83,6 +83,6 @@ pub fn expression_as_sized_slice<'a,const EXPECTED_SIZE: usize>(expression: &Own
     match expression_as_slice(expression)?
         .try_into() {
             Ok(a) => Ok(a),
-            Err(_) => Err(ProofStepSpecificationError::from_inner(expression_length_stringifier(EXPECTED_SIZE).assign([expression.to_owned()]))),
+            Err(_) => Err(ProofStepSpecificationError::from_inner(expression_length_stringifier(EXPECTED_SIZE).assign(expression.to_owned()))),
         }
 }

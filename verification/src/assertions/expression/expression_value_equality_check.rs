@@ -4,7 +4,7 @@ use tbl_textualization::{helpers::styles::Style, structures::expressions::Expres
 use crate::errors::specification_error::{NaryPredicate, NaryStringifier, ProofStepSpecificationError, StringifiablePredicate};
 
 /// Get a [Predicate](NaryPredicate) which takes n [Expressions](OwnedExpressionInProof) and checks if their values are equal
-pub fn expression_value_equality_predicate<'a,const N: usize>() -> impl NaryPredicate<'a,N,OwnedExpressionInProof> {
+pub fn expression_value_equality_predicate<'a,const N: usize>() -> impl NaryPredicate<'a,[OwnedExpressionInProof;N]> {
     move |os: [OwnedExpressionInProof; N]| { 
         let mut iter = os.iter().map(|o| o.0.obj() );
         let first_value = iter.next().expect("Cannot check value equality for zero expressions");
@@ -16,7 +16,7 @@ pub fn expression_value_equality_predicate<'a,const N: usize>() -> impl NaryPred
 }
 
 /// Get a [Stringifier](NaryStringifier) which takes n [Expressions](OwnedExpressionInProof) and returns an error message saying that these expression's value aren't equal
-pub fn expression_value_equality_stringifier<'a,const N:usize>(style: ExpressionStyle<'a>) -> impl NaryStringifier<'a,N,OwnedExpressionInProof> {
+pub fn expression_value_equality_stringifier<'a,const N:usize>(style: ExpressionStyle<'a>) -> impl NaryStringifier<'a,[OwnedExpressionInProof;N]> {
     move |os: [OwnedExpressionInProof; N]| format!(
         "Expression values expected to be equal, but weren't; {values}",
         values = os.map(|o| 
@@ -27,7 +27,7 @@ pub fn expression_value_equality_stringifier<'a,const N:usize>(style: Expression
     )
 }
 /// Get a [Checker](StringifiablePredicate) which takes n [Expressions](OwnedExpressionInProof) and returns an error message if these expressions values are not equal
-pub fn expression_value_equality_check<'a,const N: usize>(style: ExpressionStyle<'a>) -> StringifiablePredicate<'a,N,OwnedExpressionInProof> { StringifiablePredicate::new(
+pub fn expression_value_equality_check<'a,const N: usize>(style: ExpressionStyle<'a>) -> StringifiablePredicate<'a,[OwnedExpressionInProof;N]> { StringifiablePredicate::new(
     expression_value_equality_predicate(),
     expression_value_equality_stringifier(style),
 )}

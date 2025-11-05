@@ -21,7 +21,7 @@ pub fn assumptions_as_sized_slice<'a,const EXPECTED_SIZE: usize,Rule: InferenceR
             Ok(a) => Ok(a),
             Err(_) => {
                 let inference = OwnedInferenceInProof(inference.0.clone().into_owned());
-                Err(ProofStepSpecificationError::from_inner(assumption_count_stringifier(EXPECTED_SIZE).assign([inference])))
+                Err(ProofStepSpecificationError::from_inner(assumption_count_stringifier(EXPECTED_SIZE).assign(inference)))
             },
         }
 }
@@ -39,7 +39,7 @@ pub fn explicit_conclusions_as_sized_slice<'a,const EXPECTED_SIZE: usize,Rule: I
             Ok(a) => Ok(a),
             Err(_) => {
                 let inference = OwnedInferenceInProof(inference.0.clone().into_owned());
-                Err(ProofStepSpecificationError::from_inner(explicit_conclusion_count_stringifier(EXPECTED_SIZE).assign([inference])))
+                Err(ProofStepSpecificationError::from_inner(explicit_conclusion_count_stringifier(EXPECTED_SIZE).assign(inference)))
             }
         }
 }

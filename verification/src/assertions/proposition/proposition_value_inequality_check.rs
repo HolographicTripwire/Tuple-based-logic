@@ -6,7 +6,7 @@ use tbl_textualization::{helpers::styles::Style, structures::expressions::Expres
 use crate::errors::specification_error::{NaryPredicate, NaryStringifier, ProofStepSpecificationError, StringifiablePredicate};
 
 /// Get a [Predicate](NaryPredicate) which takes n [Propositions](OwnedPropositionInProof) and checks if their values are inequal
-pub fn proposition_value_inequality_predicate<'a,const N: usize>() -> impl NaryPredicate<'a,N,OwnedPropositionInProof> {
+pub fn proposition_value_inequality_predicate<'a,const N: usize>() -> impl NaryPredicate<'a,[OwnedPropositionInProof;N]> {
     move |os: [OwnedPropositionInProof; N]| { 
         let mut values = HashSet::new();
         for value in os.iter().map(|o| o.0.obj() )
@@ -16,7 +16,7 @@ pub fn proposition_value_inequality_predicate<'a,const N: usize>() -> impl NaryP
 }
 
 /// Get a [Stringifier](NaryStringifier) which takes n [Propositions](OwnedPropositionInProof) and returns an error message saying that these proposition's value aren't inequal
-pub fn proposition_value_inequality_stringifier<'a,const N:usize>(style: ExpressionStyle<'a>) -> impl NaryStringifier<'a,N,OwnedPropositionInProof> {
+pub fn proposition_value_inequality_stringifier<'a,const N:usize>(style: ExpressionStyle<'a>) -> impl NaryStringifier<'a,[OwnedPropositionInProof;N]> {
     move |os: [OwnedPropositionInProof; N]| format!(
         "Proposition values expected to be inequal, but weren't; {values}",
         values = os.map(|o| 
@@ -27,7 +27,7 @@ pub fn proposition_value_inequality_stringifier<'a,const N:usize>(style: Express
     )
 }
 /// Get a [Checker](StringifiablePredicate) which takes n [Propositions](OwnedPropositionInProof) and returns an error message if these propositions values aren't inequal
-pub fn proposition_value_inequality_check<'a,const N: usize>(style: ExpressionStyle<'a>) -> StringifiablePredicate<'a,N,OwnedPropositionInProof> { StringifiablePredicate::new(
+pub fn proposition_value_inequality_check<'a,const N: usize>(style: ExpressionStyle<'a>) -> StringifiablePredicate<'a,[OwnedPropositionInProof;N]> { StringifiablePredicate::new(
     proposition_value_inequality_predicate(),
     proposition_value_inequality_stringifier(style),
 )}

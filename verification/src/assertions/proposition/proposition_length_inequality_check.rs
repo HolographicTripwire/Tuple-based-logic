@@ -5,7 +5,7 @@ use tbl_structures::{path_composites::OwnedPropositionInProof};
 use crate::{assertions::expression::stringify_length, errors::{specification_error::{NaryPredicate, NaryStringifier, StringifiablePredicate}, ProofStepSpecificationError}};
 
 /// Get a [Predicate](NaryPredicate) which takes n [Propositions](OwnedPropositionInProof) and checks if their lengths aren't equal
-pub fn proposition_length_inequality_predicate<'a,const N: usize>() -> impl NaryPredicate<'a,N,OwnedPropositionInProof> {
+pub fn proposition_length_inequality_predicate<'a,const N: usize>() -> impl NaryPredicate<'a,[OwnedPropositionInProof;N]> {
     move |os: [OwnedPropositionInProof; N]| { 
         let mut values = HashSet::new();
         for value in os.iter().map(|o| o.0.obj().as_slice() )
@@ -14,7 +14,7 @@ pub fn proposition_length_inequality_predicate<'a,const N: usize>() -> impl Nary
     }
 }
 /// Get a [Stringifier](NaryStringifier) which takes an [Propositions](OwnedPropositionInProof) and returns an error message saying that their lengths aren't inequal
-pub fn proposition_length_inequality_stringifier<'a, const N: usize>() -> impl NaryStringifier<'a,N,OwnedPropositionInProof> {
+pub fn proposition_length_inequality_stringifier<'a, const N: usize>() -> impl NaryStringifier<'a,[OwnedPropositionInProof;N]> {
     move |os: [OwnedPropositionInProof; N]| format!(
         "Proposition lengths expected to be inequal, but weren't; {atomicities}",
         atomicities = os.map(|o| 
@@ -25,7 +25,7 @@ pub fn proposition_length_inequality_stringifier<'a, const N: usize>() -> impl N
     )
 }
 /// Get a [Checker](StringifiablePredicate) which takes n [Propositions](OwnedPropositionInProof) and returns an error message if their lengths aren't inequal
-pub fn proposition_length_inequality_check<'a, const N: usize>() -> StringifiablePredicate<'a,N,OwnedPropositionInProof> { StringifiablePredicate::new(
+pub fn proposition_length_inequality_check<'a, const N: usize>() -> StringifiablePredicate<'a,[OwnedPropositionInProof;N]> { StringifiablePredicate::new(
     proposition_length_inequality_predicate(),
     proposition_length_inequality_stringifier(),
 )}
