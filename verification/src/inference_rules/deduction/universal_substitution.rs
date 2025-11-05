@@ -18,7 +18,7 @@ pub fn verify_universal_substitution<'a>(inference: &InferenceInProof<StandardIn
     // Throw an error if the head of the substitution is incorrect
     assert_expression_value(substitution_head, BuiltInAtom::UniversalQuantifier.into(), style.clone())?;
     // Check that remainder of the substitution is correct
-    substitution_comparison(expr_to_replace_within, expr_to_replace.0.obj(), OwnedExpressionInProof(conclusion.0.replace_path(|p| p.into())), style);
+    substitution_comparison(expr_to_replace_within, expr_to_replace.0.obj(), OwnedExpressionInProof(conclusion.0.replace_path(|p| p.into())), style)?;
     
     // If none of the errors were triggered, then this step was successfully verified
     return Ok(())

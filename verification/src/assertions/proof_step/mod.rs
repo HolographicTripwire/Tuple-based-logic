@@ -15,13 +15,13 @@ pub fn assumptions_as_slice<Rule: InferenceRule>(inference: &InferenceInProof<Ru
         .collect::<Vec<OwnedPropositionInProof>>()
 }
 
-pub fn assumptions_as_sized_slice<'a,const expected_size: usize,Rule: InferenceRule>(inference: &InferenceInProof<Rule>) -> Result<Box<[OwnedPropositionInProof; expected_size]>,ProofStepSpecificationError<'a>> {
+pub fn assumptions_as_sized_slice<'a,const EXPECTED_SIZE: usize,Rule: InferenceRule>(inference: &InferenceInProof<Rule>) -> Result<Box<[OwnedPropositionInProof; EXPECTED_SIZE]>,ProofStepSpecificationError<'a>> {
     match assumptions_as_slice(inference)
         .try_into() {
             Ok(a) => Ok(a),
             Err(_) => {
                 let inference = OwnedInferenceInProof(inference.0.clone().into_owned());
-                Err(ProofStepSpecificationError::from_inner(assumption_count_stringifier(expected_size).assign([inference])))
+                Err(ProofStepSpecificationError::from_inner(assumption_count_stringifier(EXPECTED_SIZE).assign([inference])))
             },
         }
 }
@@ -33,13 +33,13 @@ pub fn explicit_conclusions_as_slice<'a,Rule: InferenceRule>(inference: &Inferen
         .collect::<Vec<OwnedPropositionInProof>>()
 }
 
-pub fn explicit_conclusions_as_sized_slice<'a,const expected_size: usize,Rule: InferenceRule>(inference: &InferenceInProof<Rule>) -> Result<Box<[OwnedPropositionInProof; expected_size]>,ProofStepSpecificationError<'a>> {
+pub fn explicit_conclusions_as_sized_slice<'a,const EXPECTED_SIZE: usize,Rule: InferenceRule>(inference: &InferenceInProof<Rule>) -> Result<Box<[OwnedPropositionInProof; EXPECTED_SIZE]>,ProofStepSpecificationError<'a>> {
     match explicit_conclusions_as_slice(inference)
         .try_into() {
             Ok(a) => Ok(a),
             Err(_) => {
                 let inference = OwnedInferenceInProof(inference.0.clone().into_owned());
-                Err(ProofStepSpecificationError::from_inner(explicit_conclusion_count_stringifier(expected_size).assign([inference])))
+                Err(ProofStepSpecificationError::from_inner(explicit_conclusion_count_stringifier(EXPECTED_SIZE).assign([inference])))
             }
         }
 }

@@ -3,8 +3,8 @@ use tbl_structures::{inference::InferenceRule, path_composites::OwnedProposition
 use crate::{assertions::expression::stringify_atomicity, errors::specification_error::{NaryPredicate, NaryStringifier, ProofStepSpecificationError, StringifiablePredicate}};
 
 /// Get a [Predicate](NaryPredicate) which takes n [Propositions](OwnedPropositionInProof) and checks if their atomicities are equal
-fn proposition_atomicity_equality_predicate<'a,const n: usize>() -> impl NaryPredicate<'a,n,OwnedPropositionInProof> {
-    move |os: [OwnedPropositionInProof; n]| { 
+fn proposition_atomicity_equality_predicate<'a,const N: usize>() -> impl NaryPredicate<'a,N,OwnedPropositionInProof> {
+    move |os: [OwnedPropositionInProof; N]| { 
         let mut iter = os.iter().map(|o| o.0.obj().as_atom().is_ok());
         let first_atomicity = iter.next().expect("Cannot check atomicity equality for zero propositions");
         for nth_atomicity in iter {
@@ -14,8 +14,8 @@ fn proposition_atomicity_equality_predicate<'a,const n: usize>() -> impl NaryPre
     }
 }
 /// Get a [Stringifier](NaryStringifier) which takes n [Propositions](OwnedPropositionInProof) and returns an error message saying that their atomicities aren't equal
-fn proposition_atomicity_equality_stringifier<'a,const n: usize>() -> impl NaryStringifier<'a,n,OwnedPropositionInProof> {
-    move |os: [OwnedPropositionInProof; n]| format!(
+fn proposition_atomicity_equality_stringifier<'a,const N: usize>() -> impl NaryStringifier<'a,N,OwnedPropositionInProof> {
+    move |os: [OwnedPropositionInProof; N]| format!(
         "Proposition atomicities expected to be equal, but weren't; {atomicities}",
         atomicities = os.map(|o| 
             o.0.path().to_string()
@@ -25,13 +25,13 @@ fn proposition_atomicity_equality_stringifier<'a,const n: usize>() -> impl NaryS
     )
 }
 /// Get a [Checker](StringifiablePredicate) which takes n [Proposition](OwnedPropositionInProof) and returns an error message if their atomicities aren't equal
-pub fn proposition_atomicity_equality_check<'a,const n: usize>() -> StringifiablePredicate<'a,n,OwnedPropositionInProof> { StringifiablePredicate::new(
+pub fn proposition_atomicity_equality_check<'a,const N: usize>() -> StringifiablePredicate<'a,N,OwnedPropositionInProof> { StringifiablePredicate::new(
     proposition_atomicity_equality_predicate(),
     proposition_atomicity_equality_stringifier(),
 )}
 
 /// Check that the provided [Proposition](OwnedPropositionInProof) has an atomicity equal to atomicty_expected, returning an error otherwise
-pub fn assert_proposition_atomicity_equality<'a,const n: usize, Rule:InferenceRule>(exprs: [OwnedPropositionInProof; n]) -> Result<(), ProofStepSpecificationError<'a>> {
+pub fn assert_proposition_atomicity_equality<'a,const N: usize, Rule:InferenceRule>(exprs: [OwnedPropositionInProof; N]) -> Result<(), ProofStepSpecificationError<'a>> {
     proposition_atomicity_equality_check::<'a>()
         .evaluate(exprs)
         .map_err(|assertion| ProofStepSpecificationError::from_inner(assertion))

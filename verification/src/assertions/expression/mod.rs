@@ -79,10 +79,10 @@ pub fn expression_as_slice<'a>(expression: &OwnedExpressionInProof) -> Result<Ve
         .collect::<Vec<OwnedExpressionInProof>>())
 }
 
-pub fn expression_as_sized_slice<'a,const expected_size: usize>(expression: &OwnedExpressionInProof) -> Result<Box<[OwnedExpressionInProof; expected_size]>,ProofStepSpecificationError<'a>> {
+pub fn expression_as_sized_slice<'a,const EXPECTED_SIZE: usize>(expression: &OwnedExpressionInProof) -> Result<Box<[OwnedExpressionInProof; EXPECTED_SIZE]>,ProofStepSpecificationError<'a>> {
     match expression_as_slice(expression)?
         .try_into() {
             Ok(a) => Ok(a),
-            Err(_) => Err(ProofStepSpecificationError::from_inner(expression_length_stringifier(expected_size).assign([expression.to_owned()]))),
+            Err(_) => Err(ProofStepSpecificationError::from_inner(expression_length_stringifier(EXPECTED_SIZE).assign([expression.to_owned()]))),
         }
 }
