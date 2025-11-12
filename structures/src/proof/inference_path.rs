@@ -15,6 +15,10 @@ impl Display for InferenceInProofPath {
 
 #[derive(Clone,PartialEq,Eq)]
 pub struct InferenceInProof<'a,Rule: InferenceRule>(pub ObjAtPath<'a,Inference<Rule>,InferenceInProofPath>);
+impl <'a,Rule: InferenceRule> InferenceInProof<'a,Rule> {
+    pub fn into_owned(self) -> OwnedInferenceInProof<Rule>
+        { OwnedInferenceInProof(self.0.clone().into_owned()) }
+}
 #[derive(Clone,PartialEq,Eq)]
 pub struct OwnedInferenceInProof<Rule: InferenceRule>(pub OwnedObjAtPath<Inference<Rule>,InferenceInProofPath>);
 

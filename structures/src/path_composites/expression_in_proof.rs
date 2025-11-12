@@ -20,6 +20,10 @@ impl Display for ExpressionInProofPath {
 
 #[derive(Clone,PartialEq,Eq)]
 pub struct ExpressionInProof<'a>(pub ObjAtPath<'a,Expression,ExpressionInProofPath>);
+impl <'a> ExpressionInProof<'a> {
+    pub fn into_owned(&self) -> OwnedExpressionInProof { OwnedExpressionInProof(self.0.clone().into_owned()) }
+}
+
 #[derive(Clone,PartialEq,Eq)]
 pub struct OwnedExpressionInProof(pub OwnedObjAtPath<Expression,ExpressionInProofPath>);
 

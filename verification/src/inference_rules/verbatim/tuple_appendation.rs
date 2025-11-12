@@ -26,7 +26,7 @@ pub fn verify_tuple_appendation<'a>(inference: &InferenceInProof<StandardInferen
     let appended_verbatim = resolve_verbatim(appended, style.clone())?;
     
     // Compare the three verbatim expressions
-    expression_length_successor_predicate((append_to_verbatim,appended_verbatim))
+    expression_length_successor_predicate((append_to_verbatim,appended_verbatim));
 
     Ok(())
 }
