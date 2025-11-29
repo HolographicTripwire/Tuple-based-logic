@@ -1,5 +1,5 @@
 use parsertools::Parser;
-use tbl_structures::propositions::Expression;
+use tbl_structures::expressions::Expression;
 
 use crate::structures::expressions::{patterns::{expr_pattern_matcher, ExprPattern}, SpecialCase};
 
@@ -12,10 +12,10 @@ impl ExprPatternPair {
     pub fn new(left: ExprPattern, right: ExprPattern) -> Self
         { Self { left, right } }
 
-    fn left_to_right<'a>(&self) -> Parser<'a,char,String> {
+    pub fn left_to_right<'a>(&self) -> Parser<'a,char,String> {
         expr_pattern_translator(self.left.clone(), self.right.clone())
     }
-    fn right_to_left<'a>(&self) -> Parser<'a,char,String> {
+    pub fn right_to_left<'a>(&self) -> Parser<'a,char,String> {
         expr_pattern_translator(self.right.clone(), self.left.clone())
     }
 }
@@ -38,7 +38,7 @@ mod tests {
     use std::{collections::HashSet, sync::LazyLock};
 
     use parsertools::{results::ParseError, Parser};
-    use tbl_structures::propositions::Expression;
+    use tbl_structures::expressions::Expression;
 
     use crate::{helpers::styles::Style, structures::expressions::{patterns::{parser::{TEST_BLACKLIST, TEST_PATTERN_STYLE}, ExprPattern}, raw::tests::TEST_RAW_EXPRESSION_STYLE}, test_helpers::{parse_all_str, parse_str}};
 

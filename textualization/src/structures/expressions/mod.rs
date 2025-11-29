@@ -1,10 +1,10 @@
 use std::{collections::HashSet, sync::Arc};
 
 use dyn_clone::DynClone;
-use parsertools::parsers::{helpers::lazy, tokens::pred, Parser};
-use tbl_structures::propositions::Expression;
+use parsertools::{helpers::lazy, tokens::pred, Parser};
+use tbl_structures::expressions::Expression;
 
-use crate::{helpers::styles::Style, structures::expressions::raw::{raw_expression_parser, RawExpressionStyle}};
+use crate::{helpers::{parsers::controlled::ControlStrings, styles::Style}, structures::expressions::raw::RawExpressionStyle};
 
 pub mod raw;
 pub mod patterns;
@@ -22,11 +22,26 @@ impl <'a> ExpressionStyle<'a> {
     pub fn special_cases(&self) -> Arc<SpecialCases<'a>> { self.special_cases.clone() }
 
     pub fn controls(&self) -> HashSet<&str> { HashSet::from_iter(self.raw_expr_style.controls())}
+
+    fn apply_special_cases(&self, string: String) -> String {
+        todo!()
+        /*for case in self.special_cases.iter() {
+            string = case.
+        }*/
+    }
 }
 impl <'a> Style<Expression> for ExpressionStyle<'a> {
-    fn stringify(&self, stylable: &Expression) -> String {
+    type ParseParams = ControlStrings;
+
+    fn stringify(&self, expression: &Expression) -> String {
+        let raw_expression = self.raw_expr_style.stringify(expression);
+        self.apply_special_cases(raw_expression)
+    }
+    
+    fn parser<'b>(&self, params: Self::ParseParams) -> Parser<'b,char,Expression> {
         todo!()
-    }    
+    }
+    
 }
 
 pub trait SpecialCase<'a>: Sync + Send + DynClone {
@@ -37,7 +52,7 @@ impl <'a> Clone for Box<dyn SpecialCase<'a>>
 pub type SpecialCases<'a> = Vec<Box<dyn SpecialCase<'a>>>;
 
 pub fn expression_parser<'a>(style: ExpressionStyle<'a>) -> Parser<'a,char,Expression> {
-    raw_expression_parser(style.raw_expr_style())
+    style.raw_expr_style().parser(())
         .or(processed_expression_parser(style))
 }
 
@@ -48,4 +63,9 @@ fn processed_expression_parser<'a>(style: ExpressionStyle<'a>) -> Parser<'a,char
     let iter = binding.iter().map(move |case| case.parser(expression_parser.clone()));
     iter.reduce(|acc, next| acc.or(next))
         .unwrap_or(pred(|_| None))
+}
+
+#[cfg(test)]
+mod tests {
+    
 }

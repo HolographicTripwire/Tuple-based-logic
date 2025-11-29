@@ -2,7 +2,7 @@
 use std::collections::HashSet;
 
 use parsertools::{helpers::lazy, Parser};
-use tbl_structures::propositions::Expression;
+use tbl_structures::expressions::Expression;
 
 use crate::{helpers::{parsers::string_parser, styles::Style},structures::atoms::AtomStyle};
 
