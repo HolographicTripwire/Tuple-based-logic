@@ -2,7 +2,7 @@ use std::collections::HashSet;
 
 use tbl_structures::{path_composites::OwnedPropositionInProof};
 
-use crate::{assertions::expression::stringify_length, errors::{specification_error::{Assessor, AssessedStringifier, StringifiablePredicate}, ProofStepSpecificationError}};
+use crate::{assertions::expression::stringify_length, errors::{specification_error::{Assessor, AssessedErrorStringifier, ErrorStringifiableAssessor}, ProofStepSpecificationError}};
 
 /// Get a [Predicate](NaryPredicate) which takes n [Propositions](OwnedPropositionInProof) and checks if their lengths aren't equal
 pub fn proposition_length_inequality_predicate<'a,const N: usize>() -> impl Assessor<'a,[OwnedPropositionInProof;N],()> {
@@ -14,7 +14,7 @@ pub fn proposition_length_inequality_predicate<'a,const N: usize>() -> impl Asse
     }
 }
 /// Get a [Stringifier](NaryStringifier) which takes an [Propositions](OwnedPropositionInProof) and returns an error message saying that their lengths aren't inequal
-pub fn proposition_length_inequality_stringifier<'a, const N: usize>() -> impl AssessedStringifier<'a,[OwnedPropositionInProof;N],()> {
+pub fn proposition_length_inequality_stringifier<'a, const N: usize>() -> impl AssessedErrorStringifier<'a,[OwnedPropositionInProof;N],()> {
     move |os: [OwnedPropositionInProof; N],_| format!(
         "Proposition lengths expected to be inequal, but weren't; {atomicities}",
         atomicities = os.map(|o| 
@@ -25,7 +25,7 @@ pub fn proposition_length_inequality_stringifier<'a, const N: usize>() -> impl A
     )
 }
 /// Get a [Checker](StringifiablePredicate) which takes n [Propositions](OwnedPropositionInProof) and returns an error message if their lengths aren't inequal
-pub fn proposition_length_inequality_check<'a, const N: usize>() -> StringifiablePredicate<'a,[OwnedPropositionInProof;N],()> { StringifiablePredicate::new(
+pub fn proposition_length_inequality_check<'a, const N: usize>() -> ErrorStringifiableAssessor<'a,[OwnedPropositionInProof;N],()> { ErrorStringifiableAssessor::new(
     proposition_length_inequality_predicate(),
     proposition_length_inequality_stringifier(),
 )}

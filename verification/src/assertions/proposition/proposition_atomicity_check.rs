@@ -1,6 +1,6 @@
 use tbl_structures::{inference::InferenceRule, path_composites::OwnedPropositionInProof};
 
-use crate::{assertions::expression::stringify_atomicity, errors::specification_error::{Assessor, AssessedStringifier, ProofStepSpecificationError, StringifiablePredicate}};
+use crate::{assertions::expression::stringify_atomicity, errors::specification_error::{Assessor, AssessedErrorStringifier, ProofStepSpecificationError, ErrorStringifiableAssessor}};
 
 /// Get a [Predicate](NaryPredicate) which takes an [Proposition](OwnedPropositionInProof) and checks if its atomicity is the expected value
 fn proposition_atomicity_predicate<'a>(atomicity_expected: bool) -> impl Assessor<'a,OwnedPropositionInProof,()> {
@@ -9,7 +9,7 @@ fn proposition_atomicity_predicate<'a>(atomicity_expected: bool) -> impl Assesso
 }
 
 /// Get a [Stringifier](NaryStringifier) which takes an [Proposition](OwnedPropositionInProof) and returns an error message saying that this proposition's atomicity is not the expected value
-fn proposition_atomicity_stringifier<'a>(atomicity_expected: bool) -> impl AssessedStringifier<'a,OwnedPropositionInProof,()> {
+fn proposition_atomicity_stringifier<'a>(atomicity_expected: bool) -> impl AssessedErrorStringifier<'a,OwnedPropositionInProof,()> {
     move |o: OwnedPropositionInProof,_| format!(
         "Proposition at {path} has wrong atomicity (expected {atomicity_expected}; found {atomicity_actual})",
         path=o.0.path().to_string(),
@@ -18,7 +18,7 @@ fn proposition_atomicity_stringifier<'a>(atomicity_expected: bool) -> impl Asses
     )
 }
 /// Get a [Checker](StringifiablePredicate) which takes an [Proposition](OwnedPropositionInProof) and returns an error message if this proposition's atomicity is not the expected value
-pub fn proposition_atomicity_check<'a>(atomicity_expected: bool) -> StringifiablePredicate<'a,OwnedPropositionInProof,()> { StringifiablePredicate::new(
+pub fn proposition_atomicity_check<'a>(atomicity_expected: bool) -> ErrorStringifiableAssessor<'a,OwnedPropositionInProof,()> { ErrorStringifiableAssessor::new(
     proposition_atomicity_predicate(atomicity_expected),
     proposition_atomicity_stringifier(atomicity_expected),
 )}

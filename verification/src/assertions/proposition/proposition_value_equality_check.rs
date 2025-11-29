@@ -1,7 +1,7 @@
 use tbl_structures::{path_composites::OwnedPropositionInProof};
 use tbl_textualization::{helpers::styles::Style, structures::expressions::ExpressionStyle};
 
-use crate::errors::specification_error::{Assessor, AssessedStringifier, ProofStepSpecificationError, StringifiablePredicate};
+use crate::errors::specification_error::{Assessor, AssessedErrorStringifier, ProofStepSpecificationError, ErrorStringifiableAssessor};
 
 /// Get a [Predicate](NaryPredicate) which takes n [Propositions](OwnedPropositionInProof) and checks if their values are equal
 fn proposition_value_equality_predicate<'a,const N: usize>() -> impl Assessor<'a,[OwnedPropositionInProof;N],()> {
@@ -16,7 +16,7 @@ fn proposition_value_equality_predicate<'a,const N: usize>() -> impl Assessor<'a
 }
 
 /// Get a [Stringifier](NaryStringifier) which takes n [Propositions](OwnedPropositionInProof) and returns an error message saying that these proposition's value aren't equal
-fn proposition_value_equality_stringifier<'a,const N:usize>(style: ExpressionStyle<'a>) -> impl AssessedStringifier<'a,[OwnedPropositionInProof;N],()> {
+fn proposition_value_equality_stringifier<'a,const N:usize>(style: ExpressionStyle<'a>) -> impl AssessedErrorStringifier<'a,[OwnedPropositionInProof;N],()> {
     move |os: [OwnedPropositionInProof; N],_| format!(
         "Proposition values expected to be equal, but weren't; {values}",
         values = os.map(|o| 
@@ -27,7 +27,7 @@ fn proposition_value_equality_stringifier<'a,const N:usize>(style: ExpressionSty
     )
 }
 /// Get a [Checker](StringifiablePredicate) which takes n [Propositions](OwnedPropositionInProof) and returns an error message if these propositions values are not equal
-pub fn proposition_value_equality_check<'a,const N: usize>(style: ExpressionStyle<'a>) -> StringifiablePredicate<'a,[OwnedPropositionInProof;N],()> { StringifiablePredicate::new(
+pub fn proposition_value_equality_check<'a,const N: usize>(style: ExpressionStyle<'a>) -> ErrorStringifiableAssessor<'a,[OwnedPropositionInProof;N],()> { ErrorStringifiableAssessor::new(
     proposition_value_equality_predicate(),
     proposition_value_equality_stringifier(style),
 )}

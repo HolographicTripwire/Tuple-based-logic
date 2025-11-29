@@ -1,6 +1,6 @@
 use tbl_structures::{inference::InferenceRule, path_composites::OwnedPropositionInProof};
 
-use crate::{assertions::expression::stringify_atomicity, errors::specification_error::{Assessor, AssessedStringifier, ProofStepSpecificationError, StringifiablePredicate}};
+use crate::{assertions::expression::stringify_atomicity, errors::specification_error::{Assessor, AssessedErrorStringifier, ProofStepSpecificationError, ErrorStringifiableAssessor}};
 
 /// Get a [Predicate](NaryPredicate) which takes n [Propositions](OwnedPropositionInProof) and checks if their atomicities are equal
 pub fn proposition_atomicity_inequality_predicate<'a>() -> impl Assessor<'a,[OwnedPropositionInProof; 2],()> {
@@ -9,7 +9,7 @@ pub fn proposition_atomicity_inequality_predicate<'a>() -> impl Assessor<'a,[Own
     }
 }
 /// Get a [Stringifier](NaryStringifier) which takes n [Propositions](OwnedPropositionInProof) and returns an error message saying that their atomicities aren't equal
-pub fn proposition_atomicity_inequality_stringifier<'a>() -> impl AssessedStringifier<'a,[OwnedPropositionInProof;2],()> {
+pub fn proposition_atomicity_inequality_stringifier<'a>() -> impl AssessedErrorStringifier<'a,[OwnedPropositionInProof;2],()> {
     move |os: [OwnedPropositionInProof; 2],_| format!(
         "Proposition atomicities expected to be inequal, but weren't; {atomicities}",
         atomicities = os.map(|o| 
@@ -20,7 +20,7 @@ pub fn proposition_atomicity_inequality_stringifier<'a>() -> impl AssessedString
     )
 }
 /// Get a [Checker](StringifiablePredicate) which takes n [Proposition](OwnedPropositionInProof) and returns an error message if their atomicities aren't equal
-pub fn proposition_atomicity_inequality_check<'a>() -> StringifiablePredicate<'a,[OwnedPropositionInProof;2],()> { StringifiablePredicate::new(
+pub fn proposition_atomicity_inequality_check<'a>() -> ErrorStringifiableAssessor<'a,[OwnedPropositionInProof;2],()> { ErrorStringifiableAssessor::new(
     proposition_atomicity_inequality_predicate(),
     proposition_atomicity_inequality_stringifier(),
 )}

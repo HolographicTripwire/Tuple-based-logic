@@ -1,6 +1,6 @@
 use tbl_structures::path_composites::OwnedPropositionInProof;
 
-use crate::{assertions::expression::stringify_length, errors::{specification_error::{Assessor, AssessedStringifier, StringifiablePredicate}, ProofStepSpecificationError}};
+use crate::{assertions::expression::stringify_length, errors::{specification_error::{Assessor, AssessedErrorStringifier, ErrorStringifiableAssessor}, ProofStepSpecificationError}};
 
 /// Get a [Predicate](NaryPredicate) which takes an [Proposition](OwnedPropositionInProof) and checks if its length is not the expected value
 fn proposition_length_predicate<'a>(expected_length: usize) -> impl Assessor<'a,OwnedPropositionInProof,()> {
@@ -12,7 +12,7 @@ fn proposition_length_predicate<'a>(expected_length: usize) -> impl Assessor<'a,
     }
 }
 /// Get a [Stringifier](NaryStringifier) which takes an [Proposition](OwnedPropositionInProof) and returns an error message saying that this proposition's length is not the expected value
-pub fn proposition_length_stringifier<'a>(length_expected: usize) -> impl AssessedStringifier<'a,OwnedPropositionInProof,()> {
+pub fn proposition_length_stringifier<'a>(length_expected: usize) -> impl AssessedErrorStringifier<'a,OwnedPropositionInProof,()> {
     move |o: OwnedPropositionInProof,_| format!(
         "Proposition at {path} has wrong length (expected {length_expected}; found {length_actual})",
         path=o.0.path().to_string(),
@@ -20,7 +20,7 @@ pub fn proposition_length_stringifier<'a>(length_expected: usize) -> impl Assess
     )
 }
 /// Get a [Checker](StringifiablePredicate) which takes an [Proposition](OwnedPropositionInProof) and returns an error message if this proposition's length is not the expected value
-pub fn proposition_length_check<'a>(length_expected: usize) -> StringifiablePredicate<'a,OwnedPropositionInProof,()> { StringifiablePredicate::new(
+pub fn proposition_length_check<'a>(length_expected: usize) -> ErrorStringifiableAssessor<'a,OwnedPropositionInProof,()> { ErrorStringifiableAssessor::new(
     proposition_length_predicate(length_expected),
     proposition_length_stringifier(length_expected),
 )}

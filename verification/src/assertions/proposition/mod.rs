@@ -21,7 +21,7 @@ pub use proposition_value_inequality_check::*;
 use path_lib::obj_at_path::ObjAtPathWithChildren;
 use tbl_structures::path_composites::{OwnedExpressionInProof, OwnedPropositionInProof};
 
-use crate::errors::{specification_error::AssessedStringifier, ProofStepSpecificationError};
+use crate::errors::{specification_error::AssessedErrorStringifier, ProofStepSpecificationError};
 
 pub fn proposition_as_slice(proposition: &OwnedPropositionInProof) -> Vec<OwnedExpressionInProof> {
     proposition.0.get_located_children_owned()

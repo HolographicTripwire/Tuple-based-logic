@@ -1,6 +1,6 @@
 use tbl_structures::{inference::InferenceRule, path_composites::OwnedPropositionInProof};
 
-use crate::{assertions::expression::stringify_atomicity, errors::specification_error::{Assessor, AssessedStringifier, ProofStepSpecificationError, StringifiablePredicate}};
+use crate::{assertions::expression::stringify_atomicity, errors::specification_error::{Assessor, AssessedErrorStringifier, ProofStepSpecificationError, ErrorStringifiableAssessor}};
 
 /// Get a [Predicate](NaryPredicate) which takes n [Propositions](OwnedPropositionInProof) and checks if their atomicities are equal
 fn proposition_atomicity_equality_predicate<'a,const N: usize>() -> impl Assessor<'a,[OwnedPropositionInProof;N],()> {
@@ -14,7 +14,7 @@ fn proposition_atomicity_equality_predicate<'a,const N: usize>() -> impl Assesso
     }
 }
 /// Get a [Stringifier](NaryStringifier) which takes n [Propositions](OwnedPropositionInProof) and returns an error message saying that their atomicities aren't equal
-fn proposition_atomicity_equality_stringifier<'a,const N: usize>() -> impl AssessedStringifier<'a,[OwnedPropositionInProof;N],()> {
+fn proposition_atomicity_equality_stringifier<'a,const N: usize>() -> impl AssessedErrorStringifier<'a,[OwnedPropositionInProof;N],()> {
     move |os: [OwnedPropositionInProof; N],_| format!(
         "Proposition atomicities expected to be equal, but weren't; {atomicities}",
         atomicities = os.map(|o| 
@@ -25,7 +25,7 @@ fn proposition_atomicity_equality_stringifier<'a,const N: usize>() -> impl Asses
     )
 }
 /// Get a [Checker](StringifiablePredicate) which takes n [Proposition](OwnedPropositionInProof) and returns an error message if their atomicities aren't equal
-pub fn proposition_atomicity_equality_check<'a,const N: usize>() -> StringifiablePredicate<'a,[OwnedPropositionInProof;N],()> { StringifiablePredicate::new(
+pub fn proposition_atomicity_equality_check<'a,const N: usize>() -> ErrorStringifiableAssessor<'a,[OwnedPropositionInProof;N],()> { ErrorStringifiableAssessor::new(
     proposition_atomicity_equality_predicate(),
     proposition_atomicity_equality_stringifier(),
 )}

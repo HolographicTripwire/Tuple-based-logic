@@ -1,16 +1,16 @@
 use tbl_structures::path_composites::OwnedExpressionInProof;
 
-use crate::{assertions::expression::stringify_atomicity, errors::specification_error::{Assessor, AssessedStringifier, ProofStepSpecificationError, StringifiablePredicate}};
+use crate::{assertions::expression::stringify_atomicity, errors::specification_error::{Assessor, AssessedErrorStringifier, ProofStepSpecificationError, ErrorStringifiableAssessor}};
 
-/// Get a [Predicate](NaryPredicate) which takes an [Expression](OwnedExpressionInProof) and checks if its atomicity is the expected value
-pub fn expression_atomicity_predicate<'a>(atomicity_expected: bool) -> impl Assessor<'a,OwnedExpressionInProof,()> {
+/// Get an [Assessor] which takes an [Expression](OwnedExpressionInProof) and checks if its atomicity is the expected value
+pub fn expression_atomicity_predicate<'a>(atomicity_expected: bool) -> impl Assessor<'a,OwnedExpressionInProof,(),()> {
     move |o: OwnedExpressionInProof| 
     if o.0.obj().as_atom().is_ok() == atomicity_expected { Ok(()) }
     else { Err(()) }
 }
 
-/// Get a [Stringifier](NaryStringifier) which takes an [Expression](OwnedExpressionInProof) and returns an error message saying that this expression's atomicity is not the expected value
-pub fn expression_atomicity_stringifier<'a>(atomicity_expected: bool) -> impl AssessedStringifier<'a,OwnedExpressionInProof,()> {
+/// Get an [AssessedErrorStringifier] which takes an [Expression](OwnedExpressionInProof) and returns an error message saying that this expression's atomicity is not the expected value
+pub fn expression_atomicity_stringifier<'a>(atomicity_expected: bool) -> impl AssessedErrorStringifier<'a,OwnedExpressionInProof,()> {
     move |o: OwnedExpressionInProof,_| format!(
         "Expression at {path} has wrong atomicity (expected {atomicity_expected}; found {atomicity_actual})",
         path=o.0.path().to_string(),
@@ -18,8 +18,8 @@ pub fn expression_atomicity_stringifier<'a>(atomicity_expected: bool) -> impl As
         atomicity_actual=stringify_atomicity(o.0.obj().as_atom().is_ok())
     )
 }
-/// Get a [Checker](StringifiablePredicate) which takes an [Expression](OwnedExpressionInProof) and returns an error message if this expression's atomicity is not the expected value
-pub fn expression_atomicity_check<'a>(atomicity_expected: bool) -> StringifiablePredicate<'a,OwnedExpressionInProof,()> { StringifiablePredicate::new(
+/// Get a [StringifiableAssessor] which takes an [Expression](OwnedExpressionInProof) and returns an error message if this expression's atomicity is not the expected value
+pub fn expression_atomicity_check<'a>(atomicity_expected: bool) -> ErrorStringifiableAssessor<'a,OwnedExpressionInProof,(),()> { ErrorStringifiableAssessor::new(
     expression_atomicity_predicate(atomicity_expected),
     expression_atomicity_stringifier(atomicity_expected),
 )}

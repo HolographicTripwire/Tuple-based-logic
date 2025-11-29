@@ -1,23 +1,26 @@
 use tbl_structures::{path_composites::OwnedExpressionInProof};
 
-use crate::{assertions::expression::stringify_length, errors::{specification_error::{Assessor, AssessedStringifier, StringifiablePredicate}, ProofStepSpecificationError}};
+use crate::{assertions::expression::stringify_length, errors::{specification_error::{Assessor, AssessedErrorStringifier, ErrorStringifiableAssessor}, ProofStepSpecificationError}};
 
 /// Get a [Predicate](NaryPredicate) which takes n [Expressions](OwnedExpressionInProof) and checks if their lengths are equal
-pub fn expression_length_equality_predicate<'a,const N: usize>() -> impl Assessor<'a,[OwnedExpressionInProof;N],()> {
+pub fn expression_length_equality_predicate<'a,const N: usize>() -> impl Assessor<'a,[OwnedExpressionInProof;N],Option<usize>,()> {
     move |os: [OwnedExpressionInProof; N]| { 
-        let mut iter = os.iter().map(|o| o.0.obj().as_slice() );
+        let mut iter = os.iter().map(|o| match o.0.obj().as_slice() {
+            Ok(expressions) => Some(expressions.len()),
+            Err(_) => None,
+        });
         let first_length = iter.next().expect("Cannot check length equality for zero expressions");
         for nth_length in iter {
             if nth_length != first_length { return Err(()) }
         }
-        Ok(())
+        Ok(first_length)
     }
 }
-/// Get a [Stringifier](NaryStringifier) which takes an [Expressions](OwnedExpressionInProof) and returns an error message saying that their lengths aren't equal
-pub fn expression_length_equality_stringifier<'a, const N: usize>() -> impl AssessedStringifier<'a,[OwnedExpressionInProof;N],()> {
+/// Get an [AssessedErrorStringifier] which takes an [Expressions](OwnedExpressionInProof) and returns an error message saying that their lengths aren't equal
+pub fn expression_length_equality_stringifier<'a, const N: usize>() -> impl AssessedErrorStringifier<'a,[OwnedExpressionInProof;N],()> {
     move |os: [OwnedExpressionInProof; N],_| format!(
-        "Expression lengths expected to be equal, but weren't; {atomicities}",
-        atomicities = os.map(|o| 
+        "Expression lengths expected to be equal, but weren't; {lengths}",
+        lengths = os.map(|o| 
             o.0.path().to_string()
             + " -> " +
             &stringify_length(o.0.obj())
@@ -25,7 +28,7 @@ pub fn expression_length_equality_stringifier<'a, const N: usize>() -> impl Asse
     )
 }
 /// Get a [Checker](StringifiablePredicate) which takes n [Expressions](OwnedExpressionInProof) and returns an error message if their lengths aren't equal
-pub fn expression_length_equality_check<'a, const N: usize>() -> StringifiablePredicate<'a,[OwnedExpressionInProof;N],()> { StringifiablePredicate::new(
+pub fn expression_length_equality_check<'a, const N: usize>() -> ErrorStringifiableAssessor<'a,[OwnedExpressionInProof;N],usize,()> { ErrorStringifiableAssessor::new(
     expression_length_equality_predicate(),
     expression_length_equality_stringifier(),
 )}

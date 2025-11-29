@@ -7,32 +7,32 @@ use tbl_textualization::structures::expressions::ExpressionStyle;
 use crate::{errors::validation_error::ProofValidationError, inference_rules::InferenceVerifier};
 
 /// Represents a predicate which maps an n-size arrays of T onto [bool] objects
-pub trait Assessor<'a,I,E>: DynClone + Fn(I) -> Result<(),E> {}
-impl <'a,P: 'static + Clone +  Fn(I) -> Result<(),E>, I,E> Assessor<'a,I,E> for P {}
-impl <'a,I,E> Clone for Box<dyn Assessor<'a,I,E>>
+pub trait Assessor<'a,I,T,E>: DynClone + Fn(I) -> Result<T,E> {}
+impl <'a,I,T,E,P: 'static + Clone +  Fn(I) -> Result<T,E>> Assessor<'a,I,T,E> for P {}
+impl <'a,I,T,E> Clone for Box<dyn Assessor<'a,I,T,E>>
     { fn clone(&self) -> Self { dyn_clone::clone_box(&**self) } }
 
 /// Represents a stringifier that maps n-size arrays of T onto [String] objects
-pub trait AssessedStringifier<'a,I: 'a + Clone,E>: DynClone + Fn(I,E) -> String {
+pub trait AssessedErrorStringifier<'a,I: 'a + Clone,E>: DynClone + Fn(I,E) -> String {
     fn assign(self, value: I, err: E) -> StringifiableAssignment<'a, I, E> where Self: Sized + 'a
         { StringifiableAssignment::new(value, err, self) } 
 }
 
-impl <'a,S: 'a + Clone +  Fn(I,E) -> String, I: 'a + Clone,E> AssessedStringifier<'a,I,E> for S {}
-impl <'a,I,E> Clone for Box<dyn AssessedStringifier<'a,I,E> + 'a>
+impl <'a,S: 'a + Clone +  Fn(I,E) -> String, I: 'a + Clone,E> AssessedErrorStringifier<'a,I,E> for S {}
+impl <'a,I,E> Clone for Box<dyn AssessedErrorStringifier<'a,I,E> + 'a>
     { fn clone(&self) -> Self { dyn_clone::clone_box(&**self) }}
 
 /// Represents a checker that can evaluate an n-size array of T returning Ok if it matches the internal predicate, or creates a [StringifiableAssignment] from that array and the internal Stringifier otherwise
-pub struct StringifiablePredicate<'a,I,E> {
-    predicate: Box<dyn Assessor<'a,I,E> + 'a>,
-    stringifier: Box<dyn AssessedStringifier<'a,I,E> + 'a>
+pub struct ErrorStringifiableAssessor<'a,I,T,E> {
+    predicate: Box<dyn Assessor<'a,I,T,E> + 'a>,
+    stringifier: Box<dyn AssessedErrorStringifier<'a,I,E> + 'a>
 }
-impl <'a,I:'a + Clone,E> StringifiablePredicate<'a,I,E> {
-    pub fn new<Predicate: 'a + Assessor<'a,I,E>, Stringifier: 'a + AssessedStringifier<'a,I,E>>(predicate: Predicate, stringifier: Stringifier) -> Self 
+impl <'a,I:'a + Clone,T,E> ErrorStringifiableAssessor<'a,I,T,E> {
+    pub fn new<Predicate: 'a + Assessor<'a,I,T,E>, Stringifier: 'a + AssessedErrorStringifier<'a,I,E>>(predicate: Predicate, stringifier: Stringifier) -> Self 
         { Self{predicate: Box::new(predicate), stringifier: Box::new(stringifier)} }
-    pub fn evaluate(&self, value: I) -> Result<(),StringifiableAssignment<'a,I,E>> {
+    pub fn evaluate(&self, value: I) -> Result<T,StringifiableAssignment<'a,I,E>> {
         match (self.predicate)(value.clone()) {
-            Ok(_) => { Ok(()) },
+            Ok(val) => { Ok(val) },
             Err(err) => { Err(StringifiableAssignment::new(value, err, self.stringifier.clone())) }
         }
     }
@@ -42,10 +42,10 @@ impl <'a,I:'a + Clone,E> StringifiablePredicate<'a,I,E> {
 pub struct StringifiableAssignment<'a,I,E> {
     value: I,
     err: E,
-    stringifier: Box<dyn AssessedStringifier<'a,I,E> + 'a>
+    stringifier: Box<dyn AssessedErrorStringifier<'a,I,E> + 'a>
 }
 impl <'a,I: Clone,E> StringifiableAssignment<'a,I,E> {
-    fn new<Stringifier: 'a + AssessedStringifier<'a,I,E>>(value: I, err: E, stringifier: Stringifier) -> Self
+    fn new<Stringifier: 'a + AssessedErrorStringifier<'a,I,E>>(value: I, err: E, stringifier: Stringifier) -> Self
         { Self{value, err, stringifier: Box::new(stringifier)} }
 }
 impl <'a,I: Clone,E> Display for StringifiableAssignment<'a,I,E> {
@@ -82,13 +82,13 @@ pub trait VerifiableInferenceRule: InferenceRule {
 
 #[cfg(test)]
 mod tests {
-    use crate::errors::specification_error::StringifiablePredicate;
+    use crate::errors::specification_error::ErrorStringifiableAssessor;
 
     #[test]
     fn test_evaluate_stringifiable_predicate_on_true() {
         let predicate = |i: [i16; 2]| { i[0] < i[1] };
         let stringifier = |i: [i16; 2]| { format!("First item ({}) was not less than second item ({})",i[0],i[1]) };
-        let str_pred = StringifiablePredicate::new(predicate, stringifier);
+        let str_pred = ErrorStringifiableAssessor::new(predicate, stringifier);
         let result = str_pred.evaluate([1,2]);
         assert!(result.is_ok())
     }
@@ -97,7 +97,7 @@ mod tests {
     fn test_evaluate_stringifiable_predicate_on_false() {
         let predicate = |i: [i16; 2]| { i[0] < i[1] };
         let stringifier = |i: [i16; 2]| { format!("First item ({}) was not less than second item ({})",i[0],i[1]) };
-        let str_pred = StringifiablePredicate::new(predicate, stringifier);
+        let str_pred = ErrorStringifiableAssessor::new(predicate, stringifier);
         let assignment = str_pred.evaluate([2,1]).unwrap_err();
         assert_eq!(assignment.to_string(),"First item (2) was not less than second item (1)")
     }

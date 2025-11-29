@@ -6,7 +6,7 @@ pub use explicit_conclusion_count::*;
 use path_lib::obj_at_path::ObjAtPathWithChildren;
 use tbl_structures::{inference::InferenceRule, path_composites::OwnedPropositionInProof, proof::{InferenceInProof, OwnedInferenceInProof}};
 
-use crate::errors::{specification_error::AssessedStringifier, ProofStepSpecificationError};
+use crate::errors::{specification_error::AssessedErrorStringifier, ProofStepSpecificationError};
 
 pub fn assumptions_as_slice<Rule: InferenceRule>(inference: &InferenceInProof<Rule>) -> Vec<OwnedPropositionInProof> {
     inference.0.get_located_children_owned()

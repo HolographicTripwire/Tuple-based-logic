@@ -21,7 +21,7 @@ pub use expression_value_inequality_check::*;
 use path_lib::{obj_at_path::{ObjAtPathWithChildren, ObjAtPathWithDescendants}, paths::PathPair};
 use tbl_structures::{expressions::{Expression, ExpressionInExpressionPath}, path_composites::{ExpressionInProof, ExpressionInProofPath, OwnedExpressionInProof}, DisplayExt};
 
-use crate::errors::{specification_error::AssessedStringifier, ProofStepSpecificationError};
+use crate::errors::{specification_error::AssessedErrorStringifier, ProofStepSpecificationError};
 
 /// Convert atomicity to string
 pub(crate) fn stringify_atomicity(is_atomic: bool) -> &'static str {
@@ -35,7 +35,7 @@ pub(crate) fn stringify_length(expr: &Expression) -> String {
     }
 }
 
-pub fn expression_subpath_stringifier<'a>(subpath: ExpressionInExpressionPath) -> impl AssessedStringifier<'a,OwnedExpressionInProof,()> {
+pub fn expression_subpath_stringifier<'a>(subpath: ExpressionInExpressionPath) -> impl AssessedErrorStringifier<'a,OwnedExpressionInProof,()> {
     move |o: OwnedExpressionInProof,_| format!(
         "Expression at {path} has no subexpression at subpath {subpath}",
         path=o.0.path().to_string(),
