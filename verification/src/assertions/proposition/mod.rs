@@ -1,5 +1,5 @@
 mod atomicity_check;
-mod equality_check;
+mod atomicity_equality_check;
 mod atomicity_inequality_check;
 mod length_check;
 mod length_equality_check;
@@ -8,10 +8,8 @@ mod value_check;
 mod value_equality_check;
 mod value_inequality_check;
 
-use std::fmt::Display;
-
 pub use atomicity_check::*;
-pub use equality_check::*;
+pub use atomicity_equality_check::*;
 pub use atomicity_inequality_check::*;
 pub use length_check::*;
 pub use length_equality_check::*;
@@ -21,7 +19,7 @@ pub use value_equality_check::*;
 pub use value_inequality_check::*;
 
 use path_lib::{obj_at_path::{ObjAtPathWithChildren, ObjAtPathWithDescendants}, paths::PathPair};
-use tbl_structures::{expressions::{Proposition, ExpressionInExpressionPath}, path_composites::{PropositionInProof, PropositionInProofPath, OwnedPropositionInProof}, DisplayExt};
+use tbl_structures::{DisplayExt, expressions::{ExpressionInExpressionPath, Proposition}, path_composites::{ExpressionInProof, OwnedExpressionInProof, OwnedPropositionInProof, PropositionInProof, PropositionInProofPath}};
 
 pub struct PropositionSubpathError {
     subpath: ExpressionInExpressionPath,
@@ -31,21 +29,20 @@ impl PropositionSubpathError {
     fn new(subpath: ExpressionInExpressionPath, proposition: OwnedPropositionInProof ) -> Self
         { Self { subpath, proposition } }
 }
-impl Display for PropositionSubpathError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f,
-            "Proposition at {path} has no subproposition at subpath {subpath}",
-            path=self.proposition.0.path(),
-            subpath=self.subpath.display()
-        )
-    }
+
+pub fn format_proposition_subpath_error(err: PropositionSubpathError) -> String {
+    format!("Proposition at {path} has no subexpression at subpath {subpath}",
+        path=err.proposition.0.path(),
+        subpath=err.subpath.display()
+    )
 }
 
-pub fn subproposition<'a>(proposition: &'a PropositionInProof<'a>, subpath: ExpressionInExpressionPath) -> Result<PropositionInProof<'a>,PropositionSubpathError> {
+
+pub fn proposition_subexpression<'a>(proposition: &'a PropositionInProof<'a>, subpath: ExpressionInExpressionPath) -> Result<ExpressionInProof<'a>,PropositionSubpathError> {
     return match proposition.0.get_located_descendant(subpath.clone()) {
-        Ok(c) => Ok(PropositionInProof(c.replace_path(
+        Ok(c) => Ok(ExpressionInProof(c.replace_path(
             |p: PathPair<PropositionInProofPath,ExpressionInExpressionPath>| p.into()
-        ))), Err(_) => { Err(PropositionSubpathError::new(subpath, proposition.into_owned())) }
+        ))), Err(_) => { Err(PropositionSubpathError::new(subpath, proposition.clone().into_owned())) }
     };
     /* 
     TODO: Fix or delete
@@ -66,18 +63,18 @@ pub fn subproposition<'a>(proposition: &'a PropositionInProof<'a>, subpath: Expr
      */
 }
 
-pub fn proposition_as_slice<'a>(proposition: &OwnedPropositionInProof) -> Result<Vec<OwnedPropositionInProof>,PropositionAtomicityCheckError> {
+pub fn proposition_as_slice<'a>(proposition: &OwnedPropositionInProof) -> Result<Vec<OwnedExpressionInProof>,PropositionAtomicityCheckError> {
     if let Proposition::Atomic(_) = proposition.0.obj() { return Err(PropositionAtomicityCheckError::new(false,proposition.to_owned())) };
     Ok(proposition.0.get_located_children_owned()
         .into_iter()
-        .map(|obj| OwnedPropositionInProof(obj.replace_path(|p| p.into())))
-        .collect::<Vec<OwnedPropositionInProof>>())
+        .map(|obj| OwnedExpressionInProof(obj.replace_path(|p| p.into())))
+        .collect::<Vec<OwnedExpressionInProof>>())
 }
 
-pub fn proposition_as_sized_slice<'a,const EXPECTED_SIZE: usize>(proposition: &OwnedPropositionInProof) -> Result<Result<Box<[OwnedPropositionInProof; EXPECTED_SIZE]>,PropositionLengthCheckError>,PropositionAtomicityCheckError> {
+pub fn proposition_as_sized_slice<'a,const EXPECTED_SIZE: usize>(proposition: &OwnedPropositionInProof) -> Result<Result<Box<[OwnedExpressionInProof; EXPECTED_SIZE]>,PropositionLengthCheckError>,PropositionAtomicityCheckError> {
     match proposition_as_slice(proposition)?
         .try_into() {
-            Ok(a) => Ok(a),
-            Err(_) => Err(PropositionLengthCheckError::new(EXPECTED_SIZE, proposition.to_owned())),
-        }
+        Ok(a) => Ok(Ok(a)),
+        Err(_) => Ok(Err(PropositionLengthCheckError::new(EXPECTED_SIZE, proposition.to_owned()))),
+    }
 }

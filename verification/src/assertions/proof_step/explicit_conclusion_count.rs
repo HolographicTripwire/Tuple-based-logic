@@ -1,5 +1,3 @@
-use std::fmt::Display;
-
 use tbl_structures::{inference::InferenceRule, proof::{InferenceInProof, OwnedInferenceInProof}};
 
 pub struct ExplicitConclusionCountCheckError<Rule: InferenceRule> {
@@ -14,16 +12,13 @@ impl<Rule: InferenceRule> ExplicitConclusionCountCheckError<Rule> {
         }
     }
 }
-impl<Rule: InferenceRule> Display for ExplicitConclusionCountCheckError<Rule> {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(
-            f,
-            "Proof at step {step} has wrong number of explicit conclusions (expected {expected_count}; found {actual_count}",
-            step = self.inference.0.path(),
-            expected_count = self.expected_count,
-            actual_count = self.inference.0.obj().assumptions.len()
-        )
-    }
+
+pub fn format_explicit_conclusion_count_check_error<Rule: InferenceRule>(err: ExplicitConclusionCountCheckError<Rule>) -> String {
+    format!("Proof at step {step} has wrong number of explicit conclusions (expected {expected_count}; found {actual_count}",
+        step = err.inference.0.path(),
+        expected_count = err.expected_count,
+        actual_count = err.inference.0.obj().assumptions.len()
+    )
 }
 
 /// Check that the provided [Inference](OwnedInferenceInProof) has expected_count explicit conclusions, returning an error otherwise

@@ -1,5 +1,5 @@
 mod atomicity_check;
-mod equality_check;
+mod atomicity_equality_check;
 mod atomicity_inequality_check;
 mod length_check;
 mod length_equality_check;
@@ -8,10 +8,8 @@ mod value_check;
 mod value_equality_check;
 mod value_inequality_check;
 
-use std::fmt::Display;
-
 pub use atomicity_check::*;
-pub use equality_check::*;
+pub use atomicity_equality_check::*;
 pub use atomicity_inequality_check::*;
 pub use length_check::*;
 pub use length_equality_check::*;
@@ -31,21 +29,19 @@ impl ExpressionSubpathError {
     fn new(subpath: ExpressionInExpressionPath, expression: OwnedExpressionInProof ) -> Self
         { Self { subpath, expression } }
 }
-impl Display for ExpressionSubpathError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f,
-            "Expression at {path} has no subexpression at subpath {subpath}",
-            path=self.expression.0.path(),
-            subpath=self.subpath.display()
-        )
-    }
+
+pub fn format_expression_subpath_error(err: ExpressionSubpathError) -> String {
+    format!("Expression at {path} has no subexpression at subpath {subpath}",
+        path=err.expression.0.path(),
+        subpath=err.subpath.display()
+    )
 }
 
-pub fn subexpression<'a>(expression: &'a ExpressionInProof<'a>, subpath: ExpressionInExpressionPath) -> Result<ExpressionInProof<'a>,ExpressionSubpathError> {
+pub fn expression_subexpression<'a>(expression: &'a ExpressionInProof<'a>, subpath: ExpressionInExpressionPath) -> Result<ExpressionInProof<'a>,ExpressionSubpathError> {
     return match expression.0.get_located_descendant(subpath.clone()) {
         Ok(c) => Ok(ExpressionInProof(c.replace_path(
             |p: PathPair<ExpressionInProofPath,ExpressionInExpressionPath>| p.into()
-        ))), Err(_) => { Err(ExpressionSubpathError::new(subpath, expression.into_owned())) }
+        ))), Err(_) => { Err(ExpressionSubpathError::new(subpath, expression.clone().into_owned())) }
     };
     /* 
     TODO: Fix or delete
@@ -77,7 +73,7 @@ pub fn expression_as_slice<'a>(expression: &OwnedExpressionInProof) -> Result<Ve
 pub fn expression_as_sized_slice<'a,const EXPECTED_SIZE: usize>(expression: &OwnedExpressionInProof) -> Result<Result<Box<[OwnedExpressionInProof; EXPECTED_SIZE]>,ExpressionLengthCheckError>,ExpressionAtomicityCheckError> {
     match expression_as_slice(expression)?
         .try_into() {
-            Ok(a) => Ok(a),
-            Err(_) => Err(ExpressionLengthCheckError::new(EXPECTED_SIZE, expression.to_owned())),
-        }
+        Ok(a) => Ok(Ok(a)),
+        Err(_) => Ok(Err(ExpressionLengthCheckError::new(EXPECTED_SIZE, expression.to_owned()))),
+    }
 }

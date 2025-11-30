@@ -21,6 +21,10 @@ impl Display for PropositionInProofPath {
 
 #[derive(Clone,PartialEq,Eq)]
 pub struct PropositionInProof<'a>(pub ObjAtPath<'a,Proposition,PropositionInProofPath>);
+impl <'a> PropositionInProof<'a> {
+    pub fn into_owned(self) -> OwnedPropositionInProof { OwnedPropositionInProof(self.0.into_owned()) }
+}
+
 #[derive(Clone,PartialEq,Eq)]
 pub struct OwnedPropositionInProof(pub OwnedObjAtPath<Proposition,PropositionInProofPath>);
 
