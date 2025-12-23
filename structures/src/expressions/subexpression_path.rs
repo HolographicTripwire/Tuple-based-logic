@@ -13,6 +13,7 @@ impl PathPrimitive for AtomicExpressionInExpressionPath {}
 /// A path to one [Expression], within another [Expression]
 /// For example, within the [Expression] (a,(b,c),d), the [AtomicSubexpressionPath] (1,0) would lead to the [Expression] (b)
 pub type ExpressionInExpressionPath = PathSeries<AtomicExpressionInExpressionPath>;
+pub type ExpressionInPropositionPath = ExpressionInExpressionPath;
 
 impl <'a> HasChildren<'a,AtomicExpressionInExpressionPath,Expression> for Expression {
     fn valid_primitive_paths(&self) -> impl IntoIterator<Item = AtomicExpressionInExpressionPath> {
