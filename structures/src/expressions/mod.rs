@@ -43,6 +43,13 @@ impl Expression {
         }
     }
 
+    pub fn len(&self) -> Option<usize> {
+        match self {
+            Expression::Atomic(_) => None,
+            Expression::Tuple(exprs) => Some(exprs.len())
+        }
+    }
+
     /// Get the expression which is negated by this expression
     /// Returns Some(&negated_expression) if this expression is the negation of some negated_expression, otherwise returns None
     /// For example, get_negated((¬,(¬,P))) = (¬,P)
