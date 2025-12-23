@@ -61,24 +61,24 @@ pub fn expression_subexpression<'a>(expression: &'a ExpressionInInference<'a>, s
      */
 }
 
-pub fn expression_as_slice<'a>(expression: &OwnedExpressionInInference) -> Result<Vec<OwnedExpressionInInference>,ExpressionAtomicityCheckError> {
+pub fn expression_as_slice<'a>(expression: &'a ExpressionInInference) -> Result<Vec<ExpressionInInference<'a>>,ExpressionAtomicityCheckError> {
     if let Expression::Atomic(_) = expression.0.obj() { return Err(ExpressionAtomicityCheckError {
         expected_atomicity: false,
-        expression: expression.to_owned()
+        expression: expression.clone().into_owned()
     }) };
-    Ok(expression.0.get_located_children_owned()
+    Ok(expression.0.get_located_children()
         .into_iter()
-        .map(|obj| OwnedExpressionInInference(obj.replace_path(|p| p.into())))
-        .collect::<Vec<OwnedExpressionInInference>>())
+        .map(|obj| ExpressionInInference(obj.replace_path(|p| p.into())))
+        .collect::<Vec<ExpressionInInference>>())
 }
 
-pub fn expression_as_sized_slice<'a,const EXPECTED_SIZE: usize>(expression: &OwnedExpressionInInference) -> Result<Result<Box<[OwnedExpressionInInference; EXPECTED_SIZE]>,ExpressionLengthCheckError>,ExpressionAtomicityCheckError> {
+pub fn expression_as_sized_slice<'a,const EXPECTED_SIZE: usize>(expression: &'a ExpressionInInference) -> Result<Result<Box<[ExpressionInInference<'a>; EXPECTED_SIZE]>,ExpressionLengthCheckError>,ExpressionAtomicityCheckError> {
     match expression_as_slice(expression)?
         .try_into() {
         Ok(a) => Ok(Ok(a)),
         Err(_) => Ok(Err(ExpressionLengthCheckError{
             expected_length: EXPECTED_SIZE, 
-            expression: expression.to_owned()
+            expression: expression.clone().into_owned()
         })),
     }
 }

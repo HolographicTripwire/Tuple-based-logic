@@ -5,17 +5,17 @@ pub use assumption_count::*;
 pub use explicit_conclusion_count::*;
 
 use path_lib::{HasChildren};
-use tbl_structures::{expressions::Proposition, inference::{Inference, InferenceRule}, proof::{OwnedPropositionInInference, ProofStep, PropositionInInferencePath}};
+use tbl_structures::{expressions::Proposition, inference::{Inference, InferenceRule}, proof::{ProofStep, PropositionInInference, PropositionInInferencePath}};
 
 
-pub fn assumptions_as_slice<Rule: InferenceRule>(inference: &Inference<Rule>) -> Vec<OwnedPropositionInInference> {
-    <Inference<Rule> as HasChildren<'_,PropositionInInferencePath,Proposition>>::get_located_children_owned(inference)
+pub fn assumptions_as_slice<'a, Rule: InferenceRule>(inference: &'a Inference<Rule>) -> Vec<PropositionInInference<'a>> {
+    <Inference<Rule> as HasChildren<'_,PropositionInInferencePath,Proposition>>::get_located_children(inference)
         .into_iter()
         .map(|p| p.into())
-        .collect::<Vec<OwnedPropositionInInference>>()
+        .collect::<Vec<PropositionInInference>>()
 }
 
-pub fn assumptions_as_sized_slice<const EXPECTED_SIZE: usize,Rule: InferenceRule>(inference: &Inference<Rule>) -> Result<Box<[OwnedPropositionInInference; EXPECTED_SIZE]>,AssumptionCountCheckError<Rule>> {
+pub fn assumptions_as_sized_slice<const EXPECTED_SIZE: usize,Rule: InferenceRule>(inference: &Inference<Rule>) -> Result<Box<[PropositionInInference; EXPECTED_SIZE]>,AssumptionCountCheckError<Rule>> {
     match assumptions_as_slice(&inference)
         .try_into() {
             Ok(a) => Ok(a),
@@ -26,14 +26,14 @@ pub fn assumptions_as_sized_slice<const EXPECTED_SIZE: usize,Rule: InferenceRule
         }
 }
 
-pub fn explicit_conclusions_as_slice<Rule: InferenceRule>(inference: &Inference<Rule>) -> Vec<OwnedPropositionInInference> {
-    inference.get_located_explicit_conclusions_owned()
+pub fn explicit_conclusions_as_slice<'a, Rule: InferenceRule>(inference: &'a Inference<Rule>) -> Vec<PropositionInInference<'a>> {
+    inference.get_located_explicit_conclusions()
         .into_iter()
-        .map(|obj| OwnedPropositionInInference(obj.replace_path(|p| p.into())))
-        .collect::<Vec<OwnedPropositionInInference>>()
+        .map(|obj| PropositionInInference(obj.replace_path(|p| p.into())))
+        .collect::<Vec<PropositionInInference>>()
 }
 
-pub fn explicit_conclusions_as_sized_slice<const EXPECTED_SIZE: usize,Rule: InferenceRule>(inference: &Inference<Rule>) -> Result<Box<[OwnedPropositionInInference; EXPECTED_SIZE]>,ExplicitConclusionCountCheckError<Rule>> {
+pub fn explicit_conclusions_as_sized_slice<const EXPECTED_SIZE: usize,Rule: InferenceRule>(inference: &Inference<Rule>) -> Result<Box<[PropositionInInference; EXPECTED_SIZE]>,ExplicitConclusionCountCheckError<Rule>> {
     match explicit_conclusions_as_slice(&inference)
         .try_into() {
             Ok(a) => Ok(a),
