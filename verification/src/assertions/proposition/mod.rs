@@ -19,30 +19,28 @@ pub use value_equality_check::*;
 pub use value_inequality_check::*;
 
 use path_lib::{obj_at_path::{ObjAtPathWithChildren, ObjAtPathWithDescendants}, paths::PathPair};
-use tbl_structures::{DisplayExt, expressions::{ExpressionInExpressionPath, Proposition}, path_composites::{ExpressionInProof, OwnedExpressionInProof, OwnedPropositionInProof, PropositionInProof, PropositionInProofPath}};
+use tbl_structures::{DisplayExt, expressions::{ExpressionInExpressionPath, ExpressionInPropositionPath, Proposition}, path_composites::{ExpressionInInference, OwnedExpressionInInference}, proof::{OwnedPropositionInInference, PropositionInInference, PropositionInInferencePath}};
 
 pub struct PropositionSubpathError {
-    subpath: ExpressionInExpressionPath,
-    proposition: OwnedPropositionInProof
-}
-impl PropositionSubpathError {
-    fn new(subpath: ExpressionInExpressionPath, proposition: OwnedPropositionInProof ) -> Self
-        { Self { subpath, proposition } }
+    pub subpath: ExpressionInExpressionPath,
+    pub proposition: OwnedPropositionInInference
 }
 
 pub fn format_proposition_subpath_error(err: PropositionSubpathError) -> String {
-    format!("Proposition at {path} has no subexpression at subpath {subpath}",
+    format!("Proposition at {path} has no subproposition at subpath {subpath}",
         path=err.proposition.0.path(),
         subpath=err.subpath.display()
     )
 }
 
-
-pub fn proposition_subexpression<'a>(proposition: &'a PropositionInProof<'a>, subpath: ExpressionInExpressionPath) -> Result<ExpressionInProof<'a>,PropositionSubpathError> {
+pub fn proposition_subproposition<'a>(proposition: &'a PropositionInInference<'a>, subpath: ExpressionInPropositionPath) -> Result<ExpressionInInference<'a>,PropositionSubpathError> {
     return match proposition.0.get_located_descendant(subpath.clone()) {
-        Ok(c) => Ok(ExpressionInProof(c.replace_path(
-            |p: PathPair<PropositionInProofPath,ExpressionInExpressionPath>| p.into()
-        ))), Err(_) => { Err(PropositionSubpathError::new(subpath, proposition.clone().into_owned())) }
+        Ok(c) => Ok(ExpressionInInference(c.replace_path(
+            |p: PathPair<PropositionInInferencePath,ExpressionInPropositionPath>| p.into()
+        ))), Err(_) => { Err(PropositionSubpathError {
+            subpath,
+            proposition: proposition.clone().into_owned()
+        }) }
     };
     /* 
     TODO: Fix or delete
@@ -63,18 +61,24 @@ pub fn proposition_subexpression<'a>(proposition: &'a PropositionInProof<'a>, su
      */
 }
 
-pub fn proposition_as_slice<'a>(proposition: &OwnedPropositionInProof) -> Result<Vec<OwnedExpressionInProof>,PropositionAtomicityCheckError> {
-    if let Proposition::Atomic(_) = proposition.0.obj() { return Err(PropositionAtomicityCheckError::new(false,proposition.to_owned())) };
+pub fn proposition_as_slice<'a>(proposition: &OwnedPropositionInInference) -> Result<Vec<OwnedExpressionInInference>,PropositionAtomicityCheckError> {
+    if let Proposition::Atomic(_) = proposition.0.obj() { return Err(PropositionAtomicityCheckError {
+        expected_atomicity: false,
+        proposition: proposition.to_owned()
+    }) };
     Ok(proposition.0.get_located_children_owned()
         .into_iter()
-        .map(|obj| OwnedExpressionInProof(obj.replace_path(|p| p.into())))
-        .collect::<Vec<OwnedExpressionInProof>>())
+        .map(|obj| OwnedExpressionInInference(obj.replace_path(|p| p.into())))
+        .collect::<Vec<OwnedExpressionInInference>>())
 }
 
-pub fn proposition_as_sized_slice<'a,const EXPECTED_SIZE: usize>(proposition: &OwnedPropositionInProof) -> Result<Result<Box<[OwnedExpressionInProof; EXPECTED_SIZE]>,PropositionLengthCheckError>,PropositionAtomicityCheckError> {
+pub fn proposition_as_sized_slice<'a,const EXPECTED_SIZE: usize>(proposition: &OwnedPropositionInInference) -> Result<Result<Box<[OwnedExpressionInInference; EXPECTED_SIZE]>,PropositionLengthCheckError>,PropositionAtomicityCheckError> {
     match proposition_as_slice(proposition)?
         .try_into() {
         Ok(a) => Ok(Ok(a)),
-        Err(_) => Ok(Err(PropositionLengthCheckError::new(EXPECTED_SIZE, proposition.to_owned()))),
+        Err(_) => Ok(Err(PropositionLengthCheckError{
+            expected_length: EXPECTED_SIZE, 
+            proposition: proposition.to_owned()
+        })),
     }
 }

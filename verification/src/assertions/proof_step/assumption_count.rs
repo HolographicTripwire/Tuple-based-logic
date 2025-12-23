@@ -1,25 +1,22 @@
-use tbl_structures::{inference::InferenceRule, proof::{InferenceInProof,OwnedInferenceInProof}};
+use tbl_structures::inference::{Inference, InferenceRule};
 
 pub struct AssumptionCountCheckError<Rule: InferenceRule> {
-    expected_count: usize,
-    inference: OwnedInferenceInProof<Rule>
-}
-impl <Rule: InferenceRule> AssumptionCountCheckError<Rule> {
-    pub fn new(expected_count: usize, inference: OwnedInferenceInProof<Rule>) -> Self
-        { Self { expected_count, inference } }
-    
+    pub expected_count: usize,
+    pub inference: Inference<Rule>
 }
 
 pub fn format_assumption_count_check_error<Rule: InferenceRule>(err: AssumptionCountCheckError<Rule>) -> String {
-    format!("Proof at step {step} has wrong number of assumptions (expected {expected_count}; found {actual_count}",
-        step=err.inference.0.path(),
+    format!("Inference has wrong number of assumptions (expected {expected_count}; found {actual_count}",
         expected_count=err.expected_count,
-        actual_count=err.inference.0.obj().assumptions.len()
+        actual_count=err.inference.assumptions.len()
     )
 }
 
 /// Check that the provided [Inference](OwnedInferenceInProof) has expected_count assumptions, returning an error otherwise
-pub fn assert_assumption_count<'a,Rule: InferenceRule, T: From<AssumptionCountCheckError<Rule>>>(inference: InferenceInProof<Rule>, expected_count: usize) -> Result<(), T> {
-    if inference.0.obj().assumptions.len() == expected_count { Ok(()) }
-    else { Err(AssumptionCountCheckError::new(expected_count, inference.into_owned()).into()) }
+pub fn assert_assumption_count<'a,Rule: InferenceRule>(inference: &Inference<Rule>, expected_count: usize) -> Result<(), AssumptionCountCheckError<Rule>> {
+    if inference.assumptions.len() == expected_count { Ok(()) }
+    else { Err(AssumptionCountCheckError{
+        expected_count, 
+        inference: inference.clone()
+    }) }
 }

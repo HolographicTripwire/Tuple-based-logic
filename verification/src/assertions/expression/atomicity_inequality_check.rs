@@ -1,13 +1,9 @@
 
-use tbl_structures::path_composites::{ExpressionInProof, OwnedExpressionInProof};
+use tbl_structures::path_composites::{ExpressionInInference, OwnedExpressionInInference};
 
 pub struct ExpressionAtomicityInequalityError {
-    expr1: OwnedExpressionInProof,
-    expr2: OwnedExpressionInProof,
-}
-impl ExpressionAtomicityInequalityError {
-    pub fn new(expr1: OwnedExpressionInProof, expr2: OwnedExpressionInProof) -> Self
-        { Self { expr1, expr2 } }
+    pub expr1: OwnedExpressionInInference,
+    pub expr2: OwnedExpressionInInference,
 }
 
 pub fn format_expression_atomicity_inequality_error(err: ExpressionAtomicityInequalityError) -> String {
@@ -18,10 +14,13 @@ pub fn format_expression_atomicity_inequality_error(err: ExpressionAtomicityIneq
         )
 }
 
-/// Check that the provided [Expressions](OwnedExpressionInProof) have inequal atomicity, returning an error otherwise
-pub fn assert_expression_atomicity_inequality<'a>(expr1: &ExpressionInProof, expr2: &ExpressionInProof) -> Result<(), ExpressionAtomicityInequalityError> {
+/// Check that the provided [Expressions](ExpressionInInference) have inequal atomicity, returning an error otherwise
+pub fn assert_expression_atomicity_inequality<'a>(expr1: &ExpressionInInference, expr2: &ExpressionInInference) -> Result<(), ExpressionAtomicityInequalityError> {
     let first_atomicity = expr1.0.obj().as_atom().is_ok();
     let second_atomicity = expr2.0.obj().as_atom().is_ok();
     if first_atomicity == second_atomicity { Ok(()) }
-    else { Err(ExpressionAtomicityInequalityError::new(expr1.clone().into_owned(), expr2.clone().into_owned()).into()) }
+    else { Err(ExpressionAtomicityInequalityError{
+        expr1: expr1.clone().into_owned(), 
+        expr2: expr2.clone().into_owned()
+    }) }
 }

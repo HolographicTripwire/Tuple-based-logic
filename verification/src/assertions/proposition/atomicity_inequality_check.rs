@@ -1,13 +1,10 @@
+use tbl_structures::proof::{OwnedPropositionInInference, PropositionInInference};
 
-use tbl_structures::path_composites::{PropositionInProof, OwnedPropositionInProof};
+
 
 pub struct PropositionAtomicityInequalityError {
-    prop1: OwnedPropositionInProof,
-    prop2: OwnedPropositionInProof,
-}
-impl PropositionAtomicityInequalityError {
-    pub fn new(prop1: OwnedPropositionInProof, prop2: OwnedPropositionInProof) -> Self
-        { Self { prop1, prop2 } }
+    pub prop1: OwnedPropositionInInference,
+    pub prop2: OwnedPropositionInInference,
 }
 
 pub fn format_proposition_atomicity_inequality_error(err: PropositionAtomicityInequalityError) -> String {
@@ -18,10 +15,13 @@ pub fn format_proposition_atomicity_inequality_error(err: PropositionAtomicityIn
         )
 }
 
-/// Check that the provided [Propositions](OwnedPropositionInProof) have inequal atomicity, returning an error otherwise
-pub fn assert_proposition_atomicity_inequality<'a>(prop1: &PropositionInProof, prop2: &PropositionInProof) -> Result<(), PropositionAtomicityInequalityError> {
+/// Check that the provided [Propositions](PropositionInInference) have inequal atomicity, returning an error otherwise
+pub fn assert_proposition_atomicity_inequality<'a>(prop1: &PropositionInInference, prop2: &PropositionInInference) -> Result<(), PropositionAtomicityInequalityError> {
     let first_atomicity = prop1.0.obj().as_atom().is_ok();
     let second_atomicity = prop2.0.obj().as_atom().is_ok();
     if first_atomicity == second_atomicity { Ok(()) }
-    else { Err(PropositionAtomicityInequalityError::new(prop1.clone().into_owned(), prop2.clone().into_owned()).into()) }
+    else { Err(PropositionAtomicityInequalityError{
+        prop1: prop1.clone().into_owned(), 
+        prop2: prop2.clone().into_owned()
+    }) }
 }

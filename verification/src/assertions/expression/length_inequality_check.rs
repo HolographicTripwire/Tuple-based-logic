@@ -1,15 +1,11 @@
 use std::collections::HashSet;
 
-use tbl_structures::path_composites::{ExpressionInProof, OwnedExpressionInProof};
+use tbl_structures::path_composites::{ExpressionInInference, OwnedExpressionInInference};
 
 use crate::assertions::utils::stringify_length;
 
 pub struct ExpressionLengthInequalityError {
-    expressions: Vec<OwnedExpressionInProof>
-}
-impl ExpressionLengthInequalityError {
-    pub fn new(expressions: Vec<OwnedExpressionInProof>) -> Self
-        { Self { expressions } }
+    pub expressions: Vec<OwnedExpressionInInference>
 }
 
 pub fn format_expression_length_inequality_error(err: ExpressionLengthInequalityError) -> String {
@@ -23,16 +19,16 @@ pub fn format_expression_length_inequality_error(err: ExpressionLengthInequality
 }
 
 
-/// Check that the provided [Expressions](OwnedExpressionInProof) have inequal length, returning an error otherwise
-pub fn assert_expression_length_inequality<'a, T: From<ExpressionLengthInequalityError>>(exprs: &[ExpressionInProof]) -> Result<(), T> {
+/// Check that the provided [Expressions](ExpressionInInference) have inequal length, returning an error otherwise
+pub fn assert_expression_length_inequality<'a>(exprs: &[ExpressionInInference]) -> Result<(), ExpressionLengthInequalityError> {
     let iter = exprs.iter().map(|o| match o.0.obj().as_slice() {
         Ok(expressions) => Some(expressions.len()),
         Err(_) => None,
     });
     let mut values = HashSet::new();
     for value in iter
-        { if !values.insert(value) { return Err(ExpressionLengthInequalityError::new(
-            exprs.into_iter().map(|x| x.clone().into_owned()).collect()
-        ).into()); } }
+        { if !values.insert(value) { return Err(ExpressionLengthInequalityError {
+            expressions: exprs.into_iter().map(|x| x.clone().into_owned()).collect()
+        }); } }
     Ok(())
 }

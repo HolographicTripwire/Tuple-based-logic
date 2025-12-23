@@ -1,15 +1,10 @@
-use tbl_structures::path_composites::{PropositionInProof, OwnedPropositionInProof};
+use tbl_structures::proof::{OwnedPropositionInInference, PropositionInInference};
 
 use crate::assertions::utils::stringify_length;
 
 pub struct PropositionLengthCheckError {
-    expected_length: usize,
-    proposition: OwnedPropositionInProof
-}
-impl PropositionLengthCheckError {
-    pub fn new(expected_length: usize, proposition: OwnedPropositionInProof) -> Self
-        { Self { expected_length, proposition } }
-    
+    pub expected_length: usize,
+    pub proposition: OwnedPropositionInInference
 }
 
 pub fn format_proposition_length_check_error(err: PropositionLengthCheckError) -> String {
@@ -21,11 +16,17 @@ pub fn format_proposition_length_check_error(err: PropositionLengthCheckError) -
     )
 }
 
-/// Check that the provided [Proposition](OwnedPropositionInProof) has an length equal to expected_length, returning an error otherwise
-pub fn assert_proposition_length<'a,T: From<PropositionLengthCheckError>>(prop: &PropositionInProof, expected_length: usize) -> Result<(), T> {
-    match prop.0.obj().as_slice() {
+/// Check that the provided [Proposition](PropositionInInference) has an length equal to expected_length, returning an error otherwise
+pub fn assert_proposition_length<'a>(expr: &PropositionInInference, expected_length: usize) -> Result<(), PropositionLengthCheckError> {
+    match expr.0.obj().as_slice() {
         Ok(tuple) => if tuple.len() == expected_length { Ok(()) }
-        else {     Err(PropositionLengthCheckError::new(expected_length, prop.clone().into_owned()).into()) },
-        Err(()) => Err(PropositionLengthCheckError::new(expected_length, prop.clone().into_owned()).into())
+        else { Err(PropositionLengthCheckError {
+            expected_length,
+            proposition: expr.clone().into_owned()
+        }) },
+        Err(()) => Err(PropositionLengthCheckError {
+            expected_length, 
+            proposition: expr.clone().into_owned()
+        })
     }
 }

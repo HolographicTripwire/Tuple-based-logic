@@ -1,12 +1,8 @@
-use tbl_structures::{expressions::Expression, path_composites::{ExpressionInProof, OwnedExpressionInProof}};
+use tbl_structures::{expressions::Expression, path_composites::{ExpressionInInference, OwnedExpressionInInference}};
 use tbl_textualization::{helpers::styles::Style, structures::expressions::ExpressionStyle};
 
 pub struct ExpressionValueEqualityError {
-    expressions: Vec<OwnedExpressionInProof>
-}
-impl ExpressionValueEqualityError {
-    pub fn new(expressions: Vec<OwnedExpressionInProof>) -> Self
-        { Self { expressions } }
+    pub expressions: Vec<OwnedExpressionInInference>
 }
 
 pub fn format_expression_value_equality_error(err: ExpressionValueEqualityError, style: ExpressionStyle) -> String {
@@ -20,13 +16,13 @@ pub fn format_expression_value_equality_error(err: ExpressionValueEqualityError,
 }
 
 /// Check that the provided [Expressions](OwnedExpressionInProof) have equal value, returning an error otherwise
-pub fn assert_expression_value_equality<'a, T: From<ExpressionValueEqualityError>>(exprs: &[ExpressionInProof]) -> Result<Expression, T> {
+pub fn assert_expression_value_equality<'a>(exprs: &[ExpressionInInference]) -> Result<Expression, ExpressionValueEqualityError> {
     let mut iter = exprs.iter().map(|o| o.0.obj() );
     let first_value = iter.next().expect("Cannot check value equality for zero expressions");
     for nth_value in iter {
-        if nth_value != first_value { return Err(ExpressionValueEqualityError::new(
-            exprs.into_iter().map(|x| x.clone().into_owned()).collect()
-        ).into()) }
+        if nth_value != first_value { return Err(ExpressionValueEqualityError{
+            expressions: exprs.into_iter().map(|x| x.clone().into_owned()).collect()
+        }) }
     }
     Ok(first_value.clone())
 }

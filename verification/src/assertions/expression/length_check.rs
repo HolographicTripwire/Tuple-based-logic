@@ -1,15 +1,10 @@
-use tbl_structures::path_composites::{ExpressionInProof, OwnedExpressionInProof};
+use tbl_structures::path_composites::{ExpressionInInference, OwnedExpressionInInference};
 
 use crate::assertions::utils::stringify_length;
 
 pub struct ExpressionLengthCheckError {
-    expected_length: usize,
-    expression: OwnedExpressionInProof
-}
-impl ExpressionLengthCheckError {
-    pub fn new(expected_length: usize, expression: OwnedExpressionInProof) -> Self
-        { Self { expected_length, expression } }
-    
+    pub expected_length: usize,
+    pub expression: OwnedExpressionInInference
 }
 
 pub fn format_expression_length_check_error(err: ExpressionLengthCheckError) -> String {
@@ -21,11 +16,17 @@ pub fn format_expression_length_check_error(err: ExpressionLengthCheckError) -> 
     )
 }
 
-/// Check that the provided [Expression](OwnedExpressionInProof) has an length equal to expected_length, returning an error otherwise
-pub fn assert_expression_length<'a,T: From<ExpressionLengthCheckError>>(expr: &ExpressionInProof, expected_length: usize) -> Result<(), T> {
+/// Check that the provided [Expression](ExpressionInInference) has an length equal to expected_length, returning an error otherwise
+pub fn assert_expression_length<'a>(expr: &ExpressionInInference, expected_length: usize) -> Result<(), ExpressionLengthCheckError> {
     match expr.0.obj().as_slice() {
         Ok(tuple) => if tuple.len() == expected_length { Ok(()) }
-        else {     Err(ExpressionLengthCheckError::new(expected_length, expr.clone().into_owned()).into()) },
-        Err(()) => Err(ExpressionLengthCheckError::new(expected_length, expr.clone().into_owned()).into())
+        else { Err(ExpressionLengthCheckError {
+            expected_length,
+            expression: expr.clone().into_owned()
+        }) },
+        Err(()) => Err(ExpressionLengthCheckError {
+            expected_length, 
+            expression: expr.clone().into_owned()
+        })
     }
 }

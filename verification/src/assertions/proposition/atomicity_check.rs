@@ -1,15 +1,10 @@
-use tbl_structures::path_composites::{PropositionInProof, OwnedPropositionInProof};
+use tbl_structures::proof::{OwnedPropositionInInference, PropositionInInference};
 
 use crate::assertions::utils::stringify_atomicity;
 
 pub struct PropositionAtomicityCheckError {
-    expected_atomicity: bool,
-    proposition: OwnedPropositionInProof
-}
-impl PropositionAtomicityCheckError {
-    pub fn new(expected_atomicity: bool, proposition: OwnedPropositionInProof) -> Self
-        { Self { expected_atomicity, proposition } }
-    
+    pub expected_atomicity: bool,
+    pub proposition: OwnedPropositionInInference
 }
 
 pub fn format_proposition_atomicity_check_error(err: PropositionAtomicityCheckError) -> String {
@@ -20,11 +15,11 @@ pub fn format_proposition_atomicity_check_error(err: PropositionAtomicityCheckEr
     )
 }
 
-/// Check that the provided [Proposition](OwnedPropositionInProof) has an atomicity equal to expected_atomicity, returning an error otherwise
-pub fn assert_proposition_atomicity<'a,T: From<PropositionAtomicityCheckError>>(prop: PropositionInProof, expected_atomicity: bool) -> Result<(), T> {
+/// Check that the provided [Proposition](PropositionInInference) has an atomicity equal to expected_atomicity, returning an error otherwise
+pub fn assert_proposition_atomicity<'a>(prop: &PropositionInInference, expected_atomicity: bool) -> Result<(), PropositionAtomicityCheckError> {
     if prop.0.obj().as_atom().is_ok() == expected_atomicity { Ok(()) }
-    else { Err(PropositionAtomicityCheckError::new(
+    else { Err(PropositionAtomicityCheckError{
         expected_atomicity, 
-        prop.into_owned()
-    ).into()) }
+        proposition: prop.clone().into_owned() 
+    }) }
 }
