@@ -25,5 +25,18 @@ impl Display for PropositionInInferencePath {
 
 #[derive(Clone,PartialEq,Eq)]
 pub struct PropositionInInference<'a>(pub ObjAtPath<'a,Proposition,PropositionInInferencePath>);
+impl <'a> PropositionInInference<'a> {
+    pub fn into_owned(self) -> OwnedPropositionInInference { OwnedPropositionInInference(self.0.into_owned()) }
+}
+impl <'a> From<ObjAtPath<'a,Proposition,PropositionInInferencePath>> for PropositionInInference<'a> {
+    fn from(value: ObjAtPath<'a,Proposition,PropositionInInferencePath>) -> Self
+        { PropositionInInference(value) }
+}
+
 #[derive(Clone,PartialEq,Eq)]
 pub struct OwnedPropositionInInference(pub OwnedObjAtPath<Proposition,PropositionInInferencePath>);
+
+impl From<OwnedObjAtPath<Proposition,PropositionInInferencePath>> for OwnedPropositionInInference {
+    fn from(value: OwnedObjAtPath<Proposition,PropositionInInferencePath>) -> Self
+        { OwnedPropositionInInference(value) }
+}
