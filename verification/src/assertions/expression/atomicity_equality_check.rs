@@ -5,6 +5,7 @@ use crate::assertions::utils::stringify_atomicity;
 pub struct ExpressionAtomicityEqualityError {
     pub expressions: Vec<OwnedExpressionInInference>
 }
+
 pub fn format_expression_atomicity_equality_error(err: ExpressionAtomicityEqualityError) -> String {
     format!("Expression atomicities expected to all be equal, but weren't; {atomicities}",
         atomicities = itertools::join(err.expressions.iter().map(|o|

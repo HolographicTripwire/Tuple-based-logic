@@ -26,6 +26,7 @@ pub struct PropositionSubpathError {
     pub proposition: OwnedPropositionInInference
 }
 
+
 pub fn format_proposition_subpath_error(err: PropositionSubpathError) -> String {
     format!("Proposition at {path} has no subproposition at subpath {subpath}",
         path=err.proposition.0.path(),

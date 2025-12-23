@@ -5,6 +5,9 @@ pub struct PropositionValueCheckError {
     pub expected_value: Proposition,
     pub proposition: OwnedPropositionInInference,
 }
+impl PropositionValueCheckError {
+    pub fn get_actual_value(&self) -> &Proposition { self.proposition.0.obj() }
+}
 
 pub fn format_proposition_value_check_error(err: PropositionValueCheckError, style: ExpressionStyle) -> String {
     format!("Proposition at {path} has wrong value (expected {value_expected}; found {value_actual})",

@@ -6,6 +6,9 @@ pub struct PropositionLengthCheckError {
     pub expected_length: usize,
     pub proposition: OwnedPropositionInInference
 }
+impl PropositionLengthCheckError {
+    pub fn get_actual_length(&self) -> Option<usize> { self.proposition.0.obj().len() }
+}
 
 pub fn format_proposition_length_check_error(err: PropositionLengthCheckError) -> String {
     let proposition = err.proposition.0.obj();

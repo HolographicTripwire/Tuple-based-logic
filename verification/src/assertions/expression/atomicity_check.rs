@@ -6,6 +6,9 @@ pub struct ExpressionAtomicityCheckError {
     pub expected_atomicity: bool,
     pub expression: OwnedExpressionInInference
 }
+impl ExpressionAtomicityCheckError {
+    pub fn get_actual_atomicity(&self) -> bool { self.expression.0.obj().len().is_none() }
+}
 
 pub fn format_expression_atomicity_check_error(err: ExpressionAtomicityCheckError) -> String {
     format!("Expression at {path} has wrong atomicity (expected {atomicity_expected}; found {atomicity_actual})",

@@ -6,6 +6,9 @@ pub struct ExpressionLengthCheckError {
     pub expected_length: usize,
     pub expression: OwnedExpressionInInference
 }
+impl ExpressionLengthCheckError {
+    pub fn get_actual_length(&self) -> Option<usize> { self.expression.0.obj().len() }
+}
 
 pub fn format_expression_length_check_error(err: ExpressionLengthCheckError) -> String {
     let expression = err.expression.0.obj();

@@ -5,6 +5,9 @@ pub struct ExpressionValueCheckError {
     pub expected_value: Expression,
     pub expression: OwnedExpressionInInference,
 }
+impl ExpressionValueCheckError {
+    pub fn get_actual_value(&self) -> &Expression { self.expression.0.obj() }
+}
 
 pub fn format_expression_value_check_error(err: ExpressionValueCheckError, style: ExpressionStyle) -> String {
     format!("Expression at {path} has wrong value (expected {value_expected}; found {value_actual})",
