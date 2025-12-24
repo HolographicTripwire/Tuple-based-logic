@@ -32,3 +32,31 @@ pub fn assert_proposition_length_equality<'a>(props: &[PropositionInInference]) 
     }
     Ok(first_length)
 }
+
+pub struct FixedLengthPropositionLengthEqualityError<const N: usize> {
+    pub propositions: [OwnedPropositionInInference; N]
+}
+pub fn format_fixed_length_proposition_length_equality_error<const N: usize>(err: FixedLengthPropositionLengthEqualityError<N>) -> String {
+    format!("Proposition lengths expected to all be equal, but weren't; {atomicities}",
+        atomicities = err.propositions.iter().map(|o|
+            o.0.path().to_string()
+            + " -> " +
+            &stringify_length(o.0.obj())
+        ).collect::<Vec<_>>().join(", ")
+    )
+}
+/// Check that the provided [Propositions](PropositionInInference) have equal length, returning an error otherwise
+pub fn assert_fixed_length_proposition_length_equality<'a,const N: usize>(exprs: &[PropositionInInference; N]) -> Result<Option<usize>, FixedLengthPropositionLengthEqualityError<N>> {
+    if N == 0 { panic!("Cannot check length equality for zero propositions") } 
+    let mut output = [None; N];  // Initialize the output array
+    for i in 0..N {
+        output[i] = exprs[i].0.obj().len();
+        // Throw error if atomicities are not equal
+        if output[i] != output[0] {
+            return Err(FixedLengthPropositionLengthEqualityError{
+                propositions: exprs.clone().map(|x| x.clone().into_owned())
+            })
+        }
+    }
+    Ok(output[0])
+}

@@ -15,6 +15,7 @@ pub struct ExpressionStyle<'a> {
     raw_expr_style: RawExpressionStyle,
     special_cases: Arc<SpecialCases<'a>>
 }
+pub type PropositionStyle<'a> = ExpressionStyle<'a>;
 impl <'a> ExpressionStyle<'a> {
     pub fn new(raw_expr_style: RawExpressionStyle, special_cases: Arc<SpecialCases<'a>>) -> Self { Self { raw_expr_style, special_cases } }
 
