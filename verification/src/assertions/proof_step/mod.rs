@@ -9,7 +9,7 @@ use tbl_structures::{expressions::Proposition, inference::{Inference, InferenceR
 
 
 pub fn assumptions_as_slice<'a, Rule: InferenceRule>(inference: &'a Inference<Rule>) -> Vec<PropositionInInference<'a>> {
-    <Inference<Rule> as HasChildren<'_,PropositionInInferencePath,Proposition>>::get_located_children(inference)
+    <Inference<Rule> as HasChildren<PropositionInInferencePath,Proposition>>::get_located_children(inference)
         .into_iter()
         .map(|p| p.into())
         .collect::<Vec<PropositionInInference>>()

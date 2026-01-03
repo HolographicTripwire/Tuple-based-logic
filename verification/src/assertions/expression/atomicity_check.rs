@@ -1,4 +1,4 @@
-use tbl_structures::path_composites::{ExpressionInInference, OwnedExpressionInInference};
+use tbl_structures::{expressions::Expression, path_composites::{ExpressionInInference, OwnedExpressionInInference}};
 
 use crate::assertions::utils::stringify_atomicity;
 
@@ -8,6 +8,7 @@ pub struct ExpressionAtomicityCheckError {
 }
 impl ExpressionAtomicityCheckError {
     pub fn get_actual_atomicity(&self) -> bool { self.expression.0.obj().len().is_none() }
+    pub fn into_expression(self) -> Expression { self.expression.0.into_obj_and_path().0 }
 }
 
 pub fn format_expression_atomicity_check_error(err: ExpressionAtomicityCheckError) -> String {

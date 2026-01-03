@@ -1,4 +1,4 @@
-use tbl_structures::path_composites::{ExpressionInInference, OwnedExpressionInInference};
+use tbl_structures::{expressions::Expression, path_composites::{ExpressionInInference, OwnedExpressionInInference}};
 
 use crate::assertions::utils::stringify_length;
 
@@ -8,6 +8,7 @@ pub struct ExpressionLengthCheckError {
 }
 impl ExpressionLengthCheckError {
     pub fn get_actual_length(&self) -> Option<usize> { self.expression.0.obj().len() }
+    pub fn into_expression(self) -> Expression { self.expression.0.into_obj_and_path().0 }
 }
 
 pub fn format_expression_length_check_error(err: ExpressionLengthCheckError) -> String {

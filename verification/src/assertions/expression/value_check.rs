@@ -7,6 +7,7 @@ pub struct ExpressionValueCheckError {
 }
 impl ExpressionValueCheckError {
     pub fn get_actual_value(&self) -> &Expression { self.expression.0.obj() }
+    pub fn into_expression(self) -> Expression { self.expression.0.into_obj_and_path().0 }
 }
 
 pub fn format_expression_value_check_error(err: ExpressionValueCheckError, style: ExpressionStyle) -> String {

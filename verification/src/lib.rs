@@ -7,25 +7,24 @@ use std::collections::HashSet;
 use path_lib::{obj_at_path::ObjAtPath, paths::PathSeries};
 use tbl_structures::{expressions::{Proposition, PropositionSet}, proof::{Proof, ProofInProof, ProofStep, error::{ErrorInProof, ResultInProof}}};
 use errors::ProofValidationError;
-use tbl_textualization::structures::proofs::ProofStyle;
 
 use crate::errors::specification_error::{verify_inference, VerifiableInferenceRule};
 
 /// Verify that the provided proof is sound under Tuple-Based logic, given some set of starting assumptions
 /// If the proof is not valid, return a [VerificationError] as well as the step that it occurred at
-pub fn verify_proof<'a, Rule: VerifiableInferenceRule>(proof: &'a Proof<Rule>, assumptions: &PropositionSet, style: ProofStyle<'a,Rule>) -> Result<bool,ErrorInProof<ProofValidationError<'a>>> {
-    validate_proof(ProofInProof(ObjAtPath::from_at(proof,PathSeries::empty())), style)?;
+pub fn verify_proof<'a, E: Clone, Rule: VerifiableInferenceRule<E>>(proof: &'a Proof<Rule>, assumptions: &PropositionSet) -> Result<bool,ErrorInProof<ProofValidationError<E>>> {
+    validate_proof(ProofInProof(ObjAtPath::from_at(proof,PathSeries::empty())))?;
     Ok(verify_proof_grounding(proof, assumptions))
 }
 
 /// Check that all of the premises of a given [Proof] are contained within some [PropositionSet]
 /// Used to check the "grounding" of a proof - that is, are all of the proof's premises assumed to be true? If they are, we can trust the proof's conclusions
-pub fn verify_proof_grounding<Rule: VerifiableInferenceRule>(proof: &Proof<Rule>, assumptions: &PropositionSet) -> bool {
+pub fn verify_proof_grounding<E, Rule: VerifiableInferenceRule<E>>(proof: &Proof<Rule>, assumptions: &PropositionSet) -> bool {
     proof.get_assumptions().into_iter().all(|premise| assumptions.contains(premise))
 }
 
 /// Check if a proof is valid. If not, return the first [ProofValidationError]
-fn validate_proof<'a,Rule: VerifiableInferenceRule>(proof: ProofInProof<Rule>, style: ProofStyle<'a,Rule>) -> Result<(),ErrorInProof<ProofValidationError<'a>>> {
+fn validate_proof<'a,E: Clone, Rule: VerifiableInferenceRule<E>>(proof: ProofInProof<Rule>) -> Result<(),ErrorInProof<ProofValidationError<E>>> {
     // Create a list of [Proposition] objects which are considered at this time to be true
     let mut proved = HashSet::<Proposition>::from_iter(proof.0.obj().get_assumptions_owned());
     
@@ -41,10 +40,10 @@ fn validate_proof<'a,Rule: VerifiableInferenceRule>(proof: ProofInProof<Rule>, s
         
         // Get the new propositions which have been proved by this step in the proof, assuming that the step is valid
         match subproof.clone().try_into() {
-            Ok(inference) => ResultInProof::from(verify_inference(&inference, style.inference_style().expression_style().clone())),
+            Ok(inference) => ResultInProof::from(verify_inference(&inference)),
             Err(proof) => {
                 let result_or_error: Result<(),ErrorInProof<ProofValidationError>> = proof.0.obj().get_located_immediate_subproofs().into_iter()
-                    .map(|subproof| validate_proof(ProofInProof(subproof.replace_path(|p| PathSeries::new([p]))), style.clone()))
+                    .map(|subproof| validate_proof(ProofInProof(subproof.replace_path(|p| PathSeries::new([p])))))
                     .collect();
                 ResultInProof::from(result_or_error)
             }

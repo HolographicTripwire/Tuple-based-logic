@@ -7,6 +7,7 @@ mod length_inequality_check;
 mod value_check;
 mod value_equality_check;
 mod value_inequality_check;
+mod functional;
 
 pub use atomicity_check::*;
 pub use atomicity_equality_check::*;
@@ -17,6 +18,7 @@ pub use length_inequality_check::*;
 pub use value_check::*;
 pub use value_equality_check::*;
 pub use value_inequality_check::*;
+pub use functional::*;
 
 use path_lib::{obj_at_path::{ObjAtPathWithChildren, ObjAtPathWithDescendants}, paths::PathPair};
 use tbl_structures::{DisplayExt, expressions::{Expression, ExpressionInExpressionPath}, path_composites::{ExpressionInInference, ExpressionInInferencePath, OwnedExpressionInInference}};
@@ -71,14 +73,38 @@ pub fn expression_as_slice<'a>(expression: &'a ExpressionInInference) -> Result<
         .map(|obj| ExpressionInInference(obj.replace_path(|p| p.into())))
         .collect::<Vec<ExpressionInInference>>())
 }
+pub fn expression_into_slice<'a>(expression: ExpressionInInference<'a>) -> Result<Vec<ExpressionInInference<'a>>,ExpressionAtomicityCheckError> {
+    if let Expression::Atomic(_) = expression.0.obj() { return Err(ExpressionAtomicityCheckError {
+        expected_atomicity: false,
+        expression: expression.clone().into_owned()
+    }) };
+    Ok(expression.0.into_located_children()
+        .into_iter()
+        .map(|v| ExpressionInInference(v.replace_path(|p| p.into())))
+        .collect::<Vec<ExpressionInInference>>())
+}
 
-pub fn expression_as_sized_slice<'a,const EXPECTED_SIZE: usize>(expression: &'a ExpressionInInference) -> Result<Result<Box<[ExpressionInInference<'a>; EXPECTED_SIZE]>,ExpressionLengthCheckError>,ExpressionAtomicityCheckError> {
-    match expression_as_slice(expression)?
-        .try_into() {
-        Ok(a) => Ok(Ok(a)),
-        Err(_) => Ok(Err(ExpressionLengthCheckError{
+pub fn expression_as_sized_slice<'a,const EXPECTED_SIZE: usize>(expression: &'a ExpressionInInference) -> Result<Box<[ExpressionInInference<'a>; EXPECTED_SIZE]>,ExpressionLengthCheckError> {
+    Ok(expression_as_slice(expression)
+        .map_err(|_| ExpressionLengthCheckError{
             expected_length: EXPECTED_SIZE, 
             expression: expression.clone().into_owned()
-        })),
-    }
+        })?
+        .try_into()
+        .map_err(|_| ExpressionLengthCheckError{
+            expected_length: EXPECTED_SIZE, 
+            expression: expression.clone().into_owned()
+        })?)
+}
+pub fn expression_into_sized_slice<'a,const EXPECTED_SIZE: usize>(expression: ExpressionInInference<'a>) -> Result<Box<[ExpressionInInference<'a>; EXPECTED_SIZE]>,ExpressionLengthCheckError> {
+    Ok(expression_into_slice(expression.clone())
+        .map_err(|_| ExpressionLengthCheckError{
+            expected_length: EXPECTED_SIZE, 
+            expression: expression.clone().into_owned()
+        })?
+        .try_into()
+        .map_err(|_| ExpressionLengthCheckError{
+            expected_length: EXPECTED_SIZE, 
+            expression: expression.clone().into_owned()
+        })?)
 }
