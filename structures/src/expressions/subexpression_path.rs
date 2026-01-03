@@ -15,17 +15,27 @@ impl PathPrimitive for AtomicExpressionInExpressionPath {}
 pub type ExpressionInExpressionPath = PathSeries<AtomicExpressionInExpressionPath>;
 pub type ExpressionInPropositionPath = ExpressionInExpressionPath;
 
-impl <'a> HasChildren<'a,AtomicExpressionInExpressionPath,Expression> for Expression {
-    fn valid_primitive_paths(&self) -> impl IntoIterator<Item = AtomicExpressionInExpressionPath> {
+impl HasChildren<AtomicExpressionInExpressionPath,Expression> for Expression {
+    fn valid_primitive_paths(&self) -> Vec<AtomicExpressionInExpressionPath> {
         let max = if let Ok(vec) = self.as_vec()
             { vec.len() } else { 0 };
-        (0..max).map(|ix| ix.into())
+        (0..max).map(|ix| ix.into()).collect()
     }
 
-    fn get_child(&'a self, path: &AtomicExpressionInExpressionPath) -> Result<&'a Expression,()>
+    fn get_child(&self, path: &AtomicExpressionInExpressionPath) -> Result<&Expression,()>
         { self.as_vec()?.get(path.0).ok_or(()) }    
     fn get_child_owned(&self, path: &AtomicExpressionInExpressionPath) -> Result<Expression,()> where Expression: Clone
         { self.as_vec()?.get(path.0).ok_or(()).cloned() }
+        
+    fn to_located_children_owned(self) -> impl IntoIterator<Item = OwnedObjAtPath<Expression, AtomicExpressionInExpressionPath>> where Expression: Clone, Self: Sized {
+        match self {
+            Expression::Atomic(_) => vec![],
+            Expression::Tuple(expressions) => expressions.into_iter()
+                .enumerate()
+                .map(|(id,expr)| OwnedObjAtPath::from_at(expr, AtomicExpressionInExpressionPath(id)))
+                .collect(),
+        }
+    }
 }
 
 impl Display for AtomicExpressionInExpressionPath {

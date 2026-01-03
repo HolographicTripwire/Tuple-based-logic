@@ -28,8 +28,8 @@ impl <'a,Rule: InferenceRule> TryFrom<ProofInProof<'a,Rule>> for InferenceInProo
     fn try_from(value: ProofInProof<'a,Rule>) -> Result<Self, Self::Error> {
         let (obj,path) = value.0.into_obj_and_path();
         if let Proof::Atomic(inference) = obj
-            { Ok(InferenceInProof(ObjAtPath::from_at(inference, InferenceInProofPath(path)))) }
-        else { Err(ProofInProof(ObjAtPath::from_at(obj, path))) }
+            { Ok(InferenceInProof(ObjAtPath::from_at(&inference, InferenceInProofPath(path)))) }
+        else { Err(ProofInProof(ObjAtPath::from_at(&obj, path))) }
     }
 }
 

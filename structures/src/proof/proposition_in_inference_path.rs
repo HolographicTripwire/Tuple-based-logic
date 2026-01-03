@@ -1,8 +1,8 @@
 use std::fmt::Display;
 
-use path_lib::{obj_at_path::{ObjAtPath, OwnedObjAtPath}, paths::PathPrimitive};
+use path_lib::{obj_at_path::{ObjAtPath, OwnedObjAtPath}, paths::{PathPrimitive, PathSeries}};
 
-use crate::expressions::Proposition;
+use crate::{expressions::Proposition, path_composites::{ExpressionInInference, ExpressionInInferencePath}};
 
 #[derive(Clone,Copy,PartialEq,Eq,Hash,Debug)]
 pub struct PropositionInInferencePath {
@@ -39,4 +39,13 @@ pub struct OwnedPropositionInInference(pub OwnedObjAtPath<Proposition,Propositio
 impl From<OwnedObjAtPath<Proposition,PropositionInInferencePath>> for OwnedPropositionInInference {
     fn from(value: OwnedObjAtPath<Proposition,PropositionInInferencePath>) -> Self
         { OwnedPropositionInInference(value) }
+}
+impl <'a> Into<ExpressionInInference<'a>> for PropositionInInference<'a> {
+    fn into(self) -> ExpressionInInference<'a> {
+        let (obj, path) = self.0.into_obj_and_path();
+        ExpressionInInference(ObjAtPath::from_at(obj, ExpressionInInferencePath {
+            proposition_path: path,
+            subexpression_path: PathSeries::empty()
+        }))
+    }
 }
