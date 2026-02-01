@@ -1,8 +1,6 @@
 use tbl_structures::{atoms::BuiltInAtom, expressions::Expression, inference::{Inference, InferenceRule}};
 
-use crate::{assertions::*, inference_rules::verbatim::FunctionUnwrapError};
-
-use super::resolve_verbatim;
+use crate::{assertions::{assert_expression_atomicity, assert_expression_value, explicit_conclusions_as_sized_slice, proposition_as_sized_slice}, inference_rules::verbatim::unwrap_verbatim_expression};
 
 #[derive(Clone)]
 pub enum AtomicityAssertionError {
@@ -10,7 +8,7 @@ pub enum AtomicityAssertionError {
     WrongAssumptionCount(usize),
     AtomicityWrongSize(Option<usize>),
     AtomicityWrongHead(Expression),
-    AtomicityParamNotVerbatim(FunctionUnwrapError),
+    AtomicityParamNotVerbatim(Expression),
     VerbatimComponentNotAtomic(Expression)
 }
 
@@ -30,11 +28,10 @@ pub fn verify_atomicity_assertion<Rule: InferenceRule> (inference: &Inference<Ru
     assert_expression_value(&atomicity_head, &BuiltInAtom::Atomic.into())
         .map_err(|e| AtomicityAssertionError::AtomicityWrongHead(e.into_expression()))?;
     // Throw an error if the verbatim expression does not resolve to as Verbatim
-    let verbatim_atom = resolve_verbatim(verbatim_expr)
-        .map_err(|e| AtomicityAssertionError::AtomicityParamNotVerbatim(e))?;
+    let verbatim_atom = unwrap_verbatim_expression(&verbatim_expr)
+        .map_err(|_| AtomicityAssertionError::AtomicityParamNotVerbatim(verbatim_expr.0.obj().clone()))?;
     // Throw an error if the verbatim atom is not actually an atom
     assert_expression_atomicity(&verbatim_atom, true)
         .map_err(|e| AtomicityAssertionError::VerbatimComponentNotAtomic(e.expression.0.into_obj_and_path().0))?;
     Ok(())
 }
-t6gy7

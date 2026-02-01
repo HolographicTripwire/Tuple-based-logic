@@ -36,7 +36,7 @@ pub fn verify_universal_substitution<'a,Rule: InferenceRule>(inference: &Inferen
 }
 
 
-
+#[derive(Clone)]
 pub enum SubstitutionComparisonError {
     NotATuple(OwnedExpressionInInference),
     InequalComponentLength(OwnedExpressionInInference, OwnedExpressionInInference),
@@ -51,7 +51,7 @@ fn assert_substitution_comparison_validity<'a>(find_expr: ExpressionInInference,
     let mut ivm_paths = substitution_comparison_inner(find_expr, replace_expr, verify_expr)?.into_iter();
     if let Some(head_expr) = ivm_paths.next() {
         for tail_expr in ivm_paths {
-            if let Err(e) = assert_fixed_length_expression_value_equality(&[head_expr.clone(), tail_expr])
+            if let Err(e) = assert_fixed_length_expression_value_equality(&[&head_expr, &tail_expr])
                 { return Err(SubstitutionComparisonError::InequalComponentValues(e.expressions[0].clone(), e.expressions[1].clone()))  }
         };
         Ok(Some(head_expr.0.obj().clone()))
@@ -64,7 +64,7 @@ fn substitution_comparison_inner<'a>(find_expr: ExpressionInInference<'a>, repla
     if find_expr.0.obj() == verify_expr.0.obj() { return Ok(vec![]) }
     
     // Throw an error if the find expression and verify expressions are of different lengths (a substitution would not resolve this)
-    if let Err(e) = assert_fixed_length_expression_length_equality(&[find_expr.clone(), verify_expr.clone()]) 
+    if let Err(e) = assert_fixed_length_expression_length_equality(&[&find_expr, &verify_expr]) 
         { return Err(SubstitutionComparisonError::InequalComponentLength(e.expressions[0].clone(), e.expressions[1].clone())) }
     // Throw an error if find_expr or verify_expr is not a tuple
     let find_exprs = match expression_into_slice(find_expr) {

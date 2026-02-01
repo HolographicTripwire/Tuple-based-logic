@@ -2,6 +2,7 @@ use tbl_structures::{expressions::Expression, path_composites::{ExpressionInInfe
 
 use crate::assertions::utils::stringify_length;
 
+#[derive(Clone)]
 pub struct ExpressionLengthCheckError {
     pub expected_length: usize,
     pub expression: OwnedExpressionInInference

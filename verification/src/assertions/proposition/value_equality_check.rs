@@ -16,12 +16,12 @@ pub fn format_proposition_value_equality_error(err: PropositionValueEqualityErro
 }
 
 /// Check that the provided [Propositions](OwnedPropositionInProof) have equal value, returning an error otherwise
-pub fn assert_proposition_value_equality<'a>(props: &[PropositionInInference]) -> Result<Proposition, PropositionValueEqualityError> {
+pub fn assert_proposition_value_equality<'a>(props: &[&'a PropositionInInference<'a>]) -> Result<Proposition, PropositionValueEqualityError> {
     let mut iter = props.iter().map(|o| o.0.obj() );
     let first_value = iter.next().expect("Cannot check value equality for zero propositions");
     for nth_value in iter {
         if nth_value != first_value { return Err(PropositionValueEqualityError{
-            propositions: props.into_iter().map(|x| x.clone().into_owned()).collect()
+            propositions: props.into_iter().map(|x| (*x).clone().into_owned()).collect()
         }) }
     }
     Ok(first_value.clone())
@@ -44,7 +44,7 @@ pub fn format_fixed_length_proposition_value_equality_error<const N: usize>(err:
     )
 }
 /// Check that the provided [Propositions](PropositionInInference) have equal length, returning an error otherwise
-pub fn assert_fixed_length_proposition_value_equality<'a,const N: usize>(exprs: &[PropositionInInference; N]) -> Result<Proposition, FixedLengthPropositionValueEqualityError<N>> {
+pub fn assert_fixed_length_proposition_value_equality<'a,const N: usize>(exprs: &[&'a PropositionInInference<'a>; N]) -> Result<Proposition, FixedLengthPropositionValueEqualityError<N>> {
     if N == 0 { panic!("Cannot check value equality for zero propositions") } 
     let mut output = [&Proposition::Atomic(AtomId(0)); N];  // Initialize the output array
     for i in 0..N {
@@ -52,7 +52,7 @@ pub fn assert_fixed_length_proposition_value_equality<'a,const N: usize>(exprs: 
         // Throw error if atomicities are not equal
         if output[i] != output[0] {
             return Err(FixedLengthPropositionValueEqualityError{
-                propositions: exprs.clone().map(|x| x.clone().into_owned())
+                propositions: exprs.clone().map(|x| (*x).clone().into_owned())
             })
         }
     }

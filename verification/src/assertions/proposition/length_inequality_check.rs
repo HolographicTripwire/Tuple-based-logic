@@ -21,7 +21,7 @@ pub fn format_proposition_length_inequality_error(err: PropositionLengthInequali
 
 
 /// Check that the provided [Propositions](PropositionInInference) have inequal length, returning an error otherwise
-pub fn assert_proposition_length_inequality<'a>(props: &[PropositionInInference]) -> Result<(), PropositionLengthInequalityError> {
+pub fn assert_proposition_length_inequality<'a>(props: &[&'a PropositionInInference<'a>]) -> Result<(), PropositionLengthInequalityError> {
     let iter = props.iter().map(|o| match o.0.obj().as_slice() {
         Ok(propositions) => Some(propositions.len()),
         Err(_) => None,
@@ -29,7 +29,7 @@ pub fn assert_proposition_length_inequality<'a>(props: &[PropositionInInference]
     let mut values = HashSet::new();
     for value in iter
         { if !values.insert(value) { return Err(PropositionLengthInequalityError {
-            propositions: props.into_iter().map(|x| x.clone().into_owned()).collect()
+            propositions: props.into_iter().map(|x| (*x).clone().into_owned()).collect()
         }); } }
     Ok(())
 }
@@ -51,13 +51,13 @@ pub fn format_fixed_length_proposition_length_inequality_error<const N: usize>(e
     )
 }
 /// Check that the provided [Propositions](PropositionInInference) have inequal length, returning an error otherwise
-pub fn assert_fixed_length_proposition_length_inequality<'a,const N: usize>(exprs: &[PropositionInInference; N]) -> Result<(), FixedLengthPropositionLengthInequalityError<N>> {
+pub fn assert_fixed_length_proposition_length_inequality<'a,const N: usize>(exprs: &[&'a PropositionInInference<'a>; N]) -> Result<(), FixedLengthPropositionLengthInequalityError<N>> {
     if N == 0 { panic!("Cannot check length inequality for zero propositions") } 
     let iter = exprs.iter().map(|o| o.0.obj().len());
     let mut values = HashSet::new();
     for value in iter
         { if !values.insert(value) { return Err(FixedLengthPropositionLengthInequalityError {
-            propositions: exprs.clone().map(|x| x.clone().into_owned())
+            propositions: exprs.clone().map(|x| (*x).clone().into_owned())
         }); } }
     Ok(())
 }

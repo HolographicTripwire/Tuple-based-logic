@@ -1,6 +1,7 @@
 use tbl_structures::{expressions::Expression, path_composites::{ExpressionInInference, OwnedExpressionInInference}};
 use tbl_textualization::{helpers::styles::Style, structures::expressions::ExpressionStyle};
 
+#[derive(Clone)]
 pub struct ExpressionValueCheckError {
     pub expected_value: Expression,
     pub expression: OwnedExpressionInInference,

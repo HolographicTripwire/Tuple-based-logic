@@ -29,9 +29,9 @@ pub fn verify_conjunction_introduction<'a,Rule: InferenceRule>(inference: &Infer
     // Throw errors if the values of the inference components are incorrect
     assert_expression_value(&conjunction_head, &BuiltInAtom::Conjunction.into())
         .map_err(|e| ConjunctionIntroductionError::ConjunctionWrongHead(e.into_expression()))?;
-    assert_fixed_length_expression_value_equality(&[ExpressionInInference(assumption_left.0.replace_path(|p| p.into())),conjunction_left])
+    assert_fixed_length_expression_value_equality(&[&ExpressionInInference(assumption_left.0.replace_path(|p| p.into())), &conjunction_left])
         .map_err(|e| ConjunctionIntroductionError::LeftSideInequal(e.expressions[0].0.obj().clone(), e.expressions[1].0.obj().clone()))?;
-    assert_fixed_length_expression_value_equality(&[ExpressionInInference(assumption_right.0.replace_path(|p| p.into())),conjunction_right])
+    assert_fixed_length_expression_value_equality(&[&ExpressionInInference(assumption_right.0.replace_path(|p| p.into())), &conjunction_right])
         .map_err(|e| ConjunctionIntroductionError::RightSideInequal(e.expressions[0].0.obj().clone(), e.expressions[1].0.obj().clone()))?;
     Ok(())
 }

@@ -16,12 +16,12 @@ pub fn format_expression_value_equality_error(err: ExpressionValueEqualityError,
 }
 
 /// Check that the provided [Expressions](OwnedExpressionInProof) have equal value, returning an error otherwise
-pub fn assert_expression_value_equality<'a>(exprs: &[ExpressionInInference]) -> Result<Expression, ExpressionValueEqualityError> {
+pub fn assert_expression_value_equality<'a>(exprs: &[&'a ExpressionInInference<'a>]) -> Result<Expression, ExpressionValueEqualityError> {
     let mut iter = exprs.iter().map(|o| o.0.obj() );
     let first_value = iter.next().expect("Cannot check value equality for zero expressions");
     for nth_value in iter {
         if nth_value != first_value { return Err(ExpressionValueEqualityError{
-            expressions: exprs.into_iter().map(|x| x.clone().into_owned()).collect()
+            expressions: exprs.iter().map(|x| (*x).clone().into_owned()).collect()
         }) }
     }
     Ok(first_value.clone())
@@ -44,7 +44,7 @@ pub fn format_fixed_length_expression_value_equality_error<const N: usize>(err: 
     )
 }
 /// Check that the provided [Expressions](ExpressionInInference) have equal length, returning an error otherwise
-pub fn assert_fixed_length_expression_value_equality<'a,const N: usize>(exprs: &[ExpressionInInference; N]) -> Result<Expression, FixedLengthExpressionValueEqualityError<N>> {
+pub fn assert_fixed_length_expression_value_equality<'a,const N: usize>(exprs: &[&'a ExpressionInInference<'a>; N]) -> Result<Expression, FixedLengthExpressionValueEqualityError<N>> {
     if N == 0 { panic!("Cannot check value equality for zero expressions") } 
     let mut output = [&Expression::Atomic(AtomId(0)); N];  // Initialize the output array
     for i in 0..N {
@@ -52,7 +52,7 @@ pub fn assert_fixed_length_expression_value_equality<'a,const N: usize>(exprs: &
         // Throw error if atomicities are not equal
         if output[i] != output[0] {
             return Err(FixedLengthExpressionValueEqualityError{
-                expressions: exprs.clone().map(|x| x.clone().into_owned())
+                expressions: exprs.clone().map(|x| (*x).clone().into_owned())
             })
         }
     }

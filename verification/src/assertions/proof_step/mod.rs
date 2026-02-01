@@ -4,6 +4,7 @@ mod explicit_conclusion_count;
 pub use assumption_count::*;
 pub use explicit_conclusion_count::*;
 
+use itertools::Either;
 use path_lib::{HasChildren};
 use tbl_structures::{expressions::Proposition, inference::{Inference, InferenceRule}, proof::{ProofStep, PropositionInInference, PropositionInInferencePath}};
 

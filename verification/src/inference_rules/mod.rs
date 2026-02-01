@@ -33,7 +33,7 @@ pub enum StandardInferenceErr {
 impl InferenceRule for StandardInferenceRule {}
 impl VerifiableInferenceRule<StandardInferenceErr> for StandardInferenceRule {
     fn verify(inference: &Inference<Self>) -> Result<(),StandardInferenceErr> {
-        match inference.0.obj().inference_type {
+        match inference.inference_type {
             StandardInferenceRule::ConjunctionIntroduction => verify_conjunction_introduction(inference)
                 .map_err(|e| StandardInferenceErr::ConjunctionIntroduction(e)),
             StandardInferenceRule::ImplicationElimination => verify_implication_elimination(inference)

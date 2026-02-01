@@ -28,9 +28,9 @@ pub fn verify_implication_elimination<'a,Rule: InferenceRule>(inference: &Infere
     // Throw errors if the values of the inference components are incorrect
     assert_expression_value(&implication_head, &BuiltInAtom::Implication.into())
         .map_err(|e| ImplicationEliminationError::ImplicationWrongHead(e.into_expression()))?;
-    assert_expression_value_equality(&[antecedent, assumption_left.into()])
+    assert_expression_value_equality(&[&antecedent, &assumption_left.into()])
         .map_err(|e| ImplicationEliminationError::AntecedentInequal(e.expressions[0].0.obj().clone(), e.expressions[1].0.obj().clone()))?;
-    assert_expression_value_equality(&[consequent, conclusion.into()])
+    assert_expression_value_equality(&[&consequent, &conclusion.into()])
         .map_err(|e| ImplicationEliminationError::ConsequentInequal(e.expressions[0].0.obj().clone(), e.expressions[1].0.obj().clone()))?;
     Ok(())
 }

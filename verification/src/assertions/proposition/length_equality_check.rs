@@ -19,7 +19,7 @@ pub fn format_proposition_length_equality_error(err: PropositionLengthEqualityEr
 }
 
 /// Check that the provided [Propositions](PropositionInInference) have equal length, returning an error otherwise
-pub fn assert_proposition_length_equality<'a>(props: &[PropositionInInference]) -> Result<Option<usize>, PropositionLengthEqualityError> {
+pub fn assert_proposition_length_equality<'a>(props: &[&'a PropositionInInference<'a>]) -> Result<Option<usize>, PropositionLengthEqualityError> {
     let mut iter = props.iter().map(|o| match o.0.obj().as_slice() {
         Ok(propositions) => Some(propositions.len()),
         Err(_) => None,
@@ -27,7 +27,7 @@ pub fn assert_proposition_length_equality<'a>(props: &[PropositionInInference]) 
     let first_length = iter.next().expect("Cannot check length equality for zero propositions");
     for nth_length in iter {
         if nth_length != first_length { return Err(PropositionLengthEqualityError {
-            propositions: props.into_iter().map(|x| x.clone().into_owned()).collect()
+            propositions: props.into_iter().map(|x| (*x).clone().into_owned()).collect()
         }) }
     }
     Ok(first_length)
@@ -46,7 +46,7 @@ pub fn format_fixed_length_proposition_length_equality_error<const N: usize>(err
     )
 }
 /// Check that the provided [Propositions](PropositionInInference) have equal length, returning an error otherwise
-pub fn assert_fixed_length_proposition_length_equality<'a,const N: usize>(exprs: &[PropositionInInference; N]) -> Result<Option<usize>, FixedLengthPropositionLengthEqualityError<N>> {
+pub fn assert_fixed_length_proposition_length_equality<'a,const N: usize>(exprs: &[&'a PropositionInInference<'a>; N]) -> Result<Option<usize>, FixedLengthPropositionLengthEqualityError<N>> {
     if N == 0 { panic!("Cannot check length equality for zero propositions") } 
     let mut output = [None; N];  // Initialize the output array
     for i in 0..N {
@@ -54,7 +54,7 @@ pub fn assert_fixed_length_proposition_length_equality<'a,const N: usize>(exprs:
         // Throw error if atomicities are not equal
         if output[i] != output[0] {
             return Err(FixedLengthPropositionLengthEqualityError{
-                propositions: exprs.clone().map(|x| x.clone().into_owned())
+                propositions: exprs.clone().map(|x| (*x).clone().into_owned())
             })
         }
     }

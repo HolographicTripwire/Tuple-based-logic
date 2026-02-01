@@ -17,12 +17,12 @@ pub fn format_proposition_atomicity_equality_error(err: PropositionAtomicityEqua
 }
 
 /// Check that the provided [Propositions](PropositionInInference) have equal atomicity, returning an error otherwise
-pub fn assert_proposition_atomicity_equality<'a>(props: &[PropositionInInference]) -> Result<(), PropositionAtomicityEqualityError> {
+pub fn assert_proposition_atomicity_equality<'a>(props: &[&'a PropositionInInference<'a>]) -> Result<(), PropositionAtomicityEqualityError> {
     let mut iter = props.iter().map(|o| o.0.obj().as_atom().is_ok());
     let first_atomicity = iter.next().expect("Cannot check atomicity equality for zero propositions");
     for nth_atomicity in iter {
         if nth_atomicity != first_atomicity { return Err(PropositionAtomicityEqualityError{
-            propositions: props.into_iter().map(|x| x.clone().into_owned()).collect()
+            propositions: props.into_iter().map(|x| (*x).clone().into_owned()).collect()
         }) }
     }
     Ok(())
@@ -41,7 +41,7 @@ pub fn format_fixed_length_proposition_atomicity_equality_error<const N: usize>(
     )
 }
 /// Check that the provided [Propositions](PropositionInInference) have equal atomicity, returning an error otherwise
-pub fn assert_fixed_length_proposition_atomicity_equality<'a,const N: usize>(exprs: &[PropositionInInference; N]) -> Result<bool, FixedLengthPropositionAtomicityEqualityError<N>> {
+pub fn assert_fixed_length_proposition_atomicity_equality<'a,const N: usize>(exprs: &[&'a PropositionInInference<'a>; N]) -> Result<bool, FixedLengthPropositionAtomicityEqualityError<N>> {
     if N == 0 { panic!("Cannot check atomicity equality for zero propositions") } 
     let mut output = [false; N];  // Initialize the output array
     for i in 0..N {

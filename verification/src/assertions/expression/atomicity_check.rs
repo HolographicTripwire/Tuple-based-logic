@@ -2,6 +2,7 @@ use tbl_structures::{expressions::Expression, path_composites::{ExpressionInInfe
 
 use crate::assertions::utils::stringify_atomicity;
 
+#[derive(Clone)]
 pub struct ExpressionAtomicityCheckError {
     pub expected_atomicity: bool,
     pub expression: OwnedExpressionInInference

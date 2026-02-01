@@ -18,12 +18,12 @@ pub fn format_expression_value_inequality_error(err: PropositionValueInequalityE
 }
 
 /// Check that the provided [Propositions](PropositionInInference) have inequal value, returning an error otherwise
-pub fn assert_expression_value_inequality<'a>(exprs: &[ExpressionInInference]) -> Result<(), PropositionValueInequalityError> {
+pub fn assert_expression_value_inequality<'a>(exprs: &[&'a ExpressionInInference<'a>]) -> Result<(), PropositionValueInequalityError> {
     let iter = exprs.iter().map(|o| o.0.obj());
     let mut values = HashSet::new();
     for value in iter
         { if !values.insert(value) { return Err(PropositionValueInequalityError{
-            expressions: exprs.into_iter().map(|x| x.clone().into_owned()).collect()
+            expressions: exprs.into_iter().map(|x| (*x).clone().into_owned()).collect()
         }); } }
     Ok(())
 }
@@ -45,13 +45,13 @@ pub fn format_fixed_length_expression_value_inequality_error<const N: usize>(err
     )
 }
 /// Check that the provided [Expressions](ExpressionInInference) have inequal length, returning an error otherwise
-pub fn assert_fixed_length_expression_value_inequality<'a,const N: usize>(exprs: &[ExpressionInInference; N]) -> Result<(), FixedLengthExpressionValueInequalityError<N>> {
+pub fn assert_fixed_length_expression_value_inequality<'a,const N: usize>(exprs: &[&'a ExpressionInInference<'a>; N]) -> Result<(), FixedLengthExpressionValueInequalityError<N>> {
     if N == 0 { panic!("Cannot check length inequality for zero expressions") } 
     let iter = exprs.iter().map(|o| o.0.obj());
     let mut values = HashSet::new();
     for value in iter
         { if !values.insert(value) { return Err(FixedLengthExpressionValueInequalityError {
-            expressions: exprs.clone().map(|x| x.clone().into_owned())
+            expressions: exprs.clone().map(|x| (*x).clone().into_owned())
         }); } }
     Ok(())
 }

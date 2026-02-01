@@ -1,6 +1,6 @@
 use tbl_structures::{atoms::BuiltInAtom, expressions::Expression, inference::{Inference, InferenceRule}};
 
-use crate::assertions::*;
+use crate::{assertions::*, inference_rules::verbatim::unwrap_verbatim_expression};
 
 #[derive(Clone)]
 pub enum AtomDifferentiationError {
@@ -41,10 +41,10 @@ pub fn verify_atom_differentiation<Rule: InferenceRule>(inference: &Inference<Ru
         .map_err(|e| AtomDifferentiationError::IdentityWrongHead(e.into_expression()))?;
 
     // Throw an error if either of the verbatim expressions do not resolve as Verbatim
-    let left_verbatim_atom = resolve_verbatim(identity_left)
-        .map_err(|e| AtomDifferentiationError::IdentityLeftNotVerbatim(e.value))?;
-    let right_verbatim_atom = resolve_verbatim(identity_right)
-        .map_err(|e| AtomDifferentiationError::IdentityRightNotVerbatim(e.value))?;
+    let left_verbatim_atom = unwrap_verbatim_expression(&identity_left)
+        .map_err(|_| AtomDifferentiationError::IdentityLeftNotVerbatim(identity_left.0.obj().clone()))?;
+    let right_verbatim_atom = unwrap_verbatim_expression(&identity_right)
+        .map_err(|_| AtomDifferentiationError::IdentityRightNotVerbatim(identity_right.0.obj().clone()))?;
 
     // Throw an error if either of the verbatim atoms is not actually an atom
     assert_expression_atomicity(&left_verbatim_atom, true)
@@ -53,7 +53,7 @@ pub fn verify_atom_differentiation<Rule: InferenceRule>(inference: &Inference<Ru
         .map_err(|e| AtomDifferentiationError::VerbatimRightInatomic(e.expression.0.into_obj_and_path().0))?;
     
     // Throw an error if the atoms aree actually identical
-    assert_fixed_length_expression_value_inequality(&[left_verbatim_atom, right_verbatim_atom])
+    assert_fixed_length_expression_value_inequality(&[&left_verbatim_atom, &right_verbatim_atom])
         .map_err(|e| AtomDifferentiationError::LeftAndRightEqual(e.expressions[0].0.clone().into_obj_and_path().0))?;
 
     Ok(())
