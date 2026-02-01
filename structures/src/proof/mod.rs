@@ -13,14 +13,14 @@ pub use inference_path::*;
 
 use crate::{inference::{Inference, InferenceRule}, expressions::Proposition};
 
-pub trait ProofStep<Rule:InferenceRule> : HasChildren<PropositionInInferencePath,Proposition> + HasChildren<AtomicSubproofPath,Proof<Rule>> {
+pub trait ProofStep<Rule:InferenceRule> : HasChildren<PropositionInInferencePath,Proposition> + HasChildren<AtomicProofInProofPath,Proof<Rule>> {
     // To be implemented by implemntors of this trait
     /// Get the [ProofPropositionPaths](ProofPropositionPath) of all assumptions within this [ProofStep]
     fn assumption_paths(&self) -> impl IntoIterator<Item = PropositionInInferencePath>;
     /// Get the [ProofPropositionPaths](ProofPropositionPath) of all explicit conclusions within this [ProofStep]
     fn explicit_conclusion_paths(&self) -> impl IntoIterator<Item = PropositionInInferencePath>;
     /// Get the [AtomicSubproofPaths](AtomicSubproofPath) of all immediate subproofs within this [ProofStep]
-    fn immediate_subproof_paths<'a>(&'a self) -> impl IntoIterator<Item=AtomicSubproofPath> { <Self as HasChildren<AtomicSubproofPath,Proof<Rule>>>::valid_primitive_paths(self) }
+    fn immediate_subproof_paths<'a>(&'a self) -> impl IntoIterator<Item=AtomicProofInProofPath> { <Self as HasChildren<AtomicProofInProofPath,Proof<Rule>>>::valid_primitive_paths(self) }
     
     /// Get references to all assumptions within this [ProofStep]
     fn get_assumptions(&self) -> impl IntoIterator<Item = &Proposition>
@@ -55,10 +55,10 @@ pub trait ProofStep<Rule:InferenceRule> : HasChildren<PropositionInInferencePath
     fn get_immediate_subproofs_owned(&self) -> impl IntoIterator<Item = Proof<Rule>>
         { self.immediate_subproof_paths().into_iter().map(|p| self.get_child(&p).unwrap().to_owned()) }
     /// Get all immediate subproofs within this [ProofStep], located by their [AtomicSubproofPath]
-    fn get_located_immediate_subproofs<'a>(&'a self) -> impl IntoIterator<Item = ObjAtPath<'a,Proof<Rule>,AtomicSubproofPath>>
+    fn get_located_immediate_subproofs<'a>(&'a self) -> impl IntoIterator<Item = ObjAtPath<'a,Proof<Rule>,AtomicProofInProofPath>>
         { self.immediate_subproof_paths().into_iter().map(|p| self.get_located_child(p).unwrap()) }
     /// Get owned versions of all immediate subproofs within this [ProofStep], located by their [AtomicSubproofPath]
-    fn get_located_immediate_subproofs_owned(&self) -> impl IntoIterator<Item = OwnedObjAtPath<Proof<Rule>,AtomicSubproofPath>>
+    fn get_located_immediate_subproofs_owned(&self) -> impl IntoIterator<Item = OwnedObjAtPath<Proof<Rule>,AtomicProofInProofPath>>
         { self.immediate_subproof_paths().into_iter().map(|p| self.get_located_child_owned(p).unwrap()) }
 
     /// Get all conclusions of this [ProofStep]
@@ -119,7 +119,7 @@ impl <Rule: InferenceRule> ProofStep<Rule> for Proof<Rule> {
     }}
     
     fn get_immediate_subproofs(&self) -> impl IntoIterator<Item=&Proof<Rule>>
-        { <Self as HasChildren<AtomicSubproofPath, Proof<Rule>>>::get_children(self) }
+        { <Self as HasChildren<AtomicProofInProofPath, Proof<Rule>>>::get_children(self) }
 }
 
 impl <Rule:InferenceRule> HasChildren<PropositionInInferencePath,Proposition> for Proof<Rule> {
@@ -129,11 +129,11 @@ impl <Rule:InferenceRule> HasChildren<PropositionInInferencePath,Proposition> fo
     fn get_child_owned(&self, path: &PropositionInInferencePath) -> Result<Proposition,()> where Proposition: Clone
         { get_child_inner(self, path).cloned() }
         
-    fn to_located_children_owned(self) -> impl IntoIterator<Item = OwnedObjAtPath<Proposition,PropositionInInferencePath>> where Proposition: Clone, Self: Sized {
+    fn into_located_children_owned(self) -> impl IntoIterator<Item = OwnedObjAtPath<Proposition,PropositionInInferencePath>> where Proposition: Clone, Self: Sized {
         match self {
             Proof::Atomic(_) => vec![],
             Proof::Composite(composite_proof) => <CompositeProof<Rule> as HasChildren<PropositionInInferencePath,Proposition>>
-                ::to_located_children_owned(composite_proof)
+                ::into_located_children_owned(composite_proof)
                 .into_iter().collect()
         }
     }
@@ -158,7 +158,7 @@ impl <Rule: InferenceRule> ProofStep<Rule> for CompositeProof<Rule> {
     fn get_assumptions(&self) -> impl IntoIterator<Item = &Proposition> { &self.assumptions }
     fn get_explicit_conclusions(&self) -> impl IntoIterator<Item = &Proposition> { &self.explicit_conclusions }
     fn get_immediate_subproofs(&self) -> impl IntoIterator<Item=&Proof<Rule>>
-        { <Self as HasChildren<AtomicSubproofPath, Proof<Rule>>>::get_children(self) }
+        { <Self as HasChildren<AtomicProofInProofPath, Proof<Rule>>>::get_children(self) }
 }
 impl <Rule:InferenceRule> HasChildren<PropositionInInferencePath,Proposition> for CompositeProof<Rule> {
     fn valid_primitive_paths(&self) -> Vec<PropositionInInferencePath> { valid_primitive_paths_inner(self) }
@@ -167,14 +167,14 @@ impl <Rule:InferenceRule> HasChildren<PropositionInInferencePath,Proposition> fo
     fn get_child_owned(&self, path: &PropositionInInferencePath) -> Result<Proposition,()> where Proposition: Clone 
         { get_child_inner(self,path).cloned() }
         
-    fn to_located_children_owned(self) -> impl IntoIterator<Item = OwnedObjAtPath<Proposition,PropositionInInferencePath>> where Proposition: Clone, Self: Sized {
+    fn into_located_children_owned(self) -> impl IntoIterator<Item = OwnedObjAtPath<Proposition,PropositionInInferencePath>> where Proposition: Clone, Self: Sized {
         let assumptions = self.assumptions
             .into_iter()
             .enumerate()
-            .map(|(id,prop)| OwnedObjAtPath::from_at(prop,PropositionInInferencePath::assumption(id)));
+            .map(|(id,prop)| OwnedObjAtPath::from_inner(prop,PropositionInInferencePath::assumption(id)));
         let explicit_conclusions = self.explicit_conclusions.into_iter()
             .enumerate()
-            .map(|(id, prop)| OwnedObjAtPath::from_at(prop,PropositionInInferencePath::conclusion(id)));
+            .map(|(id, prop)| OwnedObjAtPath::from_inner(prop,PropositionInInferencePath::conclusion(id)));
         return assumptions.chain(explicit_conclusions)
     }
 }

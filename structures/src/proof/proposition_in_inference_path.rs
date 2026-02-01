@@ -1,6 +1,7 @@
 use std::fmt::Display;
 
-use path_lib::{obj_at_path::{ObjAtPath, OwnedObjAtPath}, paths::{PathPrimitive, PathSeries}};
+use path_lib::paths::{PathPrimitive, PathSeries};
+use path_lib_proc_macros::generate_obj_at_path_wrappers;
 
 use crate::{expressions::Proposition, path_composites::{ExpressionInInference, ExpressionInInferencePath}};
 
@@ -23,29 +24,17 @@ impl Display for PropositionInInferencePath {
     }
 }
 
-#[derive(Clone,PartialEq,Eq)]
-pub struct PropositionInInference<'a>(pub ObjAtPath<'a,Proposition,PropositionInInferencePath>);
-impl <'a> PropositionInInference<'a> {
-    pub fn into_owned(self) -> OwnedPropositionInInference { OwnedPropositionInInference(self.0.into_owned()) }
-}
-impl <'a> From<ObjAtPath<'a,Proposition,PropositionInInferencePath>> for PropositionInInference<'a> {
-    fn from(value: ObjAtPath<'a,Proposition,PropositionInInferencePath>) -> Self
-        { PropositionInInference(value) }
-}
-
-#[derive(Clone,PartialEq,Eq)]
-pub struct OwnedPropositionInInference(pub OwnedObjAtPath<Proposition,PropositionInInferencePath>);
-
-impl From<OwnedObjAtPath<Proposition,PropositionInInferencePath>> for OwnedPropositionInInference {
-    fn from(value: OwnedObjAtPath<Proposition,PropositionInInferencePath>) -> Self
-        { OwnedPropositionInInference(value) }
+generate_obj_at_path_wrappers!{
+    (Proposition), PropositionInInferencePath,
+    "PropositionInInference", [Clone, PartialEq, Eq, Debug],
+    "OwnedPropositionInInference", [Clone, PartialEq, Eq, Debug]
 }
 impl <'a> Into<ExpressionInInference<'a>> for PropositionInInference<'a> {
     fn into(self) -> ExpressionInInference<'a> {
         let (obj, path) = self.0.into_obj_and_path();
-        ExpressionInInference(ObjAtPath::from_at(obj, ExpressionInInferencePath {
+        ExpressionInInference::from_inner(obj, ExpressionInInferencePath {
             proposition_path: path,
             subexpression_path: PathSeries::empty()
-        }))
+        })
     }
 }

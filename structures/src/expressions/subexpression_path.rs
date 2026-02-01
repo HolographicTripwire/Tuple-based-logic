@@ -1,7 +1,8 @@
 
 use std::fmt::Display;
 
-use path_lib::{obj_at_path::{ObjAtPath, OwnedObjAtPath}, paths::{PathPrimitive, PathSeries}, HasChildren};
+use path_lib::{obj_at_path::{OwnedObjAtPath}, paths::{PathPrimitive, PathSeries}, HasChildren};
+use path_lib_proc_macros::generate_obj_at_path_wrappers;
 
 use crate::{expressions::Expression, DisplayExt};
 
@@ -27,12 +28,12 @@ impl HasChildren<AtomicExpressionInExpressionPath,Expression> for Expression {
     fn get_child_owned(&self, path: &AtomicExpressionInExpressionPath) -> Result<Expression,()> where Expression: Clone
         { self.as_vec()?.get(path.0).ok_or(()).cloned() }
         
-    fn to_located_children_owned(self) -> impl IntoIterator<Item = OwnedObjAtPath<Expression, AtomicExpressionInExpressionPath>> where Expression: Clone, Self: Sized {
+    fn into_located_children_owned(self) -> impl IntoIterator<Item = OwnedObjAtPath<Expression, AtomicExpressionInExpressionPath>> where Expression: Clone, Self: Sized {
         match self {
             Expression::Atomic(_) => vec![],
             Expression::Tuple(expressions) => expressions.into_iter()
                 .enumerate()
-                .map(|(id,expr)| OwnedObjAtPath::from_at(expr, AtomicExpressionInExpressionPath(id)))
+                .map(|(id,expr)| OwnedObjAtPath::from_inner(expr, AtomicExpressionInExpressionPath(id)))
                 .collect(),
         }
     }
@@ -62,12 +63,13 @@ mod from {
     }
 }
 
-/// A reference to an [Expression], located within another [Expression] by a [SubexpressionPath]
-#[derive(Clone,PartialEq,Eq)]
-pub struct ExpressionInExpression<'a>(pub ObjAtPath<'a,Expression,ExpressionInExpressionPath>);
-/// An [Expression], located within another [Expression] by a [SubexpressionPath]
-#[derive(Clone,PartialEq,Eq)]
-pub struct OwnedExpressionInExpression(pub OwnedObjAtPath<Expression,ExpressionInExpressionPath>);
+// A reference to an [Expression], located within another [Expression] by a [SubexpressionPath]
+// An [Expression], located within another [Expression] by a [SubexpressionPath]
+generate_obj_at_path_wrappers!{
+    (Expression), ExpressionInExpressionPath,
+    "ExpressionInExpression", [Clone, PartialEq, Eq, Debug],
+    "OwnedExpressionInExpression", [Clone, PartialEq, Eq, Debug]
+}
 
 #[cfg(test)]
 mod tests {

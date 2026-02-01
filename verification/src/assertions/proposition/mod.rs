@@ -31,14 +31,14 @@ pub struct PropositionSubpathError {
 
 pub fn format_proposition_subpath_error(err: PropositionSubpathError) -> String {
     format!("Proposition at {path} has no subproposition at subpath {subpath}",
-        path=err.proposition.0.path(),
+        path=err.proposition.path(),
         subpath=err.subpath.display()
     )
 }
 
 pub fn proposition_subproposition<'a>(proposition: &'a PropositionInInference<'a>, subpath: ExpressionInPropositionPath) -> Result<ExpressionInInference<'a>,PropositionSubpathError> {
-    return match proposition.0.get_located_descendant(subpath.clone()) {
-        Ok(c) => Ok(ExpressionInInference(c.replace_path(
+    return match proposition.get_located_descendant(subpath.clone()) {
+        Ok(c) => Ok(ExpressionInInference::from(c.replace_path(
             |p: PathPair<PropositionInInferencePath,ExpressionInPropositionPath>| p.into()
         ))), Err(_) => { Err(PropositionSubpathError {
             subpath,
@@ -65,23 +65,23 @@ pub fn proposition_subproposition<'a>(proposition: &'a PropositionInInference<'a
 }
 
 pub fn proposition_as_slice<'a>(proposition: &'a PropositionInInference) -> Result<Vec<ExpressionInInference<'a>>,PropositionAtomicityCheckError> {
-    if let Proposition::Atomic(_) = proposition.0.obj() { return Err(PropositionAtomicityCheckError {
+    if let Proposition::Atomic(_) = proposition.obj() { return Err(PropositionAtomicityCheckError {
         expected_atomicity: false,
         proposition: proposition.clone().into_owned()
     }) };
-    Ok(proposition.0.get_located_children()
+    Ok(proposition.get_located_children()
         .into_iter()
-        .map(|obj| ExpressionInInference(obj.replace_path(|p| p.into())))
+        .map(|obj| ExpressionInInference::from(obj.replace_path(|p| p.into())))
         .collect::<Vec<ExpressionInInference>>())
 }
 pub fn proposition_into_slice<'a>(proposition: PropositionInInference<'a>) -> Result<Vec<ExpressionInInference<'a>>,PropositionAtomicityCheckError> {
-    if let Proposition::Atomic(_) = proposition.0.obj() { return Err(PropositionAtomicityCheckError {
+    if let Proposition::Atomic(_) = proposition.obj() { return Err(PropositionAtomicityCheckError {
         expected_atomicity: false,
         proposition: proposition.clone().into_owned()
     }) };
-    Ok(proposition.0.into_located_children()
+    Ok(proposition.into_located_children()
         .into_iter()
-        .map(|expr| ExpressionInInference(expr.replace_path(|path| path.into())))
+        .map(|expr| ExpressionInInference::from(expr.replace_path(|path| path.into())))
         .collect::<Vec<ExpressionInInference>>())
 }
 

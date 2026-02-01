@@ -12,9 +12,9 @@ pub struct PropositionLengthInequalityError {
 pub fn format_proposition_length_inequality_error(err: PropositionLengthInequalityError) -> String {
     format!("Proposition lengths expected to all be inequal, but weren't; {lengths}",
         lengths = err.propositions.iter().map(|o|
-            o.0.path().to_string()
+            o.path().to_string()
             + " -> " +
-            &stringify_length(o.0.obj())
+            &stringify_length(o.obj())
         ).collect::<Vec<_>>().join(", ")
     )
 }
@@ -22,7 +22,7 @@ pub fn format_proposition_length_inequality_error(err: PropositionLengthInequali
 
 /// Check that the provided [Propositions](PropositionInInference) have inequal length, returning an error otherwise
 pub fn assert_proposition_length_inequality<'a>(props: &[&'a PropositionInInference<'a>]) -> Result<(), PropositionLengthInequalityError> {
-    let iter = props.iter().map(|o| match o.0.obj().as_slice() {
+    let iter = props.iter().map(|o| match o.obj().as_slice() {
         Ok(propositions) => Some(propositions.len()),
         Err(_) => None,
     });
@@ -44,16 +44,16 @@ pub struct FixedLengthPropositionLengthInequalityError<const N: usize> {
 pub fn format_fixed_length_proposition_length_inequality_error<const N: usize>(err: FixedLengthPropositionLengthInequalityError<N>) -> String {
     format!("Proposition lengths expected to all be equal, but weren't; {atomicities}",
         atomicities = err.propositions.iter().map(|o|
-            o.0.path().to_string()
+            o.path().to_string()
             + " -> " +
-            &stringify_length(o.0.obj())
+            &stringify_length(o.obj())
         ).collect::<Vec<_>>().join(", ")
     )
 }
 /// Check that the provided [Propositions](PropositionInInference) have inequal length, returning an error otherwise
 pub fn assert_fixed_length_proposition_length_inequality<'a,const N: usize>(exprs: &[&'a PropositionInInference<'a>; N]) -> Result<(), FixedLengthPropositionLengthInequalityError<N>> {
     if N == 0 { panic!("Cannot check length inequality for zero propositions") } 
-    let iter = exprs.iter().map(|o| o.0.obj().len());
+    let iter = exprs.iter().map(|o| o.obj().len());
     let mut values = HashSet::new();
     for value in iter
         { if !values.insert(value) { return Err(FixedLengthPropositionLengthInequalityError {

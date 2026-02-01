@@ -4,7 +4,7 @@ pub mod inference_rules;
 
 use std::collections::HashSet;
 
-use path_lib::{obj_at_path::{ObjAtPath, OwnedObjAtPath}, paths::PathSeries};
+use path_lib::paths::PathSeries;
 use tbl_structures::{expressions::{Proposition, PropositionSet}, proof::{Proof, ProofInProof, ProofStep, error::OwnedErrorInProof}};
 use errors::ProofValidationError;
 
@@ -13,7 +13,7 @@ use crate::errors::specification_error::{verify_inference, VerifiableInferenceRu
 /// Verify that the provided proof is sound under Tuple-Based logic, given some set of starting assumptions
 /// If the proof is not valid, return a [VerificationError] as well as the step that it occurred at
 pub fn verify_proof<'a, E: Clone, Rule: VerifiableInferenceRule<E>>(proof: &'a Proof<Rule>, assumptions: &PropositionSet) -> Result<bool,OwnedErrorInProof<ProofValidationError<E>>> {
-    validate_proof(&ProofInProof(ObjAtPath::from_at(proof,PathSeries::empty())))?;
+    validate_proof(&ProofInProof::from_inner(proof,PathSeries::empty()))?;
     Ok(verify_proof_grounding(proof, assumptions))
 }
 
@@ -26,40 +26,40 @@ pub fn verify_proof_grounding<E, Rule: VerifiableInferenceRule<E>>(proof: &Proof
 /// Check if a proof is valid. If not, return the first [ProofValidationError]
 fn validate_proof<'a,E: Clone, Rule: VerifiableInferenceRule<E>>(proof: &'a ProofInProof<Rule>) -> Result<(),OwnedErrorInProof<ProofValidationError<E>>> {
     // Create a list of [Proposition] objects which are considered at this time to be true
-    let mut proved = HashSet::<Proposition>::from_iter(proof.0.obj().get_assumptions_owned());
-    
+    let mut proved = HashSet::<Proposition>::from_iter(proof.obj().get_assumptions_owned());
+
     // Iterate through all steps in the proof
-    for (_, subproof) in proof.0.obj().get_located_immediate_subproofs() // Get steps
+    for (_, subproof) in proof.obj().get_located_immediate_subproofs() // Get steps
     .into_iter()
-    .map(|o| ProofInProof(o.replace_path(|p| PathSeries::new([p])))) // Convert to [ProofInProof]
+    .map(|o| ProofInProof::from(o.replace_path(|p| PathSeries::new([p])))) // Convert to [ProofInProof]
     .enumerate() {
         // Throw an error if the assumptions of this step have not yet been proven
-        let premises = HashSet::from_iter(subproof.0.obj().get_assumptions_owned());
+        let premises = HashSet::from_iter(subproof.obj().get_assumptions_owned());
         let assumptions_not_found = &proved - &premises;
-        if assumptions_not_found.len() != 0 { return Err(OwnedErrorInProof(OwnedObjAtPath::from_at(
+        if assumptions_not_found.len() != 0 { return Err(OwnedErrorInProof::from_inner(
             ProofValidationError::AssumptionsNotFound(assumptions_not_found),
-            proof.0.path().clone()
-        )))}
+            proof.path().clone()
+        ))}
         
         // Get the new propositions which have been proved by this step in the proof, assuming that the step is valid
-        match subproof.0.obj() {
-            Proof::Atomic(inference) => verify_inference(inference)
-                .map_err(|e| OwnedErrorInProof(OwnedObjAtPath::from_at(e, subproof.0.path().clone()))),
+        match subproof.obj() {
+            Proof::Atomic(inference) => verify_inference(&inference)
+                .map_err(|e| OwnedErrorInProof::from_inner(e, subproof.path().clone())),
             Proof::Composite(_) => {
-                proof.0.obj().get_located_immediate_subproofs().into_iter()
-                    .map(|subproof| validate_proof(&ProofInProof(subproof.replace_path(|p| PathSeries::new([p])))))
+                proof.obj().get_located_immediate_subproofs().into_iter()
+                    .map(|subproof| validate_proof(&ProofInProof::from(subproof.replace_path(|p| PathSeries::new([p])))))
                     .collect()
             },
         }?;
         
         // Add the new proved propositions to our set of proved propositions
-        let conclusions = subproof.0.obj().get_explicit_conclusions_owned().into_iter();
+        let conclusions = subproof.obj().get_explicit_conclusions_owned().into_iter();
         proved.extend(conclusions);
     }
 
     // Throw an error if the supposed conclusions of this proof have not been derived
-    let conclusions_not_found = &HashSet::from_iter(proof.0.obj().get_explicit_conclusions_owned()) - &proved;
-    if conclusions_not_found.len() != 0 { return Err(OwnedErrorInProof(OwnedObjAtPath::from_at(ProofValidationError::ConclusionsNotFound(conclusions_not_found), proof.0.path().clone())))}
+    let conclusions_not_found = &HashSet::from_iter(proof.obj().get_explicit_conclusions_owned()) - &proved;
+    if conclusions_not_found.len() != 0 { return Err(OwnedErrorInProof::from_inner(ProofValidationError::ConclusionsNotFound(conclusions_not_found), proof.path().clone()))}
 
     // If no errors were thrown, the proof was valid
     Ok(())

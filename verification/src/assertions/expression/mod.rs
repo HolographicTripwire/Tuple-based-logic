@@ -30,14 +30,14 @@ pub struct ExpressionSubpathError {
 
 pub fn format_expression_subpath_error(err: ExpressionSubpathError) -> String {
     format!("Expression at {path} has no subexpression at subpath {subpath}",
-        path=err.expression.0.path(),
+        path=err.expression.path(),
         subpath=err.subpath.display()
     )
 }
 
 pub fn expression_subexpression<'a>(expression: &'a ExpressionInInference<'a>, subpath: ExpressionInExpressionPath) -> Result<ExpressionInInference<'a>,ExpressionSubpathError> {
-    return match expression.0.get_located_descendant(subpath.clone()) {
-        Ok(c) => Ok(ExpressionInInference(c.replace_path(
+    return match expression.get_located_descendant(subpath.clone()) {
+        Ok(c) => Ok(ExpressionInInference::from(c.replace_path(
             |p: PathPair<ExpressionInInferencePath,ExpressionInExpressionPath>| p.into()
         ))), Err(_) => { Err(ExpressionSubpathError {
             subpath,
@@ -64,23 +64,23 @@ pub fn expression_subexpression<'a>(expression: &'a ExpressionInInference<'a>, s
 }
 
 pub fn expression_as_slice<'a>(expression: &'a ExpressionInInference) -> Result<Vec<ExpressionInInference<'a>>,ExpressionAtomicityCheckError> {
-    if let Expression::Atomic(_) = expression.0.obj() { return Err(ExpressionAtomicityCheckError {
+    if let Expression::Atomic(_) = expression.obj() { return Err(ExpressionAtomicityCheckError {
         expected_atomicity: false,
         expression: expression.clone().into_owned()
     }) };
-    Ok(expression.0.get_located_children()
+    Ok(expression.get_located_children()
         .into_iter()
-        .map(|obj| ExpressionInInference(obj.replace_path(|p| p.into())))
+        .map(|obj| ExpressionInInference::from(obj.replace_path(|p| p.into())))
         .collect::<Vec<ExpressionInInference>>())
 }
 pub fn expression_into_slice<'a>(expression: ExpressionInInference<'a>) -> Result<Vec<ExpressionInInference<'a>>,ExpressionAtomicityCheckError> {
-    if let Expression::Atomic(_) = expression.0.obj() { return Err(ExpressionAtomicityCheckError {
+    if let Expression::Atomic(_) = expression.obj() { return Err(ExpressionAtomicityCheckError {
         expected_atomicity: false,
         expression: expression.clone().into_owned()
     }) };
-    Ok(expression.0.into_located_children()
+    Ok(expression.into_located_children()
         .into_iter()
-        .map(|v| ExpressionInInference(v.replace_path(|p| p.into())))
+        .map(|v| ExpressionInInference::from(v.replace_path(|p| p.into())))
         .collect::<Vec<ExpressionInInference>>())
 }
 

@@ -29,7 +29,7 @@ pub fn assumptions_as_sized_slice<'a, const EXPECTED_SIZE: usize,Rule: Inference
 pub fn explicit_conclusions_as_slice<'a, Rule: InferenceRule>(inference: &'a Inference<Rule>) -> Vec<PropositionInInference<'a>> {
     inference.get_located_explicit_conclusions()
         .into_iter()
-        .map(|obj| PropositionInInference(obj.replace_path(|p| p.into())))
+        .map(|obj| PropositionInInference::from(obj.replace_path(|p| p.into())))
         .collect::<Vec<PropositionInInference>>()
 }
 

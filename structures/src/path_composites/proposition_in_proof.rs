@@ -1,10 +1,11 @@
 use std::fmt::Display;
 
-use path_lib::{obj_at_path::{ObjAtPath, OwnedObjAtPath}, Path, paths::PathPair};
+use path_lib::{Path, paths::PathPair};
+use path_lib_proc_macros::generate_obj_at_path_wrappers;
 
 use crate::{expressions::Proposition, proof::{InferenceInProofPath, PropositionInInferencePath}};
 
-#[derive(Clone,PartialEq,Eq)]
+#[derive(Clone,PartialEq,Eq,Debug)]
 pub struct PropositionInProofPath {
     pub step_path: InferenceInProofPath,
     pub proposition_path: PropositionInInferencePath,
@@ -19,14 +20,11 @@ impl Display for PropositionInProofPath {
     }
 }
 
-#[derive(Clone,PartialEq,Eq)]
-pub struct PropositionInProof<'a>(pub ObjAtPath<'a,Proposition,PropositionInProofPath>);
-impl <'a> PropositionInProof<'a> {
-    pub fn into_owned(self) -> OwnedPropositionInProof { OwnedPropositionInProof(self.0.into_owned()) }
+generate_obj_at_path_wrappers!{
+    (Proposition), PropositionInProofPath,
+    "ExpressionInExpression", [Clone, PartialEq, Eq, Debug],
+    "OwnedExpressionInExpression", [Clone, PartialEq, Eq, Debug]
 }
-
-#[derive(Clone,PartialEq,Eq)]
-pub struct OwnedPropositionInProof(pub OwnedObjAtPath<Proposition,PropositionInProofPath>);
 
 mod from {
     use crate::proof::InferenceInProofPath;

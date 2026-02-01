@@ -11,16 +11,16 @@ pub struct PropositionLengthEqualityError {
 pub fn format_proposition_length_equality_error(err: PropositionLengthEqualityError) -> String {
     format!("Proposition lengths expected to all be equal, but weren't; {atomicities}",
         atomicities = err.propositions.iter().map(|o|
-            o.0.path().to_string()
+            o.path().to_string()
             + " -> " +
-            &stringify_length(o.0.obj())
+            &stringify_length(o.obj())
         ).collect::<Vec<_>>().join(", ")
     )
 }
 
 /// Check that the provided [Propositions](PropositionInInference) have equal length, returning an error otherwise
 pub fn assert_proposition_length_equality<'a>(props: &[&'a PropositionInInference<'a>]) -> Result<Option<usize>, PropositionLengthEqualityError> {
-    let mut iter = props.iter().map(|o| match o.0.obj().as_slice() {
+    let mut iter = props.iter().map(|o| match o.obj().as_slice() {
         Ok(propositions) => Some(propositions.len()),
         Err(_) => None,
     });
@@ -39,9 +39,9 @@ pub struct FixedLengthPropositionLengthEqualityError<const N: usize> {
 pub fn format_fixed_length_proposition_length_equality_error<const N: usize>(err: FixedLengthPropositionLengthEqualityError<N>) -> String {
     format!("Proposition lengths expected to all be equal, but weren't; {atomicities}",
         atomicities = err.propositions.iter().map(|o|
-            o.0.path().to_string()
+            o.path().to_string()
             + " -> " +
-            &stringify_length(o.0.obj())
+            &stringify_length(o.obj())
         ).collect::<Vec<_>>().join(", ")
     )
 }
@@ -50,7 +50,7 @@ pub fn assert_fixed_length_proposition_length_equality<'a,const N: usize>(exprs:
     if N == 0 { panic!("Cannot check length equality for zero propositions") } 
     let mut output = [None; N];  // Initialize the output array
     for i in 0..N {
-        output[i] = exprs[i].0.obj().len();
+        output[i] = exprs[i].obj().len();
         // Throw error if atomicities are not equal
         if output[i] != output[0] {
             return Err(FixedLengthPropositionLengthEqualityError{

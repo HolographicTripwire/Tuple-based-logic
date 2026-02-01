@@ -41,11 +41,11 @@ pub fn verify_tuple_appendation<Rule: InferenceRule>(inference: &Inference<Rule>
     
     // Extract the verbatim expressions, throwing an error one of the expressions has no verbatim component
     let pre_append = unwrap_verbatim_expression(&pre_append_verbatim)
-        .map_err(|_| TupleAppendationError::PreAppendNotVerbatim(pre_append_verbatim.0.obj().clone()))?;
+        .map_err(|_| TupleAppendationError::PreAppendNotVerbatim(pre_append_verbatim.obj().clone()))?;
     let to_append = unwrap_verbatim_expression(&to_append_verbatim)
-        .map_err(|_| TupleAppendationError::ToAppendNotVerbatim(to_append_verbatim.0.obj().clone()))?;
+        .map_err(|_| TupleAppendationError::ToAppendNotVerbatim(to_append_verbatim.obj().clone()))?;
     let post_append = unwrap_verbatim_expression(&post_append_verbatim)
-        .map_err(|_| TupleAppendationError::PostAppendVerbatim(post_append_verbatim.0.obj().clone()))?;
+        .map_err(|_| TupleAppendationError::PostAppendVerbatim(post_append_verbatim.obj().clone()))?;
     
     // Convert append_to and appended to vecs
     let pre_append_vec = expression_as_slice(&pre_append)
@@ -62,7 +62,7 @@ pub fn verify_tuple_appendation<Rule: InferenceRule>(inference: &Inference<Rule>
     assert_fixed_length_expression_value_equality(&[&to_append, &appended])
         .map_err(|e| { 
             let [to_append, appended] = e.expressions;
-            TupleAppendationError::AppendedNotToAppend(to_append.0.into_obj_and_path().0, appended.0.into_obj_and_path().0)
+            TupleAppendationError::AppendedNotToAppend(to_append.into_obj_and_path().0, appended.into_obj_and_path().0)
         })?;
 
     Ok(())

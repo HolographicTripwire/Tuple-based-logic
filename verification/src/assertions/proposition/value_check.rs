@@ -6,21 +6,21 @@ pub struct PropositionValueCheckError {
     pub proposition: OwnedPropositionInInference,
 }
 impl PropositionValueCheckError {
-    pub fn get_actual_value(&self) -> &Proposition { self.proposition.0.obj() }
-    pub fn into_actual_value(self) -> Proposition { self.proposition.0.into_obj_and_path().0 }
+    pub fn get_actual_value(&self) -> &Proposition { self.proposition.obj() }
+    pub fn into_actual_value(self) -> Proposition { self.proposition.into_obj_and_path().0 }
 }
 
 pub fn format_proposition_value_check_error(err: PropositionValueCheckError, style: ExpressionStyle) -> String {
     format!("Proposition at {path} has wrong value (expected {value_expected}; found {value_actual})",
-        path=err.proposition.0.path(),
+        path=err.proposition.path(),
         value_expected=style.stringify(&err.expected_value),
-        value_actual=style.stringify(err.proposition.0.obj())
+        value_actual=style.stringify(err.proposition.obj())
     )
 }
 
 /// Check that the provided [Proposition](PropositionInInference) has an value equal to expected_value, returning an error otherwise
 pub fn assert_proposition_value<'a>(prop: &PropositionInInference, expected_value: &Proposition) -> Result<(), PropositionValueCheckError> {
-    if prop.0.obj() == expected_value { Ok(()) }
+    if prop.obj() == expected_value { Ok(()) }
     else { Err(PropositionValueCheckError{
         expected_value: expected_value.clone(),
         proposition: prop.clone().into_owned()

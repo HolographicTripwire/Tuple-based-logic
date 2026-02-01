@@ -1,6 +1,6 @@
 use path_lib::{HasChildren, obj_at_path::OwnedObjAtPath};
 
-use crate::{expressions::Proposition, proof::{AtomicSubproofPath, Proof, ProofStep, PropositionInInferencePath, get_child_inner, valid_primitive_paths_inner}};
+use crate::{expressions::Proposition, proof::{AtomicProofInProofPath, Proof, ProofStep, PropositionInInferencePath, get_child_inner, valid_primitive_paths_inner}};
 
 #[derive(Clone,PartialEq,Eq,Debug)]
 /// A struct representing a single inference step within a proof
@@ -28,22 +28,22 @@ impl <Rule:InferenceRule> HasChildren<PropositionInInferencePath,Proposition> fo
     fn get_child_owned(&self, path: &PropositionInInferencePath) -> Result<Proposition,()> where Proposition: Clone
         { get_child_inner(self,path).cloned() }
         
-    fn to_located_children_owned(self) -> impl IntoIterator<Item = OwnedObjAtPath<Proposition,PropositionInInferencePath>> where Proposition: Clone, Self: Sized {
+    fn into_located_children_owned(self) -> impl IntoIterator<Item = OwnedObjAtPath<Proposition,PropositionInInferencePath>> where Proposition: Clone, Self: Sized {
         let assumptions = self.assumptions.into_iter()
             .enumerate()
-            .map(|(id,conclusion)| OwnedObjAtPath::from_at(conclusion, PropositionInInferencePath::assumption(id)));
+            .map(|(id,conclusion)| OwnedObjAtPath::from_inner(conclusion, PropositionInInferencePath::assumption(id)));
         let conclusions = self.conclusions.into_iter()
             .enumerate()
-            .map(|(id,conclusion)| OwnedObjAtPath::from_at(conclusion, PropositionInInferencePath::conclusion(id)));
+            .map(|(id,conclusion)| OwnedObjAtPath::from_inner(conclusion, PropositionInInferencePath::conclusion(id)));
         assumptions.chain(conclusions)
     }
 }
-impl <Rule: InferenceRule> HasChildren<AtomicSubproofPath,Proof<Rule>> for Inference<Rule> {
-    fn valid_primitive_paths(&self) -> Vec<AtomicSubproofPath> { vec![] }
-    fn get_child(&self, _: &AtomicSubproofPath) -> Result<&Proof<Rule>,()> { Err(()) }
-    fn get_child_owned(&self, _: &AtomicSubproofPath) -> Result<Proof<Rule>,()> { Err(()) }
+impl <Rule: InferenceRule> HasChildren<AtomicProofInProofPath,Proof<Rule>> for Inference<Rule> {
+    fn valid_primitive_paths(&self) -> Vec<AtomicProofInProofPath> { vec![] }
+    fn get_child(&self, _: &AtomicProofInProofPath) -> Result<&Proof<Rule>,()> { Err(()) }
+    fn get_child_owned(&self, _: &AtomicProofInProofPath) -> Result<Proof<Rule>,()> { Err(()) }
     
-    fn to_located_children_owned(self) -> impl IntoIterator<Item = OwnedObjAtPath<Proof<Rule>,AtomicSubproofPath>> where Proof<Rule>: Clone, Self: Sized
+    fn into_located_children_owned(self) -> impl IntoIterator<Item = OwnedObjAtPath<Proof<Rule>,AtomicProofInProofPath>> where Proof<Rule>: Clone, Self: Sized
         { vec![] }
 }
 

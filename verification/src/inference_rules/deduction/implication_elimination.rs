@@ -29,8 +29,8 @@ pub fn verify_implication_elimination<'a,Rule: InferenceRule>(inference: &Infere
     assert_expression_value(&implication_head, &BuiltInAtom::Implication.into())
         .map_err(|e| ImplicationEliminationError::ImplicationWrongHead(e.into_expression()))?;
     assert_expression_value_equality(&[&antecedent, &assumption_left.into()])
-        .map_err(|e| ImplicationEliminationError::AntecedentInequal(e.expressions[0].0.obj().clone(), e.expressions[1].0.obj().clone()))?;
+        .map_err(|e| ImplicationEliminationError::AntecedentInequal(e.expressions[0].obj().clone(), e.expressions[1].obj().clone()))?;
     assert_expression_value_equality(&[&consequent, &conclusion.into()])
-        .map_err(|e| ImplicationEliminationError::ConsequentInequal(e.expressions[0].0.obj().clone(), e.expressions[1].0.obj().clone()))?;
+        .map_err(|e| ImplicationEliminationError::ConsequentInequal(e.expressions[0].obj().clone(), e.expressions[1].obj().clone()))?;
     Ok(())
 }

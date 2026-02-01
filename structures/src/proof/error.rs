@@ -1,10 +1,17 @@
-use path_lib::obj_at_path::{ObjAtPath, OwnedObjAtPath};
+use path_lib_proc_macros::generate_obj_at_path_wrappers;
 
 use crate::proof::subproof_path::{ProofInProofPath};
 
-#[derive(Clone,PartialEq,Eq,Debug)]
-pub struct ErrorInProof<'a, E: Clone>(pub ObjAtPath<'a, E, ProofInProofPath>);
-pub struct OwnedErrorInProof<E: Clone>(pub OwnedObjAtPath<E, ProofInProofPath>);
+generate_obj_at_path_wrappers!{
+    (E where E: Clone), ProofInProofPath,
+    "ErrorInProof", [Clone, PartialEq, Eq, Debug],
+    "OwnedErrorInProof", [Clone, PartialEq, Eq, Debug]
+}
+
+// #[derive(Clone,PartialEq,Eq,Debug)]
+// pub struct ErrorInProof<'a, E: Clone>(pub ObjAtPath<'a, E, ProofInProofPath>);
+// #[derive(Clone,PartialEq,Eq,Debug)]
+// pub struct OwnedErrorInProof<E: Clone>(pub OwnedObjAtPath<E, ProofInProofPath>);
 
 // /// An error that is located at a particular step of a proof
 // /// This can even include substeps of substeps

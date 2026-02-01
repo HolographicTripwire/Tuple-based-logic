@@ -8,16 +8,16 @@ pub struct PropositionValueEqualityError {
 pub fn format_proposition_value_equality_error(err: PropositionValueEqualityError, style: PropositionStyle) -> String {
     format!("Proposition values expected to all be equal, but weren't; {atomicities}",
         atomicities = err.propositions.iter().map(|o|
-            o.0.path().to_string()
+            o.path().to_string()
             + " -> " +
-            &style.stringify(o.0.obj())
+            &style.stringify(o.obj())
         ).collect::<Vec<_>>().join(", ")
     )
 }
 
 /// Check that the provided [Propositions](OwnedPropositionInProof) have equal value, returning an error otherwise
 pub fn assert_proposition_value_equality<'a>(props: &[&'a PropositionInInference<'a>]) -> Result<Proposition, PropositionValueEqualityError> {
-    let mut iter = props.iter().map(|o| o.0.obj() );
+    let mut iter = props.iter().map(|o| o.obj() );
     let first_value = iter.next().expect("Cannot check value equality for zero propositions");
     for nth_value in iter {
         if nth_value != first_value { return Err(PropositionValueEqualityError{
@@ -37,9 +37,9 @@ pub struct FixedLengthPropositionValueEqualityError<const N: usize> {
 pub fn format_fixed_length_proposition_value_equality_error<const N: usize>(err: FixedLengthPropositionValueEqualityError<N>, style: PropositionStyle) -> String {
     format!("Proposition values expected to all be equal, but weren't; {atomicities}",
         atomicities = err.propositions.iter().map(|o|
-            o.0.path().to_string()
+            o.path().to_string()
             + " -> " +
-            &style.stringify(o.0.obj())
+            &style.stringify(o.obj())
         ).collect::<Vec<_>>().join(", ")
     )
 }
@@ -48,7 +48,7 @@ pub fn assert_fixed_length_proposition_value_equality<'a,const N: usize>(exprs: 
     if N == 0 { panic!("Cannot check value equality for zero propositions") } 
     let mut output = [&Proposition::Atomic(AtomId(0)); N];  // Initialize the output array
     for i in 0..N {
-        output[i] = exprs[i].0.obj();
+        output[i] = exprs[i].obj();
         // Throw error if atomicities are not equal
         if output[i] != output[0] {
             return Err(FixedLengthPropositionValueEqualityError{
