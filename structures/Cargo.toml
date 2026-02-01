@@ -4,7 +4,7 @@ version = "0.5.0"
 edition = "2024"
 
 [dependencies]
-path_lib = { path = "../path_lib" }
+path_lib = { path = "../path_lib/core" }
 
 enum-iterator = { version = "2.1.0" }
 

@@ -3,11 +3,11 @@ use std::collections::HashSet;
 use tbl_structures::path_composites::{ExpressionInInference, OwnedExpressionInInference};
 use tbl_textualization::{helpers::styles::Style, structures::expressions::ExpressionStyle};
 
-pub struct PropositionValueInequalityError {
+pub struct ExpressionValueInequalityError {
     pub expressions: Vec<OwnedExpressionInInference>,
 }
 
-pub fn format_expression_value_inequality_error(err: PropositionValueInequalityError, style: ExpressionStyle) -> String {
+pub fn format_expression_value_inequality_error(err: ExpressionValueInequalityError, style: ExpressionStyle) -> String {
     format!("Proposition values expected to all be inequal, but weren't; {values}",
         values = err.expressions.iter().map(|o|
             o.0.path().to_string()
@@ -18,11 +18,11 @@ pub fn format_expression_value_inequality_error(err: PropositionValueInequalityE
 }
 
 /// Check that the provided [Propositions](PropositionInInference) have inequal value, returning an error otherwise
-pub fn assert_expression_value_inequality<'a>(exprs: &[&'a ExpressionInInference<'a>]) -> Result<(), PropositionValueInequalityError> {
+pub fn assert_expression_value_inequality<'a>(exprs: &[&'a ExpressionInInference<'a>]) -> Result<(), ExpressionValueInequalityError> {
     let iter = exprs.iter().map(|o| o.0.obj());
     let mut values = HashSet::new();
     for value in iter
-        { if !values.insert(value) { return Err(PropositionValueInequalityError{
+        { if !values.insert(value) { return Err(ExpressionValueInequalityError{
             expressions: exprs.into_iter().map(|x| (*x).clone().into_owned()).collect()
         }); } }
     Ok(())
