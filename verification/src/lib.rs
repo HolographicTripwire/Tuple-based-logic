@@ -33,20 +33,20 @@ fn validate_proof<'a,E: Clone, Rule: VerifiableInferenceRule<E>>(proof: ProofInP
     .into_iter()
     .map(|o| ProofInProof(o.replace_path(|p| PathSeries::new([p])))) // Convert to [ProofInProof]
     .enumerate() {
-        // Throw an error if th assumptions of this step have not yet been proven
+        // Throw an error if the assumptions of this step have not yet been proven
         let premises = HashSet::from_iter(subproof.0.obj().get_assumptions_owned());
         let assumptions_not_found = &proved - &premises;
         if assumptions_not_found.len() != 0 { return Err(ErrorInProof::here(ProofValidationError::AssumptionsNotFound(assumptions_not_found))) }
         
         // Get the new propositions which have been proved by this step in the proof, assuming that the step is valid
-        match subproof.clone().try_into() {
-            Ok(inference) => ResultInProof::from(verify_inference(&inference)),
-            Err(proof) => {
-                let result_or_error: Result<(),ErrorInProof<ProofValidationError>> = proof.0.obj().get_located_immediate_subproofs().into_iter()
+        match subproof.0.obj() {
+            Proof::Atomic(inference) => ResultInProof::from(verify_inference(inference)),
+            Proof::Composite(_) => {
+                let result_or_error: Result<(),ErrorInProof<ProofValidationError<E>>> = proof.0.obj().get_located_immediate_subproofs().into_iter()
                     .map(|subproof| validate_proof(ProofInProof(subproof.replace_path(|p| PathSeries::new([p])))))
                     .collect();
                 ResultInProof::from(result_or_error)
-            }
+            },
         }.resolve(i)?;
         
         // Add the new proved propositions to our set of proved propositions

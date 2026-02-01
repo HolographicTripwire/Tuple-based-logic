@@ -2,7 +2,7 @@ use tbl_structures::{inference::{Inference, InferenceRule}};
 
 use crate::errors::validation_error::ProofValidationError;
 
-pub fn verify_inference<InnerErr, Rule: VerifiableInferenceRule<InnerErr>, StepErr: From<InnerErr>>(inference: &Inference<Rule>) -> Result<(),ProofValidationError<InnerErr>> {
+pub fn verify_inference<Err, Rule: VerifiableInferenceRule<Err>>(inference: &Inference<Rule>) -> Result<(),ProofValidationError<Err>> {
     Rule::verify(inference)
         .map_err(|err| ProofValidationError::InvalidInference(err))
 }
