@@ -1,12 +1,13 @@
 [package]
 name = "tbl_core"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2024"
 
 [dependencies]
 tbl_structures = { path = "../structures" }
 tbl_textualization = { path = "../textualization" }
 tbl_verification = { path = "../verification" }
-tbl_generation = { path = "../generation" }
+# tbl_generation = { path = "../generation" }
 
 bimap = { version = "0.6.3" }
+itertools = { version = "0.14.0" }

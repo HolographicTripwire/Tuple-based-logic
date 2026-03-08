@@ -1,6 +1,8 @@
 use tbl_structures::{atoms::BuiltInAtom, expressions::Expression, inference::{Inference, InferenceRule}};
 
-use crate::{assertions::{assert_expression_atomicity, assert_expression_value, explicit_conclusions_as_sized_slice, proposition_as_sized_slice}, inference_rules::verbatim::unwrap_verbatim_expression};
+use tbl_verification::assertions::{assert_expression_atomicity, assert_expression_value, explicit_conclusions_as_sized_slice, proposition_as_sized_slice};
+
+use crate::inference_rules::verbatim::unwrap_verbatim_expression;
 
 #[derive(Clone)]
 pub enum AtomicityAssertionError {

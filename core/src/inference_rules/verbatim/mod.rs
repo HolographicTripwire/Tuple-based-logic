@@ -8,7 +8,7 @@ pub use tuple_appendation::*;
 
 use itertools::Either;
 
-use crate::{assertions::*};
+use tbl_verification::{assertions::*};
 use tbl_structures::{atoms::BuiltInAtom, path_composites::{ExpressionInInference, OwnedExpressionInInference}};
 
 #[derive(Clone)]

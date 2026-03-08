@@ -1,6 +1,5 @@
 pub mod assertions;
 pub mod errors;
-pub mod inference_rules;
 
 use std::collections::HashSet;
 

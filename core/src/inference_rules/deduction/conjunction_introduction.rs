@@ -3,7 +3,7 @@ use tbl_structures::inference::{Inference, InferenceRule};
 use tbl_structures::path_composites::ExpressionInInference;
 use tbl_structures::atoms::BuiltInAtom;
 
-use crate::assertions::*;
+use tbl_verification::assertions::*;
 
 #[derive(Clone)]
 pub enum ConjunctionIntroductionError {

@@ -2,7 +2,7 @@ use tbl_structures::inference::{Inference, InferenceRule};
 use tbl_structures::path_composites::{ExpressionInInference, OwnedExpressionInInference};
 use tbl_structures::{atoms::BuiltInAtom, expressions::Expression};
 
-use crate::assertions::*;
+use tbl_verification::assertions::*;
 
 #[derive(Clone)]
 pub enum UniversalSubstitutionError {

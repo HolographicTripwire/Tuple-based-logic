@@ -6,7 +6,7 @@ use verbatim::*;
 
 use tbl_structures::{inference::{Inference, InferenceRule}};
 
-use crate::errors::specification_error::VerifiableInferenceRule;
+use tbl_verification::errors::specification_error::VerifiableInferenceRule;
 
 
 #[derive(Clone,PartialEq)]

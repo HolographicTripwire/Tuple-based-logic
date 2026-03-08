@@ -1,6 +1,8 @@
 use tbl_structures::{atoms::BuiltInAtom, expressions::Expression, inference::{Inference, InferenceRule}};
 
-use crate::{assertions::*, inference_rules::verbatim::unwrap_verbatim_expression};
+use tbl_verification::assertions::*;
+
+use crate::inference_rules::verbatim::unwrap_verbatim_expression;
 
 #[derive(Clone)]
 pub enum TupleAppendationError {
