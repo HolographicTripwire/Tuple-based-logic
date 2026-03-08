@@ -41,11 +41,11 @@ pub fn verify_tuple_appendation<Rule: InferenceRule>(inference: &Inference<Rule>
     
     // Extract the verbatim expressions, throwing an error one of the expressions has no verbatim component
     let pre_append = unwrap_verbatim_expression(&pre_append_verbatim)
-        .map_err(|_| TupleAppendationError::PreAppendNotVerbatim(pre_append_verbatim.obj().clone()))?;
+        .map_err(|e| TupleAppendationError::PreAppendNotVerbatim(e.expression().into_obj_and_path().0))?;
     let to_append = unwrap_verbatim_expression(&to_append_verbatim)
-        .map_err(|_| TupleAppendationError::ToAppendNotVerbatim(to_append_verbatim.obj().clone()))?;
+        .map_err(|e| TupleAppendationError::ToAppendNotVerbatim(e.expression().into_obj_and_path().0))?;
     let post_append = unwrap_verbatim_expression(&post_append_verbatim)
-        .map_err(|_| TupleAppendationError::PostAppendVerbatim(post_append_verbatim.obj().clone()))?;
+        .map_err(|e| TupleAppendationError::PostAppendVerbatim(e.expression().into_obj_and_path().0))?;
     
     // Convert append_to and appended to vecs
     let pre_append_vec = expression_as_slice(&pre_append)

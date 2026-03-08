@@ -18,6 +18,14 @@ pub enum UnwrapVerbatimExpressionError {
     WrongHead(OwnedExpressionInInference),
     WrongLength(ExpressionLengthCheckError)
 }
+impl UnwrapVerbatimExpressionError {
+    fn expression(self) -> OwnedExpressionInInference { match self {
+        UnwrapVerbatimExpressionError::ExpressionAtomic(expr) => expr,
+        UnwrapVerbatimExpressionError::NoFirstElement(expr) => expr,
+        UnwrapVerbatimExpressionError::WrongHead(expr) => expr,
+        UnwrapVerbatimExpressionError::WrongLength(err) => err.expression,
+    }}
+}
 
 /// Take an expression, and if it is in the form (Verbatim, e) return e, otherwise return an Error
 pub fn unwrap_verbatim_expression<'a>(verbatim: &'a ExpressionInInference<'a>) -> Result<ExpressionInInference<'a>,UnwrapVerbatimExpressionError>{

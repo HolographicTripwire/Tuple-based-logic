@@ -29,7 +29,7 @@ pub fn verify_atomicity_assertion<Rule: InferenceRule> (inference: &Inference<Ru
         .map_err(|e| AtomicityAssertionError::AtomicityWrongHead(e.into_expression()))?;
     // Throw an error if the verbatim expression does not resolve to as Verbatim
     let verbatim_atom = unwrap_verbatim_expression(&verbatim_expr)
-        .map_err(|_| AtomicityAssertionError::AtomicityParamNotVerbatim(verbatim_expr.obj().clone()))?;
+        .map_err(|e| AtomicityAssertionError::AtomicityParamNotVerbatim(e.expression().into_obj_and_path().0))?;
     // Throw an error if the verbatim atom is not actually an atom
     assert_expression_atomicity(&verbatim_atom, true)
         .map_err(|e| AtomicityAssertionError::VerbatimComponentNotAtomic(e.expression.into_obj_and_path().0))?;

@@ -42,9 +42,9 @@ pub fn verify_atom_differentiation<Rule: InferenceRule>(inference: &Inference<Ru
 
     // Throw an error if either of the verbatim expressions do not resolve as Verbatim
     let left_verbatim_atom = unwrap_verbatim_expression(&identity_left)
-        .map_err(|_| AtomDifferentiationError::IdentityLeftNotVerbatim(identity_left.obj().clone()))?;
+        .map_err(|e| AtomDifferentiationError::IdentityLeftNotVerbatim(e.expression().into_obj_and_path().0))?;
     let right_verbatim_atom = unwrap_verbatim_expression(&identity_right)
-        .map_err(|_| AtomDifferentiationError::IdentityRightNotVerbatim(identity_right.obj().clone()))?;
+        .map_err(|e| AtomDifferentiationError::IdentityRightNotVerbatim(e.expression().into_obj_and_path().0))?;
 
     // Throw an error if either of the verbatim atoms is not actually an atom
     assert_expression_atomicity(&left_verbatim_atom, true)
