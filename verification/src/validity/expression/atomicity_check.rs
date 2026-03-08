@@ -1,6 +1,6 @@
 use tbl_structures::{expressions::Expression, path_composites::{ExpressionInInference, OwnedExpressionInInference}};
 
-use crate::assertions::utils::stringify_atomicity;
+use crate::validity::utils::stringify_atomicity;
 
 #[derive(Clone)]
 pub struct ExpressionAtomicityCheckError {

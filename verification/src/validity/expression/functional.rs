@@ -2,10 +2,10 @@ use itertools::Either;
 use tbl_structures::path_composites::OwnedExpressionInInference;
 use tbl_structures::{expressions::Expression, path_composites::ExpressionInInference};
 
-use crate::assertions::ExpressionLengthCheckError;
-use crate::assertions::ExpressionValueCheckError;
-use crate::assertions::expression_as_slice;
-use crate::assertions::assert_expression_value;
+use crate::validity::ExpressionLengthCheckError;
+use crate::validity::ExpressionValueCheckError;
+use crate::validity::expression_as_slice;
+use crate::validity::assert_expression_value;
 
 #[derive(Clone)]
 pub enum UnwrapInvocationExpressionError {

@@ -1,6 +1,6 @@
 use tbl_structures::path_composites::{ExpressionInInference, OwnedExpressionInInference};
 
-use crate::assertions::utils::stringify_atomicity;
+use crate::validity::utils::stringify_atomicity;
 
 pub struct ExpressionAtomicityEqualityError {
     pub expressions: Vec<OwnedExpressionInInference>

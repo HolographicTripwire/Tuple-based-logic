@@ -1,7 +1,7 @@
 
 use tbl_structures::proof::{OwnedPropositionInInference, PropositionInInference};
 
-use crate::assertions::utils::stringify_atomicity;
+use crate::validity::utils::stringify_atomicity;
 
 pub struct PropositionAtomicityEqualityError {
     pub propositions: Vec<OwnedPropositionInInference>

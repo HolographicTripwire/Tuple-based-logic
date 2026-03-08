@@ -14,7 +14,7 @@ struct QueryBase<Q: PropositionQuery, R: QueryableInferenceRule<Q>> {
 } */
 
 pub trait PropositionQuery: From<Proposition> {
-
+    
 }
 
 pub trait ProvabilityMetric {}

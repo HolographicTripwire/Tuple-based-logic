@@ -1,6 +1,6 @@
 use tbl_structures::{atoms::BuiltInAtom, expressions::Expression, inference::{Inference, InferenceRule}};
 
-use tbl_verification::assertions::{assert_expression_atomicity, assert_expression_value, explicit_conclusions_as_sized_slice, proposition_as_sized_slice};
+use tbl_verification::validity::{assert_expression_atomicity, assert_expression_value, explicit_conclusions_as_sized_slice, proposition_as_sized_slice};
 
 use crate::inference_rules::verbatim::unwrap_verbatim_expression;
 

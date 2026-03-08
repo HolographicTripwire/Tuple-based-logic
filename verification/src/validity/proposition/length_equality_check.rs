@@ -1,7 +1,7 @@
 
 use tbl_structures::proof::{OwnedPropositionInInference, PropositionInInference};
 
-use crate::assertions::utils::stringify_length;
+use crate::validity::utils::stringify_length;
 
 
 pub struct PropositionLengthEqualityError {

@@ -2,7 +2,7 @@ use std::collections::HashSet;
 
 use tbl_structures::path_composites::{ExpressionInInference, OwnedExpressionInInference};
 
-use crate::assertions::utils::stringify_length;
+use crate::validity::utils::stringify_length;
 
 pub struct ExpressionLengthInequalityError {
     pub expressions: Vec<OwnedExpressionInInference>

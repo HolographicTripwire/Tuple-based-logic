@@ -1,6 +1,6 @@
 use tbl_structures::{expressions::Expression, path_composites::{ExpressionInInference, OwnedExpressionInInference}};
 
-use crate::assertions::utils::stringify_length;
+use crate::validity::utils::stringify_length;
 
 #[derive(Clone)]
 pub struct ExpressionLengthCheckError {

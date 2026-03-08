@@ -2,7 +2,7 @@ use tbl_structures::expressions::Expression;
 use tbl_structures::inference::{Inference, InferenceRule};
 use tbl_structures::atoms::BuiltInAtom;
 
-use tbl_verification::assertions::*;
+use tbl_verification::validity::*;
 
 #[derive(Clone)]
 pub enum ImplicationEliminationError {

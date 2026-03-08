@@ -3,9 +3,9 @@ use tbl_structures::expressions::Expression;
 use tbl_structures::path_composites::ExpressionInInference;
 use tbl_structures::proof::{OwnedPropositionInInference, PropositionInInference};
 
-use crate::assertions::{ExpressionValueCheckError, assert_expression_value};
-use crate::assertions::PropositionLengthCheckError;
-use crate::assertions::proposition_as_slice;
+use crate::validity::{ExpressionValueCheckError, assert_expression_value};
+use crate::validity::PropositionLengthCheckError;
+use crate::validity::proposition_as_slice;
 
 #[derive(Clone)]
 pub enum UnwrapInvocationPropositionError {
