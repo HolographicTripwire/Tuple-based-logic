@@ -3,11 +3,11 @@ use std::fmt::Display;
 use path_lib::{paths::PathPair, Path};
 use path_lib_proc_macros::generate_obj_at_path_wrappers;
 
-use crate::{expressions::{AtomicExpressionInExpressionPath, Expression, ExpressionInExpressionPath}, proof::{InferenceInProofPath, PropositionInInferencePath}, DisplayExt};
+use crate::{DisplayExt, expressions::{AtomicExpressionInExpressionPath, Expression, ExpressionInExpressionPath}, proof::{ProofInProofPath, inference::PropositionInInferencePath}};
 
 #[derive(Clone,PartialEq,Eq,Debug)]
 pub struct ExpressionInProofPath{
-    pub step_path: InferenceInProofPath,
+    pub step_path: ProofInProofPath,
     pub proposition_path: PropositionInInferencePath,
     pub subexpression_path: ExpressionInExpressionPath
 }
@@ -15,7 +15,7 @@ pub struct ExpressionInProofPath{
 impl Path for ExpressionInProofPath {}
 impl Display for ExpressionInProofPath {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f,"{}{}{}",self.step_path,self.proposition_path,self.subexpression_path.display())
+        write!(f,"{}{}{}",self.step_path.display(),self.proposition_path,self.subexpression_path.display())
     }
 }
 
@@ -65,8 +65,8 @@ mod from {
                 subexpression_path: PathSeries::new([value.right])
         }}
     }
-    impl From<PathPair<InferenceInProofPath,PropositionInInferencePath>> for ExpressionInProofPath {
-        fn from(value: PathPair<InferenceInProofPath,PropositionInInferencePath>) -> Self { Self {
+    impl From<PathPair<ProofInProofPath,PropositionInInferencePath>> for ExpressionInProofPath {
+        fn from(value: PathPair<ProofInProofPath,PropositionInInferencePath>) -> Self { Self {
             step_path: value.left,
             proposition_path: value.right,
             subexpression_path: ExpressionInExpressionPath::empty(),

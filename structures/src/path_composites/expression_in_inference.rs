@@ -3,7 +3,7 @@ use std::fmt::Display;
 use path_lib::Path;
 use path_lib_proc_macros::generate_obj_at_path_wrappers;
 
-use crate::{DisplayExt, expressions::{Expression, ExpressionInExpressionPath}, proof::PropositionInInferencePath};
+use crate::{DisplayExt, expressions::{Expression, ExpressionInExpressionPath}, proof::inference::PropositionInInferencePath};
 
 #[derive(Clone,PartialEq,Eq,Debug)]
 pub struct ExpressionInInferencePath {
@@ -26,7 +26,7 @@ generate_obj_at_path_wrappers!{
 mod from {
     use path_lib::paths::{PathPair, PathSeries};
 
-    use crate::{expressions::AtomicExpressionInExpressionPath, proof::PropositionInInferencePath};
+    use crate::expressions::AtomicExpressionInExpressionPath;
 
     use super::*;
 

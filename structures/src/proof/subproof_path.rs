@@ -1,13 +1,14 @@
 use std::fmt::Display;
 
+use itertools::Either;
 use path_lib::{obj_at_path::{OwnedObjAtPath}, paths::{PathPrimitive, PathSeries}, HasChildren};
 use path_lib_proc_macros::generate_obj_at_path_wrappers;
 
-use crate::{inference::InferenceRule, proof::{CompositeProof, Proof}, DisplayExt};
+use crate::{DisplayExt, proof::{CompositeProof, Proof, inference::{InferenceInProof, InferenceRule, OwnedInferenceInProof}}};
 
 #[derive(Clone,Copy,PartialEq,Eq,Hash,Debug)]
 /// Identifies a particular step iwthin a [`Proof`], and can be given to such a [`Proof`] to retreive the [`SubProof`] at that step
-pub struct AtomicProofInProofPath(usize);
+pub struct AtomicProofInProofPath(pub(crate) usize);
 impl PathPrimitive for AtomicProofInProofPath {}
 impl Display for AtomicProofInProofPath {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result
@@ -34,6 +35,30 @@ generate_obj_at_path_wrappers!{
     "ProofInProof", [Clone, PartialEq, Eq, Debug],
     "OwnedProofInProof", [Clone, PartialEq, Eq, Debug]
 }
+impl <'a,Rule: InferenceRule> ProofInProof<'a,Rule> {
+    pub fn into_inference_or_composite(self) -> Either<InferenceInProof<'a,Rule>,CompositeProofInProof<'a,Rule>> {
+        let (obj,path) = self.0.into_obj_and_path();
+        match obj {
+            Proof::Inference(inference) => Either::Left(InferenceInProof::from_inner(inference, path)),
+            Proof::Composite(composite) => Either::Right(CompositeProofInProof::from_inner(composite, path)),
+        }
+    }
+}
+impl <Rule: InferenceRule> OwnedProofInProof<Rule> {
+    pub fn into_inference_or_composite(self) -> Either<OwnedInferenceInProof<Rule>,OwnedCompositeProofInProof<Rule>> {
+        let (obj,path) = self.0.into_obj_and_path();
+        match obj {
+            Proof::Inference(inference) => Either::Left(OwnedInferenceInProof::from_inner(inference, path)),
+            Proof::Composite(composite) => Either::Right(OwnedCompositeProofInProof::from_inner(composite, path)),
+        }
+    }
+}
+
+generate_obj_at_path_wrappers!{
+    (CompositeProof<Rule> where Rule: InferenceRule), ProofInProofPath,
+    "CompositeProofInProof", [Clone, PartialEq, Eq, Debug],
+    "OwnedCompositeProofInProof", [Clone, PartialEq, Eq, Debug]
+}
 
 impl <Rule:InferenceRule> HasChildren<AtomicProofInProofPath,Proof<Rule>> for Proof<Rule> {
     fn valid_primitive_paths(&self) -> Vec<AtomicProofInProofPath> {
@@ -56,25 +81,10 @@ impl <Rule:InferenceRule> HasChildren<AtomicProofInProofPath,Proof<Rule>> for Pr
     
     fn into_located_children_owned(self) -> impl IntoIterator<Item = OwnedObjAtPath<Proof<Rule>,AtomicProofInProofPath>> where Proof<Rule>: Clone, Self: Sized {
         match self {
-            Proof::Atomic(_) => vec![],
+            Proof::Inference(_) => vec![],
             Proof::Composite(composite_proof) => <CompositeProof<Rule> as HasChildren<AtomicProofInProofPath,Proof<Rule>>>
                 ::into_located_children_owned(composite_proof).into_iter().collect(),
         }
-    }
-}
-
-impl <Rule:InferenceRule> HasChildren<AtomicProofInProofPath,Proof<Rule>> for CompositeProof<Rule> {
-    fn valid_primitive_paths(&self) -> Vec<AtomicProofInProofPath> 
-        { (0..self.subproofs.len()).map(|ix| ix.into()).collect() }
-    fn get_child(&self, path: &AtomicProofInProofPath) -> Result<&Proof<Rule>,()>
-        { self.subproofs.get(path.0).ok_or(()) }
-    fn get_child_owned(&self, path: &AtomicProofInProofPath) -> Result<Proof<Rule>,()> where Proof<Rule>: Clone
-        { self.subproofs.get(path.0).ok_or(()).cloned() }
-        
-    fn into_located_children_owned(self) -> impl IntoIterator<Item = OwnedObjAtPath<Proof<Rule>,AtomicProofInProofPath>> where Proof<Rule>: Clone, Self: Sized {
-        self.subproofs.into_iter()
-            .enumerate()
-            .map(|(id,proof)| OwnedObjAtPath::from_inner(proof, AtomicProofInProofPath(id)))
     }
 }
 
