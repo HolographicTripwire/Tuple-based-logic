@@ -27,13 +27,13 @@ impl <Rule: InferenceRule> ProofStep<Rule> for Proof<Rule> {
         Proof::Inference(inference) => inference.explicit_conclusion_paths().into_iter().collect::<Vec<_>>(),
         Proof::Composite(composite) => composite.explicit_conclusion_paths().into_iter().collect(),
     }}
-    
-    fn get_immediate_subproofs(&self) -> impl IntoIterator<Item=&Proof<Rule>>
-        { <Self as HasChildren<AtomicProofInProofPath, Proof<Rule>>>::get_children(self) }
 }
 
 impl <Rule:InferenceRule> HasChildren<PropositionInInferencePath,Proposition> for Proof<Rule> {
-    fn valid_primitive_paths(&self) -> Vec<PropositionInInferencePath> { valid_primitive_paths_inner(self) }
+    fn valid_primitive_paths(&self) -> Vec<PropositionInInferencePath> { valid_primitive_paths_inner(
+        self,
+        self.explicit_conclusion_paths().into_iter().count()
+    )}
     
     fn get_child(&self, path: &PropositionInInferencePath) -> Result<&Proposition,()> { get_child_inner(self,path) }
     fn get_child_owned(&self, path: &PropositionInInferencePath) -> Result<Proposition,()> where Proposition: Clone

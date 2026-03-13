@@ -27,7 +27,7 @@ impl <Rule:InferenceRule> ProofStep<Rule> for Inference<Rule> {
     fn get_explicit_conclusions(&self) -> impl IntoIterator<Item = &Proposition> { &self.conclusions }
 }
 impl <Rule:InferenceRule> HasChildren<PropositionInInferencePath,Proposition> for Inference<Rule> {
-    fn valid_primitive_paths(&self) -> Vec<PropositionInInferencePath> { valid_primitive_paths_inner(self) }
+    fn valid_primitive_paths(&self) -> Vec<PropositionInInferencePath> { valid_primitive_paths_inner(self, self.conclusions.len()) }
     fn get_child(&self, path: &PropositionInInferencePath) -> Result<&Proposition,()> { get_child_inner(self,path) }
     
     fn get_child_owned(&self, path: &PropositionInInferencePath) -> Result<Proposition,()> where Proposition: Clone
