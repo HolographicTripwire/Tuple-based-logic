@@ -1,5 +1,4 @@
 use tbl_structures::{expressions::Expression, path_composites::{ExpressionInInference, OwnedExpressionInInference}};
-use tbl_textualization::{helpers::styles::Style, structures::expressions::ExpressionStyle};
 
 #[derive(Clone)]
 pub struct ExpressionValueCheckError {
@@ -9,14 +8,6 @@ pub struct ExpressionValueCheckError {
 impl ExpressionValueCheckError {
     pub fn get_actual_value(&self) -> &Expression { self.expression.obj() }
     pub fn into_expression(self) -> Expression { self.expression.into_obj_and_path().0 }
-}
-
-pub fn format_expression_value_check_error(err: ExpressionValueCheckError, style: ExpressionStyle) -> String {
-    format!("Expression at {path} has wrong value (expected {value_expected}; found {value_actual})",
-        path=err.expression.path(),
-        value_expected=style.stringify(&err.expected_value),
-        value_actual=style.stringify(err.expression.obj())
-    )
 }
 
 /// Check that the provided [Expression](ExpressionInInference) has an value equal to expected_value, returning an error otherwise

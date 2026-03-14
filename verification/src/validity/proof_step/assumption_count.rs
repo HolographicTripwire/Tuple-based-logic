@@ -1,4 +1,5 @@
-use tbl_structures::inference::{Inference, InferenceRule};
+use tbl_structures::proof::inference::{Inference, InferenceRule};
+
 
 pub struct AssumptionCountCheckError<Rule: InferenceRule> {
     pub expected_count: usize,
@@ -6,13 +7,6 @@ pub struct AssumptionCountCheckError<Rule: InferenceRule> {
 }
 impl <Rule: InferenceRule> AssumptionCountCheckError<Rule> {
     pub fn get_actual_count(&self) -> usize { self.inference.assumptions.len() }
-}
-
-pub fn format_assumption_count_check_error<Rule: InferenceRule>(err: AssumptionCountCheckError<Rule>) -> String {
-    format!("Inference has wrong number of assumptions (expected {expected_count}; found {actual_count}",
-        expected_count=err.expected_count,
-        actual_count=err.get_actual_count()
-    )
 }
 
 /// Check that the provided [Inference](OwnedInferenceInProof) has expected_count assumptions, returning an error otherwise

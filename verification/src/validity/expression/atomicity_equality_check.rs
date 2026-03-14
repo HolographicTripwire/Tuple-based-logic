@@ -1,18 +1,8 @@
 use tbl_structures::path_composites::{ExpressionInInference, OwnedExpressionInInference};
 
-use crate::validity::utils::stringify_atomicity;
 
 pub struct ExpressionAtomicityEqualityError {
     pub expressions: Vec<OwnedExpressionInInference>
-}
-pub fn format_expression_atomicity_equality_error(err: ExpressionAtomicityEqualityError) -> String {
-    format!("Expression atomicities expected to all be equal, but weren't; {atomicities}",
-        atomicities = itertools::join(err.expressions.iter().map(|o|
-            o.path().to_string()
-            + " -> " +
-            stringify_atomicity(o.obj().as_atom().is_ok())
-        ),", ")
-    )
 }
 /// Check that the provided [Expressions](ExpressionInInference) have equal atomicity, returning an error otherwise
 pub fn assert_expression_atomicity_equality<'a>(exprs: &[&'a ExpressionInInference<'a>]) -> Result<bool, ExpressionAtomicityEqualityError> {
@@ -26,21 +16,8 @@ pub fn assert_expression_atomicity_equality<'a>(exprs: &[&'a ExpressionInInferen
     Ok(first_atomicity)
 }
 
-
-
-
-
 pub struct FixedLengthExpressionAtomicityEqualityError<const N: usize> {
     pub expressions: [OwnedExpressionInInference; N]
-}
-pub fn format_fixed_length_expression_atomicity_equality_error<const N: usize>(err: FixedLengthExpressionAtomicityEqualityError<N>) -> String {
-    format!("Expression atomicities expected to all be equal, but weren't; {atomicities}",
-        atomicities = itertools::join(err.expressions.iter().map(|o|
-            o.path().to_string()
-            + " -> " +
-            stringify_atomicity(o.obj().as_atom().is_ok())
-        ),", ")
-    )
 }
 /// Check that the provided [Expressions](ExpressionInInference) have equal atomicity, returning an error otherwise
 pub fn assert_fixed_length_expression_atomicity_equality<'a,const N: usize>(exprs: &[&'a ExpressionInInference<'a>; N]) -> Result<bool, FixedLengthExpressionAtomicityEqualityError<N>> {

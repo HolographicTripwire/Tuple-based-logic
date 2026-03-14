@@ -1,7 +1,7 @@
 use itertools::Either;
 use tbl_structures::expressions::Expression;
 use tbl_structures::path_composites::ExpressionInInference;
-use tbl_structures::proof::{OwnedPropositionInInference, PropositionInInference};
+use tbl_structures::proof::inference::{OwnedPropositionInInference, PropositionInInference};
 
 use crate::validity::{ExpressionValueCheckError, assert_expression_value};
 use crate::validity::PropositionLengthCheckError;

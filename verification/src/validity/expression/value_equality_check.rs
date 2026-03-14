@@ -1,20 +1,8 @@
 use tbl_structures::{atoms::AtomId, expressions::Expression, path_composites::{ExpressionInInference, OwnedExpressionInInference}};
-use tbl_textualization::{helpers::styles::Style, structures::expressions::ExpressionStyle};
 
 pub struct ExpressionValueEqualityError {
     pub expressions: Vec<OwnedExpressionInInference>
 }
-
-pub fn format_expression_value_equality_error(err: ExpressionValueEqualityError, style: ExpressionStyle) -> String {
-    format!("Expression values expected to all be equal, but weren't; {atomicities}",
-        atomicities = err.expressions.iter().map(|o|
-            o.path().to_string()
-            + " -> " +
-            &style.stringify(o.obj())
-        ).collect::<Vec<_>>().join(", ")
-    )
-}
-
 /// Check that the provided [Expressions](OwnedExpressionInProof) have equal value, returning an error otherwise
 pub fn assert_expression_value_equality<'a>(exprs: &[&'a ExpressionInInference<'a>]) -> Result<Expression, ExpressionValueEqualityError> {
     let mut iter = exprs.iter().map(|o| o.obj() );
@@ -27,21 +15,8 @@ pub fn assert_expression_value_equality<'a>(exprs: &[&'a ExpressionInInference<'
     Ok(first_value.clone())
 }
 
-
-
-
-
 pub struct FixedLengthExpressionValueEqualityError<const N: usize> {
     pub expressions: [OwnedExpressionInInference; N]
-}
-pub fn format_fixed_length_expression_value_equality_error<const N: usize>(err: FixedLengthExpressionValueEqualityError<N>, style: ExpressionStyle) -> String {
-    format!("Expression values expected to all be equal, but weren't; {atomicities}",
-        atomicities = err.expressions.iter().map(|o|
-            o.path().to_string()
-            + " -> " +
-            &style.stringify(o.obj())
-        ).collect::<Vec<_>>().join(", ")
-    )
 }
 /// Check that the provided [Expressions](ExpressionInInference) have equal length, returning an error otherwise
 pub fn assert_fixed_length_expression_value_equality<'a,const N: usize>(exprs: &[&'a ExpressionInInference<'a>; N]) -> Result<Expression, FixedLengthExpressionValueEqualityError<N>> {

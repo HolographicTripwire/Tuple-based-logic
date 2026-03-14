@@ -1,19 +1,7 @@
-
-use tbl_structures::proof::{OwnedPropositionInInference, PropositionInInference};
-
-use crate::validity::utils::stringify_atomicity;
+use tbl_structures::proof::inference::{OwnedPropositionInInference, PropositionInInference};
 
 pub struct PropositionAtomicityEqualityError {
     pub propositions: Vec<OwnedPropositionInInference>
-}
-pub fn format_proposition_atomicity_equality_error(err: PropositionAtomicityEqualityError) -> String {
-    format!("Proposition atomicities expected to all be equal, but weren't; {atomicities}",
-        atomicities = itertools::join(err.propositions.iter().map(|o|
-            o.path().to_string()
-            + " -> " +
-            stringify_atomicity(o.obj().as_atom().is_ok())
-        ),", ")
-    )
 }
 
 /// Check that the provided [Propositions](PropositionInInference) have equal atomicity, returning an error otherwise
@@ -30,15 +18,6 @@ pub fn assert_proposition_atomicity_equality<'a>(props: &[&'a PropositionInInfer
 
 pub struct FixedLengthPropositionAtomicityEqualityError<const N: usize> {
     pub propositions: [OwnedPropositionInInference; N]
-}
-pub fn format_fixed_length_proposition_atomicity_equality_error<const N: usize>(err: FixedLengthPropositionAtomicityEqualityError<N>) -> String {
-    format!("Proposition atomicities expected to all be equal, but weren't; {atomicities}",
-        atomicities = itertools::join(err.propositions.iter().map(|o|
-            o.path().to_string()
-            + " -> " +
-            stringify_atomicity(o.obj().as_atom().is_ok())
-        ),", ")
-    )
 }
 /// Check that the provided [Propositions](PropositionInInference) have equal atomicity, returning an error otherwise
 pub fn assert_fixed_length_proposition_atomicity_equality<'a,const N: usize>(exprs: &[&'a PropositionInInference<'a>; N]) -> Result<bool, FixedLengthPropositionAtomicityEqualityError<N>> {

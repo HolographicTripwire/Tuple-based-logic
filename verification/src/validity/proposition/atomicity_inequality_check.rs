@@ -1,18 +1,8 @@
-use tbl_structures::proof::{OwnedPropositionInInference, PropositionInInference};
-
-
+use tbl_structures::proof::inference::{OwnedPropositionInInference, PropositionInInference};
 
 pub struct PropositionAtomicityInequalityError {
     pub prop1: OwnedPropositionInInference,
     pub prop2: OwnedPropositionInInference,
-}
-
-pub fn format_proposition_atomicity_inequality_error(err: PropositionAtomicityInequalityError) -> String {
-    format!("Atomicity of propositions {prop1} and {prop2} expected to be inequal, but both were {value}",
-            prop1 = err.prop1.path(),
-            prop2 = err.prop2.path(),
-            value = err.prop1.obj().as_atom().is_ok()
-        )
 }
 
 /// Check that the provided [Propositions](PropositionInInference) have inequal atomicity, returning an error otherwise

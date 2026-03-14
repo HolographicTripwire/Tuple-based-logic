@@ -21,7 +21,7 @@ pub use value_inequality_check::*;
 pub use functional::*;
 
 use path_lib::{obj_at_path::{ObjAtPathWithChildren, ObjAtPathWithDescendants}, paths::PathPair};
-use tbl_structures::{DisplayExt, expressions::{ExpressionInExpressionPath, ExpressionInPropositionPath, Proposition}, path_composites::ExpressionInInference, proof::{OwnedPropositionInInference, PropositionInInference, PropositionInInferencePath}};
+use tbl_structures::{DisplayExt, expressions::{ExpressionInExpressionPath, ExpressionInPropositionPath, Proposition}, path_composites::ExpressionInInference, proof::inference::{OwnedPropositionInInference, PropositionInInference, PropositionInInferencePath}};
 
 pub struct PropositionSubpathError {
     pub subpath: ExpressionInExpressionPath,

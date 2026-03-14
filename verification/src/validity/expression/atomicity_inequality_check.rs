@@ -6,14 +6,6 @@ pub struct ExpressionAtomicityInequalityError {
     pub expr2: OwnedExpressionInInference,
 }
 
-pub fn format_expression_atomicity_inequality_error(err: ExpressionAtomicityInequalityError) -> String {
-    format!("Atomicity of expressions {expr1} and {expr2} expected to be inequal, but both were {value}",
-            expr1 = err.expr1.path(),
-            expr2 = err.expr2.path(),
-            value = err.expr1.obj().as_atom().is_ok()
-        )
-}
-
 /// Check that the provided [Expressions](ExpressionInInference) have inequal atomicity, returning an error otherwise
 pub fn assert_expression_atomicity_inequality<'a>(expr1: &ExpressionInInference, expr2: &ExpressionInInference) -> Result<(), ExpressionAtomicityInequalityError> {
     let first_atomicity = expr1.obj().as_atom().is_ok();

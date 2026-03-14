@@ -1,4 +1,4 @@
-use tbl_structures::{inference::{Inference, InferenceRule}};
+use tbl_structures::proof::inference::{Inference, InferenceRule};
 
 pub struct ExplicitConclusionCountCheckError<Rule: InferenceRule> {
     pub expected_count: usize,
@@ -6,13 +6,6 @@ pub struct ExplicitConclusionCountCheckError<Rule: InferenceRule> {
 }
 impl <Rule: InferenceRule> ExplicitConclusionCountCheckError<Rule> {
     pub fn get_actual_count(&self) -> usize { self.inference.conclusions.len() }
-}
-
-pub fn format_explicit_conclusion_count_check_error<Rule: InferenceRule>(err: ExplicitConclusionCountCheckError<Rule>) -> String {
-    format!("Inference has wrong number of explicit conclusions (expected {expected_count}; found {actual_count}",
-        expected_count = err.expected_count,
-        actual_count = err.inference.assumptions.len()
-    )
 }
 
 /// Check that the provided [Inference](OwnedInferenceInProof) has expected_count explicit conclusions, returning an error otherwise

@@ -1,22 +1,8 @@
 use tbl_structures::path_composites::{ExpressionInInference, OwnedExpressionInInference};
 
-use crate::validity::utils::stringify_length;
-
-
 pub struct ExpressionLengthEqualityError {
     pub expressions: Vec<OwnedExpressionInInference>
 }
-
-pub fn format_expression_length_equality_error(err: ExpressionLengthEqualityError) -> String {
-    format!("Expression lengths expected to all be equal, but weren't; {atomicities}",
-        atomicities = err.expressions.iter().map(|o|
-            o.path().to_string()
-            + " -> " +
-            &stringify_length(o.obj())
-        ).collect::<Vec<_>>().join(", ")
-    )
-}
-
 /// Check that the provided [Expressions](ExpressionInInference) have equal length, returning an error otherwise
 pub fn assert_expression_length_equality<'a>(exprs: &[&'a ExpressionInInference<'a>]) -> Result<Option<usize>, ExpressionLengthEqualityError> {
     let mut iter = exprs.iter().map(|o| o.obj().len() );
@@ -29,21 +15,8 @@ pub fn assert_expression_length_equality<'a>(exprs: &[&'a ExpressionInInference<
     Ok(first_length)
 }
 
-
-
-
-
 pub struct FixedLengthExpressionLengthEqualityError<const N: usize> {
     pub expressions: [OwnedExpressionInInference; N]
-}
-pub fn format_fixed_length_expression_length_equality_error<const N: usize>(err: FixedLengthExpressionLengthEqualityError<N>) -> String {
-    format!("Expression lengths expected to all be equal, but weren't; {atomicities}",
-        atomicities = err.expressions.iter().map(|o|
-            o.path().to_string()
-            + " -> " +
-            &stringify_length(o.obj())
-        ).collect::<Vec<_>>().join(", ")
-    )
 }
 /// Check that the provided [Expressions](ExpressionInInference) have equal length, returning an error otherwise
 pub fn assert_fixed_length_expression_length_equality<'a,const N: usize>(exprs: &[&'a ExpressionInInference<'a>; N]) -> Result<Option<usize>, FixedLengthExpressionLengthEqualityError<N>> {

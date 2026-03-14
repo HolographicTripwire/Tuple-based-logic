@@ -1,20 +1,8 @@
-use tbl_structures::{atoms::AtomId, expressions::Proposition, proof::{OwnedPropositionInInference, PropositionInInference}};
-use tbl_textualization::{helpers::styles::Style, structures::expressions::PropositionStyle};
+use tbl_structures::{atoms::AtomId, expressions::Proposition, proof::inference::{OwnedPropositionInInference, PropositionInInference}};
 
 pub struct PropositionValueEqualityError {
     pub propositions: Vec<OwnedPropositionInInference>
 }
-
-pub fn format_proposition_value_equality_error(err: PropositionValueEqualityError, style: PropositionStyle) -> String {
-    format!("Proposition values expected to all be equal, but weren't; {atomicities}",
-        atomicities = err.propositions.iter().map(|o|
-            o.path().to_string()
-            + " -> " +
-            &style.stringify(o.obj())
-        ).collect::<Vec<_>>().join(", ")
-    )
-}
-
 /// Check that the provided [Propositions](OwnedPropositionInProof) have equal value, returning an error otherwise
 pub fn assert_proposition_value_equality<'a>(props: &[&'a PropositionInInference<'a>]) -> Result<Proposition, PropositionValueEqualityError> {
     let mut iter = props.iter().map(|o| o.obj() );
@@ -34,15 +22,7 @@ pub fn assert_proposition_value_equality<'a>(props: &[&'a PropositionInInference
 pub struct FixedLengthPropositionValueEqualityError<const N: usize> {
     pub propositions: [OwnedPropositionInInference; N]
 }
-pub fn format_fixed_length_proposition_value_equality_error<const N: usize>(err: FixedLengthPropositionValueEqualityError<N>, style: PropositionStyle) -> String {
-    format!("Proposition values expected to all be equal, but weren't; {atomicities}",
-        atomicities = err.propositions.iter().map(|o|
-            o.path().to_string()
-            + " -> " +
-            &style.stringify(o.obj())
-        ).collect::<Vec<_>>().join(", ")
-    )
-}
+
 /// Check that the provided [Propositions](PropositionInInference) have equal length, returning an error otherwise
 pub fn assert_fixed_length_proposition_value_equality<'a,const N: usize>(exprs: &[&'a PropositionInInference<'a>; N]) -> Result<Proposition, FixedLengthPropositionValueEqualityError<N>> {
     if N == 0 { panic!("Cannot check value equality for zero propositions") } 

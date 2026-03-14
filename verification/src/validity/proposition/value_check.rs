@@ -1,5 +1,4 @@
-use tbl_structures::{expressions::Proposition, proof::{OwnedPropositionInInference, PropositionInInference}};
-use tbl_textualization::{helpers::styles::Style, structures::expressions::ExpressionStyle};
+use tbl_structures::{expressions::Proposition, proof::inference::{OwnedPropositionInInference, PropositionInInference}};
 
 pub struct PropositionValueCheckError {
     pub expected_value: Proposition,
@@ -9,15 +8,6 @@ impl PropositionValueCheckError {
     pub fn get_actual_value(&self) -> &Proposition { self.proposition.obj() }
     pub fn into_actual_value(self) -> Proposition { self.proposition.into_obj_and_path().0 }
 }
-
-pub fn format_proposition_value_check_error(err: PropositionValueCheckError, style: ExpressionStyle) -> String {
-    format!("Proposition at {path} has wrong value (expected {value_expected}; found {value_actual})",
-        path=err.proposition.path(),
-        value_expected=style.stringify(&err.expected_value),
-        value_actual=style.stringify(err.proposition.obj())
-    )
-}
-
 /// Check that the provided [Proposition](PropositionInInference) has an value equal to expected_value, returning an error otherwise
 pub fn assert_proposition_value<'a>(prop: &PropositionInInference, expected_value: &Proposition) -> Result<(), PropositionValueCheckError> {
     if prop.obj() == expected_value { Ok(()) }

@@ -1,6 +1,9 @@
 
 pub mod helpers;
 pub mod structures;
+#[cfg(feature="verification")]
+pub mod verification;
+#[cfg(feature="generation")]
 pub mod generation;
 
 #[cfg(test)]

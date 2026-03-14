@@ -1,19 +1,10 @@
-use tbl_structures::proof::{OwnedPropositionInInference, PropositionInInference};
-
-use crate::validity::utils::stringify_atomicity;
+use tbl_structures::proof::inference::{OwnedPropositionInInference, PropositionInInference};
 
 pub struct PropositionAtomicityCheckError {
     pub expected_atomicity: bool,
     pub proposition: OwnedPropositionInInference
 }
 
-pub fn format_proposition_atomicity_check_error(err: PropositionAtomicityCheckError) -> String {
-    format!("Proposition at {path} has wrong atomicity (expected {atomicity_expected}; found {atomicity_actual})",
-        path=err.proposition.path(),
-        atomicity_expected=stringify_atomicity(err.expected_atomicity),
-        atomicity_actual=stringify_atomicity(err.proposition.obj().as_atom().is_ok())
-    )
-}
 
 /// Check that the provided [Proposition](PropositionInInference) has an atomicity equal to expected_atomicity, returning an error otherwise
 pub fn assert_proposition_atomicity<'a>(prop: &PropositionInInference, expected_atomicity: bool) -> Result<(), PropositionAtomicityCheckError> {

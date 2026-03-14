@@ -5,7 +5,7 @@ pub use assumption_count::*;
 pub use explicit_conclusion_count::*;
 
 use path_lib::{HasChildren};
-use tbl_structures::{expressions::Proposition, inference::{Inference, InferenceRule}, proof::{ProofStep, PropositionInInference, PropositionInInferencePath}};
+use tbl_structures::{expressions::Proposition, proof::{ProofStep, inference::{Inference, InferenceRule, PropositionInInference, PropositionInInferencePath}}};
 
 
 pub fn assumptions_as_slice<'a, Rule: InferenceRule>(inference: &'a Inference<Rule>) -> Vec<PropositionInInference<'a>> {

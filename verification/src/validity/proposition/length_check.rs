@@ -1,6 +1,4 @@
-use tbl_structures::proof::{OwnedPropositionInInference, PropositionInInference};
-
-use crate::validity::utils::stringify_length;
+use tbl_structures::proof::inference::{OwnedPropositionInInference, PropositionInInference};
 
 pub struct PropositionLengthCheckError {
     pub expected_length: usize,
@@ -8,15 +6,6 @@ pub struct PropositionLengthCheckError {
 }
 impl PropositionLengthCheckError {
     pub fn get_actual_length(&self) -> Option<usize> { self.proposition.obj().len() }
-}
-
-pub fn format_proposition_length_check_error(err: PropositionLengthCheckError) -> String {
-    let proposition = err.proposition.obj();
-    format!("Proposition at {path} has wrong length (expected {length_expected}; found {length_actual})",
-        path=err.proposition.path(),
-        length_expected=stringify_length(proposition),
-        length_actual=stringify_length(proposition)
-    )
 }
 
 /// Check that the provided [Proposition](PropositionInInference) has an length equal to expected_length, returning an error otherwise

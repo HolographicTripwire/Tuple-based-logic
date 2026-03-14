@@ -1,7 +1,5 @@
 use tbl_structures::{expressions::Expression, path_composites::{ExpressionInInference, OwnedExpressionInInference}};
 
-use crate::validity::utils::stringify_length;
-
 #[derive(Clone)]
 pub struct ExpressionLengthCheckError {
     pub expected_length: usize,
@@ -10,15 +8,6 @@ pub struct ExpressionLengthCheckError {
 impl ExpressionLengthCheckError {
     pub fn get_actual_length(&self) -> Option<usize> { self.expression.obj().len() }
     pub fn into_expression(self) -> Expression { self.expression.into_obj_and_path().0 }
-}
-
-pub fn format_expression_length_check_error(err: ExpressionLengthCheckError) -> String {
-    let expression = err.expression.obj();
-    format!("Expression at {path} has wrong length (expected {length_expected}; found {length_actual})",
-        path=err.expression.path(),
-        length_expected=stringify_length(expression),
-        length_actual=stringify_length(expression)
-    )
 }
 
 /// Check that the provided [Expression](ExpressionInInference) has an length equal to expected_length, returning an error otherwise
