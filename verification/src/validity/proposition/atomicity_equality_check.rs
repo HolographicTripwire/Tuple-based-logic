@@ -1,11 +1,11 @@
-use tbl_structures::proof::inference::{OwnedPropositionInInference, PropositionInInference};
+use tbl_structures::proof::{OwnedPropositionInProofStep, PropositionInProofStep};
 
 pub struct PropositionAtomicityEqualityError {
-    pub propositions: Vec<OwnedPropositionInInference>
+    pub propositions: Vec<OwnedPropositionInProofStep>
 }
 
-/// Check that the provided [Propositions](PropositionInInference) have equal atomicity, returning an error otherwise
-pub fn assert_proposition_atomicity_equality<'a>(props: &[&'a PropositionInInference<'a>]) -> Result<(), PropositionAtomicityEqualityError> {
+/// Check that the provided [Propositions](PropositionInProofStep) have equal atomicity, returning an error otherwise
+pub fn assert_proposition_atomicity_equality<'a>(props: &[&'a PropositionInProofStep<'a>]) -> Result<(), PropositionAtomicityEqualityError> {
     let mut iter = props.iter().map(|o| o.obj().as_atom().is_ok());
     let first_atomicity = iter.next().expect("Cannot check atomicity equality for zero propositions");
     for nth_atomicity in iter {
@@ -17,10 +17,10 @@ pub fn assert_proposition_atomicity_equality<'a>(props: &[&'a PropositionInInfer
 }
 
 pub struct FixedLengthPropositionAtomicityEqualityError<const N: usize> {
-    pub propositions: [OwnedPropositionInInference; N]
+    pub propositions: [OwnedPropositionInProofStep; N]
 }
-/// Check that the provided [Propositions](PropositionInInference) have equal atomicity, returning an error otherwise
-pub fn assert_fixed_length_proposition_atomicity_equality<'a,const N: usize>(exprs: &[&'a PropositionInInference<'a>; N]) -> Result<bool, FixedLengthPropositionAtomicityEqualityError<N>> {
+/// Check that the provided [Propositions](PropositionInProofStep) have equal atomicity, returning an error otherwise
+pub fn assert_fixed_length_proposition_atomicity_equality<'a,const N: usize>(exprs: &[&'a PropositionInProofStep<'a>; N]) -> Result<bool, FixedLengthPropositionAtomicityEqualityError<N>> {
     if N == 0 { panic!("Cannot check atomicity equality for zero propositions") } 
     let mut output = [false; N];  // Initialize the output array
     for i in 0..N {

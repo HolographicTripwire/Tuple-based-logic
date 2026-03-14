@@ -1,4 +1,5 @@
 mod split;
+mod proposition;
 
 use std::fmt::Display;
 
@@ -7,11 +8,12 @@ use path_lib_proc_macros::generate_obj_at_path_wrappers;
 
 use crate::{DisplayExt, proof::{CompositeProof, Proof, inference::InferenceRule}};
 
+pub use proposition::*;
 pub use split::*;
 
 #[derive(Clone,Copy,PartialEq,Eq,Hash,Debug)]
 /// Identifies a particular step iwthin a [`Proof`], and can be given to such a [`Proof`] to retreive the [`SubProof`] at that step
-pub struct AtomicProofInProofPath(pub(crate) usize);
+pub struct AtomicProofInProofPath(pub usize);
 impl PathPrimitive for AtomicProofInProofPath {}
 impl Display for AtomicProofInProofPath {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result

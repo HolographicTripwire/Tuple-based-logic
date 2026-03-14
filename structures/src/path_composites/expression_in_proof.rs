@@ -3,12 +3,12 @@ use std::fmt::Display;
 use path_lib::{paths::PathPair, Path};
 use path_lib_proc_macros::generate_obj_at_path_wrappers;
 
-use crate::{DisplayExt, expressions::{AtomicExpressionInExpressionPath, Expression, ExpressionInExpressionPath}, proof::{ProofInProofPath, inference::PropositionInInferencePath}};
+use crate::{DisplayExt, expressions::{AtomicExpressionInExpressionPath, Expression, ExpressionInExpressionPath}, proof::{ProofInProofPath, PropositionInProofStepPath}};
 
 #[derive(Clone,PartialEq,Eq,Debug)]
 pub struct ExpressionInProofPath{
     pub step_path: ProofInProofPath,
-    pub proposition_path: PropositionInInferencePath,
+    pub proposition_path: PropositionInProofStepPath,
     pub subexpression_path: ExpressionInExpressionPath
 }
 
@@ -65,8 +65,8 @@ mod from {
                 subexpression_path: PathSeries::new([value.right])
         }}
     }
-    impl From<PathPair<ProofInProofPath,PropositionInInferencePath>> for ExpressionInProofPath {
-        fn from(value: PathPair<ProofInProofPath,PropositionInInferencePath>) -> Self { Self {
+    impl From<PathPair<ProofInProofPath,PropositionInProofStepPath>> for ExpressionInProofPath {
+        fn from(value: PathPair<ProofInProofPath,PropositionInProofStepPath>) -> Self { Self {
             step_path: value.left,
             proposition_path: value.right,
             subexpression_path: ExpressionInExpressionPath::empty(),

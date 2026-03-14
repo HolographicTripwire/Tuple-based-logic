@@ -1,11 +1,11 @@
-use tbl_structures::proof::inference::{OwnedPropositionInInference, PropositionInInference};
+use tbl_structures::proof::{OwnedPropositionInProofStep, PropositionInProofStep};
 
 pub struct PropositionLengthEqualityError {
-    pub propositions: Vec<OwnedPropositionInInference>
+    pub propositions: Vec<OwnedPropositionInProofStep>
 }
 
-/// Check that the provided [Propositions](PropositionInInference) have equal length, returning an error otherwise
-pub fn assert_proposition_length_equality<'a>(props: &[&'a PropositionInInference<'a>]) -> Result<Option<usize>, PropositionLengthEqualityError> {
+/// Check that the provided [Propositions](PropositionInProofStep) have equal length, returning an error otherwise
+pub fn assert_proposition_length_equality<'a>(props: &[&'a PropositionInProofStep<'a>]) -> Result<Option<usize>, PropositionLengthEqualityError> {
     let mut iter = props.iter().map(|o| match o.obj().as_slice() {
         Ok(propositions) => Some(propositions.len()),
         Err(_) => None,
@@ -20,10 +20,10 @@ pub fn assert_proposition_length_equality<'a>(props: &[&'a PropositionInInferenc
 }
 
 pub struct FixedLengthPropositionLengthEqualityError<const N: usize> {
-    pub propositions: [OwnedPropositionInInference; N]
+    pub propositions: [OwnedPropositionInProofStep; N]
 }
-/// Check that the provided [Propositions](PropositionInInference) have equal length, returning an error otherwise
-pub fn assert_fixed_length_proposition_length_equality<'a,const N: usize>(exprs: &[&'a PropositionInInference<'a>; N]) -> Result<Option<usize>, FixedLengthPropositionLengthEqualityError<N>> {
+/// Check that the provided [Propositions](PropositionInProofStep) have equal length, returning an error otherwise
+pub fn assert_fixed_length_proposition_length_equality<'a,const N: usize>(exprs: &[&'a PropositionInProofStep<'a>; N]) -> Result<Option<usize>, FixedLengthPropositionLengthEqualityError<N>> {
     if N == 0 { panic!("Cannot check length equality for zero propositions") } 
     let mut output = [None; N];  // Initialize the output array
     for i in 0..N {

@@ -1,11 +1,9 @@
-mod proposition_in_inference;
 
 use path_lib::{HasChildren, obj_at_path::OwnedObjAtPath};
-pub use proposition_in_inference::*;
 
 use path_lib_proc_macros::generate_obj_at_path_wrappers;
 
-use crate::{expressions::Proposition, proof::{AtomicProofInProofPath, Proof, ProofInProofPath, ProofStep, get_child_inner, valid_primitive_paths_inner}};
+use crate::{expressions::Proposition, proof::{AtomicProofInProofPath, Proof, ProofInProofPath, ProofStep, PropositionInProofStepPath, get_child_inner, valid_primitive_paths_inner}};
 
 #[derive(Clone,PartialEq,Eq,Debug)]
 /// A struct representing a single inference step within a proof
@@ -17,29 +15,29 @@ pub struct Inference<Rule:InferenceRule> {
 }
 
 impl <Rule:InferenceRule> ProofStep<Rule> for Inference<Rule> {
-    fn assumption_paths(&self) -> impl IntoIterator<Item = PropositionInInferencePath>
-        { (0..self.assumptions.len()).map(|n| PropositionInInferencePath::assumption(n)) }
-    fn explicit_conclusion_paths(&self) -> impl IntoIterator<Item = PropositionInInferencePath>
-        { (0..self.conclusions.len()).map(|n| PropositionInInferencePath::conclusion(n)) }
+    fn assumption_paths(&self) -> impl IntoIterator<Item = PropositionInProofStepPath>
+        { (0..self.assumptions.len()).map(|n| PropositionInProofStepPath::assumption(n)) }
+    fn explicit_conclusion_paths(&self) -> impl IntoIterator<Item = PropositionInProofStepPath>
+        { (0..self.conclusions.len()).map(|n| PropositionInProofStepPath::conclusion(n)) }
 
     // Faster versions of default members
     fn get_assumptions(&self) -> impl IntoIterator<Item = &Proposition> { &self.assumptions }
     fn get_explicit_conclusions(&self) -> impl IntoIterator<Item = &Proposition> { &self.conclusions }
 }
-impl <Rule:InferenceRule> HasChildren<PropositionInInferencePath,Proposition> for Inference<Rule> {
-    fn valid_primitive_paths(&self) -> Vec<PropositionInInferencePath> { valid_primitive_paths_inner(self, self.conclusions.len()) }
-    fn get_child(&self, path: &PropositionInInferencePath) -> Result<&Proposition,()> { get_child_inner(self,path) }
+impl <Rule:InferenceRule> HasChildren<PropositionInProofStepPath,Proposition> for Inference<Rule> {
+    fn valid_primitive_paths(&self) -> Vec<PropositionInProofStepPath> { valid_primitive_paths_inner(self, self.conclusions.len()) }
+    fn get_child(&self, path: &PropositionInProofStepPath) -> Result<&Proposition,()> { get_child_inner(self,path) }
     
-    fn get_child_owned(&self, path: &PropositionInInferencePath) -> Result<Proposition,()> where Proposition: Clone
+    fn get_child_owned(&self, path: &PropositionInProofStepPath) -> Result<Proposition,()> where Proposition: Clone
         { get_child_inner(self,path).cloned() }
         
-    fn into_located_children_owned(self) -> impl IntoIterator<Item = OwnedObjAtPath<Proposition,PropositionInInferencePath>> where Proposition: Clone, Self: Sized {
+    fn into_located_children_owned(self) -> impl IntoIterator<Item = OwnedObjAtPath<Proposition,PropositionInProofStepPath>> where Proposition: Clone, Self: Sized {
         let assumptions = self.assumptions.into_iter()
             .enumerate()
-            .map(|(id,conclusion)| OwnedObjAtPath::from_inner(conclusion, PropositionInInferencePath::assumption(id)));
+            .map(|(id,conclusion)| OwnedObjAtPath::from_inner(conclusion, PropositionInProofStepPath::assumption(id)));
         let conclusions = self.conclusions.into_iter()
             .enumerate()
-            .map(|(id,conclusion)| OwnedObjAtPath::from_inner(conclusion, PropositionInInferencePath::conclusion(id)));
+            .map(|(id,conclusion)| OwnedObjAtPath::from_inner(conclusion, PropositionInProofStepPath::conclusion(id)));
         assumptions.chain(conclusions)
     }
 }

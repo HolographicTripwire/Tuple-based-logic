@@ -21,11 +21,12 @@ pub use value_inequality_check::*;
 pub use functional::*;
 
 use path_lib::{obj_at_path::{ObjAtPathWithChildren, ObjAtPathWithDescendants}, paths::PathPair};
-use tbl_structures::{DisplayExt, expressions::{ExpressionInExpressionPath, ExpressionInPropositionPath, Proposition}, path_composites::ExpressionInInference, proof::inference::{OwnedPropositionInInference, PropositionInInference, PropositionInInferencePath}};
+use tbl_structures::{DisplayExt, expressions::{ExpressionInExpressionPath, ExpressionInPropositionPath, Proposition}, path_composites::ExpressionInInference, proof::PropositionInProofStepPath};
+use tbl_structures::proof::{OwnedPropositionInProofStep, PropositionInProofStep};
 
 pub struct PropositionSubpathError {
     pub subpath: ExpressionInExpressionPath,
-    pub proposition: OwnedPropositionInInference
+    pub proposition: OwnedPropositionInProofStep
 }
 
 
@@ -36,10 +37,10 @@ pub fn format_proposition_subpath_error(err: PropositionSubpathError) -> String 
     )
 }
 
-pub fn proposition_subproposition<'a>(proposition: &'a PropositionInInference<'a>, subpath: ExpressionInPropositionPath) -> Result<ExpressionInInference<'a>,PropositionSubpathError> {
+pub fn proposition_subproposition<'a>(proposition: &'a PropositionInProofStep<'a>, subpath: ExpressionInPropositionPath) -> Result<ExpressionInInference<'a>,PropositionSubpathError> {
     return match proposition.get_located_descendant(subpath.clone()) {
         Ok(c) => Ok(ExpressionInInference::from(c.replace_path(
-            |p: PathPair<PropositionInInferencePath,ExpressionInPropositionPath>| p.into()
+            |p: PathPair<PropositionInProofStepPath,ExpressionInPropositionPath>| p.into()
         ))), Err(_) => { Err(PropositionSubpathError {
             subpath,
             proposition: proposition.clone().into_owned()
@@ -64,7 +65,7 @@ pub fn proposition_subproposition<'a>(proposition: &'a PropositionInInference<'a
      */
 }
 
-pub fn proposition_as_slice<'a>(proposition: &'a PropositionInInference) -> Result<Vec<ExpressionInInference<'a>>,PropositionAtomicityCheckError> {
+pub fn proposition_as_slice<'a>(proposition: &'a PropositionInProofStep) -> Result<Vec<ExpressionInInference<'a>>,PropositionAtomicityCheckError> {
     if let Proposition::Atomic(_) = proposition.obj() { return Err(PropositionAtomicityCheckError {
         expected_atomicity: false,
         proposition: proposition.clone().into_owned()
@@ -74,7 +75,7 @@ pub fn proposition_as_slice<'a>(proposition: &'a PropositionInInference) -> Resu
         .map(|obj| ExpressionInInference::from(obj.replace_path(|p| p.into())))
         .collect::<Vec<ExpressionInInference>>())
 }
-pub fn proposition_into_slice<'a>(proposition: PropositionInInference<'a>) -> Result<Vec<ExpressionInInference<'a>>,PropositionAtomicityCheckError> {
+pub fn proposition_into_slice<'a>(proposition: PropositionInProofStep<'a>) -> Result<Vec<ExpressionInInference<'a>>,PropositionAtomicityCheckError> {
     if let Proposition::Atomic(_) = proposition.obj() { return Err(PropositionAtomicityCheckError {
         expected_atomicity: false,
         proposition: proposition.clone().into_owned()
@@ -85,7 +86,7 @@ pub fn proposition_into_slice<'a>(proposition: PropositionInInference<'a>) -> Re
         .collect::<Vec<ExpressionInInference>>())
 }
 
-pub fn proposition_as_sized_slice<'a,const EXPECTED_SIZE: usize>(proposition: &'a PropositionInInference) -> Result<Box<[ExpressionInInference<'a>; EXPECTED_SIZE]>,PropositionLengthCheckError> {
+pub fn proposition_as_sized_slice<'a,const EXPECTED_SIZE: usize>(proposition: &'a PropositionInProofStep) -> Result<Box<[ExpressionInInference<'a>; EXPECTED_SIZE]>,PropositionLengthCheckError> {
     Ok(proposition_as_slice(proposition)
         .map_err(|_| PropositionLengthCheckError{
             expected_length: EXPECTED_SIZE, 
@@ -97,7 +98,7 @@ pub fn proposition_as_sized_slice<'a,const EXPECTED_SIZE: usize>(proposition: &'
             proposition: proposition.clone().into_owned()
         })?)
 }
-pub fn proposition_into_sized_slice<'a,const EXPECTED_SIZE: usize>(proposition: PropositionInInference<'a>) -> Result<Box<[ExpressionInInference<'a>; EXPECTED_SIZE]>,PropositionLengthCheckError> {
+pub fn proposition_into_sized_slice<'a,const EXPECTED_SIZE: usize>(proposition: PropositionInProofStep<'a>) -> Result<Box<[ExpressionInInference<'a>; EXPECTED_SIZE]>,PropositionLengthCheckError> {
     Ok(proposition_into_slice(proposition.clone())
         .map_err(|_| PropositionLengthCheckError{
             expected_length: EXPECTED_SIZE, 

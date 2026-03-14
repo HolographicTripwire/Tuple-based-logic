@@ -5,7 +5,7 @@ use tbl_structures::path_composites::{ExpressionInInference, OwnedExpressionInIn
 pub struct ExpressionValueInequalityError {
     pub expressions: Vec<OwnedExpressionInInference>,
 }
-/// Check that the provided [Propositions](PropositionInInference) have inequal value, returning an error otherwise
+/// Check that the provided [Propositions](PropositionInProofStep) have inequal value, returning an error otherwise
 pub fn assert_expression_value_inequality<'a>(exprs: &[&'a ExpressionInInference<'a>]) -> Result<(), ExpressionValueInequalityError> {
     let iter = exprs.iter().map(|o| o.obj());
     let mut values = HashSet::new();
