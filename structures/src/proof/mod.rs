@@ -1,13 +1,13 @@
 pub mod inference;
 pub mod composite;
 mod step;
-mod subproof_path;
+mod in_proof;
 pub mod error;
 
 use path_lib::{HasChildren, obj_at_path::OwnedObjAtPath};
 
 pub use step::*;
-pub use subproof_path::*;
+pub use in_proof::*;
 
 use crate::{expressions::Proposition, proof::{composite::CompositeProof, inference::{Inference, InferenceRule, PropositionInInferencePath}}};
 
@@ -51,7 +51,7 @@ impl <Rule:InferenceRule> HasChildren<PropositionInInferencePath,Proposition> fo
 
 #[cfg(test)]
 mod tests {
-    use crate::proof::subproof_path::ProofInProofPath;    
+    use crate::proof::in_proof::ProofInProofPath;    
 
     #[test]
     fn test_getters() {

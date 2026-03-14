@@ -1,10 +1,13 @@
+mod split;
+
 use std::fmt::Display;
 
-use itertools::Either;
 use path_lib::{obj_at_path::{OwnedObjAtPath}, paths::{PathPrimitive, PathSeries}, HasChildren};
 use path_lib_proc_macros::generate_obj_at_path_wrappers;
 
-use crate::{DisplayExt, proof::{CompositeProof, Proof, inference::{InferenceInProof, InferenceRule, OwnedInferenceInProof}}};
+use crate::{DisplayExt, proof::{CompositeProof, Proof, inference::InferenceRule}};
+
+pub use split::*;
 
 #[derive(Clone,Copy,PartialEq,Eq,Hash,Debug)]
 /// Identifies a particular step iwthin a [`Proof`], and can be given to such a [`Proof`] to retreive the [`SubProof`] at that step
@@ -34,30 +37,6 @@ generate_obj_at_path_wrappers!{
     (Proof<Rule> where Rule: InferenceRule), ProofInProofPath,
     "ProofInProof", [Clone, PartialEq, Eq, Debug],
     "OwnedProofInProof", [Clone, PartialEq, Eq, Debug]
-}
-impl <'a,Rule: InferenceRule> ProofInProof<'a,Rule> {
-    pub fn into_inference_or_composite(self) -> Either<InferenceInProof<'a,Rule>,CompositeProofInProof<'a,Rule>> {
-        let (obj,path) = self.0.into_obj_and_path();
-        match obj {
-            Proof::Inference(inference) => Either::Left(InferenceInProof::from_inner(inference, path)),
-            Proof::Composite(composite) => Either::Right(CompositeProofInProof::from_inner(composite, path)),
-        }
-    }
-}
-impl <Rule: InferenceRule> OwnedProofInProof<Rule> {
-    pub fn into_inference_or_composite(self) -> Either<OwnedInferenceInProof<Rule>,OwnedCompositeProofInProof<Rule>> {
-        let (obj,path) = self.0.into_obj_and_path();
-        match obj {
-            Proof::Inference(inference) => Either::Left(OwnedInferenceInProof::from_inner(inference, path)),
-            Proof::Composite(composite) => Either::Right(OwnedCompositeProofInProof::from_inner(composite, path)),
-        }
-    }
-}
-
-generate_obj_at_path_wrappers!{
-    (CompositeProof<Rule> where Rule: InferenceRule), ProofInProofPath,
-    "CompositeProofInProof", [Clone, PartialEq, Eq, Debug],
-    "OwnedCompositeProofInProof", [Clone, PartialEq, Eq, Debug]
 }
 
 impl <Rule:InferenceRule> HasChildren<AtomicProofInProofPath,Proof<Rule>> for Proof<Rule> {

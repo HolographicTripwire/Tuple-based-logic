@@ -3,7 +3,7 @@ use std::collections::HashSet;
 use path_lib::{HasChildren, obj_at_path::OwnedObjAtPath};
 use path_lib_proc_macros::generate_obj_at_path_wrappers;
 
-use crate::{expressions::{Proposition, PropositionSet}, proof::{AtomicProofInProofPath, ImmediateProofInProof, OwnedImmediateProofInProof, Proof, ProofInProofPath, ProofStep, get_child_inner, inference::{InferenceRule, PropositionInInferencePath}, valid_primitive_paths_inner}};
+use crate::{expressions::{Proposition, PropositionSet}, proof::{AtomicProofInProofPath, ImmediateProofInProof, OwnedImmediateProofInProof, OwnedProofInProof, Proof, ProofInProof, ProofInProofPath, ProofStep, get_child_inner, inference::{InferenceRule, PropositionInInferencePath}, valid_primitive_paths_inner}};
 
 #[derive(Clone,PartialEq,Eq,Debug)]
 pub struct CompositeProof<Rule: InferenceRule> {
@@ -95,13 +95,6 @@ impl <Rule:InferenceRule> HasChildren<PropositionInInferencePath,Proposition> fo
         return assumptions.chain(explicit_conclusions)
     }
 }
-
-generate_obj_at_path_wrappers!{
-    (CompositeProof<Rule> where Rule: InferenceRule), ProofInProofPath,
-    "CompositeProofInProof", [Clone, PartialEq, Eq, Debug],
-    "OwnedCompositeProofInProof", [Clone, PartialEq, Eq, Debug]
-}
-
 impl <Rule:InferenceRule> HasChildren<AtomicProofInProofPath,Proof<Rule>> for CompositeProof<Rule> {
     fn valid_primitive_paths(&self) -> Vec<AtomicProofInProofPath> 
         { (0..self.subproofs.len()).map(|ix| ix.into()).collect() }
@@ -114,5 +107,52 @@ impl <Rule:InferenceRule> HasChildren<AtomicProofInProofPath,Proof<Rule>> for Co
         self.subproofs.into_iter()
             .enumerate()
             .map(|(id,proof)| OwnedObjAtPath::from_inner(proof, AtomicProofInProofPath(id)))
+    }
+}
+
+
+generate_obj_at_path_wrappers!{
+    (CompositeProof<Rule> where Rule: InferenceRule), ProofInProofPath,
+    "CompositeProofInProof", [Clone, PartialEq, Eq, Debug],
+    "OwnedCompositeProofInProof", [Clone, PartialEq, Eq, Debug]
+}
+impl <'a,Rule: InferenceRule> CompositeProofInProof<'a,Rule> {
+    pub fn get_located_immediate_subproofs(&'a self) -> impl IntoIterator<Item = ProofInProof<'a, Rule>> {
+        self.obj().get_located_immediate_subproofs().into_iter().map(|p| {
+            p.replace_path(|p| {
+                let mut p1 = self.path().clone();
+                p1.append(p);
+                p1
+            }).into()
+        })
+    }
+    pub fn get_located_immediate_subproofs_owned(&'a self) -> impl IntoIterator<Item = OwnedProofInProof<Rule>> {
+        self.obj().get_located_immediate_subproofs_owned().into_iter().map(|p| {
+            p.replace_path(|p| {
+                let mut p1 = self.path().clone();
+                p1.append(p);
+                p1
+            }).into()
+        })
+    }
+}
+impl <Rule: InferenceRule> OwnedCompositeProofInProof<Rule> {
+    pub fn get_located_immediate_subproofs<'a>(&'a self) -> impl IntoIterator<Item = ProofInProof<'a, Rule>> {
+        self.obj().get_located_immediate_subproofs().into_iter().map(|p| {
+            p.replace_path(|p| {
+                let mut p1 = self.path().clone();
+                p1.append(p);
+                p1
+            }).into()
+        })
+    }
+    pub fn get_located_immediate_subproofs_owned(&self) -> impl IntoIterator<Item = OwnedProofInProof<Rule>> {
+        self.obj().get_located_immediate_subproofs_owned().into_iter().map(|p| {
+            p.replace_path(|p| {
+                let mut p1 = self.path().clone();
+                p1.append(p);
+                p1
+            }).into()
+        })
     }
 }

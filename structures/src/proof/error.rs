@@ -1,6 +1,6 @@
 use path_lib_proc_macros::generate_obj_at_path_wrappers;
 
-use crate::proof::subproof_path::{ProofInProofPath};
+use crate::proof::in_proof::{ProofInProofPath};
 
 generate_obj_at_path_wrappers!{
     (E where E: Clone), ProofInProofPath,
