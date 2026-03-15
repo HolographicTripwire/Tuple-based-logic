@@ -123,31 +123,32 @@ generate_obj_at_path_wrappers!{
     "OwnedCompositeProofInProof", [Clone, PartialEq, Eq, Debug]
 }
 impl <'a,Rule: InferenceRule> CompositeProofInProof<'a,Rule> {
-    fn replace_immediate(&self, p: ImmediateProofInProof<'a,Rule>) -> ProofInProof<'a,Rule> {
+    fn replace_immediate_path(&self, p: ImmediateProofInProof<'a,Rule>) -> ProofInProof<'a,Rule> {
         p.replace_path(|p| {
             let mut p1 = self.path().clone();
             p1.append(p);
             p1
         }).into()
     }
-    fn replace_immediate_owned(&self, p: OwnedImmediateProofInProof<Rule>) -> OwnedProofInProof<Rule> {
+    fn replace_immediate_owned_path(&self, p: OwnedImmediateProofInProof<Rule>) -> OwnedProofInProof<Rule> {
         p.replace_path(|p| {
             let mut p1 = self.path().clone();
             p1.append(p);
             p1
         }).into()
     }
-
-
-    pub fn get_located_immediate_subproof(&'a self, step: AtomicProofInProofPath) -> Result<ProofInProof<'a, Rule>,()>
-        { self.obj().get_located_immediate_subproof(step).map(|p| self.replace_immediate(p)) }
+    
+    pub fn get_located_immediate_subproof(&'a self, step: AtomicProofInProofPath) -> Result<ProofInProof<'a,Rule>,()>
+        { self.obj().get_located_immediate_subproof(step).map(|p| self.replace_immediate_path(p)) }
     pub fn get_located_immediate_subproofs(&'a self) -> impl IntoIterator<Item = ProofInProof<'a, Rule>>
-        { self.obj().get_located_immediate_subproofs().into_iter().map(|p| {self.replace_immediate(p)}) }
+        { self.obj().get_located_immediate_subproofs().into_iter().map(|p| {self.replace_immediate_path(p)}) }
     pub fn get_located_immediate_subproof_owned(&self, step: AtomicProofInProofPath) -> Result<OwnedProofInProof<Rule>,()>
-        { self.obj().get_located_immediate_subproof_owned(step).map(|p| self.replace_immediate_owned(p)) }
-    pub fn get_located_immediate_subproofs_owned(&self) -> impl IntoIterator<Item = OwnedProofInProof<Rule>> {
-        self.obj().get_located_immediate_subproofs_owned().into_iter().map(|p| self.replace_immediate_owned(p) )
-    }
+        { self.obj().get_located_immediate_subproof_owned(step).map(|p| self.replace_immediate_owned_path(p)) }
+    pub fn get_located_immediate_subproofs_owned(&self) -> impl IntoIterator<Item = OwnedProofInProof<Rule>>
+        { self.obj().get_located_immediate_subproofs_owned().into_iter().map(|p| self.replace_immediate_owned_path(p)) }
+}
+impl <'a,Rule: InferenceRule> CompositeProofInProof<'a,Rule> {
+    
 }
 impl <Rule: InferenceRule> OwnedCompositeProofInProof<Rule> {
     pub fn get_located_immediate_subproofs<'a>(&'a self) -> impl IntoIterator<Item = ProofInProof<'a, Rule>> {

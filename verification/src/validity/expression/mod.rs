@@ -20,7 +20,7 @@ pub use value_equality_check::*;
 pub use value_inequality_check::*;
 pub use functional::*;
 
-use path_lib::{obj_at_path::{ObjAtPathWithChildren, ObjAtPathWithDescendants}, paths::PathPair};
+use path_lib::paths::PathPair;
 use tbl_structures::{DisplayExt, expressions::{Expression, ExpressionInExpressionPath}, path_composites::{ExpressionInInference, ExpressionInInferencePath, OwnedExpressionInInference}};
 
 pub struct ExpressionSubpathError {

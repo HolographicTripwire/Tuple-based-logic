@@ -1,4 +1,8 @@
 {
-    "rust-analyzer.cargo.loadOutDirsFromCheck": true,
-    "rust-analyzer.cargo.features": "all"
+    "rust-analyzer": {
+        "cargo": {
+            "loadOutDirsFromCheck": true,
+            "features": "all"
+        }
+    }
 }

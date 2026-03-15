@@ -22,8 +22,8 @@ impl Display for PropositionInProofPath {
 
 generate_obj_at_path_wrappers!{
     (Proposition), PropositionInProofPath,
-    "ExpressionInExpression", [Clone, PartialEq, Eq, Debug],
-    "OwnedExpressionInExpression", [Clone, PartialEq, Eq, Debug]
+    "PropositionInProof", [Clone, PartialEq, Eq, Debug],
+    "OwnedPropositionInProof", [Clone, PartialEq, Eq, Debug]
 }
 
 mod from {
