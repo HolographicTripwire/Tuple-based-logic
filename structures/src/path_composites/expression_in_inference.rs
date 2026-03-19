@@ -1,63 +1,61 @@
 use std::fmt::Display;
 
-use path_lib::Path;
-use path_lib_proc_macros::generate_obj_at_path_wrappers;
+use path_lib::obj_at_path::{ObjAtPath, OwnedObjAtPath};
 
-use crate::{DisplayExt, expressions::{Expression, ExpressionInExpressionPath}, proof::PropositionInProofStepPath};
+use crate::{expressions::{Expression, atomic::AtomicExpression, compound::CompoundExpression, subexpression::ExpressionInExpressionPath}, proof::PropositionInProofStepPath};
 
 #[derive(Clone,PartialEq,Eq,Debug)]
 pub struct ExpressionInInferencePath {
     pub proposition_path: PropositionInProofStepPath,
     pub subexpression_path: ExpressionInExpressionPath,
 }
-impl Path for ExpressionInInferencePath {}
 impl Display for ExpressionInInferencePath {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f,"{}{}",self.proposition_path,self.subexpression_path.display())
+        write!(f,"{}{}",self.proposition_path,self.subexpression_path)
     }
 }
+pub type AtomicExpressionInInference<'a> = ObjAtPath<'a,AtomicExpression,ExpressionInInferencePath>;
+pub type OwnedAtomicExpressionInInference = OwnedObjAtPath<AtomicExpression,ExpressionInInferencePath>;
 
-generate_obj_at_path_wrappers!{
-    (Expression), ExpressionInInferencePath,
-    "ExpressionInInference", [Clone, PartialEq, Eq, Debug],
-    "OwnedExpressionInInference", [Clone, PartialEq, Eq, Debug]
-}
+pub type CompoundExpressionInInference<'a> = ObjAtPath<'a,CompoundExpression,ExpressionInInferencePath>;
+pub type OwnedCompoundExpressionInInference = OwnedObjAtPath<CompoundExpression,ExpressionInInferencePath>;
+
+pub type ExpressionInInference<'a> = ObjAtPath<'a,Expression,ExpressionInInferencePath>;
+pub type OwnedExpressionInInference = OwnedObjAtPath<Expression,ExpressionInInferencePath>;
 
 mod from {
-    use path_lib::paths::{PathPair, PathSeries};
-
-    use crate::expressions::AtomicExpressionInExpressionPath;
+    use crate::expressions::subexpression::{ExpressionInExpressionPath, immediate::ImmediateExpressionInExpressionPath};
 
     use super::*;
 
     impl From<PropositionInProofStepPath> for ExpressionInInferencePath {
         fn from(path: PropositionInProofStepPath) -> Self { Self {
             proposition_path: path,
-            subexpression_path: ExpressionInExpressionPath::empty(),
+            subexpression_path: ExpressionInExpressionPath::default(),
         }}
     }
-    impl From<PathPair<ExpressionInInferencePath,AtomicExpressionInExpressionPath>> for ExpressionInInferencePath {
-        fn from(mut value: PathPair<ExpressionInInferencePath,AtomicExpressionInExpressionPath>) -> Self { 
-            value.left.subexpression_path.append(value.right);
-            value.left
+    impl From<(ExpressionInInferencePath,ImmediateExpressionInExpressionPath)> for ExpressionInInferencePath {
+        fn from(mut value: (ExpressionInInferencePath,ImmediateExpressionInExpressionPath)) -> Self { 
+            value.0.subexpression_path.0.push(value.1);
+            value.0
         }
     }
-    impl From<PathPair<ExpressionInInferencePath,ExpressionInExpressionPath>> for ExpressionInInferencePath {
-        fn from(mut value: PathPair<ExpressionInInferencePath,ExpressionInExpressionPath>) -> Self { 
-            value.left.subexpression_path.append_all(value.right.into_paths());
-            value.left
+    impl From<(ExpressionInInferencePath,ExpressionInExpressionPath)> for ExpressionInInferencePath {
+        fn from(mut value: (ExpressionInInferencePath,ExpressionInExpressionPath)) -> Self { 
+            value.0.subexpression_path.0.append(&mut value.1.0);
+            value.0
         }
     }
-    impl From<PathPair<PropositionInProofStepPath,ExpressionInExpressionPath>> for ExpressionInInferencePath {
-        fn from(value: PathPair<PropositionInProofStepPath,ExpressionInExpressionPath>) -> Self { Self {
-                proposition_path: value.left,
-                subexpression_path: value.right
+    impl From<(PropositionInProofStepPath,ExpressionInExpressionPath)> for ExpressionInInferencePath {
+        fn from(value: (PropositionInProofStepPath,ExpressionInExpressionPath)) -> Self { Self {
+            proposition_path: value.0,
+            subexpression_path: value.1
         }}
     }
-    impl From<PathPair<PropositionInProofStepPath,AtomicExpressionInExpressionPath>> for ExpressionInInferencePath {
-        fn from(value: PathPair<PropositionInProofStepPath,AtomicExpressionInExpressionPath>) -> Self { Self {
-                proposition_path: value.left,
-                subexpression_path: PathSeries::new([value.right])
+    impl From<(PropositionInProofStepPath,ImmediateExpressionInExpressionPath)> for ExpressionInInferencePath {
+        fn from(value: (PropositionInProofStepPath,ImmediateExpressionInExpressionPath)) -> Self { Self {
+            proposition_path: value.0,
+            subexpression_path: ExpressionInExpressionPath(vec![value.1])
         }}
     }
 }

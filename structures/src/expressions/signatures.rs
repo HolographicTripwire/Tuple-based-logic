@@ -1,4 +1,5 @@
-use crate::{atoms::AtomId, expressions::Expression};
+use crate::expressions::{Expression, atomic::AtomicExpression};
+
 
 /// An object which uniquely identifies a given [Expression], while being structured differently
 #[derive(Clone,PartialEq,Eq,Hash,Debug)]
@@ -9,62 +10,73 @@ pub struct ExprSignatures {
 
 #[derive(Clone,PartialEq,Eq,Hash,Debug)]
 pub enum ExprStructureSignature {
-    Atom,
-    Tuple(Vec<ExprStructureSignature>)
+    Atomic,
+    Compound(CompoundExprStructureSignature)
 }
+#[derive(Clone,PartialEq,Eq,Hash,Debug)]
+pub struct CompoundExprStructureSignature(Vec<ExprStructureSignature>);
 
 #[derive(Clone,PartialEq,Eq,Hash,Debug)]
-pub struct ExprContentsSignature(pub Vec<AtomId>);
-
-impl Expression {
-    pub fn as_signatures(&self) -> ExprSignatures {
-        let mut contents = ExprContentsSignature(vec![]);
-        let structure = ExprSignatures::from_expression_inner(self, &mut contents);
-        ExprSignatures { structure, contents }
-    }
-}
+pub struct ExprContentsSignature(pub Vec<AtomicExpression>);
 
 impl ExprSignatures {
-    pub fn as_expression(&self) -> Expression {
-        Self::into_expression_inner(&self.structure, &self.contents, &mut 0)
-    }
 
     pub fn get_structure(&self) -> &ExprStructureSignature {&self.structure }
     pub fn get_atoms(&self) -> &ExprContentsSignature { &self.contents }
 }
 
 impl Into<ExprSignatures> for Expression
-    { fn into(self) -> ExprSignatures { self.as_signatures() } }
-impl Into<Expression> for ExprSignatures
-    { fn into(self) -> Expression { self.as_expression() } }
+    { fn into(self) -> ExprSignatures {
+        let mut contents = ExprContentsSignature(vec![]);
+        let structure = ExprSignatures::from_expression_inner(self, &mut contents);
+        ExprSignatures { structure, contents }
+    } }
+impl From<ExprSignatures> for Expression
+    { fn from(other: ExprSignatures) -> Expression { ExprSignatures::into_expression_inner(other.structure, &other.contents, &mut 0) } }
 
 impl ExprSignatures {
-    fn from_expression_inner(expr: &Expression, contents: &mut ExprContentsSignature) -> ExprStructureSignature {
+    fn from_expression_inner(expr: Expression, contents: &mut ExprContentsSignature) -> ExprStructureSignature {
         match expr {
             Expression::Atomic(atom_id) => {
-                contents.0.push(*atom_id);
-                ExprStructureSignature::Atom
-            }, Expression::Tuple(expressions) => {
-                ExprStructureSignature::Tuple(expressions
-                    .into_iter()
-                    .map(|expr| Self::from_expression_inner(expr, contents))
-                    .collect()
-                )
-            },
+                contents.0.push(atom_id);
+                ExprStructureSignature::Atomic
+            }, Expression::Compound(expressions) => expressions.0
+                .into_iter()
+                .map(|expr| Self::from_expression_inner(expr, contents))
+                .collect::<Vec<_>>()
+                .into()
+                
         }
     }
 
-    fn into_expression_inner(structure: &ExprStructureSignature, contents: &ExprContentsSignature, content_ix: &mut usize) -> Expression {
+    fn into_expression_inner(structure: ExprStructureSignature, contents: &ExprContentsSignature, content_ix: &mut usize) -> Expression {
         match structure {
-            ExprStructureSignature::Atom => { 
+            ExprStructureSignature::Atomic => { 
                 let e = Expression::Atomic(contents.0[*content_ix]);
                 *content_ix += 1;
                 e
-            }, ExprStructureSignature::Tuple(signatures) => Expression::Tuple(signatures
+            }, ExprStructureSignature::Compound(signatures) => signatures.0
                 .into_iter()
                 .map(|structure| Self::into_expression_inner(structure, contents, content_ix))
-                .collect()
-            )
+                .collect::<Vec<_>>()
+                .into()
         }
+    }
+}
+
+mod from {
+    use crate::expressions::{ExprStructureSignature, signatures::CompoundExprStructureSignature};
+
+    impl From<()> for ExprStructureSignature {
+        fn from(_value: ()) -> Self { Self::Atomic }
+    }
+    impl From<Vec<ExprStructureSignature>> for CompoundExprStructureSignature {
+        fn from(value: Vec<ExprStructureSignature>) -> Self { Self(value) }
+    }
+    impl From<CompoundExprStructureSignature> for ExprStructureSignature {
+        fn from(value: CompoundExprStructureSignature) -> Self { Self::Compound(value) }
+    }
+    impl From<Vec<ExprStructureSignature>> for ExprStructureSignature {
+        fn from(value: Vec<ExprStructureSignature>) -> Self { Self::Compound(value.into()) }
     }
 }

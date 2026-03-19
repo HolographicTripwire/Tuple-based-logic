@@ -1,12 +1,9 @@
-use path_lib_proc_macros::generate_obj_at_path_wrappers;
+use path_lib::obj_at_path::{ObjAtPath, OwnedObjAtPath};
 
 use crate::proof::in_proof::{ProofInProofPath};
 
-generate_obj_at_path_wrappers!{
-    (E where E: Clone), ProofInProofPath,
-    "ErrorInProof", [Clone, PartialEq, Eq, Debug],
-    "OwnedErrorInProof", [Clone, PartialEq, Eq, Debug]
-}
+pub type ErrorInProof<'a,E> = ObjAtPath<'a,E,ProofInProofPath>;
+pub type OwnedErrorInProof<E> = OwnedObjAtPath<E,ProofInProofPath>;
 
 // #[derive(Clone,PartialEq,Eq,Debug)]
 // pub struct ErrorInProof<'a, E: Clone>(pub ObjAtPath<'a, E, ProofInProofPath>);

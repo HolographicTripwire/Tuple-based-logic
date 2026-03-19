@@ -1,9 +1,8 @@
 use std::fmt::Display;
 
-use path_lib::{Path, paths::PathPair};
-use path_lib_proc_macros::generate_obj_at_path_wrappers;
+use path_lib::obj_at_path::{ObjAtPath, OwnedObjAtPath};
 
-use crate::{DisplayExt, expressions::Proposition, proof::{ProofInProofPath, PropositionInProofStepPath}};
+use crate::{expressions::Proposition, proof::{ProofInProofPath, PropositionInProofStepPath}};
 
 #[derive(Clone,PartialEq,Eq,Debug)]
 pub struct PropositionInProofPath {
@@ -13,27 +12,23 @@ pub struct PropositionInProofPath {
 impl PropositionInProofPath {
     pub fn new(step: ProofInProofPath, proposition: PropositionInProofStepPath) -> Self { Self { step_path: step, proposition_path: proposition } }
 }
-impl Path for PropositionInProofPath {}
 impl Display for PropositionInProofPath {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f,"{}{}",self.step_path.display(),self.proposition_path)
+        write!(f,"{}{}",self.step_path,self.proposition_path)
     }
 }
 
-generate_obj_at_path_wrappers!{
-    (Proposition), PropositionInProofPath,
-    "PropositionInProof", [Clone, PartialEq, Eq, Debug],
-    "OwnedPropositionInProof", [Clone, PartialEq, Eq, Debug]
-}
+pub type PropositionInProof<'a> = ObjAtPath<'a,Proposition,PropositionInProofPath>;
+pub type OwnedPropositionInProof = OwnedObjAtPath<Proposition,PropositionInProofPath>;
 
 mod from {
     use crate::proof::ProofInProofPath;
 
     use super::*;
 
-    impl From<PathPair<ProofInProofPath,PropositionInProofStepPath>> for PropositionInProofPath {
-        fn from(pair: PathPair<ProofInProofPath,PropositionInProofStepPath>) -> Self { 
-            Self::new(pair.left, pair.right)
+    impl From<(ProofInProofPath,PropositionInProofStepPath)> for PropositionInProofPath {
+        fn from(pair: (ProofInProofPath,PropositionInProofStepPath)) -> Self { 
+            Self::new(pair.0, pair.1)
         }
     }
 }

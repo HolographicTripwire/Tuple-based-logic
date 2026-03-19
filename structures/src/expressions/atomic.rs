@@ -4,12 +4,12 @@ use enum_iterator::Sequence;
 
 /// An [Identifier] used for Atom objects, which are used for building tuple objects in Tuple-based logic
 #[derive(Clone, Copy, PartialEq, Eq, Debug, Hash)]
-pub struct AtomId(pub u16);
-impl AtomId {
-    pub fn first() -> AtomId { AtomId(0) }
-    pub fn next(&self) -> AtomId { AtomId(self.0 + 1) }
+pub struct AtomicExpression(pub u16);
+impl AtomicExpression {
+    pub fn first() -> AtomicExpression { AtomicExpression(0) }
+    pub fn next(&self) -> AtomicExpression { AtomicExpression(self.0 + 1) }
 }
-impl TryFrom<usize> for AtomId {
+impl TryFrom<usize> for AtomicExpression {
     type Error = TryFromIntError;
     fn try_from(value: usize) -> Result<Self, Self::Error>
         { match u16::try_from(value) {
@@ -17,9 +17,9 @@ impl TryFrom<usize> for AtomId {
             Err(err) => Err(err),
         }}
 }
-impl TryFrom<AtomId> for usize {
+impl TryFrom<AtomicExpression> for usize {
     type Error = TryFromIntError;
-    fn try_from(value: AtomId) -> Result<Self, Self::Error>
+    fn try_from(value: AtomicExpression) -> Result<Self, Self::Error>
         { Ok(usize::try_from(value.0)?) }
 }
 
@@ -40,10 +40,10 @@ pub enum BuiltInAtom {
     Atomic,
 }
 
-impl Into<AtomId> for BuiltInAtom {
+impl Into<AtomicExpression> for BuiltInAtom {
     /// Assigns each built in atom a unique atom id
-    fn into(self) -> AtomId {
-        AtomId(match self {
+    fn into(self) -> AtomicExpression {
+        AtomicExpression(match self {
             // Deduction
             BuiltInAtom::Conjunction => 0,
             BuiltInAtom::UniversalQuantifier => 1,
@@ -67,14 +67,14 @@ mod tests {
 
     #[test]
     fn test_id_initialisation() {
-        let result = AtomId::first();
-        assert_eq!(result, AtomId(0));
+        let result = AtomicExpression::first();
+        assert_eq!(result, AtomicExpression(0));
     }
 
     #[test]
     #[should_panic]
     fn test_id_overflow() {
-        let result = AtomId(u16::max_value());
+        let result = AtomicExpression(u16::max_value());
         result.next();
     }
 
@@ -83,8 +83,8 @@ mod tests {
         let builtins  = all::<BuiltInAtom>().collect::<Vec<_>>();
         for (i, ix) in builtins.iter().enumerate() {
             for (j, jx) in builtins.iter().enumerate() {
-                let ia: AtomId = (*ix).clone().into();
-                let ja: AtomId = (*jx).clone().into();
+                let ia: AtomicExpression = (*ix).clone().into();
+                let ja: AtomicExpression = (*jx).clone().into();
                 if i==j { assert_eq!(ia,ja) }
                 else { assert_ne!(ia,ja) }
             }
