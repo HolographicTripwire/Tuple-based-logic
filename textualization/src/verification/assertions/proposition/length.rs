@@ -1,6 +1,6 @@
 mod check {    
     pub fn format_proposition_length_check_error(err: PropositionLengthCheckError) -> String {
-        let proposition = err.proposition.obj();
+        let proposition = err.proposition.obj;
         format!("Proposition at {path} has wrong length (expected {length_expected}; found {length_actual})",
             path=err.proposition.path(),
             length_expected=stringify_length(proposition),
@@ -15,7 +15,7 @@ mod equality {
             atomicities = err.propositions.iter().map(|o|
                 o.path().to_string()
                 + " -> " +
-                &stringify_length(o.obj())
+                &stringify_length(o.obj)
             ).collect::<Vec<_>>().join(", ")
         )
     }
@@ -24,7 +24,7 @@ mod equality {
             atomicities = err.propositions.iter().map(|o|
                 o.path().to_string()
                 + " -> " +
-                &stringify_length(o.obj())
+                &stringify_length(o.obj)
             ).collect::<Vec<_>>().join(", ")
         )
     }
@@ -36,7 +36,7 @@ mod inequality {
             lengths = err.propositions.iter().map(|o|
                 o.path().to_string()
                 + " -> " +
-                &stringify_length(o.obj())
+                &stringify_length(o.obj)
             ).collect::<Vec<_>>().join(", ")
         )
     }
@@ -45,7 +45,7 @@ mod inequality {
             atomicities = err.propositions.iter().map(|o|
                 o.path().to_string()
                 + " -> " +
-                &stringify_length(o.obj())
+                &stringify_length(o.obj)
             ).collect::<Vec<_>>().join(", ")
         )
     }

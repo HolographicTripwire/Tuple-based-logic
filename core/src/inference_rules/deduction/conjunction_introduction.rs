@@ -1,7 +1,7 @@
 use tbl_structures::expressions::Expression;
 use tbl_structures::inference::{Inference, InferenceRule};
 use tbl_structures::path_composites::ExpressionInInference;
-use tbl_structures::atoms::BuiltInAtom;
+use tbl_structures::atomic::BuiltInAtom;
 
 use tbl_verification::validity::*;
 
@@ -30,8 +30,8 @@ pub fn verify_conjunction_introduction<'a,Rule: InferenceRule>(inference: &Infer
     assert_expression_value(&conjunction_head, &BuiltInAtom::Conjunction.into())
         .map_err(|e| ConjunctionIntroductionError::ConjunctionWrongHead(e.into_expression()))?;
     assert_fixed_length_expression_value_equality(&[&ExpressionInInference::from(assumption_left.replace_path(|p| p.into())), &conjunction_left])
-        .map_err(|e| ConjunctionIntroductionError::LeftSideInequal(e.expressions[0].obj().clone(), e.expressions[1].obj().clone()))?;
+        .map_err(|e| ConjunctionIntroductionError::LeftSideInequal(e.expressions[0].obj.clone(), e.expressions[1].obj.clone()))?;
     assert_fixed_length_expression_value_equality(&[&ExpressionInInference::from(assumption_right.replace_path(|p| p.into())), &conjunction_right])
-        .map_err(|e| ConjunctionIntroductionError::RightSideInequal(e.expressions[0].obj().clone(), e.expressions[1].obj().clone()))?;
+        .map_err(|e| ConjunctionIntroductionError::RightSideInequal(e.expressions[0].obj.clone(), e.expressions[1].obj.clone()))?;
     Ok(())
 }

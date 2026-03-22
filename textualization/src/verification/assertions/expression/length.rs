@@ -1,6 +1,6 @@
 pub mod check {
     pub fn format_expression_length_check_error(err: ExpressionLengthCheckError) -> String {
-        let expression = err.expression.obj();
+        let expression = err.expression.obj;
         format!("Expression at {path} has wrong length (expected {length_expected}; found {length_actual})",
             path=err.expression.path(),
             length_expected=stringify_length(expression),
@@ -15,7 +15,7 @@ pub mod equality {
             atomicities = err.expressions.iter().map(|o|
                 o.path().to_string()
                 + " -> " +
-                &stringify_length(o.obj())
+                &stringify_length(o.obj)
             ).collect::<Vec<_>>().join(", ")
         )
     }
@@ -25,7 +25,7 @@ pub mod equality {
             atomicities = err.expressions.iter().map(|o|
                 o.path().to_string()
                 + " -> " +
-                &stringify_length(o.obj())
+                &stringify_length(o.obj)
             ).collect::<Vec<_>>().join(", ")
         )
     }
@@ -37,7 +37,7 @@ pub mod inequality {
             lengths = err.expressions.iter().map(|o|
                 o.path().to_string()
                 + " -> " +
-                &stringify_length(o.obj())
+                &stringify_length(o.obj)
             ).collect::<Vec<_>>().join(", ")
         )
     }
@@ -47,7 +47,7 @@ pub mod inequality {
             atomicities = err.expressions.iter().map(|o|
                 o.path().to_string()
                 + " -> " +
-                &stringify_length(o.obj())
+                &stringify_length(o.obj)
             ).collect::<Vec<_>>().join(", ")
         )
     }

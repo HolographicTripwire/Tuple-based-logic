@@ -1,4 +1,4 @@
-use tbl_structures::{atoms::BuiltInAtom, expressions::Expression, inference::{Inference, InferenceRule}};
+use tbl_structures::{atomic::BuiltInAtom, expressions::Expression, inference::{Inference, InferenceRule}};
 
 use tbl_verification::{validity::*};
 

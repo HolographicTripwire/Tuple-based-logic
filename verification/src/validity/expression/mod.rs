@@ -20,8 +20,7 @@ pub use value_equality_check::*;
 pub use value_inequality_check::*;
 pub use functional::*;
 
-use path_lib::paths::PathPair;
-use tbl_structures::{DisplayExt, expressions::{Expression, ExpressionInExpressionPath}, path_composites::{ExpressionInInference, ExpressionInInferencePath, OwnedExpressionInInference}};
+use tbl_structures::{expressions::{Expression, subexpression::{ExpressionInExpressionPath, ParentOfSubexpressions, LocatedParentOfSubexpressions}}, path_composites::{ExpressionInInference, ExpressionInInferencePath, OwnedExpressionInInference}};
 
 pub struct ExpressionSubpathError {
     pub subpath: ExpressionInExpressionPath,
@@ -30,18 +29,18 @@ pub struct ExpressionSubpathError {
 
 pub fn format_expression_subpath_error(err: ExpressionSubpathError) -> String {
     format!("Expression at {path} has no subexpression at subpath {subpath}",
-        path=err.expression.path(),
-        subpath=err.subpath.display()
+        path=err.expression.path,
+        subpath=err.subpath
     )
 }
 
 pub fn expression_subexpression<'a>(expression: &'a ExpressionInInference<'a>, subpath: ExpressionInExpressionPath) -> Result<ExpressionInInference<'a>,ExpressionSubpathError> {
-    return match expression.get_located_descendant(subpath.clone()) {
+    return match expression.get_located_subexpression(subpath.clone()) {
         Ok(c) => Ok(ExpressionInInference::from(c.replace_path(
-            |p: PathPair<ExpressionInInferencePath,ExpressionInExpressionPath>| p.into()
+            |p: (ExpressionInInferencePath,ExpressionInExpressionPath)| p.into()
         ))), Err(_) => { Err(ExpressionSubpathError {
             subpath,
-            expression: expression.clone().into_owned()
+            expression: expression.clone().into()
         }) }
     };
     /* 
@@ -64,21 +63,21 @@ pub fn expression_subexpression<'a>(expression: &'a ExpressionInInference<'a>, s
 }
 
 pub fn expression_as_slice<'a>(expression: &'a ExpressionInInference) -> Result<Vec<ExpressionInInference<'a>>,ExpressionAtomicityCheckError> {
-    if let Expression::Atomic(_) = expression.obj() { return Err(ExpressionAtomicityCheckError {
+    if let Expression::Atomic(_) = expression.obj { return Err(ExpressionAtomicityCheckError {
         expected_atomicity: false,
-        expression: expression.clone().into_owned()
+        expression: expression.clone().into()
     }) };
-    Ok(expression.get_located_children()
+    Ok(expression.get_located_subexpression()
         .into_iter()
         .map(|obj| ExpressionInInference::from(obj.replace_path(|p| p.into())))
         .collect::<Vec<ExpressionInInference>>())
 }
 pub fn expression_into_slice<'a>(expression: ExpressionInInference<'a>) -> Result<Vec<ExpressionInInference<'a>>,ExpressionAtomicityCheckError> {
-    if let Expression::Atomic(_) = expression.obj() { return Err(ExpressionAtomicityCheckError {
+    if let Expression::Atomic(_) = expression.obj { return Err(ExpressionAtomicityCheckError {
         expected_atomicity: false,
-        expression: expression.clone().into_owned()
+        expression: expression.clone().into()
     }) };
-    Ok(expression.into_located_children()
+    Ok(expression.into_located_subexpression()
         .into_iter()
         .map(|v| ExpressionInInference::from(v.replace_path(|p| p.into())))
         .collect::<Vec<ExpressionInInference>>())
@@ -88,23 +87,23 @@ pub fn expression_as_sized_slice<'a,const EXPECTED_SIZE: usize>(expression: &'a 
     Ok(expression_as_slice(expression)
         .map_err(|_| ExpressionLengthCheckError{
             expected_length: EXPECTED_SIZE, 
-            expression: expression.clone().into_owned()
+            expression: expression.clone().into()
         })?
         .try_into()
         .map_err(|_| ExpressionLengthCheckError{
             expected_length: EXPECTED_SIZE, 
-            expression: expression.clone().into_owned()
+            expression: expression.clone().into()
         })?)
 }
 pub fn expression_into_sized_slice<'a,const EXPECTED_SIZE: usize>(expression: ExpressionInInference<'a>) -> Result<Box<[ExpressionInInference<'a>; EXPECTED_SIZE]>,ExpressionLengthCheckError> {
     Ok(expression_into_slice(expression.clone())
         .map_err(|_| ExpressionLengthCheckError{
             expected_length: EXPECTED_SIZE, 
-            expression: expression.clone().into_owned()
+            expression: expression.clone().into()
         })?
         .try_into()
         .map_err(|_| ExpressionLengthCheckError{
             expected_length: EXPECTED_SIZE, 
-            expression: expression.clone().into_owned()
+            expression: expression.clone().into()
         })?)
 }

@@ -21,7 +21,7 @@ impl <'a> ContainerRef<'a> {
     fn obj(&self) -> &ObjAtPath { self.obj }
     fn from_inner(obj: &'a ObjAtPath, path: Vec<usize>) -> Self { Self{obj,path} }
     fn append_inner(&self, index: usize) -> Option<(&ObjAtPath,Vec<usize>)> {
-        let obj = self.obj().get_child_inner(&index)?;
+        let obj = self.obj.get_child_inner(&index)?;
         let mut path = self.path.clone();
         path.push(index);
         Some((obj,path))

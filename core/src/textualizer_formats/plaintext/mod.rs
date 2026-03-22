@@ -29,7 +29,7 @@ pub const EXPRESSION_STYLE: LazyLock<ExpressionStyle> = LazyLock::new(|| -> Expr
 mod tests {
     use std::{collections::HashMap};
 
-    use tbl_structures::{atoms::BuiltInAtom, expressions::Expression};
+    use tbl_structures::{atomic::BuiltInAtom, expressions::Expression};
     use tbl_textualization::{helpers::styles::Stylable, structures::expressions::expression_parser};
 
     use super::*;
@@ -39,8 +39,8 @@ mod tests {
         let implication = || Expression::from(BuiltInAtom::Implication);
         HashMap::from_iter(vec![
             ("∧",conjunction()),
-            ("(∧)",Expression::Tuple(vec![conjunction()])),
-            ("(∧, →)",Expression::Tuple(vec![conjunction(),implication()])),
+            ("(∧)",Expression::Compound(vec![conjunction()])),
+            ("(∧, →)",Expression::Compound(vec![conjunction(),implication()])),
             ("((∧), →)", Expression::from(vec![Expression::from(vec![conjunction()]),implication()])),
         ].into_iter())
     });

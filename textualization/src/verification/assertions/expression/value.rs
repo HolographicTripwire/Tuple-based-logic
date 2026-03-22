@@ -3,7 +3,7 @@ pub mod check {
         format!("Expression at {path} has wrong value (expected {value_expected}; found {value_actual})",
             path=err.expression.path(),
             value_expected=style.stringify(&err.expected_value),
-            value_actual=style.stringify(err.expression.obj())
+            value_actual=style.stringify(err.expression.obj)
         )
     }
 }
@@ -14,7 +14,7 @@ pub mod equality {
             atomicities = err.expressions.iter().map(|o|
                 o.path().to_string()
                 + " -> " +
-                &style.stringify(o.obj())
+                &style.stringify(o.obj)
             ).collect::<Vec<_>>().join(", ")
         )
     }
@@ -23,7 +23,7 @@ pub mod equality {
             atomicities = err.expressions.iter().map(|o|
                 o.path().to_string()
                 + " -> " +
-                &style.stringify(o.obj())
+                &style.stringify(o.obj)
             ).collect::<Vec<_>>().join(", ")
         )
     }
@@ -35,7 +35,7 @@ pub mod inequality {
             values = err.expressions.iter().map(|o|
                 o.path().to_string()
                 + " -> " +
-                &style.stringify(o.obj())
+                &style.stringify(o.obj)
             ).collect::<Vec<_>>().join(", ")
         )
     }
@@ -45,7 +45,7 @@ pub mod inequality {
             atomicities = err.expressions.iter().map(|o|
                 o.path().to_string()
                 + " -> " +
-                &style.stringify(o.obj())
+                &style.stringify(o.obj)
             ).collect::<Vec<_>>().join(", ")
         )
     }

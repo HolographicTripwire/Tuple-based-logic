@@ -3,7 +3,7 @@ mod check {
         format!("Proposition at {path} has wrong atomicity (expected {atomicity_expected}; found {atomicity_actual})",
             path=err.proposition.path(),
             atomicity_expected=stringify_atomicity(err.expected_atomicity),
-            atomicity_actual=stringify_atomicity(err.proposition.obj().as_atom().is_ok())
+            atomicity_actual=stringify_atomicity(err.proposition.obj.as_atom().is_ok())
         )
     }
 }
@@ -14,7 +14,7 @@ mod equality {
             atomicities = itertools::join(err.propositions.iter().map(|o|
                 o.path().to_string()
                 + " -> " +
-                stringify_atomicity(o.obj().as_atom().is_ok())
+                stringify_atomicity(o.obj.as_atom().is_ok())
             ),", ")
         )
     }
@@ -24,7 +24,7 @@ mod equality {
             atomicities = itertools::join(err.propositions.iter().map(|o|
                 o.path().to_string()
                 + " -> " +
-                stringify_atomicity(o.obj().as_atom().is_ok())
+                stringify_atomicity(o.obj.as_atom().is_ok())
             ),", ")
         )
     }
@@ -36,7 +36,7 @@ pub fn format_proposition_atomicity_inequality_error(err: PropositionAtomicityIn
     format!("Atomicity of propositions {prop1} and {prop2} expected to be inequal, but both were {value}",
                 prop1 = err.prop1.path(),
                 prop2 = err.prop2.path(),
-                value = err.prop1.obj().as_atom().is_ok()
+                value = err.prop1.obj.as_atom().is_ok()
             )
     }
 }

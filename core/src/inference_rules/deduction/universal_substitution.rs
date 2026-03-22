@@ -1,6 +1,6 @@
 use tbl_structures::inference::{Inference, InferenceRule};
 use tbl_structures::path_composites::{ExpressionInInference, OwnedExpressionInInference};
-use tbl_structures::{atoms::BuiltInAtom, expressions::Expression};
+use tbl_structures::{atomic::BuiltInAtom, expressions::Expression};
 
 use tbl_verification::validity::*;
 
@@ -28,7 +28,7 @@ pub fn verify_universal_substitution<'a,Rule: InferenceRule>(inference: &Inferen
     assert_expression_value(&substitution_head, &BuiltInAtom::UniversalQuantifier.into())
         .map_err(|e| UniversalSubstitutionError::SubtitutionWrongHead(e.into_expression()))?;
     // Check that remainder of the substitution is correct
-    assert_substitution_comparison_validity(expr_to_replace_within, expr_to_replace.obj(), conclusion.into())
+    assert_substitution_comparison_validity(expr_to_replace_within, expr_to_replace.obj, conclusion.into())
         .map_err(|e| UniversalSubstitutionError::SubstitutionComparisonError(e))?;
     
     // If none of the errors were triggered, then this step was successfully verified
@@ -54,14 +54,14 @@ fn assert_substitution_comparison_validity<'a>(find_expr: ExpressionInInference,
             if let Err(e) = assert_fixed_length_expression_value_equality(&[&head_expr, &tail_expr])
                 { return Err(SubstitutionComparisonError::InequalComponentValues(e.expressions[0].clone(), e.expressions[1].clone()))  }
         };
-        Ok(Some(head_expr.obj().clone()))
+        Ok(Some(head_expr.obj.clone()))
     } else { Ok(None) }
 }
 
 fn substitution_comparison_inner<'a>(find_expr: ExpressionInInference<'a>, replace_expr: &Expression, verify_expr: ExpressionInInference<'a>) -> Result<Vec<ExpressionInInference<'a>>, SubstitutionComparisonError> {
     // If the find expression is the replace expression, then it must have been replaced with the verify expression so return that
-    if find_expr.obj() == replace_expr { return Ok(vec![verify_expr]) }
-    if find_expr.obj() == verify_expr.obj() { return Ok(vec![]) }
+    if find_expr.obj == replace_expr { return Ok(vec![verify_expr]) }
+    if find_expr.obj == verify_expr.obj { return Ok(vec![]) }
     
     // Throw an error if the find expression and verify expressions are of different lengths (a substitution would not resolve this)
     if let Err(e) = assert_fixed_length_expression_length_equality(&[&find_expr, &verify_expr]) 

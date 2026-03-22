@@ -1,7 +1,7 @@
 use std::collections::HashSet;
 
 use parsertools::Parser;
-use tbl_structures::atoms::AtomId;
+use tbl_structures::atomic::AtomicExpression;
 
 use crate::helpers::{parsers::{num_parser, string_parser}, styles::Style};
 
@@ -22,17 +22,17 @@ impl AtomStyle {
 
     pub fn to_id(&self, num: usize) -> String { self.atom_id_indicator.clone() + &num.to_string() }
 }
-impl Style<AtomId> for AtomStyle {
+impl Style<AtomicExpression> for AtomStyle {
     type ParseParams = ();
 
-    fn stringify(&self, atom: &AtomId) -> String {
+    fn stringify(&self, atom: &AtomicExpression) -> String {
         self.to_id(atom.0 as usize)
     }
     
-    fn parser<'a>(&self, _: Self::ParseParams) -> Parser<'a,char,AtomId> {
+    fn parser<'a>(&self, _: Self::ParseParams) -> Parser<'a,char,AtomicExpression> {
         string_parser(self.id_indicator()).unwrap().then(
             num_parser()
-        ).map(|(_, uint)| -> AtomId { AtomId::try_from(uint).unwrap() })
+        ).map(|(_, uint)| -> AtomicExpression { AtomicExpression::try_from(uint).unwrap() })
     }
 }
 
@@ -50,7 +50,7 @@ pub (crate) mod tests {
     
     #[test]
     fn test_id_parser_with_atom_id() {
-        assert_eq!(parse_str(TEST_ATOM_STYLE.parser(()), "#1124"),Ok(AtomId(1124)))
+        assert_eq!(parse_str(TEST_ATOM_STYLE.parser(()), "#1124"),Ok(AtomicExpression(1124)))
     }
     #[test]
     fn test_id_parser_with_plain_num() {

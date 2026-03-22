@@ -49,7 +49,7 @@ struct ProofValidityStepper<'a,E:Clone,Rule:VerifiableInferenceRule<E>> {
 
 impl <'a,E:Clone,Rule:VerifiableInferenceRule<E>> ProofValidityStepper<'a,E,Rule> {
     fn new(proof: CompositeProofInProof<'a,Rule>) -> Self {
-        let proof_obj = proof.obj();
+        let proof_obj = proof.obj;
         Self {
             current_step: ProofValidityStep::CheckAssumptionsFound(0),
             proved: PropositionSet::from_iter(proof_obj.get_assumptions_owned()),
@@ -84,7 +84,7 @@ impl <'a,E:Clone,Rule:VerifiableInferenceRule<E>> ProofValidityStepper<'a,E,Rule
     fn check_assumptions_step(&mut self, step_number: usize) -> ProofValidityStepResult<E> {
         let subproof = self.proof.get_located_immediate_subproof(ImmediateProofInProofPath(step_number))
             .expect("Attempted to call get_subproof when step was not within range");
-        let premises = PropositionSet::from_iter(subproof.obj().get_assumptions_owned());
+        let premises = PropositionSet::from_iter(subproof.obj.get_assumptions_owned());
         // Determine if an error is present
         let assumptions_not_found = &self.proved - &premises;
         let result = if assumptions_not_found.len() > 0 {
@@ -115,7 +115,7 @@ impl <'a,E:Clone,Rule:VerifiableInferenceRule<E>> ProofValidityStepper<'a,E,Rule
             }}
         };
         let mut result = match internal {
-            Either::Left(inference) => match verify_inference(inference.obj()) {
+            Either::Left(inference) => match verify_inference(inference.obj) {
                 Ok(_) => ProofValidityStepResult::finished_no_err(),
                 Err(err) => ProofValidityStepResult::finished_err(OwnedErrorInProof::from_inner(err, inference.path().clone())),
             },
@@ -141,7 +141,7 @@ impl <'a,E:Clone,Rule:VerifiableInferenceRule<E>> ProofValidityStepper<'a,E,Rule
     }
 
     fn check_conclusions_step(&mut self) -> ProofValidityStepResult<E> {
-        let conclusions = PropositionSet::from_iter(self.proof.obj().get_explicit_conclusions_owned());
+        let conclusions = PropositionSet::from_iter(self.proof.obj.get_explicit_conclusions_owned());
         let conclusions_not_found = &conclusions - &self.proved;
         let result = if conclusions_not_found.len() > 0 {
             ProofValidityStepResult::finished_err(OwnedErrorInProof::from_inner(

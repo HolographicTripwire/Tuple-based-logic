@@ -41,7 +41,7 @@ impl Style<Expression> for RawExpressionStyle {
     fn stringify(&self, expr: &Expression) -> String {
         match expr {
             Expression::Atomic(atom_id) => self.atom_style.stringify(atom_id),
-            Expression::Tuple(expressions) => self.to_tuple(expressions.iter().map(|e| self.stringify(e))),
+            Expression::Compound(expressions) => self.to_tuple(expressions.iter().map(|e| self.stringify(e))),
         }
     }
     
@@ -49,7 +49,7 @@ impl Style<Expression> for RawExpressionStyle {
         let opener = string_parser(self.tuple_opener()).unwrap();
         let closer = string_parser(self.tuple_closer()).unwrap();
         let atom = atomic_expression_parser(self);
-        let empty_tuple = opener.clone().then(closer.clone()).map(|_| Expression::Tuple(vec![]));
+        let empty_tuple = opener.clone().then(closer.clone()).map(|_| Expression::Compound(vec![]));
         let filled_tuple = opener.then(raw_expression_series_parser(self.clone())).then(closer)
             .map(|((_,expr),_)| expr);
         atom.or(empty_tuple).or(filled_tuple)
@@ -61,11 +61,11 @@ fn raw_expression_series_parser<'a>(style: RawExpressionStyle) -> Parser<'a,char
     
     let binding = style.clone();
     let unary = lazy(move || binding.parser(()))
-        .map(|expr| Expression::Tuple(vec![expr]));
+        .map(|expr| Expression::Compound(vec![expr]));
     
     let series = lazy(move || raw_expression_series_parser(style.clone()));
     let non_unary = unary.clone().then(delimiter).then(series)
-        .map(|((a,_),b)| Expression::Tuple([a.as_slice().unwrap(),b.as_slice().unwrap()].concat()) );
+        .map(|((a,_),b)| Expression::Compound([a.as_slice().unwrap(),b.as_slice().unwrap()].concat()) );
     
     non_unary.or(unary)
 }
@@ -78,7 +78,7 @@ fn atomic_expression_parser<'a>(style: &RawExpressionStyle) -> Parser<'a, char, 
 pub (crate) mod tests {
     use std::sync::LazyLock;
 
-    use tbl_structures::atoms::AtomId;
+    use tbl_structures::atomic::AtomicExpression;
 
     use crate::{test_helpers::parse_str,structures::atoms::tests::TEST_ATOM_STYLE};
 
@@ -90,7 +90,7 @@ pub (crate) mod tests {
 
     #[test]
     fn test_atomic_parser_with_atom_id() {
-        assert_eq!(parse_str(atomic_expression_parser(&TEST_RAW_EXPRESSION_STYLE), "#1124"),Ok(Expression::Atomic(AtomId(1124))))
+        assert_eq!(parse_str(atomic_expression_parser(&TEST_RAW_EXPRESSION_STYLE), "#1124"),Ok(Expression::Atomic(AtomicExpression(1124))))
     }
     #[test]
     fn test_atomic_parser_with_plain_num() {
@@ -98,7 +98,7 @@ pub (crate) mod tests {
     }
     #[test]
     fn test_atomic_parser_with_atom_symbol() {
-        assert_eq!(parse_str(atomic_expression_parser(&TEST_RAW_EXPRESSION_STYLE), "#8"), Ok(Expression::Atomic(AtomId(8))))
+        assert_eq!(parse_str(atomic_expression_parser(&TEST_RAW_EXPRESSION_STYLE), "#8"), Ok(Expression::Atomic(AtomicExpression(8))))
     }
     #[test]
     fn test_atomic_parser_with_atom_series() {
@@ -112,7 +112,7 @@ pub (crate) mod tests {
 
     #[test]
     fn test_series_parser_with_atom_id() {
-        let expected = Ok(Expression::Tuple(vec![AtomId(1124).into()]));
+        let expected = Ok(Expression::Compound(vec![AtomicExpression(1124).into()]));
         assert_eq!(parse_str(raw_expression_series_parser(TEST_RAW_EXPRESSION_STYLE.clone()), "#1124"), expected)
     }
     #[test]
@@ -121,12 +121,12 @@ pub (crate) mod tests {
     }
     #[test]
     fn test_series_parser_with_atom_symbol() {
-        let expected = Ok(Expression::Tuple(vec![AtomId(8).into()]));
+        let expected = Ok(Expression::Compound(vec![AtomicExpression(8).into()]));
         assert_eq!(parse_str(raw_expression_series_parser(TEST_RAW_EXPRESSION_STYLE.clone()), "#8"), expected)
     }
     #[test]
     fn test_series_parser_with_atom_series() {
-        let expected = Ok(Expression::Tuple(vec![AtomId(8).into(),AtomId(9).into()]));
+        let expected = Ok(Expression::Compound(vec![AtomicExpression(8).into(),AtomicExpression(9).into()]));
         assert_eq!(parse_str(raw_expression_series_parser(TEST_RAW_EXPRESSION_STYLE.clone()), "#8,#9"), expected)
     }
     #[test]
@@ -135,13 +135,13 @@ pub (crate) mod tests {
     }
     #[test]
     fn test_series_parser_with_atom_tuple() {
-        let expected = Ok(Expression::Tuple(vec![Expression::Tuple(vec![AtomId(8).into(),AtomId(9).into()])]));
+        let expected = Ok(Expression::Compound(vec![Expression::Compound(vec![AtomicExpression(8).into(),AtomicExpression(9).into()])]));
         assert_eq!(parse_str(raw_expression_series_parser(TEST_RAW_EXPRESSION_STYLE.clone()), "(#8,#9)"), expected)
     }
 
     #[test]
     fn test_expression_parser_with_atom_id() {
-        let expected = Ok(Expression::Atomic(AtomId(1124).into()));
+        let expected = Ok(Expression::Atomic(AtomicExpression(1124).into()));
         assert_eq!(parse_str(TEST_RAW_EXPRESSION_STYLE.parser(()), "#1124"), expected)
     }
     #[test]
@@ -150,20 +150,20 @@ pub (crate) mod tests {
     }
     #[test]
     fn test_expression_parser_with_atom_id_tuple() {
-        let expected = Ok(Expression::Tuple(vec![AtomId(8).into(),AtomId(241).into()]));
+        let expected = Ok(Expression::Compound(vec![AtomicExpression(8).into(),AtomicExpression(241).into()]));
         assert_eq!(parse_str(TEST_RAW_EXPRESSION_STYLE.parser(()), "(#8,#241)"), expected)
     }
     #[test]
     fn test_expression_parser_with_nested_tuple() {
-        let neg_p = Expression::Tuple(vec![AtomId(3).into(),AtomId(8).into()]);
-        let neg_neg_p = Expression::Tuple(vec![AtomId(3).into(),neg_p]);
-        let expected = Ok(Expression::Tuple(vec![AtomId(4).into(),AtomId(8).into(),neg_neg_p]));
+        let neg_p = Expression::Compound(vec![AtomicExpression(3).into(),AtomicExpression(8).into()]);
+        let neg_neg_p = Expression::Compound(vec![AtomicExpression(3).into(),neg_p]);
+        let expected = Ok(Expression::Compound(vec![AtomicExpression(4).into(),AtomicExpression(8).into(),neg_neg_p]));
         assert_eq!(parse_str(TEST_RAW_EXPRESSION_STYLE.parser(()), "(#4,#8,(#3,(#3,#8)))"), expected)
     }
     #[test]
     fn test_expression_parser_with_empty_tuple() {
-        let empty = Expression::Tuple(vec![]);
-        let expected = Ok(Expression::Tuple(vec![AtomId(4).into(),AtomId(13).into(),empty]));
+        let empty = Expression::Compound(vec![]);
+        let expected = Ok(Expression::Compound(vec![AtomicExpression(4).into(),AtomicExpression(13).into(),empty]));
         assert_eq!(parse_str(TEST_RAW_EXPRESSION_STYLE.parser(()), "(#4,#13,())"), expected)
     }
 }

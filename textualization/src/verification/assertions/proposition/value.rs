@@ -3,7 +3,7 @@ mod check {
         format!("Proposition at {path} has wrong value (expected {value_expected}; found {value_actual})",
             path=err.proposition.path(),
             value_expected=style.stringify(&err.expected_value),
-            value_actual=style.stringify(err.proposition.obj())
+            value_actual=style.stringify(err.proposition.obj)
         )
     }
 }
@@ -14,7 +14,7 @@ mod equality {
             atomicities = err.propositions.iter().map(|o|
                 o.path().to_string()
                 + " -> " +
-                &style.stringify(o.obj())
+                &style.stringify(o.obj)
             ).collect::<Vec<_>>().join(", ")
         )
     }
@@ -23,7 +23,7 @@ mod equality {
             atomicities = err.propositions.iter().map(|o|
                 o.path().to_string()
                 + " -> " +
-                &style.stringify(o.obj())
+                &style.stringify(o.obj)
             ).collect::<Vec<_>>().join(", ")
         )
     }
@@ -35,7 +35,7 @@ mod inequality {
             values = err.propositions.iter().map(|o|
                 o.path().to_string()
                 + " -> " +
-                &style.stringify(o.obj())
+                &style.stringify(o.obj)
             ).collect::<Vec<_>>().join(", ")
         )
     }
@@ -44,7 +44,7 @@ mod inequality {
             atomicities = err.propositions.iter().map(|o|
                 o.path().to_string()
                 + " -> " +
-                &style.stringify(o.obj())
+                &style.stringify(o.obj)
             ).collect::<Vec<_>>().join(", ")
         )
     }
