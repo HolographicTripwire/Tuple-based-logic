@@ -11,19 +11,6 @@ pub mod immediate;
 #[derive(Clone,Debug,Default,PartialEq,Eq,Hash)]
 pub struct ExpressionInExpressionPath(pub Vec<ImmediateExpressionInExpressionPath>);
 pub type ExpressionInPropositionPath = ExpressionInExpressionPath;
-
-generate_parent_of_children_trait!{
-    (Expression), ExpressionInExpressionPath,
-    "subexpression", "subexpressions", "Subexpressions"
-}
-
-
-impl Display for ImmediateExpressionInExpressionPath {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f,"{}",self.0)
-    }
-}
-
 impl Display for ExpressionInExpressionPath {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f,"{}",self.0.iter()
@@ -68,6 +55,11 @@ mod from {
             value.0
         }
     }
+}
+
+generate_parent_of_children_trait!{
+    (Expression), ExpressionInExpressionPath,
+    "subexpression", "subexpressions", "Subexpressions"
 }
 
 

@@ -1,19 +1,7 @@
-use crate::expressions::{Expression, ExpressionAtPathEnum, subexpression::{ExpressionInExpressionPath, ParentOfSubexpressions, immediate::{ImmediateExpressionInExpressionPath, ParentOfImmediateSubexpressions}}};
+use crate::expressions::{Expression, at_path_enum::ExpressionAtPathEnum, subexpression::{ExpressionInExpressionPath, ParentOfSubexpressions, immediate::{ImmediateExpressionInExpressionPath, ParentOfImmediateSubexpressions}}};
 
 #[derive(Debug,Clone,PartialEq,Eq,Hash)]
 pub struct CompoundExpression(pub Vec<Expression>);
-
-impl CompoundExpression {
-    fn get_subexpressions_inner(&self,path: &ExpressionInExpressionPath, index: usize) -> Result<&Expression,()> {
-        let immediate_path = path.0.get(index).ok_or(())?;
-        let inner = self.get_immediate_subexpression(immediate_path)?;
-        if index == path.0.len() { Ok(inner) }
-        else { match inner {
-            Expression::Atomic(_) => Err(()),
-            Expression::Compound(compound) => compound.get_subexpressions_inner(path, index+1),
-        }}
-    }
-}
 
 impl ParentOfImmediateSubexpressions for CompoundExpression {
     fn get_immediate_subexpression_paths(&self) -> impl IntoIterator<Item = ImmediateExpressionInExpressionPath>
@@ -23,6 +11,17 @@ impl ParentOfImmediateSubexpressions for CompoundExpression {
         { self.0.get(path.0).ok_or(()) }
 }
 
+impl CompoundExpression {
+    fn get_subexpressions_helper(&self,path: &ExpressionInExpressionPath, index: usize) -> Result<&Expression,()> {
+        let immediate_path = path.0.get(index).ok_or(())?;
+        let inner = self.get_immediate_subexpression(immediate_path)?;
+        if index == path.0.len() { Ok(inner) }
+        else { match inner {
+            Expression::Atomic(_) => Err(()),
+            Expression::Compound(compound) => compound.get_subexpressions_helper(path, index+1),
+        }}
+    }
+}
 impl ParentOfSubexpressions for CompoundExpression {
     fn get_subexpression_paths(&self) -> impl IntoIterator<Item = ExpressionInExpressionPath>  {
         let immediate = self.get_immediate_subexpression_paths()
@@ -43,7 +42,7 @@ impl ParentOfSubexpressions for CompoundExpression {
     }
 
     fn get_subexpression(&self,path: &ExpressionInExpressionPath) -> Result<&Expression,()>
-        { self.get_subexpressions_inner(path, 0) }
+        { self.get_subexpressions_helper(path, 0) }
 }
 
 mod from {

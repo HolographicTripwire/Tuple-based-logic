@@ -1,7 +1,7 @@
 use std::marker::PhantomData;
 
 use itertools::Either;
-use tbl_structures::{expressions::PropositionSet, proof::{AtomicProofInProofPath, ProofStep, SplitProofInProof, composite::CompositeProofInProof, error::OwnedErrorInProof, inference::InferenceInProof}};
+use tbl_structures::{expressions::PropositionSet, proof::{ImmediateProofInProofPath, ProofStep, SplitProofInProof, composite::CompositeProofInProof, error::OwnedErrorInProof, inference::InferenceInProof}};
 
 use crate::validity::{ProofValidityError, VerifiableInferenceRule, verify_inference};
 
@@ -82,7 +82,7 @@ impl <'a,E:Clone,Rule:VerifiableInferenceRule<E>> ProofValidityStepper<'a,E,Rule
     }
 
     fn check_assumptions_step(&mut self, step_number: usize) -> ProofValidityStepResult<E> {
-        let subproof = self.proof.get_located_immediate_subproof(AtomicProofInProofPath(step_number))
+        let subproof = self.proof.get_located_immediate_subproof(ImmediateProofInProofPath(step_number))
             .expect("Attempted to call get_subproof when step was not within range");
         let premises = PropositionSet::from_iter(subproof.obj().get_assumptions_owned());
         // Determine if an error is present
@@ -104,7 +104,7 @@ impl <'a,E:Clone,Rule:VerifiableInferenceRule<E>> ProofValidityStepper<'a,E,Rule
         // Get internal value
         let internal = {
             if self.inner.is_some() { Either::Right(&mut self.inner)
-            } else { match self.proof.get_located_immediate_subproof(AtomicProofInProofPath(step_number))
+            } else { match self.proof.get_located_immediate_subproof(ImmediateProofInProofPath(step_number))
                     .expect("Attempted to call get_subproof when step was not within range")
                     .into() {
                 SplitProofInProof::Inference(inference) => Either::Left(inference),
