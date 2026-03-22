@@ -3,7 +3,7 @@ use std::fmt::Display;
 
 use path_lib::{obj_at_path::{ObjAtPath, OwnedObjAtPath}};
 
-use crate::{expressions::{Proposition, subexpression::ExpressionInExpressionPath}, path_composites::ExpressionInInferencePath};
+use crate::expressions::Proposition;
 
 #[derive(Clone,Copy,PartialEq,Eq,Hash,Debug)]
 pub struct AssumptionInProofStepPath(pub usize);
