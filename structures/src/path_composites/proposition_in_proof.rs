@@ -2,7 +2,7 @@ use std::fmt::Display;
 
 use path_lib::obj_at_path::{ObjAtPath, OwnedObjAtPath};
 
-use crate::{expressions::Proposition, proof::{ProofInProofPath, PropositionInProofStepPath}};
+use crate::{expressions::Proposition, sequential_proofs::{ProofInProofPath, PropositionInProofStepPath}};
 
 #[derive(Clone,PartialEq,Eq,Debug)]
 pub struct PropositionInProofPath {
@@ -22,7 +22,7 @@ pub type PropositionInProof<'a> = ObjAtPath<'a,Proposition,PropositionInProofPat
 pub type OwnedPropositionInProof = OwnedObjAtPath<Proposition,PropositionInProofPath>;
 
 mod from {
-    use crate::proof::ProofInProofPath;
+    use crate::sequential_proofs::ProofInProofPath;
 
     use super::*;
 

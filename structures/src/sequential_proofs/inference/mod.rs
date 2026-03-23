@@ -1,7 +1,7 @@
 
 use path_lib::{obj_at_path::{ObjAtPath, OwnedObjAtPath}};
 
-use crate::{expressions::Proposition, proof::{AssumptionInProofStepPath, ExplicitConclusionInProofStepPath, ParentOfAssumptions, ParentOfExplicitConclusions, ProofInProofPath, ProofStep}};
+use crate::{expressions::Proposition, sequential_proofs::{AssumptionInProofStepPath, ExplicitConclusionInProofStepPath, ParentOfAssumptions, ParentOfExplicitConclusions, ProofInProofPath, ProofStep}};
 
 #[derive(Clone,PartialEq,Eq,Debug)]
 /// A struct representing a single inference step within a proof

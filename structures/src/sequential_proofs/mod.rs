@@ -1,14 +1,13 @@
 pub mod inference;
 pub mod composite;
 pub mod at_path_enum;
-mod step;
 mod in_proof;
 pub mod error;
 
 use path_lib_proc_macros::generate_parent_of_children_trait;
 pub use in_proof::*;
 
-use crate::{propositions::Proposition, proof::{composite::CompositeProof, inference::{Inference, InferenceRule}}};
+use crate::{propositions::Proposition, sequential_proofs::{composite::CompositeSequentialProof, inference::{Inference, InferenceRule}}};
 
 generate_parent_of_children_trait!{
     (Proposition), AssumptionInProofStepPath,
@@ -24,7 +23,7 @@ pub trait ProofStep<Rule: InferenceRule>: ParentOfAssumptions + ParentOfExplicit
 #[derive(Clone,PartialEq,Eq,Debug)]
 pub enum Proof<Rule: InferenceRule> {
     Inference(Inference<Rule>), // A single inference step
-    Composite(CompositeProof<Rule>) // A composite proof made of further subproofs
+    Composite(CompositeSequentialProof<Rule>) // A composite proof made of further subproofs
 }
 
 impl <Rule: InferenceRule> ParentOfAssumptions for Proof<Rule> {
@@ -53,7 +52,7 @@ impl <Rule: InferenceRule> ProofStep<Rule> for Proof<Rule> {}
 
 #[cfg(test)]
 mod tests {
-    use crate::proof::in_proof::ProofInProofPath;    
+    use crate::sequential_proofs::in_proof::ProofInProofPath;    
 
     #[test]
     fn test_getters() {

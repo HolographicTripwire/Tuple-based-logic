@@ -3,7 +3,7 @@ use std::fmt::Display;
 use path_lib::obj_at_path::{ObjAtPath, OwnedObjAtPath};
 use path_lib_proc_macros::generate_parent_of_children_trait;
 
-use crate::{proof::{Proof, at_path_enum::{OwnedProofAtPathEnum, ProofAtPathEnum}, inference::InferenceRule}};
+use crate::{sequential_proofs::{Proof, at_path_enum::{OwnedProofAtPathEnum, ProofAtPathEnum}, inference::InferenceRule}};
 
 #[derive(Clone,Copy,PartialEq,Eq,Hash,Debug)]
 /// Identifies a particular step iwthin a [`Proof`], and can be given to such a [`Proof`] to retreive the [`SubProof`] at that step

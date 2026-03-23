@@ -6,7 +6,7 @@ use std::fmt::Display;
 use path_lib::{obj_at_path::{ObjAtPath, OwnedObjAtPath}};
 use path_lib_proc_macros::generate_parent_of_children_trait;
 
-use crate::proof::{Proof, immediate::ImmediateProofInProofPath, inference::InferenceRule};
+use crate::sequential_proofs::{Proof, immediate::ImmediateProofInProofPath, inference::InferenceRule};
 
 pub use proposition::*;
 

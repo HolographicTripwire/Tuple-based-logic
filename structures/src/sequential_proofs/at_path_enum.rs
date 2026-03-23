@@ -1,10 +1,10 @@
 use path_lib::obj_at_path::{ObjAtPath, OwnedObjAtPath};
 
-use crate::proof::{Proof, composite::CompositeProof, inference::{Inference, InferenceRule}};
+use crate::sequential_proofs::{Proof, composite::CompositeSequentialProof, inference::{Inference, InferenceRule}};
 
 pub enum ProofAtPathEnum<'a,Path,Rule: InferenceRule> {
     Inference(ObjAtPath<'a,Inference<Rule>,Path>),
-    Composite(ObjAtPath<'a,CompositeProof<Rule>,Path>)
+    Composite(ObjAtPath<'a,CompositeSequentialProof<Rule>,Path>)
 }
 impl <'a,Path,Rule:InferenceRule> ProofAtPathEnum<'a,Path,Rule> {
     pub fn path(&self) -> &Path { match self {
@@ -27,7 +27,7 @@ impl <'a,Path,Rule:InferenceRule> From<ObjAtPath<'a,Proof<Rule>,Path>> for Proof
 
 pub enum OwnedProofAtPathEnum<Path,Rule:InferenceRule> {
     Inference(OwnedObjAtPath<Inference<Rule>,Path>),
-    Composite(OwnedObjAtPath<CompositeProof<Rule>,Path>)
+    Composite(OwnedObjAtPath<CompositeSequentialProof<Rule>,Path>)
 }
 impl <Path,Rule:InferenceRule> From<OwnedObjAtPath<Proof<Rule>,Path>> for OwnedProofAtPathEnum<Path,Rule> {
     fn from(value: OwnedObjAtPath<Proof<Rule>,Path>) -> Self { match value.obj {
