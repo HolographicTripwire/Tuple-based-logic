@@ -1,4 +1,4 @@
-use tbl_structures::{expressions::Expression, path_composites::{ExpressionInInference, OwnedExpressionInInference}};
+use tbl_structures::{expressions::TblExpression, path_composites::{ExpressionInInference, OwnedExpressionInInference}};
 
 #[derive(Clone)]
 pub struct ExpressionLengthCheckError {
@@ -7,7 +7,7 @@ pub struct ExpressionLengthCheckError {
 }
 impl ExpressionLengthCheckError {
     pub fn get_actual_length(&self) -> Option<usize> { self.expression.obj.len() }
-    pub fn into_expression(self) -> Expression { self.expression.obj }
+    pub fn into_expression(self) -> TblExpression { self.expression.obj }
 }
 
 /// Check that the provided [Expression](ExpressionInInference) has an length equal to expected_length, returning an error otherwise

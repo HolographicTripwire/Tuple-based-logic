@@ -1,4 +1,3 @@
-use tbl_structures::{expressions::{TblProposition, atomic::AtomicExpression}, proof::{OwnedPropositionInProofStep, PropositionInProofStep}};
 
 pub struct PropositionValueEqualityError {
     pub propositions: Vec<OwnedPropositionInProofStep>
@@ -26,7 +25,7 @@ pub struct FixedLengthPropositionValueEqualityError<const N: usize> {
 /// Check that the provided [Propositions](PropositionInProofStep) have equal length, returning an error otherwise
 pub fn assert_fixed_length_proposition_value_equality<'a,const N: usize>(exprs: &[&'a PropositionInProofStep<'a>; N]) -> Result<TblProposition, FixedLengthPropositionValueEqualityError<N>> {
     if N == 0 { panic!("Cannot check value equality for zero propositions") } 
-    let mut output = [&TblProposition::Atomic(AtomicExpression(0)); N];  // Initialize the output array
+    let mut output = [&TblProposition::Atomic(AtomicTblExpression(0)); N];  // Initialize the output array
     for i in 0..N {
         output[i] = exprs[i].obj;
         // Throw error if atomicities are not equal

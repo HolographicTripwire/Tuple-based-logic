@@ -1,10 +1,10 @@
-use tbl_structures::{expressions::{Expression, atomic::AtomicExpression}, path_composites::{ExpressionInInference, OwnedExpressionInInference}};
+use tbl_structures::{expressions::{TblExpression, atomic::AtomicTblExpression}, path_composites::{ExpressionInInference, OwnedExpressionInInference}};
 
 pub struct ExpressionValueEqualityError {
     pub expressions: Vec<OwnedExpressionInInference>
 }
 /// Check that the provided [Expressions](OwnedExpressionInProof) have equal value, returning an error otherwise
-pub fn assert_expression_value_equality<'a>(exprs: &[&'a ExpressionInInference<'a>]) -> Result<Expression, ExpressionValueEqualityError> {
+pub fn assert_expression_value_equality<'a>(exprs: &[&'a ExpressionInInference<'a>]) -> Result<TblExpression, ExpressionValueEqualityError> {
     let mut iter = exprs.iter().map(|o| o.obj );
     let first_value = iter.next().expect("Cannot check value equality for zero expressions");
     for nth_value in iter {
@@ -19,9 +19,9 @@ pub struct FixedLengthExpressionValueEqualityError<const N: usize> {
     pub expressions: [OwnedExpressionInInference; N]
 }
 /// Check that the provided [Expressions](ExpressionInInference) have equal length, returning an error otherwise
-pub fn assert_fixed_length_expression_value_equality<'a,const N: usize>(exprs: &[&'a ExpressionInInference<'a>; N]) -> Result<Expression, FixedLengthExpressionValueEqualityError<N>> {
+pub fn assert_fixed_length_expression_value_equality<'a,const N: usize>(exprs: &[&'a ExpressionInInference<'a>; N]) -> Result<TblExpression, FixedLengthExpressionValueEqualityError<N>> {
     if N == 0 { panic!("Cannot check value equality for zero expressions") } 
-    let mut output = [&Expression::Atomic(AtomicExpression(0)); N];  // Initialize the output array
+    let mut output = [&TblExpression::Atomic(AtomicTblExpression(0)); N];  // Initialize the output array
     for i in 0..N {
         output[i] = exprs[i].obj;
         // Throw error if atomicities are not equal

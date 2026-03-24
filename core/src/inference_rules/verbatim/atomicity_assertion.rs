@@ -1,4 +1,4 @@
-use tbl_structures::{atomic::BuiltInAtom, expressions::Expression, inference::{Inference, InferenceRule}};
+use tbl_structures::{atomic::BuiltInAtom, expressions::TblExpression, inference::{Inference, InferenceRule}};
 
 use tbl_verification::validity::{assert_expression_atomicity, assert_expression_value, explicit_conclusions_as_sized_slice, proposition_as_sized_slice};
 
@@ -9,9 +9,9 @@ pub enum AtomicityAssertionError {
     WrongExplicitConclusionCount(usize),
     WrongAssumptionCount(usize),
     AtomicityWrongSize(Option<usize>),
-    AtomicityWrongHead(Expression),
-    AtomicityParamNotVerbatim(Expression),
-    VerbatimComponentNotAtomic(Expression)
+    AtomicityWrongHead(TblExpression),
+    AtomicityParamNotVerbatim(TblExpression),
+    VerbatimComponentNotAtomic(TblExpression)
 }
 
 /// Verify that the assumptions and the conclusion form a valid instance of atomicity assertion ("Atomic(Verbatim(a))" for any atom a)

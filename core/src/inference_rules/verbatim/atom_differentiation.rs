@@ -1,4 +1,4 @@
-use tbl_structures::{atomic::BuiltInAtom, expressions::Expression, inference::{Inference, InferenceRule}};
+use tbl_structures::{atomic::BuiltInAtom, expressions::TblExpression, inference::{Inference, InferenceRule}};
 
 use tbl_verification::{validity::*};
 
@@ -9,14 +9,14 @@ pub enum AtomDifferentiationError {
     WrongExplicitConclusionCount(usize),
     WrongAssumptionCount(usize),
     NegationWrongSize(Option<usize>),
-    NegationWrongHead(Expression),
+    NegationWrongHead(TblExpression),
     IdentityWrongSize(Option<usize>),
-    IdentityWrongHead(Expression),
-    IdentityLeftNotVerbatim(Expression),
-    IdentityRightNotVerbatim(Expression),
-    VerbatimLeftInatomic(Expression),
-    VerbatimRightInatomic(Expression),
-    LeftAndRightEqual(Expression),
+    IdentityWrongHead(TblExpression),
+    IdentityLeftNotVerbatim(TblExpression),
+    IdentityRightNotVerbatim(TblExpression),
+    VerbatimLeftInatomic(TblExpression),
+    VerbatimRightInatomic(TblExpression),
+    LeftAndRightEqual(TblExpression),
 }
 
 /// Verify that the assumptions and the conclusion form a valid instance of atomicity assertion ("Not (Verbatim(a) = Verbatim(b))" for any two different atoms a and b)

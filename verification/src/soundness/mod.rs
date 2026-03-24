@@ -1,4 +1,3 @@
-use tbl_structures::{expressions::{TblProposition, TblPropSet}, proof::{Proof, error::OwnedErrorInProof}};
 
 use crate::{grounding::{get_proof_grounding_errors, verify_proof_grounding}, validity::{ProofValidityError, VerifiableInferenceRule, get_proof_validity_errors, verify_proof_validity}};
 

@@ -2,7 +2,7 @@ use std::{collections::HashSet, sync::Arc};
 
 use dyn_clone::DynClone;
 use parsertools::{helpers::lazy, tokens::pred, Parser};
-use tbl_structures::expressions::Expression;
+use tbl_structures::expressions::TblExpression;
 
 use crate::{helpers::{parsers::controlled::ControlStrings, styles::Style}, structures::expressions::raw::RawExpressionStyle};
 
@@ -31,33 +31,33 @@ impl <'a> ExpressionStyle<'a> {
         }*/
     }
 }
-impl <'a> Style<Expression> for ExpressionStyle<'a> {
+impl <'a> Style<TblExpression> for ExpressionStyle<'a> {
     type ParseParams = ControlStrings;
 
-    fn stringify(&self, expression: &Expression) -> String {
+    fn stringify(&self, expression: &TblExpression) -> String {
         let raw_expression = self.raw_expr_style.stringify(expression);
         self.apply_special_cases(raw_expression)
     }
     
-    fn parser<'b>(&self, params: Self::ParseParams) -> Parser<'b,char,Expression> {
+    fn parser<'b>(&self, params: Self::ParseParams) -> Parser<'b,char,TblExpression> {
         todo!()
     }
     
 }
 
 pub trait SpecialCase<'a>: Sync + Send + DynClone {
-    fn parser(&self, expr_parser: Parser<'a,char,Expression>) -> Parser<'a,char,Expression>;
+    fn parser(&self, expr_parser: Parser<'a,char,TblExpression>) -> Parser<'a,char,TblExpression>;
 }
 impl <'a> Clone for Box<dyn SpecialCase<'a>>
     { fn clone(&self) -> Self { dyn_clone::clone_box(&**self) } }
 pub type SpecialCases<'a> = Vec<Box<dyn SpecialCase<'a>>>;
 
-pub fn expression_parser<'a>(style: ExpressionStyle<'a>) -> Parser<'a,char,Expression> {
+pub fn expression_parser<'a>(style: ExpressionStyle<'a>) -> Parser<'a,char,TblExpression> {
     style.raw_expr_style().parser(())
         .or(processed_expression_parser(style))
 }
 
-fn processed_expression_parser<'a>(style: ExpressionStyle<'a>) -> Parser<'a,char,Expression> {
+fn processed_expression_parser<'a>(style: ExpressionStyle<'a>) -> Parser<'a,char,TblExpression> {
     let cloned_style = style.clone();
     let expression_parser = lazy(move || expression_parser(cloned_style.clone()));
     let binding = style.special_cases();

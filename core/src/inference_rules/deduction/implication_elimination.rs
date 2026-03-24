@@ -1,4 +1,4 @@
-use tbl_structures::expressions::Expression;
+use tbl_structures::expressions::TblExpression;
 use tbl_structures::inference::{Inference, InferenceRule};
 use tbl_structures::atomic::BuiltInAtom;
 
@@ -9,9 +9,9 @@ pub enum ImplicationEliminationError {
     WrongExplicitConclusionCount(usize),
     WrongAssumptionCount(usize),
     ImplicationWrongSize(Option<usize>),
-    ImplicationWrongHead(Expression),
-    AntecedentInequal(Expression,Expression),
-    ConsequentInequal(Expression,Expression)
+    ImplicationWrongHead(TblExpression),
+    AntecedentInequal(TblExpression,TblExpression),
+    ConsequentInequal(TblExpression,TblExpression)
 }
 
 /// Verify that the assumptions and the conclusion form a valid instance of implication elimination ("a" and "a implies b" entails "b")

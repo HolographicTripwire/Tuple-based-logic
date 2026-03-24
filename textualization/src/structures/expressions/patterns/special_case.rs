@@ -1,5 +1,5 @@
 use parsertools::Parser;
-use tbl_structures::expressions::Expression;
+use tbl_structures::expressions::TblExpression;
 
 use crate::structures::expressions::{patterns::{expr_pattern_matcher, ExprPattern}, SpecialCase};
 
@@ -20,7 +20,7 @@ impl ExprPatternPair {
     }
 }
 impl <'a> SpecialCase<'a> for ExprPatternPair {
-    fn parser(&self, expr_parser: Parser<'a,char,Expression>) -> Parser<'a,char,Expression> {
+    fn parser(&self, expr_parser: Parser<'a,char,TblExpression>) -> Parser<'a,char,TblExpression> {
         self.right_to_left().clone()
             .split_map(move |s| expr_parser.parse(s.chars()))
     }
@@ -38,7 +38,7 @@ mod tests {
     use std::{collections::HashSet, sync::LazyLock};
 
     use parsertools::{results::ParseError, Parser};
-    use tbl_structures::expressions::Expression;
+    use tbl_structures::expressions::TblExpression;
 
     use crate::{helpers::styles::Style, structures::expressions::{patterns::{parser::{TEST_BLACKLIST, TEST_PATTERN_STYLE}, ExprPattern}, raw::tests::TEST_RAW_EXPRESSION_STYLE}, test_helpers::{parse_all_str, parse_str}};
 
@@ -61,13 +61,13 @@ mod tests {
         ); assert_eq!(after, after_check);
     }
 
-    const RAW_EXPRESSION_PARSER: LazyLock<Parser<char,Expression>> = LazyLock::new(||
+    const RAW_EXPRESSION_PARSER: LazyLock<Parser<char,TblExpression>> = LazyLock::new(||
         TEST_RAW_EXPRESSION_STYLE.parser(())
     );
     fn parse_pattern_pair<'a>(l: &str, r: &str) -> ExprPatternPair
         { ExprPatternPair::new(parse_pattern(l),parse_pattern(r)) }
 
-    fn pre_test_special_case(before_pattern_str: &str, after_pattern_str: &str, before_str: &str, after_expression: &str) -> (Result<Expression,ParseError<char>>,Expression) {
+    fn pre_test_special_case(before_pattern_str: &str, after_pattern_str: &str, before_str: &str, after_expression: &str) -> (Result<TblExpression,ParseError<char>>,TblExpression) {
         let pattern_pair = parse_pattern_pair(before_pattern_str,after_pattern_str);
         let after = parse_str(pattern_pair.parser(RAW_EXPRESSION_PARSER.clone()),before_str);
         let after_check = parse_str(RAW_EXPRESSION_PARSER.clone(),after_expression).unwrap();

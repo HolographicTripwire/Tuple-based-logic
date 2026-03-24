@@ -1,7 +1,7 @@
 use itertools::Either;
-use tbl_structures::expressions::Expression;
+use tbl_structures::expressions::TblExpression;
 use tbl_structures::path_composites::ExpressionInInference;
-use tbl_structures::proof::{OwnedPropositionInProofStep, PropositionInProofStep};
+use tbl_structures::sequential_proofs::{OwnedPropositionInProofStep, PropositionInProofStep};
 
 use crate::validity::{ExpressionValueCheckError, assert_expression_value};
 use crate::validity::PropositionLengthCheckError;
@@ -15,7 +15,7 @@ pub enum UnwrapInvocationPropositionError {
 }
 
 /// Take an proposition, and if it is in the form (expected_head, e1, e2, ..., en) return [e1, e2, ..., en], otherwise return an Error
-pub fn unwrap_invocation_proposition<'a>(invocation: &'a PropositionInProofStep<'a>, expected_head: &Expression) -> Result<Vec<ExpressionInInference<'a>>,UnwrapInvocationPropositionError>{
+pub fn unwrap_invocation_proposition<'a>(invocation: &'a PropositionInProofStep<'a>, expected_head: &TblExpression) -> Result<Vec<ExpressionInInference<'a>>,UnwrapInvocationPropositionError>{
     let vec = proposition_as_slice(invocation)
         .map_err(|_| UnwrapInvocationPropositionError::PropositionAtomic(invocation.clone().into()))?;
     let (head, tail) = vec.split_first().ok_or_else(|| UnwrapInvocationPropositionError::NoFirstElement(invocation.clone().into()))?;
@@ -25,7 +25,7 @@ pub fn unwrap_invocation_proposition<'a>(invocation: &'a PropositionInProofStep<
 }
 
 /// Take an proposition, and if it is in the form (expected_head, e1, e2, ..., en) where n = N return [e1, e2, ..., en], otherwise return an Error
-pub fn unwrap_fixed_length_invocation_proposition<'a,const N: usize>(invocation: &'a PropositionInProofStep<'a>, expected_head: &Expression) -> Result<Box<[ExpressionInInference<'a>; N]>,Either<UnwrapInvocationPropositionError,PropositionLengthCheckError>>{
+pub fn unwrap_fixed_length_invocation_proposition<'a,const N: usize>(invocation: &'a PropositionInProofStep<'a>, expected_head: &TblExpression) -> Result<Box<[ExpressionInInference<'a>; N]>,Either<UnwrapInvocationPropositionError,PropositionLengthCheckError>>{
     let vec = proposition_as_slice(invocation)
         .map_err(|_| Either::Left(UnwrapInvocationPropositionError::PropositionAtomic(invocation.clone().into())))?;
     let (head, tail) = vec.split_first().ok_or_else(|| Either::Left(UnwrapInvocationPropositionError::NoFirstElement(invocation.clone().into())))?;

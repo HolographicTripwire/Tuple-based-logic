@@ -1,6 +1,6 @@
 use std::collections::HashSet;
 
-use tbl_structures::inference::InferenceRule;
+use tbl_structures::sequential_proofs::inference::InferenceRule;
 
 use crate::PropositionQuery;
 

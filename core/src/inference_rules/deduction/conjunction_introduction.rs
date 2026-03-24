@@ -1,4 +1,4 @@
-use tbl_structures::expressions::Expression;
+use tbl_structures::expressions::TblExpression;
 use tbl_structures::inference::{Inference, InferenceRule};
 use tbl_structures::path_composites::ExpressionInInference;
 use tbl_structures::atomic::BuiltInAtom;
@@ -10,9 +10,9 @@ pub enum ConjunctionIntroductionError {
     WrongExplicitConclusionCount(usize),
     WrongAssumptionCount(usize),
     ConjunctionWrongSize(Option<usize>),
-    ConjunctionWrongHead(Expression),
-    LeftSideInequal(Expression,Expression),
-    RightSideInequal(Expression,Expression)
+    ConjunctionWrongHead(TblExpression),
+    LeftSideInequal(TblExpression,TblExpression),
+    RightSideInequal(TblExpression,TblExpression)
 }
 
 /// Verify that the assumptions and the conclusion form a valid instance of conjunction introduction ("a" and "b" entails "a and b")

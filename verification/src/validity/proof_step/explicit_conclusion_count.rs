@@ -1,4 +1,4 @@
-use tbl_structures::proof::inference::{Inference, InferenceRule};
+use tbl_structures::sequential_proofs::inference::{Inference, InferenceRule};
 
 pub struct ExplicitConclusionCountCheckError<Rule: InferenceRule> {
     pub expected_count: usize,

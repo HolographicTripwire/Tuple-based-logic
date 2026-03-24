@@ -8,9 +8,6 @@ pub use proof_step::*;
 pub use expression::*;
 pub use proposition::*;
 
-
-use tbl_structures::{expressions::TblPropSet, proof::{Proof, ProofInProof, error::OwnedErrorInProof, inference::{Inference, InferenceRule}}};
-
 pub fn verify_inference<Err, Rule: VerifiableInferenceRule<Err>>(inference: &Inference<Rule>) -> Result<(),ProofValidityError<Err>> {
     Rule::verify(inference)
         .map_err(|err| ProofValidityError::InvalidInference(err))

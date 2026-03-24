@@ -1,4 +1,4 @@
-use tbl_structures::proof::{OwnedPropositionInProofStep, PropositionInProofStep};
+use tbl_structures::sequential_proofs::{OwnedPropositionInProofStep, PropositionInProofStep};
 
 pub struct PropositionLengthEqualityError {
     pub propositions: Vec<OwnedPropositionInProofStep>

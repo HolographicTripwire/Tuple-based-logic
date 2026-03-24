@@ -1,4 +1,4 @@
-use tbl_structures::proof::{OwnedPropositionInProofStep, PropositionInProofStep};
+use tbl_structures::sequential_proofs::{OwnedPropositionInProofStep, PropositionInProofStep};
 
 pub struct PropositionLengthCheckError {
     pub expected_length: usize,

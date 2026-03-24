@@ -29,19 +29,19 @@ pub const EXPRESSION_STYLE: LazyLock<ExpressionStyle> = LazyLock::new(|| -> Expr
 mod tests {
     use std::{collections::HashMap};
 
-    use tbl_structures::{atomic::BuiltInAtom, expressions::Expression};
+    use tbl_structures::{atomic::BuiltInAtom, expressions::TblExpression};
     use tbl_textualization::{helpers::styles::Stylable, structures::expressions::expression_parser};
 
     use super::*;
 
-    static CONVERSIONS: LazyLock<HashMap<&str,Expression>> = LazyLock::new(|| -> HashMap<&str,Expression> { 
-        let conjunction = || Expression::from(BuiltInAtom::Conjunction);
-        let implication = || Expression::from(BuiltInAtom::Implication);
+    static CONVERSIONS: LazyLock<HashMap<&str,TblExpression>> = LazyLock::new(|| -> HashMap<&str,TblExpression> { 
+        let conjunction = || TblExpression::from(BuiltInAtom::Conjunction);
+        let implication = || TblExpression::from(BuiltInAtom::Implication);
         HashMap::from_iter(vec![
             ("∧",conjunction()),
-            ("(∧)",Expression::Compound(vec![conjunction()])),
-            ("(∧, →)",Expression::Compound(vec![conjunction(),implication()])),
-            ("((∧), →)", Expression::from(vec![Expression::from(vec![conjunction()]),implication()])),
+            ("(∧)",TblExpression::Compound(vec![conjunction()])),
+            ("(∧, →)",TblExpression::Compound(vec![conjunction(),implication()])),
+            ("((∧), →)", TblExpression::from(vec![TblExpression::from(vec![conjunction()]),implication()])),
         ].into_iter())
     });
 

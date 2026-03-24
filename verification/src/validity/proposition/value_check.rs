@@ -1,4 +1,3 @@
-use tbl_structures::{expressions::TblProposition, proof::{OwnedPropositionInProofStep, PropositionInProofStep}};
 
 pub struct PropositionValueCheckError {
     pub expected_value: TblProposition,

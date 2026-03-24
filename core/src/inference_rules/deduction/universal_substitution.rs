@@ -1,6 +1,6 @@
 use tbl_structures::inference::{Inference, InferenceRule};
 use tbl_structures::path_composites::{ExpressionInInference, OwnedExpressionInInference};
-use tbl_structures::{atomic::BuiltInAtom, expressions::Expression};
+use tbl_structures::{atomic::BuiltInAtom, expressions::TblExpression};
 
 use tbl_verification::validity::*;
 
@@ -9,7 +9,7 @@ pub enum UniversalSubstitutionError {
     WrongExplicitConclusionCount(usize),
     WrongAssumptionCount(usize),
     SubstitutionWrongSize(Option<usize>),
-    SubtitutionWrongHead(Expression),
+    SubtitutionWrongHead(TblExpression),
     SubstitutionComparisonError(SubstitutionComparisonError),
 }
 
@@ -47,7 +47,7 @@ pub enum SubstitutionComparisonError {
 /// # Returns
 /// - The value that the replace_expr was replaced with, if one can be found
 /// - An error if such a replacement could not be verified to have taken place.
-fn assert_substitution_comparison_validity<'a>(find_expr: ExpressionInInference, replace_expr: &Expression, verify_expr: ExpressionInInference) -> Result<Option<Expression>,SubstitutionComparisonError> {
+fn assert_substitution_comparison_validity<'a>(find_expr: ExpressionInInference, replace_expr: &TblExpression, verify_expr: ExpressionInInference) -> Result<Option<TblExpression>,SubstitutionComparisonError> {
     let mut ivm_paths = substitution_comparison_inner(find_expr, replace_expr, verify_expr)?.into_iter();
     if let Some(head_expr) = ivm_paths.next() {
         for tail_expr in ivm_paths {
@@ -58,7 +58,7 @@ fn assert_substitution_comparison_validity<'a>(find_expr: ExpressionInInference,
     } else { Ok(None) }
 }
 
-fn substitution_comparison_inner<'a>(find_expr: ExpressionInInference<'a>, replace_expr: &Expression, verify_expr: ExpressionInInference<'a>) -> Result<Vec<ExpressionInInference<'a>>, SubstitutionComparisonError> {
+fn substitution_comparison_inner<'a>(find_expr: ExpressionInInference<'a>, replace_expr: &TblExpression, verify_expr: ExpressionInInference<'a>) -> Result<Vec<ExpressionInInference<'a>>, SubstitutionComparisonError> {
     // If the find expression is the replace expression, then it must have been replaced with the verify expression so return that
     if find_expr.obj == replace_expr { return Ok(vec![verify_expr]) }
     if find_expr.obj == verify_expr.obj { return Ok(vec![]) }

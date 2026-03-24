@@ -1,4 +1,4 @@
-use tbl_structures::{atomic::BuiltInAtom, expressions::Expression, inference::{Inference, InferenceRule}};
+use tbl_structures::{atomic::BuiltInAtom, expressions::TblExpression, inference::{Inference, InferenceRule}};
 
 use tbl_verification::validity::*;
 
@@ -9,16 +9,16 @@ pub enum TupleAppendationError {
     WrongExplicitConclusionCount(usize),
     WrongAssumptionCount(usize),
     IdentityWrongSize(Option<usize>),
-    IdentityWrongHead(Expression),
+    IdentityWrongHead(TblExpression),
     AppendationWrongSize(Option<usize>),
-    AppendationWrongHead(Expression),
-    PreAppendNotVerbatim(Expression),
-    ToAppendNotVerbatim(Expression),
-    PostAppendVerbatim(Expression),
+    AppendationWrongHead(TblExpression),
+    PreAppendNotVerbatim(TblExpression),
+    ToAppendNotVerbatim(TblExpression),
+    PostAppendVerbatim(TblExpression),
     PreAppendAtomic,
     PostAppendAtomic,
     PostAppendNotLengthSuccessorOfPreAppend(usize, usize),
-    AppendedNotToAppend(Expression, Expression)
+    AppendedNotToAppend(TblExpression, TblExpression)
 }
 
 /// Verify that the assumptions and the conclusion form a valid instance of atomicity assertion ("Verbatim((v1,v2,v3,...,vn,vm)) = Append(Verbatim((v1,v2,v3,...,vn)),Verbatim((vm)))" for any (v1,v2,v3,...,vn) and vm)

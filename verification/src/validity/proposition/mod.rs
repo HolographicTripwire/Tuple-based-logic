@@ -21,9 +21,6 @@ pub use value_equality_check::*;
 pub use value_inequality_check::*;
 pub use functional::*;
 
-use tbl_structures::{expressions::TblProposition, path_composites::ExpressionInInference, proof::PropositionInProofStepPath};
-use tbl_structures::proof::{OwnedPropositionInProofStep, PropositionInProofStep};
-
 pub struct PropositionSubpathError {
     pub subpath: ExpressionInExpressionPath,
     pub proposition: OwnedPropositionInProofStep

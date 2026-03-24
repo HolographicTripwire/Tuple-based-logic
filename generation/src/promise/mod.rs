@@ -1,4 +1,3 @@
-use tbl_structures::{inference::InferenceRule, proof::{error::ErrorInProof, CompositeProof, Proof}, expressions::TblProposition};
 
 pub trait ProofGenerator<Rule: InferenceRule, G: ProofGenerator<Rule, G>>: Clone {
     fn generate(&self, conclusions: &[TblProposition]) -> Result<ProofPromise<Rule,G>,ProofGenerationError>;

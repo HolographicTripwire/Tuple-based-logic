@@ -1,4 +1,4 @@
-use tbl_structures::{expressions::Expression, path_composites::{ExpressionInInference, OwnedExpressionInInference}};
+use tbl_structures::{expressions::TblExpression, path_composites::{ExpressionInInference, OwnedExpressionInInference}};
 
 #[derive(Clone)]
 pub struct ExpressionAtomicityCheckError {
@@ -7,7 +7,7 @@ pub struct ExpressionAtomicityCheckError {
 }
 impl ExpressionAtomicityCheckError {
     pub fn get_actual_atomicity(&self) -> bool { self.expression.obj.len().is_none() }
-    pub fn into_expression(self) -> Expression { self.expression.obj }
+    pub fn into_expression(self) -> TblExpression { self.expression.obj }
 }
 
 /// Check that the provided [Expression](ExpressionInInference) has an atomicity equal to expected_atomicity, returning an error otherwise

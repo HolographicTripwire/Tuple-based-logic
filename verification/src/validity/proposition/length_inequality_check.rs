@@ -1,6 +1,6 @@
 use std::collections::HashSet;
 
-use tbl_structures::proof::{OwnedPropositionInProofStep, PropositionInProofStep};
+use tbl_structures::sequential_proofs::{OwnedPropositionInProofStep, PropositionInProofStep};
 
 pub struct PropositionLengthInequalityError {
     pub propositions: Vec<OwnedPropositionInProofStep>

@@ -20,7 +20,7 @@ pub use value_equality_check::*;
 pub use value_inequality_check::*;
 pub use functional::*;
 
-use tbl_structures::{expressions::{Expression, subexpression::{ExpressionInExpressionPath, ParentOfSubexpressions, LocatedParentOfSubexpressions}}, path_composites::{ExpressionInInference, ExpressionInInferencePath, OwnedExpressionInInference}};
+use tbl_structures::{expressions::{TblExpression, subexpression::{ExpressionInExpressionPath, ParentOfSubexpressions, LocatedParentOfSubexpressions}}, path_composites::{ExpressionInInference, ExpressionInInferencePath, OwnedExpressionInInference}};
 
 pub struct ExpressionSubpathError {
     pub subpath: ExpressionInExpressionPath,
@@ -63,7 +63,7 @@ pub fn expression_subexpression<'a>(expression: &'a ExpressionInInference<'a>, s
 }
 
 pub fn expression_as_slice<'a>(expression: &'a ExpressionInInference) -> Result<Vec<ExpressionInInference<'a>>,ExpressionAtomicityCheckError> {
-    if let Expression::Atomic(_) = expression.obj { return Err(ExpressionAtomicityCheckError {
+    if let TblExpression::Atomic(_) = expression.obj { return Err(ExpressionAtomicityCheckError {
         expected_atomicity: false,
         expression: expression.clone().into()
     }) };
@@ -73,7 +73,7 @@ pub fn expression_as_slice<'a>(expression: &'a ExpressionInInference) -> Result<
         .collect::<Vec<ExpressionInInference>>())
 }
 pub fn expression_into_slice<'a>(expression: ExpressionInInference<'a>) -> Result<Vec<ExpressionInInference<'a>>,ExpressionAtomicityCheckError> {
-    if let Expression::Atomic(_) = expression.obj { return Err(ExpressionAtomicityCheckError {
+    if let TblExpression::Atomic(_) = expression.obj { return Err(ExpressionAtomicityCheckError {
         expected_atomicity: false,
         expression: expression.clone().into()
     }) };

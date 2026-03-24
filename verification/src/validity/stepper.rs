@@ -1,7 +1,6 @@
 use std::marker::PhantomData;
 
 use itertools::Either;
-use tbl_structures::{expressions::TblPropSet, proof::{ImmediateProofInProofPath, ProofStep, SplitProofInProof, composite::CompositeProofInProof, error::OwnedErrorInProof, inference::InferenceInProof}};
 
 use crate::validity::{ProofValidityError, VerifiableInferenceRule, verify_inference};
 

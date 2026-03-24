@@ -1,9 +1,8 @@
 use std::marker::PhantomData;
 
-use tbl_structures::{expressions::TblProposition, inference::InferenceRule};
-
 use crate::{inference_rules::QueryableInferenceRule, promise::{ProofGenerationError, ProofGenerator, ProofPromise}};
 
+mod query;
 mod promise;
 mod inference_rules;
 

@@ -13,18 +13,18 @@ pub const EXPRESSION_STYLE: LazyLock<ExpressionStyle> = LazyLock::new(|| -> Expr
 mod tests {
     use std::{collections::HashMap};
 
-    use tbl_structures::{atomic::AtomicExpression, expressions::Expression};
+    use tbl_structures::{atomic::AtomicExpression, expressions::TblExpression};
     use tbl_textualization::{helpers::styles::Stylable, structures::expressions::expression_parser};
 
     use super::*;
 
-    static CONVERSIONS: LazyLock<HashMap<&str,Expression>> = LazyLock::new(|| -> HashMap<&str,Expression> { 
-        let atom = |u: usize| { Expression::from(AtomicExpression::try_from(u).unwrap()) };
+    static CONVERSIONS: LazyLock<HashMap<&str,TblExpression>> = LazyLock::new(|| -> HashMap<&str,TblExpression> { 
+        let atom = |u: usize| { TblExpression::from(AtomicExpression::try_from(u).unwrap()) };
         HashMap::from_iter(vec![
             ("#0",atom(0)),
-            ("(#0)",Expression::Compound(vec![atom(0)])),
-            ("(#0, #1)",Expression::Compound(vec![atom(0),atom(1)])),
-            ("((#0), #1)", Expression::from(vec![Expression::from(vec![atom(0)]),atom(1)])),
+            ("(#0)",TblExpression::Compound(vec![atom(0)])),
+            ("(#0, #1)",TblExpression::Compound(vec![atom(0),atom(1)])),
+            ("((#0), #1)", TblExpression::from(vec![TblExpression::from(vec![atom(0)]),atom(1)])),
         ].into_iter())
     });
 
