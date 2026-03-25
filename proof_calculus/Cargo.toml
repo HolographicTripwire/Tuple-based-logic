@@ -1,0 +1,8 @@
+[package]
+name = "proof_calculus"
+version = "0.2.0"
+edition = "2024"
+
+[dependencies]
+path_lib = { path = "../path_lib/core" }
+path_lib_proc_macros = { path = "../path_lib/proc_macros" }

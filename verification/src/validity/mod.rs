@@ -16,9 +16,7 @@ pub fn verify_inference<Err, Rule: VerifiableInferenceRule<Err>>(inference: &Inf
         .map_err(|err| ProofValidityError::InvalidInference(err))
 }
 
-pub trait VerifiableInferenceRule<Err>: InferenceRule {
-    fn verify(rule: &Inference<Self>) -> Result<(),Err>;
-}
+
 
 #[derive(Clone)]
 pub enum ProofValidityError<InferenceErr> {
