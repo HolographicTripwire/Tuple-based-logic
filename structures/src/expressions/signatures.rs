@@ -41,11 +41,10 @@ impl ExprSignatures {
                 contents.0.push(atom_id);
                 ExprStructureSignature::Atomic
             }, Expression::Compound(expressions) => expressions.0
-                .into_iter()
+                .iter().cloned()
                 .map(|expr| Self::from_expression_inner(expr, contents))
                 .collect::<Vec<_>>()
                 .into()
-                
         }
     }
 
@@ -58,7 +57,7 @@ impl ExprSignatures {
             }, ExprStructureSignature::Compound(signatures) => signatures.0
                 .into_iter()
                 .map(|structure| Self::into_expression_inner(structure, contents, content_ix))
-                .collect::<Vec<_>>()
+                .collect::<Box<[_]>>()
                 .into()
         }
     }

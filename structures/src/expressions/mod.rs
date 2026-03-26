@@ -18,6 +18,13 @@ pub enum Expression {
 }
 
 impl Expression {
+    pub fn replace(&self, to_replace: &Expression, replace_with: &Expression) -> Expression {
+        if self == to_replace { replace_with.clone() }
+        else if let Expression::Compound(compound) = self
+            { Expression::Compound(compound.replace(to_replace, replace_with)) }
+        else { self.clone() }
+    }
+    
     /// If this expression is an Atom, get its id. Otherwise throw an error
     pub fn as_atom(&self) -> Result<AtomicExpression,()> {
         match self {
@@ -38,7 +45,7 @@ impl Expression {
     pub fn as_slice(&self) -> Result<&[Expression], ()> {
         match self {
             Expression::Atomic(_) => Err(()),
-            Expression::Compound(proposition_exprs) => Ok(proposition_exprs.0.as_slice()),
+            Expression::Compound(proposition_exprs) => Ok(&proposition_exprs.0),
         }
     }
 
@@ -51,6 +58,8 @@ impl Expression {
 }
 
 mod from {
+    use std::sync::Arc;
+
     use crate::expressions::{CompoundExpression, Expression, atomic::AtomicExpression};
 
     impl From<AtomicExpression> for Expression {
@@ -65,9 +74,21 @@ mod from {
         fn from(expr: CompoundExpression) -> Self
             { Self::Compound(expr) }
     }
+    impl <const N: usize> From<[Expression;N]> for Expression {
+        fn from(exprs: [Expression;N]) -> Self
+            { CompoundExpression::from(exprs).into() }
+    }
+    impl From<Box<[Expression]>> for Expression {
+        fn from(exprs: Box<[Expression]>) -> Self
+            { CompoundExpression::from(exprs).into() }
+    }
+    impl From<Arc<[Expression]>> for Expression {
+        fn from(exprs: Arc<[Expression]>) -> Self
+            { CompoundExpression::from(exprs).into() }
+    }
     impl From<Vec<Expression>> for Expression {
         fn from(exprs: Vec<Expression>) -> Self
-            { CompoundExpression(exprs).into() }
+            { CompoundExpression::from(exprs).into() }
     }
 }
 
@@ -103,7 +124,7 @@ mod tests {
     fn test_as_tuple_on_tuple() {
         for i in 0..10 {
             let atomic_expr = Expression::from(vec![Expression::from(AtomicExpression(i))]);
-            assert_eq!(atomic_expr.as_vec(), Ok(&CompoundExpression(vec![Expression::from(AtomicExpression(i))])));
+            assert_eq!(atomic_expr.as_vec(), Ok(&CompoundExpression::from(vec![Expression::from(AtomicExpression(i))])));
         }
     }
 

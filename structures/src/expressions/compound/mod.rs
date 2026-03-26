@@ -1,7 +1,26 @@
+use std::sync::Arc;
+
 use crate::expressions::{Expression, at_path_enum::ExpressionAtPathEnum, subexpression::{ExpressionInExpressionPath, ParentOfSubexpressions, immediate::{ImmediateExpressionInExpressionPath, ParentOfImmediateSubexpressions}}};
 
+// trait CompoundExpression: ParentOfImmediateSubexpressions + ParentOfSubexpressions {
+//     fn replace(&self, to_replace: ) {
+
+//     }
+// }
+
 #[derive(Debug,Clone,PartialEq,Eq,Hash)]
-pub struct CompoundExpression(pub Vec<Expression>);
+pub struct CompoundExpression(pub Arc<[Expression]>);
+
+impl CompoundExpression {
+    pub fn replace(&self, to_replace: &Expression, replace_with: &Expression) -> Self {
+        Self(self.0.iter()
+            .map(|expr|
+                if expr == to_replace { replace_with.clone() }
+                else { expr.replace(to_replace,replace_with) }
+            ).collect()
+        )
+    }
+}
 
 impl ParentOfImmediateSubexpressions for CompoundExpression {
     fn get_immediate_subexpression_paths(&self) -> impl IntoIterator<Item = ImmediateExpressionInExpressionPath>
@@ -46,9 +65,20 @@ impl ParentOfSubexpressions for CompoundExpression {
 }
 
 mod from {
+    use std::sync::Arc;
+
     use crate::expressions::{Expression, compound::CompoundExpression};
 
-    impl From<Vec<Expression>> for CompoundExpression {
-        fn from(value: Vec<Expression>) -> Self { Self(value) }
+    impl <const N: usize> From<[Expression;N]> for CompoundExpression {
+        fn from(exprs: [Expression;N]) -> Self { Self(Arc::new(exprs)) }
     }
+    impl From<Box<[Expression]>> for CompoundExpression {
+        fn from(exprs: Box<[Expression]>) -> Self { Self(exprs.into()) }
+    }
+    impl From<Arc<[Expression]>> for CompoundExpression {
+        fn from(exprs: Arc<[Expression]>) -> Self { Self(exprs) }
+    }
+    impl From<Vec<Expression>> for CompoundExpression {
+        fn from(exprs: Vec<Expression>) -> Self { Self(exprs.into()) }
+    }    
 }
