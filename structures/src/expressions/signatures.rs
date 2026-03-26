@@ -1,4 +1,4 @@
-use crate::expressions::{Expression, atomic::AtomicExpression};
+use crate::expressions::{TblExpression, atomic::AtomicTblExpression};
 
 
 /// An object which uniquely identifies a given [Expression], while being structured differently
@@ -17,7 +17,7 @@ pub enum ExprStructureSignature {
 pub struct CompoundExprStructureSignature(Vec<ExprStructureSignature>);
 
 #[derive(Clone,PartialEq,Eq,Hash,Debug)]
-pub struct ExprContentsSignature(pub Vec<AtomicExpression>);
+pub struct ExprContentsSignature(pub Vec<AtomicTblExpression>);
 
 impl ExprSignatures {
 
@@ -25,22 +25,22 @@ impl ExprSignatures {
     pub fn get_atoms(&self) -> &ExprContentsSignature { &self.contents }
 }
 
-impl Into<ExprSignatures> for Expression
+impl Into<ExprSignatures> for TblExpression
     { fn into(self) -> ExprSignatures {
         let mut contents = ExprContentsSignature(vec![]);
         let structure = ExprSignatures::from_expression_inner(self, &mut contents);
         ExprSignatures { structure, contents }
     } }
-impl From<ExprSignatures> for Expression
-    { fn from(other: ExprSignatures) -> Expression { ExprSignatures::into_expression_inner(other.structure, &other.contents, &mut 0) } }
+impl From<ExprSignatures> for TblExpression
+    { fn from(other: ExprSignatures) -> TblExpression { ExprSignatures::into_expression_inner(other.structure, &other.contents, &mut 0) } }
 
 impl ExprSignatures {
-    fn from_expression_inner(expr: Expression, contents: &mut ExprContentsSignature) -> ExprStructureSignature {
+    fn from_expression_inner(expr: TblExpression, contents: &mut ExprContentsSignature) -> ExprStructureSignature {
         match expr {
-            Expression::Atomic(atom_id) => {
+            TblExpression::Atomic(atom_id) => {
                 contents.0.push(atom_id);
                 ExprStructureSignature::Atomic
-            }, Expression::Compound(expressions) => expressions.0
+            }, TblExpression::Compound(expressions) => expressions.0
                 .iter().cloned()
                 .map(|expr| Self::from_expression_inner(expr, contents))
                 .collect::<Vec<_>>()
@@ -48,10 +48,10 @@ impl ExprSignatures {
         }
     }
 
-    fn into_expression_inner(structure: ExprStructureSignature, contents: &ExprContentsSignature, content_ix: &mut usize) -> Expression {
+    fn into_expression_inner(structure: ExprStructureSignature, contents: &ExprContentsSignature, content_ix: &mut usize) -> TblExpression {
         match structure {
             ExprStructureSignature::Atomic => { 
-                let e = Expression::Atomic(contents.0[*content_ix]);
+                let e = TblExpression::Atomic(contents.0[*content_ix]);
                 *content_ix += 1;
                 e
             }, ExprStructureSignature::Compound(signatures) => signatures.0

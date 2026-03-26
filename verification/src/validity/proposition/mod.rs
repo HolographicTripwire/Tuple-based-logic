@@ -21,7 +21,7 @@ pub use value_equality_check::*;
 pub use value_inequality_check::*;
 pub use functional::*;
 
-use tbl_structures::{expressions::Proposition, path_composites::ExpressionInInference, proof::PropositionInProofStepPath};
+use tbl_structures::{expressions::TblProposition, path_composites::ExpressionInInference, proof::PropositionInProofStepPath};
 use tbl_structures::proof::{OwnedPropositionInProofStep, PropositionInProofStep};
 
 pub struct PropositionSubpathError {
@@ -66,7 +66,7 @@ pub fn proposition_subproposition<'a>(proposition: &'a PropositionInProofStep<'a
 }
 
 pub fn proposition_as_slice<'a>(proposition: &'a PropositionInProofStep) -> Result<Vec<ExpressionInInference<'a>>,PropositionAtomicityCheckError> {
-    if let Proposition::Atomic(_) = proposition.obj { return Err(PropositionAtomicityCheckError {
+    if let TblProposition::Atomic(_) = proposition.obj { return Err(PropositionAtomicityCheckError {
         expected_atomicity: false,
         proposition: proposition.clone().into()()
     }) };
@@ -76,7 +76,7 @@ pub fn proposition_as_slice<'a>(proposition: &'a PropositionInProofStep) -> Resu
         .collect::<Vec<ExpressionInInference>>())
 }
 pub fn proposition_into_slice<'a>(proposition: PropositionInProofStep<'a>) -> Result<Vec<ExpressionInInference<'a>>,PropositionAtomicityCheckError> {
-    if let Proposition::Atomic(_) = proposition.obj { return Err(PropositionAtomicityCheckError {
+    if let TblProposition::Atomic(_) = proposition.obj { return Err(PropositionAtomicityCheckError {
         expected_atomicity: false,
         proposition: proposition.clone().into()()
     }) };

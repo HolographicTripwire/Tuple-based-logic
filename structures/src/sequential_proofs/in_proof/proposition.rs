@@ -3,7 +3,7 @@ use std::fmt::Display;
 
 use path_lib::{obj_at_path::{ObjAtPath, OwnedObjAtPath}};
 
-use crate::expressions::Proposition;
+use crate::expressions::TblProposition;
 
 // impl <'a> Into<ExpressionInInference<'a>> for PropositionInProofStep<'a> {
 //     fn into(self) -> ExpressionInInference<'a> {

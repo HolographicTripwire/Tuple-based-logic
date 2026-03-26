@@ -2,7 +2,7 @@ use std::fmt::Display;
 
 use path_lib::obj_at_path::{ObjAtPath, OwnedObjAtPath};
 
-use crate::{expressions::{Expression, atomic::AtomicExpression, compound::CompoundExpression, subexpression::ExpressionInExpressionPath}, sequential_proofs::PropositionInProofStepPath};
+use crate::{expressions::{TblExpression, atomic::AtomicTblExpression, compound::CompoundTblExpression, subexpression::ExpressionInExpressionPath}, sequential_proofs::PropositionInProofStepPath};
 
 #[derive(Clone,PartialEq,Eq,Debug)]
 pub struct ExpressionInInferencePath {
@@ -14,14 +14,14 @@ impl Display for ExpressionInInferencePath {
         write!(f,"{}{}",self.proposition_path,self.subexpression_path)
     }
 }
-pub type AtomicExpressionInInference<'a> = ObjAtPath<'a,AtomicExpression,ExpressionInInferencePath>;
-pub type OwnedAtomicExpressionInInference = OwnedObjAtPath<AtomicExpression,ExpressionInInferencePath>;
+pub type AtomicExpressionInInference<'a> = ObjAtPath<'a,AtomicTblExpression,ExpressionInInferencePath>;
+pub type OwnedAtomicExpressionInInference = OwnedObjAtPath<AtomicTblExpression,ExpressionInInferencePath>;
 
-pub type CompoundExpressionInInference<'a> = ObjAtPath<'a,CompoundExpression,ExpressionInInferencePath>;
-pub type OwnedCompoundExpressionInInference = OwnedObjAtPath<CompoundExpression,ExpressionInInferencePath>;
+pub type CompoundExpressionInInference<'a> = ObjAtPath<'a,CompoundTblExpression,ExpressionInInferencePath>;
+pub type OwnedCompoundExpressionInInference = OwnedObjAtPath<CompoundTblExpression,ExpressionInInferencePath>;
 
-pub type ExpressionInInference<'a> = ObjAtPath<'a,Expression,ExpressionInInferencePath>;
-pub type OwnedExpressionInInference = OwnedObjAtPath<Expression,ExpressionInInferencePath>;
+pub type ExpressionInInference<'a> = ObjAtPath<'a,TblExpression,ExpressionInInferencePath>;
+pub type OwnedExpressionInInference = OwnedObjAtPath<TblExpression,ExpressionInInferencePath>;
 
 mod from {
     use crate::expressions::subexpression::{ExpressionInExpressionPath, immediate::ImmediateExpressionInExpressionPath};

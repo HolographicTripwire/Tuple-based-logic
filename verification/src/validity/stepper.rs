@@ -1,7 +1,7 @@
 use std::marker::PhantomData;
 
 use itertools::Either;
-use tbl_structures::{expressions::PropositionSet, proof::{ImmediateProofInProofPath, ProofStep, SplitProofInProof, composite::CompositeProofInProof, error::OwnedErrorInProof, inference::InferenceInProof}};
+use tbl_structures::{expressions::TblPropSet, proof::{ImmediateProofInProofPath, ProofStep, SplitProofInProof, composite::CompositeProofInProof, error::OwnedErrorInProof, inference::InferenceInProof}};
 
 use crate::validity::{ProofValidityError, VerifiableInferenceRule, verify_inference};
 
@@ -39,7 +39,7 @@ struct ProofValidityStepper<'a,E:Clone,Rule:VerifiableInferenceRule<E>> {
     proof: CompositeProofInProof<'a,Rule>,
     step_count: usize,
     
-    proved: PropositionSet,
+    proved: TblPropSet,
     
     current_step: ProofValidityStep,
     inner: Option<Box<ProofValidityStepper<'a,E,Rule>>>,
@@ -52,7 +52,7 @@ impl <'a,E:Clone,Rule:VerifiableInferenceRule<E>> ProofValidityStepper<'a,E,Rule
         let proof_obj = proof.obj;
         Self {
             current_step: ProofValidityStep::CheckAssumptionsFound(0),
-            proved: PropositionSet::from_iter(proof_obj.get_assumptions_owned()),
+            proved: TblPropSet::from_iter(proof_obj.get_assumptions_owned()),
             step_count: proof_obj.get_immediate_subproofs().into_iter().count(),
             proof,
             inner: None,
@@ -84,7 +84,7 @@ impl <'a,E:Clone,Rule:VerifiableInferenceRule<E>> ProofValidityStepper<'a,E,Rule
     fn check_assumptions_step(&mut self, step_number: usize) -> ProofValidityStepResult<E> {
         let subproof = self.proof.get_located_immediate_subproof(ImmediateProofInProofPath(step_number))
             .expect("Attempted to call get_subproof when step was not within range");
-        let premises = PropositionSet::from_iter(subproof.obj.get_assumptions_owned());
+        let premises = TblPropSet::from_iter(subproof.obj.get_assumptions_owned());
         // Determine if an error is present
         let assumptions_not_found = &self.proved - &premises;
         let result = if assumptions_not_found.len() > 0 {
@@ -141,7 +141,7 @@ impl <'a,E:Clone,Rule:VerifiableInferenceRule<E>> ProofValidityStepper<'a,E,Rule
     }
 
     fn check_conclusions_step(&mut self) -> ProofValidityStepResult<E> {
-        let conclusions = PropositionSet::from_iter(self.proof.obj.get_explicit_conclusions_owned());
+        let conclusions = TblPropSet::from_iter(self.proof.obj.get_explicit_conclusions_owned());
         let conclusions_not_found = &conclusions - &self.proved;
         let result = if conclusions_not_found.len() > 0 {
             ProofValidityStepResult::finished_err(OwnedErrorInProof::from_inner(

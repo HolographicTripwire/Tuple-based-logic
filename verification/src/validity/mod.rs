@@ -9,7 +9,7 @@ pub use expression::*;
 pub use proposition::*;
 
 
-use tbl_structures::{expressions::PropositionSet, proof::{Proof, ProofInProof, error::OwnedErrorInProof, inference::{Inference, InferenceRule}}};
+use tbl_structures::{expressions::TblPropSet, proof::{Proof, ProofInProof, error::OwnedErrorInProof, inference::{Inference, InferenceRule}}};
 
 pub fn verify_inference<Err, Rule: VerifiableInferenceRule<Err>>(inference: &Inference<Rule>) -> Result<(),ProofValidityError<Err>> {
     Rule::verify(inference)
@@ -20,8 +20,8 @@ pub fn verify_inference<Err, Rule: VerifiableInferenceRule<Err>>(inference: &Inf
 
 #[derive(Clone)]
 pub enum ProofValidityError<InferenceErr> {
-    AssumptionsNotFound(PropositionSet),
-    ConclusionsNotFound(PropositionSet),
+    AssumptionsNotFound(TblPropSet),
+    ConclusionsNotFound(TblPropSet),
     InvalidInference(InferenceErr),
 }
 

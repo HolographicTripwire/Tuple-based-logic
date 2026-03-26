@@ -1,14 +1,14 @@
-use tbl_structures::{inference::InferenceRule, proof::{error::ErrorInProof, CompositeProof, Proof}, expressions::Proposition};
+use tbl_structures::{inference::InferenceRule, proof::{error::ErrorInProof, CompositeProof, Proof}, expressions::TblProposition};
 
 pub trait ProofGenerator<Rule: InferenceRule, G: ProofGenerator<Rule, G>>: Clone {
-    fn generate(&self, conclusions: &[Proposition]) -> Result<ProofPromise<Rule,G>,ProofGenerationError>;
+    fn generate(&self, conclusions: &[TblProposition]) -> Result<ProofPromise<Rule,G>,ProofGenerationError>;
 }
 
 #[derive(Clone)]
 pub enum ProofPromise<Rule: InferenceRule, G: ProofGenerator<Rule,G>> {
     Resolved(Proof<Rule>),
     Composite(CompositeProofPromise<Rule,G>),
-    Generator(G,Vec<Proposition>)
+    Generator(G,Vec<TblProposition>)
 }
 
 impl <Rule: InferenceRule, G: ProofGenerator<Rule,G>> ProofPromise<Rule,G> {
@@ -30,9 +30,9 @@ impl <Rule: InferenceRule, G: ProofGenerator<Rule,G>> ProofPromise<Rule,G> {
 
 #[derive(Clone)]
 pub struct CompositeProofPromise<Rule: InferenceRule, G: ProofGenerator<Rule,G>> {
-    pub premises: Vec<Proposition>,
+    pub premises: Vec<TblProposition>,
     pub subproofs: Vec<ProofPromise<Rule,G>>,
-    pub conclusions: Vec<Proposition>
+    pub conclusions: Vec<TblProposition>
 }
 
 impl <Rule: InferenceRule, G: ProofGenerator<Rule,G>> CompositeProofPromise<Rule,G> {

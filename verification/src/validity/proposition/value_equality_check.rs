@@ -1,10 +1,10 @@
-use tbl_structures::{expressions::{Proposition, atomic::AtomicExpression}, proof::{OwnedPropositionInProofStep, PropositionInProofStep}};
+use tbl_structures::{expressions::{TblProposition, atomic::AtomicExpression}, proof::{OwnedPropositionInProofStep, PropositionInProofStep}};
 
 pub struct PropositionValueEqualityError {
     pub propositions: Vec<OwnedPropositionInProofStep>
 }
 /// Check that the provided [Propositions](OwnedPropositionInProof) have equal value, returning an error otherwise
-pub fn assert_proposition_value_equality<'a>(props: &[&'a PropositionInProofStep<'a>]) -> Result<Proposition, PropositionValueEqualityError> {
+pub fn assert_proposition_value_equality<'a>(props: &[&'a PropositionInProofStep<'a>]) -> Result<TblProposition, PropositionValueEqualityError> {
     let mut iter = props.iter().map(|o| o.obj );
     let first_value = iter.next().expect("Cannot check value equality for zero propositions");
     for nth_value in iter {
@@ -24,9 +24,9 @@ pub struct FixedLengthPropositionValueEqualityError<const N: usize> {
 }
 
 /// Check that the provided [Propositions](PropositionInProofStep) have equal length, returning an error otherwise
-pub fn assert_fixed_length_proposition_value_equality<'a,const N: usize>(exprs: &[&'a PropositionInProofStep<'a>; N]) -> Result<Proposition, FixedLengthPropositionValueEqualityError<N>> {
+pub fn assert_fixed_length_proposition_value_equality<'a,const N: usize>(exprs: &[&'a PropositionInProofStep<'a>; N]) -> Result<TblProposition, FixedLengthPropositionValueEqualityError<N>> {
     if N == 0 { panic!("Cannot check value equality for zero propositions") } 
-    let mut output = [&Proposition::Atomic(AtomicExpression(0)); N];  // Initialize the output array
+    let mut output = [&TblProposition::Atomic(AtomicExpression(0)); N];  // Initialize the output array
     for i in 0..N {
         output[i] = exprs[i].obj;
         // Throw error if atomicities are not equal

@@ -4,11 +4,11 @@ mod explicit_conclusion_count;
 pub use assumption_count::*;
 pub use explicit_conclusion_count::*;
 use path_lib::HasChildren;
-use tbl_structures::{expressions::Proposition, proof::{ProofStep, PropositionInProofStep, PropositionInProofStepPath, inference::{Inference, InferenceRule}}};
+use tbl_structures::{expressions::TblProposition, proof::{ProofStep, PropositionInProofStep, PropositionInProofStepPath, inference::{Inference, InferenceRule}}};
 
 
 pub fn assumptions_as_slice<'a, Rule: InferenceRule>(inference: &'a Inference<Rule>) -> Vec<PropositionInProofStep<'a>> {
-    <Inference<Rule> as HasChildren<PropositionInProofStepPath,Proposition>>::get_located_children(inference)
+    <Inference<Rule> as HasChildren<PropositionInProofStepPath,TblProposition>>::get_located_children(inference)
         .into_iter()
         .map(|p| p.into())
         .collect::<Vec<PropositionInProofStep>>()

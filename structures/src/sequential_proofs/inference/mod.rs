@@ -1,7 +1,7 @@
 
 use path_lib::{obj_at_path::{ObjAtPath, OwnedObjAtPath}};
 
-use crate::{expressions::Proposition, sequential_proofs::{AssumptionInProofStepPath, ExplicitConclusionInProofStepPath, ParentOfAssumptions, ParentOfExplicitConclusions, ProofInProofPath, ProofStep}};
+use crate::{expressions::TblProposition, sequential_proofs::{AssumptionInProofStepPath, ExplicitConclusionInProofStepPath, ParentOfAssumptions, ParentOfExplicitConclusions, ProofInProofPath, ProofStep}};
 
 
 // impl <Rule: InferenceRule> HasChildren<AtomicProofInProofPath,Proof<Rule>> for Inference<Rule> {

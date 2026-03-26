@@ -2,7 +2,7 @@ use std::fmt::Display;
 
 use path_lib::obj_at_path::{ObjAtPath, OwnedObjAtPath};
 
-use crate::{expressions::Proposition, sequential_proofs::{ProofInProofPath, PropositionInProofStepPath}};
+use crate::{expressions::TblProposition, sequential_proofs::{ProofInProofPath, PropositionInProofStepPath}};
 
 #[derive(Clone,PartialEq,Eq,Debug)]
 pub struct PropositionInProofPath {
@@ -18,8 +18,8 @@ impl Display for PropositionInProofPath {
     }
 }
 
-pub type PropositionInProof<'a> = ObjAtPath<'a,Proposition,PropositionInProofPath>;
-pub type OwnedPropositionInProof = OwnedObjAtPath<Proposition,PropositionInProofPath>;
+pub type PropositionInProof<'a> = ObjAtPath<'a,TblProposition,PropositionInProofPath>;
+pub type OwnedPropositionInProof = OwnedObjAtPath<TblProposition,PropositionInProofPath>;
 
 mod from {
     use crate::sequential_proofs::ProofInProofPath;

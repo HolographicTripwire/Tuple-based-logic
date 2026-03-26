@@ -2,7 +2,7 @@ use std::fmt::Display;
 
 use path_lib_proc_macros::generate_parent_of_children_trait;
 
-use crate::expressions::{Expression, subexpression::immediate::ImmediateExpressionInExpressionPath};
+use crate::expressions::{TblExpression, subexpression::immediate::ImmediateExpressionInExpressionPath};
 
 pub mod immediate;
 
@@ -58,14 +58,14 @@ mod from {
 }
 
 generate_parent_of_children_trait!{
-    (Expression), ExpressionInExpressionPath,
+    (TblExpression), ExpressionInExpressionPath,
     "subexpression", "subexpressions", "Subexpressions"
 }
 
 
 #[cfg(test)]
 mod tests {
-    use crate::expressions::{CompoundExpression, atomic::AtomicExpression};
+    use crate::expressions::{CompoundTblExpression, atomic::AtomicTblExpression};
 
     use super::*;
 
@@ -81,9 +81,9 @@ mod tests {
     #[test]
     fn test_get_subexpr_on_tuple() {
         for i in 0..10 {
-            let atomic_expr = CompoundExpression::from(vec![Expression::from(AtomicExpression(i))]);
+            let atomic_expr = CompoundTblExpression::from(vec![TblExpression::from(AtomicTblExpression(i))]);
             let path: ExpressionInExpressionPath = 0.into();
-            assert_eq!(atomic_expr.get_subexpression(&path), Ok(&Expression::from(AtomicExpression(i))));
+            assert_eq!(atomic_expr.get_subexpression(&path), Ok(&TblExpression::from(AtomicTblExpression(i))));
         }
     }
 

@@ -58,4 +58,4 @@
     //     let explicits = PropositionSet::from_iter(self.get_explicit_conclusions_owned());
     //     self.get_conclusions_owned().difference(&explicits).cloned().collect()
     // }
-}
+//}

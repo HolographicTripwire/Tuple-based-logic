@@ -2,7 +2,7 @@ use std::fmt::Display;
 
 use path_lib::obj_at_path::{ObjAtPath, OwnedObjAtPath};
 
-use crate::{expressions::{Expression, atomic::AtomicExpression, compound::CompoundExpression, subexpression::ExpressionInExpressionPath}, sequential_proofs::{ProofInProofPath, PropositionInProofStepPath}};
+use crate::{expressions::{TblExpression, atomic::AtomicTblExpression, compound::CompoundTblExpression, subexpression::ExpressionInExpressionPath}, sequential_proofs::{ProofInProofPath, PropositionInProofStepPath}};
 
 #[derive(Clone,PartialEq,Eq,Debug)]
 pub struct ExpressionInProofPath{
@@ -17,14 +17,14 @@ impl Display for ExpressionInProofPath {
     }
 }
 
-pub type AtomicExpressionInProof<'a> = ObjAtPath<'a,AtomicExpression,ExpressionInProofPath>;
-pub type OwnedAtomicExpressionInProof = OwnedObjAtPath<AtomicExpression,ExpressionInProofPath>;
+pub type AtomicExpressionInProof<'a> = ObjAtPath<'a,AtomicTblExpression,ExpressionInProofPath>;
+pub type OwnedAtomicExpressionInProof = OwnedObjAtPath<AtomicTblExpression,ExpressionInProofPath>;
 
-pub type CompoundExpressionInProof<'a> = ObjAtPath<'a,CompoundExpression,ExpressionInProofPath>;
-pub type OwnedCompoundExpressionInProof = OwnedObjAtPath<CompoundExpression,ExpressionInProofPath>;
+pub type CompoundExpressionInProof<'a> = ObjAtPath<'a,CompoundTblExpression,ExpressionInProofPath>;
+pub type OwnedCompoundExpressionInProof = OwnedObjAtPath<CompoundTblExpression,ExpressionInProofPath>;
 
-pub type ExpressionInProof<'a> = ObjAtPath<'a,Expression,ExpressionInProofPath>;
-pub type OwnedExpressionInProof = OwnedObjAtPath<Expression,ExpressionInProofPath>;
+pub type ExpressionInProof<'a> = ObjAtPath<'a,TblExpression,ExpressionInProofPath>;
+pub type OwnedExpressionInProof = OwnedObjAtPath<TblExpression,ExpressionInProofPath>;
 
 mod from {
     use crate::{expressions::subexpression::immediate::ImmediateExpressionInExpressionPath, path_composites::PropositionInProofPath};
