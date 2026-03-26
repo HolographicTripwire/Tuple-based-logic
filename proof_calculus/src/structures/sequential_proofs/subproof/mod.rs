@@ -3,9 +3,9 @@ use std::fmt::Display;
 use path_lib::{obj_at_path::{ObjAtPath, OwnedObjAtPath}};
 use path_lib_proc_macros::generate_parent_of_children_trait;
 
-use crate::sequential_proofs::subproof::immediate::ImmediateProofInProofPath;
+use crate::structures::{Proposition,sequential_proofs::{SequentialProof, InferenceRule, subproof::immediate::ImmediateProofInProofPath}};
 
-mod immediate;
+pub mod immediate;
 
 #[derive(Clone,PartialEq,Eq,Hash,Debug,Default)]
 pub struct ProofInProofPath(pub Vec<ImmediateProofInProofPath>);
@@ -19,12 +19,12 @@ impl Display for ProofInProofPath {
 }
 
 generate_parent_of_children_trait!{
-    (Proof<Rule> where Rule: InferenceRule), ProofInProofPath,
+    (SequentialProof<P,Rule> where P: Proposition, Rule: InferenceRule<P>), ProofInProofPath,
     "subproof", "subproofs", "Subproofs"
 }
 
-pub type ProofInProof<'a,Rule> = ObjAtPath<'a,Proof<Rule>,ProofInProofPath>;
-pub type OwnedProofInProof<Rule> = OwnedObjAtPath<Proof<Rule>,ProofInProofPath>;
+pub type SequentialProofInProof<'a,P,Rule> = ObjAtPath<'a,SequentialProof<P,Rule>,ProofInProofPath>;
+pub type OwnedSequentialPrProofInProof<P,Rule> = OwnedObjAtPath<SequentialProof<P,Rule>,ProofInProofPath>;
 
 mod from {
     use super::*;

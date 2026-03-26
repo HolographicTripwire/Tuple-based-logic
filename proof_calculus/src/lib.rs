@@ -1,4 +1,4 @@
-pub mod propositions;
-pub mod inference;
-pub mod proofs;
-pub mod sequential_proofs;
+pub mod structures;
+pub mod verification;
+pub mod generation;
+pub mod stringification;

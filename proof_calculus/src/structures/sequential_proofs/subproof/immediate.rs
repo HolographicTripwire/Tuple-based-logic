@@ -3,7 +3,7 @@ use std::fmt::Display;
 use path_lib::obj_at_path::{ObjAtPath, OwnedObjAtPath};
 use path_lib_proc_macros::generate_parent_of_children_trait;
 
-use crate::{sequential_proofs::{at_path_enum::{OwnedProofAtPathEnum, ProofAtPathEnum}}};
+use crate::structures::{Proposition, inference::InferenceRule, sequential_proofs::{SequentialProof, at_path_enum::{OwnedProofAtPathEnum, ProofAtPathEnum}}};
 
 #[derive(Clone,Copy,PartialEq,Eq,Hash,Debug)]
 /// Identifies a particular step iwthin a [`Proof`], and can be given to such a [`Proof`] to retreive the [`SubProof`] at that step
@@ -17,12 +17,12 @@ impl Display for ImmediateProofInProofPath {
 }
 
 generate_parent_of_children_trait!{
-    (Proof<Rule> where Rule: InferenceRule), ImmediateProofInProofPath,
+    (SequentialProof<P,Rule> where P: Proposition, Rule: InferenceRule<P>), ImmediateProofInProofPath,
     "immediate_subproof", "immediate_subproofs", "ImmediateSubproof"
 }
 
-pub type ImmediateProofInProof<'a,Rule> = ObjAtPath<'a,Proof<Rule>,ImmediateProofInProofPath>;
-pub type ImmediateSubexpressionInExpressionEnum<'a,Rule> = ProofAtPathEnum<'a,ImmediateProofInProofPath,Rule>;
+pub type ImmediateProofInProof<'a,P,Rule> = ObjAtPath<'a,SequentialProof<P,Rule>,ImmediateProofInProofPath>;
+pub type ImmediateSubexpressionInExpressionEnum<'a,P,Rule> = ProofAtPathEnum<'a,P,ImmediateProofInProofPath,Rule>;
 
-pub type OwnedImmediateProofInProof<Rule> = OwnedObjAtPath<Proof<Rule>,ImmediateProofInProofPath>;
-pub type OwnedImmediateProofInProofEnum<Rule> = OwnedProofAtPathEnum<ImmediateProofInProofPath,Rule>;
+pub type OwnedImmediateProofInProof<P,Rule> = OwnedObjAtPath<SequentialProof<P,Rule>,ImmediateProofInProofPath>;
+pub type OwnedImmediateProofInProofEnum<P,Rule> = OwnedProofAtPathEnum<P,ImmediateProofInProofPath,Rule>;
