@@ -1,4 +1,4 @@
-use crate::structures::{Proposition, inference::{Inference, InferenceRule}};
+use crate::structures::{Proposition, inferences::{Inference, InferenceRule}};
 
 pub trait VerifiableInferenceRule<P:Proposition>: InferenceRule<P> {
     type Err: Clone;

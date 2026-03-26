@@ -1,6 +1,6 @@
 use path_lib::obj_at_path::{ObjAtPath, OwnedObjAtPath};
 
-use crate::structures::{Proposition, inference::{Inference, InferenceRule}, sequential_proofs::{SequentialProof, composite::CompositeSequentialProof}};
+use crate::structures::{Proposition, inferences::{Inference, InferenceRule}, sequential_proofs::{SequentialProof, composite::CompositeSequentialProof}};
 
 pub enum ProofAtPathEnum<'a,P: Proposition, Path,Rule: InferenceRule<P>> {
     Inference(ObjAtPath<'a,Inference<P,Rule>,Path>),

@@ -1,6 +1,6 @@
 use path_lib::obj_at_path::{ObjAtPath, OwnedObjAtPath};
 
-use crate::structures::{Proposition, inference::{Inference, InferenceRule}, propositions::paths::ExplicitConclusionInProofStepPath, sequential_proofs::{AssumptionIProofStepPath, ParentOfAssumptions, ParentOfExplicitConclusions, SequentialProof, at_path_enum::ProofAtPathEnum, subproof::{ParentOfSubproofs, ProofInProofPath, immediate::{ImmediateProofInProofPath, ParentOfImmediateSubproof}}}};
+use crate::structures::{Proposition, inferences::{Inference, InferenceRule}, propositions::paths::ExplicitConclusionInProofStepPath, sequential_proofs::{AssumptionInProofStepPath, ParentOfAssumptions, ParentOfExplicitConclusions, SequentialProof, at_path_enum::ProofAtPathEnum, subproofs::{ParentOfSubproofs, ProofInProofPath, immediate::{ImmediateProofInProofPath, ParentOfImmediateSubproofs}}}};
 
 #[derive(Clone,PartialEq,Eq,Debug)]
 pub struct CompositeSequentialProof<P: Proposition, Rule: InferenceRule<P>> {
@@ -9,10 +9,10 @@ pub struct CompositeSequentialProof<P: Proposition, Rule: InferenceRule<P>> {
     pub explicit_conclusions: Box<[P]>,
 }
 impl <P: Proposition, Rule: InferenceRule<P>> ParentOfAssumptions<P> for CompositeSequentialProof<P,Rule> {
-    fn get_assumption_paths(&self) -> impl IntoIterator<Item = AssumptionIProofStepPath>
-        { (0..self.assumptions.len()).map(|n| AssumptionIProofStepPath(n)) }
+    fn get_assumption_paths(&self) -> impl IntoIterator<Item = AssumptionInProofStepPath>
+        { (0..self.assumptions.len()).map(|n| AssumptionInProofStepPath(n)) }
 
-    fn get_assumption(&self,path: &AssumptionIProofStepPath) -> Result< &P,()> {
+    fn get_assumption(&self,path: &AssumptionInProofStepPath) -> Result< &P,()> {
         self.assumptions.get(path.0).ok_or(())
     }
 
@@ -29,7 +29,7 @@ impl <P: Proposition, Rule: InferenceRule<P>> ParentOfExplicitConclusions<P> for
     fn get_explicit_conclusions<'a>(&'a self) -> impl IntoIterator<Item = &'a P> where P: 'a { &self.explicit_conclusions }
 }
 
-impl <P: Proposition, Rule:InferenceRule<P>> ParentOfImmediateSubproof<P,Rule> for CompositeSequentialProof<P,Rule> {
+impl <P: Proposition, Rule:InferenceRule<P>> ParentOfImmediateSubproofs<P,Rule> for CompositeSequentialProof<P,Rule> {
     fn get_immediate_subproof_paths(&self) -> impl IntoIterator<Item = ImmediateProofInProofPath>
         { (0..self.subproofs.len()).map(|ix| ix.into()) }
     fn get_immediate_subproof(&self,path: &ImmediateProofInProofPath) -> Result< &SequentialProof<P,Rule> ,()> 

@@ -1,9 +1,9 @@
 pub mod composite;
-pub mod subproof;
+pub mod subproofs;
 pub mod at_path_enum;
 pub mod errors;
 
-use crate::structures::{Proposition, inference::{Inference, InferenceRule}, propositions::{ParentOfAssumptions, ParentOfExplicitConclusions, paths::{AssumptionIProofStepPath, ExplicitConclusionInProofStepPath}}, sequential_proofs::composite::CompositeSequentialProof};
+use crate::structures::{Proposition, inferences::{Inference, InferenceRule}, propositions::{ParentOfAssumptions, ParentOfExplicitConclusions, paths::{AssumptionInProofStepPath, ExplicitConclusionInProofStepPath}}, sequential_proofs::composite::CompositeSequentialProof};
 
 
 /// This struct represents a step within a larger proof
@@ -14,12 +14,12 @@ pub enum SequentialProof<P: Proposition, Rule: InferenceRule<P>> {
 }
 
 impl <P: Proposition, Rule: InferenceRule<P>> ParentOfAssumptions<P> for SequentialProof<P, Rule> {
-    fn get_assumption_paths(&self) -> impl IntoIterator<Item = AssumptionIProofStepPath>  { match self {
+    fn get_assumption_paths(&self) -> impl IntoIterator<Item = AssumptionInProofStepPath>  { match self {
         SequentialProof::Inference(inference) => inference.get_assumption_paths().into_iter().collect::<Vec<_>>(),
         SequentialProof::Composite(composite) => composite.get_assumption_paths().into_iter().collect(),
     }}
     
-    fn get_assumption(&self,path: &AssumptionIProofStepPath) -> Result< &P,()>  { match self {
+    fn get_assumption(&self,path: &AssumptionInProofStepPath) -> Result< &P,()>  { match self {
         SequentialProof::Inference(inference) => inference.get_assumption(path),
         SequentialProof::Composite(composite_proof) => composite_proof.get_assumption(path),
     }}
