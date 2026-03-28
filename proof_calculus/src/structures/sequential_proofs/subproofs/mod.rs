@@ -57,6 +57,6 @@ mod from {
 }
 
 generate_parent_of_children_trait!{
-    (SequentialProof<P,Rule> where P: Proposition, Rule: InferenceRule<P>), ProofInProofPath,
+    SequentialProof<P,Rule>, ProofInProofPath, (P: Proposition, Rule: InferenceRule<P>),
     "subproof", "subproofs", "Subproofs"
 }

@@ -17,7 +17,7 @@ impl Display for ImmediateProofInProofPath {
 }
 
 generate_parent_of_children_trait!{
-    (SequentialProof<P,Rule> where P: Proposition, Rule: InferenceRule<P>), ImmediateProofInProofPath,
+    SequentialProof<P,Rule>, ImmediateProofInProofPath, (P: Proposition, Rule: InferenceRule<P>),
     "immediate_subproof", "immediate_subproofs", "ImmediateSubproofs"
 }
 

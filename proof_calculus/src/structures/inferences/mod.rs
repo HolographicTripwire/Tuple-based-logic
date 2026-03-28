@@ -2,7 +2,6 @@ use path_lib::obj_at_path::{ObjAtPath, OwnedObjAtPath};
 
 use crate::structures::{Proposition, propositions::{ParentOfAssumptions, ParentOfExplicitConclusions, paths::{AssumptionInProofStepPath, ExplicitConclusionInProofStepPath}}, sequential_proofs::subproofs::ProofInProofPath};
 
-
 pub trait InferenceRule<P: Proposition>: 'static + Clone + PartialEq {}
 
 #[derive(Clone,PartialEq,Eq,Debug)]

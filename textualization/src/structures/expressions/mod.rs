@@ -42,7 +42,6 @@ impl <'a> Style<TblExpression> for ExpressionStyle<'a> {
     fn parser<'b>(&self, params: Self::ParseParams) -> Parser<'b,char,TblExpression> {
         todo!()
     }
-    
 }
 
 pub trait SpecialCase<'a>: Sync + Send + DynClone {

@@ -5,10 +5,10 @@ use crate::structures::{Proposition, propositions::paths::{AssumptionInProofStep
 pub mod paths;
 
 generate_parent_of_children_trait!{
-    (P where P: Proposition), AssumptionInProofStepPath,
+    P, AssumptionInProofStepPath, (P: Proposition),
     "assumption", "assumptions", "Assumptions"
 }
 generate_parent_of_children_trait!{
-    (P where P: Proposition), ExplicitConclusionInProofStepPath,
+    P, ExplicitConclusionInProofStepPath, (P: Proposition),
     "explicit_conclusion", "explicit_conclusions", "ExplicitConclusions"
 }

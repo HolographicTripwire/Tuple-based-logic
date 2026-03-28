@@ -1,8 +1,11 @@
 [package]
 name = "proof_calculus"
-version = "0.4.0"
+version = "0.5.0"
 edition = "2024"
 
 [dependencies]
 path_lib = { path = "../path_lib/core" }
 path_lib_proc_macros = { path = "../path_lib/proc_macros" }
+
+trait-aliases = { version = "0.3.0" }
+nom = { version = "8.0.0" }

@@ -1,7 +1,11 @@
 use crate::structures::{Proposition, inferences::{Inference, InferenceRule}};
 
-pub trait VerifiableInferenceRule<P:Proposition>: InferenceRule<P> {
+pub mod inferences;
+pub mod abstract_proofs;
+pub mod sequential_proofs;
+
+pub trait ValidatableInferenceRule<P:Proposition>: InferenceRule<P> {
     type Err: Clone;
 
-    fn verify(rule: &Inference<P,Self>) -> Result<(),Self::Err>;
+    fn validate(rule: &Inference<P,Self>) -> Result<(),Self::Err>;
 }

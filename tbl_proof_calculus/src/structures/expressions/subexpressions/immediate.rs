@@ -16,7 +16,7 @@ impl Display for ImmediateSubexpressionInExpressionPath {
 }
 
 generate_parent_of_children_trait!{
-    (TblExpression<C> where C: CompoundTblExpression), ImmediateSubexpressionInExpressionPath,
+    TblExpression<C>, ImmediateSubexpressionInExpressionPath, (C: CompoundTblExpression),
     "immediate_subexpression", "immediate_subexpressions", "ImmediateSubexpressions"
 }
 pub type ImmediateSubexpressionInExpression<'a,C> = ObjAtPath<'a,TblExpression<C>,ImmediateSubexpressionInExpressionPath>;

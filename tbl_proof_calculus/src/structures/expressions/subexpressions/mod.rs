@@ -19,7 +19,7 @@ impl Display for SubexpressionInExpressionPath {
 }
 
 generate_parent_of_children_trait!{
-    (TblExpression<C> where C: CompoundTblExpression), SubexpressionInExpressionPath,
+    TblExpression<C>, SubexpressionInExpressionPath, (C: CompoundTblExpression),
     "subexpression", "subexpressions", "Subexpressions"
 }
 
