@@ -214,12 +214,3 @@ ParentPath > where Parent : 'a + Clone + ParentOfImmediateSubexpressions <
     obj_at_path :: OwnedObjAtPath < Parent, ParentPath > { self }
 }
 
-generate_parent_of_children_trait!{
-    (Self where Self: Expr), ImmediateExpressionInExpressionPath,
-    "immediate_subexpression", "immediate_subexpressions", "ImmediateSubexpressions"
-}
-pub type ImmediateSubexpressionInExpression<'a> = ObjAtPath<'a,TblExpression,ImmediateExpressionInExpressionPath>;
-pub type ImmediateSubexpressionInExpressionEnum<'a> = ExpressionAtPathEnum<'a,ImmediateExpressionInExpressionPath>;
-
-pub type OwnedImmediateSubexpressionInExpression = OwnedObjAtPath<TblExpression,ImmediateExpressionInExpressionPath>;
-pub type OwnedImmediateSubexpressionInExpressionEnum = OwnedExpressionAtPathEnum<ImmediateExpressionInExpressionPath>;
