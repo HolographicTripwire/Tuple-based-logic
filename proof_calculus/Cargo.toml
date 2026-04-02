@@ -9,3 +9,4 @@ path_lib_proc_macros = { path = "../path_lib/proc_macros" }
 
 trait-aliases = { version = "0.3.0" }
 nom = { version = "8.0.0" }
+itertools = { version = "0.14.0" }

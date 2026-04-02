@@ -1,3 +1,6 @@
+pub mod propositions;
+pub mod normal_forms;
+
 // pub trait ProgressableInferenceRule<Proposition> {
 
 // }
