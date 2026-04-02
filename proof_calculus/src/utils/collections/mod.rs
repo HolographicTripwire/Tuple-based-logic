@@ -1,1 +1,1 @@
-pub mod small_immutable_ordered_set;
+pub mod tiny_immutable_ordered_set;

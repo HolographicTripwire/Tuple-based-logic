@@ -1,11 +1,3 @@
-use crate::structures::{propositions::Proposition, inferences::{Inference, InferenceRule}};
+use crate::structures::{inferences::{Inference, InferenceRule}, propositions::Proposition};
 
-pub mod inferences;
-pub mod abstract_proofs;
-pub mod sequential_proofs;
-
-pub trait ValidatableInferenceRule<P:Proposition>: InferenceRule<P> {
-    type Err: Clone;
-
-    fn validate(rule: &Inference<P,Self>) -> Result<(),Self::Err>;
-}
+pub mod validity;

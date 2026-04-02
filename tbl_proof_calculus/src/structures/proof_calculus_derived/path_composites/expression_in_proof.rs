@@ -1,13 +1,13 @@
 use std::fmt::Display;
 
 use path_lib::obj_at_path::{ObjAtPath, OwnedObjAtPath};
-use proof_calculus::structures::{propositions::paths::PropositionInSequentialProofStepPath, sequential_proofs::subproofs::ProofInProofPath};
+use proof_calculus::structures::{propositions::paths::PropositionInSequentialProofStepPath, sequential_proofs::subproofs::SequentialProofInProofPath};
 
 use crate::structures::expressions::{TblExpression, atomic::AtomicTblExpression, compound::CompoundTblExpression, subexpressions::SubexpressionInExpressionPath};
 
 #[derive(Clone,PartialEq,Eq,Debug)]
 pub struct ExpressionInProofPath{
-    pub step_path: ProofInProofPath,
+    pub step_path: SequentialProofInProofPath,
     pub proposition_path: PropositionInSequentialProofStepPath,
     pub subexpression_path: SubexpressionInExpressionPath
 }
@@ -65,8 +65,8 @@ mod from {
                 subexpression_path: value.1.into()
         }}
     }
-    impl From<(ProofInProofPath,PropositionInSequentialProofStepPath)> for ExpressionInProofPath {
-        fn from(value: (ProofInProofPath,PropositionInSequentialProofStepPath)) -> Self { Self {
+    impl From<(SequentialProofInProofPath,PropositionInSequentialProofStepPath)> for ExpressionInProofPath {
+        fn from(value: (SequentialProofInProofPath,PropositionInSequentialProofStepPath)) -> Self { Self {
             step_path: value.0,
             proposition_path: value.1,
             subexpression_path: SubexpressionInExpressionPath::default(),

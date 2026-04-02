@@ -1,6 +1,6 @@
 [package]
 name = "tbl_proof_calculus"
-version = "0.2.1"
+version = "0.3.0"
 edition = "2024"
 
 [dependencies]
@@ -9,3 +9,4 @@ path_lib_proc_macros = { path = "../path_lib/proc_macros" }
 proof_calculus = { path = "../proof_calculus" }
 
 trait-aliases = { version = "0.3.0" }
+itertools = { version = "0.14.0" }

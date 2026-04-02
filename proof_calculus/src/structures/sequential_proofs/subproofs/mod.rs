@@ -1,15 +1,15 @@
 use std::fmt::Display;
 
+use path_lib::obj_at_path::{ObjAtPath, OwnedObjAtPath};
 use path_lib_proc_macros::generate_parent_of_children_trait;
 
-use crate::structures::{propositions::Proposition, inferences::InferenceRule, sequential_proofs::{SequentialProof, subproofs::immediate::ImmediateProofInProofPath}};
+use crate::structures::{inferences::InferenceRule, propositions::Proposition, sequential_proofs::{SequentialProof, at_path_enum::{OwnedSequentialProofAtPathEnum, SequentialProofAtPathEnum}, subproofs::immediate::ImmediateSequentialProofInProofPath}};
 
-pub mod at_path_enum;
 pub mod immediate;
 
 #[derive(Clone,PartialEq,Eq,Hash,Debug)]
-pub struct ProofInProofPath(pub Vec<ImmediateProofInProofPath>);
-impl Display for ProofInProofPath {
+pub struct SequentialProofInProofPath(pub Vec<ImmediateSequentialProofInProofPath>);
+impl Display for SequentialProofInProofPath {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let components = self.0.clone().into_iter();
         let component_strings = components.map(|x| x.to_string());
@@ -18,38 +18,38 @@ impl Display for ProofInProofPath {
     }
 }
 mod from {
-    use crate::structures::sequential_proofs::subproofs::{ProofInProofPath, immediate::ImmediateProofInProofPath};
+    use crate::structures::sequential_proofs::subproofs::{SequentialProofInProofPath, immediate::ImmediateSequentialProofInProofPath};
 
-    impl From<ImmediateProofInProofPath> for ProofInProofPath {
-        fn from(value: ImmediateProofInProofPath) -> Self { Self(vec![value]) }
+    impl From<ImmediateSequentialProofInProofPath> for SequentialProofInProofPath {
+        fn from(value: ImmediateSequentialProofInProofPath) -> Self { Self(vec![value]) }
     }
-    impl <const N: usize> From<[ImmediateProofInProofPath;N]> for ProofInProofPath {
-        fn from(values: [ImmediateProofInProofPath;N]) -> Self { Self(values.into()) }
+    impl <const N: usize> From<[ImmediateSequentialProofInProofPath;N]> for SequentialProofInProofPath {
+        fn from(values: [ImmediateSequentialProofInProofPath;N]) -> Self { Self(values.into()) }
     }
-    impl From<Box<[ImmediateProofInProofPath]>> for ProofInProofPath {
-        fn from(values: Box<[ImmediateProofInProofPath]>) -> Self { Self(values.into()) }
+    impl From<Box<[ImmediateSequentialProofInProofPath]>> for SequentialProofInProofPath {
+        fn from(values: Box<[ImmediateSequentialProofInProofPath]>) -> Self { Self(values.into()) }
     }
-    impl From<Vec<ImmediateProofInProofPath>> for ProofInProofPath {
-        fn from(values: Vec<ImmediateProofInProofPath>) -> Self { Self(values) }
+    impl From<Vec<ImmediateSequentialProofInProofPath>> for SequentialProofInProofPath {
+        fn from(values: Vec<ImmediateSequentialProofInProofPath>) -> Self { Self(values) }
     }
 
-    impl From<(ImmediateProofInProofPath,ImmediateProofInProofPath)> for ProofInProofPath {
-        fn from(values: (ImmediateProofInProofPath,ImmediateProofInProofPath)) -> Self { Self(vec![values.0,values.1]) }
+    impl From<(ImmediateSequentialProofInProofPath,ImmediateSequentialProofInProofPath)> for SequentialProofInProofPath {
+        fn from(values: (ImmediateSequentialProofInProofPath,ImmediateSequentialProofInProofPath)) -> Self { Self(vec![values.0,values.1]) }
     }
-    impl From<(ProofInProofPath,ImmediateProofInProofPath)> for ProofInProofPath {
-        fn from(mut values: (ProofInProofPath,ImmediateProofInProofPath)) -> Self {
+    impl From<(SequentialProofInProofPath,ImmediateSequentialProofInProofPath)> for SequentialProofInProofPath {
+        fn from(mut values: (SequentialProofInProofPath,ImmediateSequentialProofInProofPath)) -> Self {
             values.0.0.push(values.1);
             values.0
         }
     }
-    impl From<(ImmediateProofInProofPath,ProofInProofPath)> for ProofInProofPath {
-        fn from(mut values: (ImmediateProofInProofPath,ProofInProofPath)) -> Self {
+    impl From<(ImmediateSequentialProofInProofPath,SequentialProofInProofPath)> for SequentialProofInProofPath {
+        fn from(mut values: (ImmediateSequentialProofInProofPath,SequentialProofInProofPath)) -> Self {
             values.1.0.insert(0,values.0);
             values.1
         }
     }
-    impl From<(ProofInProofPath,ProofInProofPath)> for ProofInProofPath {
-        fn from(mut values: (ProofInProofPath,ProofInProofPath)) -> Self {
+    impl From<(SequentialProofInProofPath,SequentialProofInProofPath)> for SequentialProofInProofPath {
+        fn from(mut values: (SequentialProofInProofPath,SequentialProofInProofPath)) -> Self {
             values.0.0.append(&mut values.1.0);
             values.0
         }
@@ -57,6 +57,15 @@ mod from {
 }
 
 generate_parent_of_children_trait!{
-    SequentialProof<P,Rule>, ProofInProofPath, (P: Proposition, Rule: InferenceRule<P>),
+    SequentialProof<P,Rule>, SequentialProofInProofPath, (P: Proposition, Rule: InferenceRule<P>),
     "subproof", "subproofs", "Subproofs"
 }
+
+pub type SequentialProofAtPath<'a,P,Rule,Path> = ObjAtPath<'a,SequentialProof<P,Rule>,Path>;
+pub type OwnedSequentialProofAtPath<P,Rule,Path> = OwnedObjAtPath<SequentialProof<P,Rule>,Path>;
+
+pub type SequentialProofInProof<'a,P,Rule> = SequentialProofAtPath<'a,P,Rule,SequentialProofInProofPath>;
+pub type SequentialProofInProofEnum<'a,P,Rule> = SequentialProofAtPathEnum<'a,P,SequentialProofInProofPath,Rule>;
+
+pub type OwnedImmediateProofInProof<P,Rule> = OwnedSequentialProofAtPath<P,Rule,SequentialProofInProofPath>;
+pub type OwnedImmediateProofInProofEnum<P,Rule> = OwnedSequentialProofAtPathEnum<P,SequentialProofInProofPath,Rule>;

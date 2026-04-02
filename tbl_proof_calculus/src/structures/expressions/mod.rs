@@ -4,6 +4,7 @@ use crate::structures::expressions::{atomic::AtomicTblExpression, compound::{Com
 
 pub mod atomic;
 pub mod compound;
+pub mod located;
 pub mod subexpressions;
 pub mod at_path_enum;
 
