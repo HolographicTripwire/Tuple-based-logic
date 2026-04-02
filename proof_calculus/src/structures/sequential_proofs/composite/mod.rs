@@ -1,6 +1,6 @@
 use path_lib::obj_at_path::{ObjAtPath, OwnedObjAtPath};
 
-use crate::structures::{Proposition, inferences::{Inference, InferenceRule}, propositions::paths::ExplicitConclusionInProofStepPath, sequential_proofs::{AssumptionInProofStepPath, ParentOfAssumptions, ParentOfExplicitConclusions, SequentialProof, at_path_enum::ProofAtPathEnum, subproofs::{ParentOfSubproofs, ProofInProofPath, immediate::{ImmediateProofInProofPath, ParentOfImmediateSubproofs}}}};
+use crate::structures::{propositions::Proposition, inferences::{Inference, InferenceRule}, propositions::paths::ExplicitConclusionInProofStepPath, sequential_proofs::{AssumptionInProofStepPath, ParentOfAssumptions, ParentOfExplicitConclusions, SequentialProof, at_path_enum::ProofAtPathEnum, subproofs::{ParentOfSubproofs, ProofInProofPath, immediate::{ImmediateProofInProofPath, ParentOfImmediateSubproofs}}}};
 
 #[derive(Clone,PartialEq,Eq,Debug)]
 pub struct CompositeSequentialProof<P: Proposition, Rule: InferenceRule<P>> {

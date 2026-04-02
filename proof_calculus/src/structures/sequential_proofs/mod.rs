@@ -3,7 +3,7 @@ pub mod subproofs;
 pub mod at_path_enum;
 pub mod errors;
 
-use crate::structures::{Proposition, inferences::{Inference, InferenceRule}, propositions::{ParentOfAssumptions, ParentOfExplicitConclusions, paths::{AssumptionInProofStepPath, ExplicitConclusionInProofStepPath}}, sequential_proofs::composite::CompositeSequentialProof};
+use crate::structures::{propositions::Proposition, inferences::{Inference, InferenceRule}, propositions::{ParentOfAssumptions, ParentOfExplicitConclusions, paths::{AssumptionInProofStepPath, ExplicitConclusionInProofStepPath}}, sequential_proofs::composite::CompositeSequentialProof};
 
 
 /// This struct represents a step within a larger proof

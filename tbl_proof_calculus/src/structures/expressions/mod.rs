@@ -1,4 +1,4 @@
-use proof_calculus::structures::Proposition;
+use proof_calculus::structures::propositions::Proposition;
 
 use crate::structures::expressions::{atomic::AtomicTblExpression, compound::{CompoundTblExpression, arc::ArcCompoundTblExpression, r#box::BoxCompoundTblExpression, rc::RcCompoundTblExpression}};
 

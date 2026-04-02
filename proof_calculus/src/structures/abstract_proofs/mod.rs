@@ -2,7 +2,7 @@ use std::collections::{HashMap, HashSet};
 
 use path_lib_proc_macros::generate_parent_of_children_trait;
 
-use crate::structures::{Proposition, inferences::{Inference, InferenceRule}};
+use crate::structures::{propositions::Proposition, inferences::{Inference, InferenceRule}};
 
 pub struct AbstractProof<P: Proposition, Rule: InferenceRule<P>> {
     inferences: HashMap<P,Inference<P,Rule>>,

@@ -1,4 +1,4 @@
-use crate::structures::{Proposition, inferences::{Inference, InferenceRule}};
+use crate::structures::{propositions::Proposition, inferences::{Inference, InferenceRule}};
 
 pub mod inferences;
 pub mod abstract_proofs;

@@ -1,6 +1,6 @@
 use path_lib::obj_at_path::{ObjAtPath, OwnedObjAtPath};
 
-use crate::structures::{Proposition, propositions::{ParentOfAssumptions, ParentOfExplicitConclusions, paths::{AssumptionInProofStepPath, ExplicitConclusionInProofStepPath}}, sequential_proofs::subproofs::ProofInProofPath};
+use crate::structures::{propositions::Proposition, propositions::{ParentOfAssumptions, ParentOfExplicitConclusions, paths::{AssumptionInProofStepPath, ExplicitConclusionInProofStepPath}}, sequential_proofs::subproofs::ProofInProofPath};
 
 pub trait InferenceRule<P: Proposition>: 'static + Clone + PartialEq {}
 

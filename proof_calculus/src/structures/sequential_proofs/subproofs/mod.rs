@@ -2,7 +2,7 @@ use std::fmt::Display;
 
 use path_lib_proc_macros::generate_parent_of_children_trait;
 
-use crate::structures::{Proposition, inferences::InferenceRule, sequential_proofs::{SequentialProof, subproofs::immediate::ImmediateProofInProofPath}};
+use crate::structures::{propositions::Proposition, inferences::InferenceRule, sequential_proofs::{SequentialProof, subproofs::immediate::ImmediateProofInProofPath}};
 
 pub mod at_path_enum;
 pub mod immediate;

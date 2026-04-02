@@ -1,6 +1,6 @@
 use std::collections::{HashMap, HashSet};
 
-use crate::{structures::Proposition, verification::{ValidatableInferenceRule, inferences::ValidInference}};
+use crate::{structures::propositions::Proposition, verification::{ValidatableInferenceRule, inferences::ValidInference}};
 
 pub struct ValidAbstractProof<P: Proposition, Rule: ValidatableInferenceRule<P>> {
     inferences: HashMap<P,ValidInference<P,Rule>>,

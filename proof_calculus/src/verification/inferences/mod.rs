@@ -1,4 +1,4 @@
-use crate::{structures::{Proposition, inferences::{Inference}}, verification::ValidatableInferenceRule};
+use crate::{structures::{propositions::Proposition, inferences::{Inference}}, verification::ValidatableInferenceRule};
 
 pub struct ValidInference<P: Proposition, Rule: ValidatableInferenceRule<P>>(Inference<P,Rule>);
 impl <P: Proposition, Rule: ValidatableInferenceRule<P>> ValidInference<P,Rule> {
