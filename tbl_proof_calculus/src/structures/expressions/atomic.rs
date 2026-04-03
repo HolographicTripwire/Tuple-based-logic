@@ -1,5 +1,7 @@
 use std::num::TryFromIntError;
 
+use path_lib::obj_at_path::{ObjAtPath, OwnedObjAtPath};
+
 /// An [Identifier] used for Atom objects, which are used for building tuple objects in Tuple-based logic
 #[derive(Clone, Copy, PartialEq, Eq, Debug, Hash)]
 pub struct AtomicTblExpression(pub u16);
@@ -20,6 +22,9 @@ impl TryFrom<AtomicTblExpression> for usize {
     fn try_from(value: AtomicTblExpression) -> Result<Self, Self::Error>
         { Ok(usize::try_from(value.0)?) }
 }
+
+pub type AtomicTblExpressionAtPath<'a,Path> = ObjAtPath<'a,AtomicTblExpression,Path>;
+pub type OwnedAtomicTblExpressionAtPath<Path> = OwnedObjAtPath<AtomicTblExpression,Path>;
 
 #[cfg(test)]
 mod tests {

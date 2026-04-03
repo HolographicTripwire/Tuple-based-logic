@@ -9,45 +9,45 @@ pub struct ProofValidityStepResultWrapper<P:Proposition,IE:Clone,ParentPath,Join
     is_finished: bool,
     next_result: ProofValidityStepResult<P,IE,ParentPath,JoinedPath>
 }
+
+pub type ProofValidityStepResult<P,IE,ParentPath,JoinedPath> = Result<(),ProofValidityStepErr<P,IE,ParentPath,JoinedPath>>;
 #[derive(Clone,PartialEq,Eq,Debug)]
-pub enum ProofValidityStepResult<P:Proposition,IE:Clone,ParentPath,JoinedPath> {
-    Ok,
-    ErrInParent(OwnedProofValidityErrorAtPath<P,IE,ParentPath>),
-    ErrInChild(OwnedProofValidityErrorAtPath<P,IE,JoinedPath>),
+pub enum ProofValidityStepErr<P:Proposition,IE:Clone,ParentPath,JoinedPath> {
+    InParent(OwnedProofValidityErrorAtPath<P,IE,ParentPath>),
+    InChild(OwnedProofValidityErrorAtPath<P,IE,JoinedPath>),
 }
-impl <P:Proposition,IE:Clone,ParentPath,JoinedPath> ProofValidityStepResult<P,IE,ParentPath,JoinedPath> {
-    pub fn replace_path<NewParentPath,NewJoinedPath>(self, parent_replace: impl Fn(ParentPath) -> NewParentPath, joined_replace: impl Fn(JoinedPath) -> NewJoinedPath) -> ProofValidityStepResult<P,IE,NewParentPath,NewJoinedPath> {
+impl <P:Proposition,IE:Clone,ParentPath,JoinedPath> ProofValidityStepErr<P,IE,ParentPath,JoinedPath> {
+    pub fn replace_path<NewParentPath,NewJoinedPath>(self, parent_replace: impl Fn(ParentPath) -> NewParentPath, joined_replace: impl Fn(JoinedPath) -> NewJoinedPath) -> ProofValidityStepErr<P,IE,NewParentPath,NewJoinedPath> {
         match self {
-            ProofValidityStepResult::Ok => ProofValidityStepResult::Ok,
-            ProofValidityStepResult::ErrInParent(parent) => ProofValidityStepResult::ErrInParent(parent.replace_path(parent_replace)),
-            ProofValidityStepResult::ErrInChild(child) => ProofValidityStepResult::ErrInChild(child.replace_path(joined_replace)),
+            ProofValidityStepErr::InParent(parent) => ProofValidityStepErr::InParent(parent.replace_path(parent_replace)),
+            ProofValidityStepErr::InChild(child) => ProofValidityStepErr::InChild(child.replace_path(joined_replace)),
         }
     }
 }
 impl <P:Proposition,IE:Clone,ParentPath,JoinedPath> ProofValidityStepResultWrapper<P,IE,ParentPath,JoinedPath> {
     fn unfinished_no_err() -> Self { Self {
         is_finished: false,
-        next_result: ProofValidityStepResult::Ok
+        next_result: Ok(())
     }}
     fn finished_no_err() -> Self { Self {
         is_finished: true,
-        next_result: ProofValidityStepResult::Ok
+        next_result: Ok(())
     }}
-    fn unfinished_parent_err(err: OwnedProofValidityErrorAtPath<P,IE,ParentPath>) -> Self { Self {
+    fn _unfinished_parent_err(err: OwnedProofValidityErrorAtPath<P,IE,ParentPath>) -> Self { Self {
         is_finished: false,
-        next_result: ProofValidityStepResult::ErrInParent(err)
+        next_result: Err(ProofValidityStepErr::InParent(err))
     }}
     fn finished_parent_err(err: OwnedProofValidityErrorAtPath<P,IE,ParentPath>) -> Self { Self {
         is_finished: true,
-        next_result: ProofValidityStepResult::ErrInParent(err)
+        next_result: Err(ProofValidityStepErr::InParent(err))
     }}
     fn unfinished_child_err(err: OwnedProofValidityErrorAtPath<P,IE,JoinedPath>) -> Self { Self {
         is_finished: false,
-        next_result: ProofValidityStepResult::ErrInChild(err)
+        next_result: Err(ProofValidityStepErr::InChild(err))
     }}
-    fn finished_child_err(err: OwnedProofValidityErrorAtPath<P,IE,JoinedPath>) -> Self { Self {
+    fn _finished_child_err(err: OwnedProofValidityErrorAtPath<P,IE,JoinedPath>) -> Self { Self {
         is_finished: true,
-        next_result: ProofValidityStepResult::ErrInChild(err)
+        next_result: Err(ProofValidityStepErr::InChild(err))
     }}
 }
 
@@ -83,7 +83,7 @@ impl <'a,P:Proposition,Rule:ValidatableInferenceRule<P>,ParentPath: Clone,Joined
     fn next(&mut self) -> Option<Self::Item> {
         let result = self.step();
         match result.next_result {
-            ProofValidityStepResult::Ok => if result.is_finished { Some(ProofValidityStepResult::Ok) } else { None },
+            Ok(()) => if result.is_finished { Some(Ok(())) } else { None },
             error => { Some(error) }
         }
     }

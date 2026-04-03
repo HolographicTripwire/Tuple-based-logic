@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use crate::structures::expressions::{TblExpression, at_path_enum::ExpressionAtPathEnum, compound::CompoundTblExpression, subexpressions::{ParentOfSubexpressions, SubexpressionInExpressionPath, immediate::{ImmediateSubexpressionInExpressionPath, ParentOfImmediateSubexpressions}}};
+use crate::structures::expressions::{TblExpression, at_path_enum::TblExpressionAtPathEnum, compound::CompoundTblExpression, subexpressions::{ParentOfSubexpressions, SubexpressionInExpressionPath, immediate::{ImmediateSubexpressionInExpressionPath, ParentOfImmediateSubexpressions}}};
 
 /// A compound unit in Tuple-Based Logic, which are used to build up [Propositions](Proposition)
 #[derive(Debug,Clone,PartialEq,Eq,Hash)]
@@ -23,17 +23,6 @@ impl ParentOfImmediateSubexpressions<ArcCompoundTblExpression> for ArcCompoundTb
         { self.0.get(path.0).ok_or(()) }
 }
 
-impl ArcCompoundTblExpression {
-    fn get_subexpressions_helper(&self,path: &SubexpressionInExpressionPath, index: usize) -> Result<&TblExpression<ArcCompoundTblExpression>,()> {
-        let immediate_path = path.0.get(index).ok_or(())?;
-        let inner = self.get_immediate_subexpression(immediate_path)?;
-        if index == path.0.len() { Ok(inner) }
-        else { match inner {
-            TblExpression::Atomic(_) => Err(()),
-            TblExpression::Compound(compound) => compound.get_subexpressions_helper(path, index+1),
-        }}
-    }
-}
 impl ParentOfSubexpressions<ArcCompoundTblExpression> for ArcCompoundTblExpression {
     fn get_subexpression_paths(&self) -> impl IntoIterator<Item = SubexpressionInExpressionPath>  {
         let immediate = self.get_immediate_subexpression_paths()
@@ -41,20 +30,17 @@ impl ParentOfSubexpressions<ArcCompoundTblExpression> for ArcCompoundTblExpressi
             .map(|x| x.into());
         let deferred = self.get_located_immediate_subexpressions()
             .into_iter()
-            .map(|x| match x.into() {
-                ExpressionAtPathEnum::Atomic(_) => vec![],
-                ExpressionAtPathEnum::Compound(compound) => compound.obj
-                    .get_subexpression_paths()
-                    .into_iter()
-                    .map(|p| (compound.path,p).into())
-                    .collect()
-                }
-            ).flatten();
+            .map(|x| x.obj.get_subexpression_paths())
+            .flatten();
         immediate.chain(deferred)
     }
 
-    fn get_subexpression(&self,path: &SubexpressionInExpressionPath) -> Result<&TblExpression<ArcCompoundTblExpression>,()>
-        { self.get_subexpressions_helper(path, 0) }
+    fn get_subexpression(&self,path: &SubexpressionInExpressionPath) -> Result<&TblExpression<ArcCompoundTblExpression>,()> { 
+        let v = path.0.get(0).ok_or(())?;
+        let inner = self.get_immediate_subexpression(v)?;
+        if 1 == path.0.len() { Ok(inner) }
+        else { inner.get_subexpressions_helper(path, 1) }
+    }
 }
 
 mod from {

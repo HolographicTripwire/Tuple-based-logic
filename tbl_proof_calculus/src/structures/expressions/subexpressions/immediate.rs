@@ -3,7 +3,7 @@ use std::fmt::Display;
 use path_lib::obj_at_path::{ObjAtPath, OwnedObjAtPath};
 use path_lib_proc_macros::generate_parent_of_children_trait;
 
-use crate::structures::expressions::{TblExpression, at_path_enum::{ExpressionAtPathEnum, OwnedExpressionAtPathEnum}, compound::CompoundTblExpression};
+use crate::structures::expressions::{TblExpression, at_path_enum::{TblExpressionAtPathEnum, OwnedTblExpressionAtPathEnum}, compound::CompoundTblExpression};
 
 #[derive(Clone,Copy,PartialEq,Eq,Hash,Debug)]
 pub struct ImmediateSubexpressionInExpressionPath(pub usize);
@@ -20,7 +20,7 @@ generate_parent_of_children_trait!{
     "immediate_subexpression", "immediate_subexpressions", "ImmediateSubexpressions"
 }
 pub type ImmediateSubexpressionInExpression<'a,C> = ObjAtPath<'a,TblExpression<C>,ImmediateSubexpressionInExpressionPath>;
-pub type ImmediateSubexpressionInExpressionEnum<'a,C> = ExpressionAtPathEnum<'a,C,ImmediateSubexpressionInExpressionPath>;
+pub type ImmediateSubexpressionInExpressionEnum<'a,C> = TblExpressionAtPathEnum<'a,C,ImmediateSubexpressionInExpressionPath>;
 
 pub type OwnedImmediateSubexpressionInExpression<C> = OwnedObjAtPath<TblExpression<C>,ImmediateSubexpressionInExpressionPath>;
-pub type OwnedImmediateSubexpressionInExpressionEnum<C> = OwnedExpressionAtPathEnum<C,ImmediateSubexpressionInExpressionPath>;
+pub type OwnedImmediateSubexpressionInExpressionEnum<C> = OwnedTblExpressionAtPathEnum<C,ImmediateSubexpressionInExpressionPath>;

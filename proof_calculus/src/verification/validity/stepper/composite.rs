@@ -1,7 +1,7 @@
 use itertools::Either;
 use path_lib::obj_at_path::OwnedObjAtPath;
 
-use crate::{structures::{propositions::{LocatedParentOfExplicitConclusions, ParentOfAssumptions, ParentOfExplicitConclusions, Proposition}, propsets::{implementations::hash::HashPropSet1O}, sequential_proofs::{at_path_enum::SequentialProofAtPathEnum, composite::CompositeSequentialProofAtPath, subproofs::{ParentOfSubproofs, SequentialProofAtPath, immediate::{ImmediateSequentialProofInProofPath, LocatedParentOfImmediateSubproofs}}}}, verification::validity::{ProofValidityError, ValidatableInferenceRule, stepper::{ProofValidityStepResultWrapper, ProofValidityStepResult}, validate_inference}};
+use crate::{structures::{propositions::{LocatedParentOfExplicitConclusions, ParentOfAssumptions, ParentOfExplicitConclusions, Proposition}, propsets::implementations::hash::HashPropSet1O, sequential_proofs::{at_path_enum::SequentialProofAtPathEnum, composite::CompositeSequentialProofAtPath, subproofs::{ParentOfSubproofs, SequentialProofAtPath, immediate::{ImmediateSequentialProofInProofPath, LocatedParentOfImmediateSubproofs}}}}, verification::validity::{ProofValidityError, ValidatableInferenceRule, stepper::{ProofValidityStepErr, ProofValidityStepResultWrapper}, validate_inference}};
 
 #[derive(PartialEq,Eq,Debug)]
 enum CompositeProofValidityStep {
@@ -106,9 +106,9 @@ CompositeProofValidityStepper<'a,P,Rule,ParentPath,JoinedPath> {
                     self.proved.extend(conclusions);
                 }
                 match inner_result.next_result {
-                    ProofValidityStepResult::Ok => ProofValidityStepResultWrapper::unfinished_no_err(),
-                    ProofValidityStepResult::ErrInParent(err) => ProofValidityStepResultWrapper::unfinished_child_err(err),
-                    ProofValidityStepResult::ErrInChild(err) => ProofValidityStepResultWrapper::unfinished_child_err(err),
+                    Ok(()) => ProofValidityStepResultWrapper::unfinished_no_err(),
+                    Err(ProofValidityStepErr::InParent(err)) => ProofValidityStepResultWrapper::unfinished_child_err(err),
+                    Err(ProofValidityStepErr::InChild(err)) => ProofValidityStepResultWrapper::unfinished_child_err(err),
                 }
             }, Either::Right(None) => panic!("ProofStepper inner was supposed to guaranteed as Some(composite), but matched with None")
         }

@@ -11,7 +11,7 @@ impl <C: CompoundTblExpression, Path> ExpressionLengthCheckError<C,Path> {
 }
 
 /// Check that the provided [Expression](ExpressionInInference) has an length equal to expected_length, returning an error otherwise
-pub fn assert_expression_length<'a,C: CompoundTblExpression, Path>(expr: &TblExpressionAtPath<'a,C,Path>, expected_length: usize) -> Result<(), ExpressionLengthCheckError<C,Path>> {
+pub fn assert_expression_length<'a,C: CompoundTblExpression, Path: Clone>(expr: &TblExpressionAtPath<'a,C,Path>, expected_length: usize) -> Result<(), ExpressionLengthCheckError<C,Path>> {
     match expr.obj {
         TblExpression::Atomic(_) => Err(ExpressionLengthCheckError {
             expected_length, 

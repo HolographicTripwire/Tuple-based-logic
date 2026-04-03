@@ -50,7 +50,7 @@ mod from {
     }
     impl From<(ImmediateSubexpressionInExpressionPath,SubexpressionInExpressionPath)> for SubexpressionInExpressionPath {
         fn from(mut value: (ImmediateSubexpressionInExpressionPath,SubexpressionInExpressionPath)) -> Self {
-            value.1.0.push(value.0);
+            value.1.0.insert(0,value.0);
             value.1
         }
     }

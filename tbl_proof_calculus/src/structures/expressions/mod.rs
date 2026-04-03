@@ -1,6 +1,6 @@
 use proof_calculus::structures::propositions::Proposition;
 
-use crate::structures::expressions::{atomic::AtomicTblExpression, compound::{CompoundTblExpression, arc::ArcCompoundTblExpression, r#box::BoxCompoundTblExpression, rc::RcCompoundTblExpression}};
+use crate::structures::expressions::{atomic::AtomicTblExpression, compound::{CompoundTblExpression, arc::ArcCompoundTblExpression, r#box::BoxCompoundTblExpression, rc::RcCompoundTblExpression}, subexpressions::{ParentOfSubexpressions, SubexpressionInExpressionPath, immediate::{ImmediateSubexpressionInExpressionPath, ParentOfImmediateSubexpressions}}};
 
 pub mod atomic;
 pub mod compound;
@@ -8,12 +8,19 @@ pub mod located;
 pub mod subexpressions;
 pub mod at_path_enum;
 
-#[derive(Debug,Clone,PartialEq,Eq,Hash)]
+#[derive(Debug,Clone,Eq,Hash)]
 pub enum TblExpression<C: CompoundTblExpression> {
     Atomic(AtomicTblExpression),
     Compound(C)
 }
 impl <C: CompoundTblExpression> Proposition for TblExpression<C> {}
+impl <C1: CompoundTblExpression, C2: CompoundTblExpression + PartialEq<C1>> PartialEq<TblExpression<C1>> for TblExpression<C2> {
+    fn eq(&self, other: &TblExpression<C1>) -> bool { match (self,other) {
+        (TblExpression::Atomic(atom_left), TblExpression::Atomic(atom_right)) => atom_left == atom_right,
+        (TblExpression::Compound(compound_left), TblExpression::Compound(compound_right)) => compound_left == compound_right,
+        _ => false
+    }}
+}
 
 //type RefTblExpression<'a> = TblExpression<RefCompoundTblExpression<'a>>;
 pub type BoxTblExpression = TblExpression<BoxCompoundTblExpression>;
@@ -27,14 +34,16 @@ impl <C: CompoundTblExpression> TblExpression<C> {
             { TblExpression::Compound(compound.replace(to_replace, replace_with)) }
         else { self.clone() }
     }
-    
-    // /// If this expression is an Atom, get its id. Otherwise throw an error
-    // pub fn as_atom(&self) -> Result<AtomicTblExpression,()> {
-    //     match self {
-    //         TblExpression::Atomic(entity_id) => Ok(*entity_id),
-    //         TblExpression::Compound(_) => Err(()),
-    //     }
-    // }
+
+    pub fn is_atom(&self) -> bool { if let TblExpression::Atomic(_) = self { true } else { false } }
+    pub fn is_compound(&self) -> bool { if let TblExpression::Compound(_) = self { true } else { false } }
+
+    pub fn get_subexpressions_helper(&self,path: &SubexpressionInExpressionPath, index: usize) -> Result<&TblExpression<C>,()> {
+        let immediate_path = path.0.get(index).ok_or(())?;
+        let inner = self.get_immediate_subexpression(immediate_path)?;
+        if index == path.0.len() { Ok(inner) }
+        else { inner.get_subexpressions_helper(path, index+1) }
+    }
 
     // /// If this expression is a Tuple, get its expressions. Otherwise throw an error 
     // pub fn as_vec<'a>(&'a self) -> Result<&'a C,()> { 
@@ -44,7 +53,7 @@ impl <C: CompoundTblExpression> TblExpression<C> {
     //     }
     // }
 
-    // /// If this expression is a Tuple, get its subexpressions. Otherwise throw an error 
+    /// If this expression is a Tuple, get its subexpressions. Otherwise throw an error 
     // pub fn as_slice(&self) -> Result<&[TblExpression], ()> {
     //     match self {
     //         TblExpression::Atomic(_) => Err(()),
@@ -58,6 +67,50 @@ impl <C: CompoundTblExpression> TblExpression<C> {
             TblExpression::Compound(exprs) => Some(exprs.len())
         }
     }
+}
+impl <C: CompoundTblExpression> TryInto<AtomicTblExpression> for TblExpression<C> {
+    type Error = ();
+    fn try_into(self) -> Result<AtomicTblExpression, Self::Error> { match self {
+        TblExpression::Atomic(atom) => Ok(atom),
+        TblExpression::Compound(_) => Err(()),
+    }}
+}
+// impl <C: CompoundTblExpression> TryInto<C> for TblExpression<C> {
+//     type Error = ();
+//     fn try_into(self) -> Result<C, Self::Error> { match self {
+//         TblExpression::Atomic(_) => Err(()),
+//         TblExpression::Compound(compound) => Ok(compound),
+//     }}
+// }
+
+impl <C:CompoundTblExpression> ParentOfImmediateSubexpressions<C> for TblExpression<C> {
+    fn get_immediate_subexpression_paths(&self) -> impl IntoIterator<Item = ImmediateSubexpressionInExpressionPath> { match self {
+        TblExpression::Atomic(_) => Box::from_iter([]),
+        TblExpression::Compound(compound) => compound.get_immediate_subexpression_paths().into_iter().collect(),
+    }}
+
+    fn get_immediate_subexpression(&self,path: &ImmediateSubexpressionInExpressionPath) -> Result< &TblExpression<C> ,()>  { match self {
+        TblExpression::Atomic(_) => Err(()),
+        TblExpression::Compound(c) => c.get_immediate_subexpression(path),
+    }}
+}
+impl <C:CompoundTblExpression> ParentOfSubexpressions<C> for TblExpression<C> {
+    fn get_subexpression_paths(&self) -> impl IntoIterator<Item = SubexpressionInExpressionPath> {
+        let immediate = self.get_immediate_subexpression_paths()
+            .into_iter()
+            .map(|x| x.into());
+        let deferred = self.get_located_immediate_subexpressions()
+            .into_iter()
+            .map(|inner| inner.obj.get_subexpression_paths()
+                .into_iter()
+                .map(|p| (inner.path,p).into())
+                .collect::<Vec<_>>()
+            ).flatten();
+        immediate.chain(deferred)
+    }
+
+    fn get_subexpression(&self,path: &SubexpressionInExpressionPath) -> Result< &TblExpression<C> ,()>
+        { self.get_subexpressions_helper(path, 0) }
 }
 
 mod from {

@@ -11,8 +11,9 @@ impl <C: CompoundTblExpression,Path> ExpressionAtomicityCheckError<C,Path> {
 }
 
 /// Check that the provided [Expression](ExpressionInInference) has an atomicity equal to expected_atomicity, returning an error otherwise
-pub fn assert_expression_atomicity<'a,C: CompoundTblExpression,Path>(expr: &TblExpressionAtPath<'a,C,Path>, expected_atomicity: bool) -> Result<(), ExpressionAtomicityCheckError<C,Path>> {
-    if expr.obj.as_atom().is_ok() == expected_atomicity { Ok(()) }
+pub fn assert_expression_atomicity<'a,C,Path>(expr: &TblExpressionAtPath<'a,C,Path>, expected_atomicity: bool) -> Result<(), ExpressionAtomicityCheckError<C,Path>> where
+C: CompoundTblExpression, Path: Clone {
+    if expr.obj.is_atom() == expected_atomicity { Ok(()) }
     else { Err(ExpressionAtomicityCheckError{
         expected_atomicity, 
         expression: expr.clone().into() 
