@@ -3,13 +3,13 @@ use std::fmt::Display;
 use path_lib::obj_at_path::{ObjAtPath, OwnedObjAtPath};
 use proof_calculus::structures::{propositions::paths::PropositionInSequentialProofStepPath, sequential_proofs::subproofs::SequentialProofInProofPath};
 
-use crate::structures::expressions::{TblExpression, atomic::AtomicTblExpression, compound::CompoundTblExpression, subexpressions::SubexpressionInExpressionPath};
+use crate::structures::expressions::{TblExpression, atomic::AtomicTblExpression, compound::CompoundTblExpression, subexpressions::TblSubexpressionInExpressionPath};
 
 #[derive(Clone,PartialEq,Eq,Debug)]
 pub struct ExpressionInProofPath{
     pub step_path: SequentialProofInProofPath,
     pub proposition_path: PropositionInSequentialProofStepPath,
-    pub subexpression_path: SubexpressionInExpressionPath
+    pub subexpression_path: TblSubexpressionInExpressionPath
 }
 
 impl Display for ExpressionInProofPath {
@@ -28,7 +28,7 @@ pub type ExpressionInProof<'a,C: CompoundTblExpression> = ObjAtPath<'a,TblExpres
 pub type OwnedExpressionInProof<C: CompoundTblExpression> = OwnedObjAtPath<TblExpression<C>,ExpressionInProofPath>;
 
 mod from {
-    use crate::structures::{expressions::subexpressions::{SubexpressionInExpressionPath, immediate::ImmediateSubexpressionInExpressionPath}, proof_calculus_derived::path_composites::PropositionInProofPath};
+    use crate::structures::{expressions::subexpressions::{TblSubexpressionInExpressionPath, immediate::ImmediateSubexpressionInExpressionPath}, proof_calculus_derived::path_composites::PropositionInProofPath};
 
     use super::*;
 
@@ -36,7 +36,7 @@ mod from {
         fn from(path: PropositionInProofPath) -> Self { Self {
             step_path: path.step_path,
             proposition_path: path.proposition_path,
-            subexpression_path: SubexpressionInExpressionPath::default(),
+            subexpression_path: TblSubexpressionInExpressionPath::default(),
         }}
     }
     impl From<(ExpressionInProofPath,ImmediateSubexpressionInExpressionPath)> for ExpressionInProofPath {
@@ -45,14 +45,14 @@ mod from {
             value.0
         }
     }
-    impl From<(ExpressionInProofPath,SubexpressionInExpressionPath)> for ExpressionInProofPath {
-        fn from(mut value: (ExpressionInProofPath,SubexpressionInExpressionPath)) -> Self { 
+    impl From<(ExpressionInProofPath,TblSubexpressionInExpressionPath)> for ExpressionInProofPath {
+        fn from(mut value: (ExpressionInProofPath,TblSubexpressionInExpressionPath)) -> Self { 
             value.0.subexpression_path.0.append(&mut value.1.0);
             value.0
         }
     }
-    impl From<(PropositionInProofPath,SubexpressionInExpressionPath)> for ExpressionInProofPath {
-        fn from(value: (PropositionInProofPath,SubexpressionInExpressionPath)) -> Self { Self {
+    impl From<(PropositionInProofPath,TblSubexpressionInExpressionPath)> for ExpressionInProofPath {
+        fn from(value: (PropositionInProofPath,TblSubexpressionInExpressionPath)) -> Self { Self {
                 step_path: value.0.step_path,
                 proposition_path: value.0.proposition_path,
                 subexpression_path: value.1
@@ -69,7 +69,7 @@ mod from {
         fn from(value: (SequentialProofInProofPath,PropositionInSequentialProofStepPath)) -> Self { Self {
             step_path: value.0,
             proposition_path: value.1,
-            subexpression_path: SubexpressionInExpressionPath::default(),
+            subexpression_path: TblSubexpressionInExpressionPath::default(),
         }}
     }
 }

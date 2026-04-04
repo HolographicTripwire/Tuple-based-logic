@@ -8,8 +8,8 @@ use crate::structures::expressions::{TblExpression, compound::CompoundTblExpress
 pub mod immediate;
 
 #[derive(Clone,PartialEq,Eq,Hash,Debug,Default)]
-pub struct SubexpressionInExpressionPath(pub Vec<ImmediateSubexpressionInExpressionPath>);
-impl Display for SubexpressionInExpressionPath {
+pub struct TblSubexpressionInExpressionPath(pub Vec<ImmediateSubexpressionInExpressionPath>);
+impl Display for TblSubexpressionInExpressionPath {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "{}", self.0.iter()
             .map(|atom| atom.to_string())
@@ -19,43 +19,43 @@ impl Display for SubexpressionInExpressionPath {
 }
 
 generate_parent_of_children_trait!{
-    TblExpression<C>, SubexpressionInExpressionPath, (C: CompoundTblExpression),
+    TblExpression<C>, TblSubexpressionInExpressionPath, (C: CompoundTblExpression),
     "subexpression", "subexpressions", "Subexpressions"
 }
 
-pub type SubexpressionInExpression<'a,C> = ObjAtPath<'a,TblExpression<C>,SubexpressionInExpressionPath>;
-pub type OwnedSubexpressionInExpression<C> = OwnedObjAtPath<TblExpression<C>,SubexpressionInExpressionPath>;
+pub type SubexpressionInExpression<'a,C> = ObjAtPath<'a,TblExpression<C>,TblSubexpressionInExpressionPath>;
+pub type OwnedSubexpressionInExpression<C> = OwnedObjAtPath<TblExpression<C>,TblSubexpressionInExpressionPath>;
 
 mod from {
     use super::*;
     
-    impl From<usize> for SubexpressionInExpressionPath {
+    impl From<usize> for TblSubexpressionInExpressionPath {
         fn from(value: usize) -> Self { value.into() }
     }
-    impl From<ImmediateSubexpressionInExpressionPath> for SubexpressionInExpressionPath {
+    impl From<ImmediateSubexpressionInExpressionPath> for TblSubexpressionInExpressionPath {
         fn from(value: ImmediateSubexpressionInExpressionPath) -> Self { vec![value].into() }
     }
-    impl From<(ImmediateSubexpressionInExpressionPath,ImmediateSubexpressionInExpressionPath)> for SubexpressionInExpressionPath {
+    impl From<(ImmediateSubexpressionInExpressionPath,ImmediateSubexpressionInExpressionPath)> for TblSubexpressionInExpressionPath {
         fn from(value: (ImmediateSubexpressionInExpressionPath,ImmediateSubexpressionInExpressionPath)) -> Self { vec![value.0,value.1].into() }
     }
-    impl From<Vec<ImmediateSubexpressionInExpressionPath>> for SubexpressionInExpressionPath {
+    impl From<Vec<ImmediateSubexpressionInExpressionPath>> for TblSubexpressionInExpressionPath {
         fn from(value: Vec<ImmediateSubexpressionInExpressionPath>) -> Self { Self(value) }
     }
 
-    impl From<(SubexpressionInExpressionPath,ImmediateSubexpressionInExpressionPath)> for SubexpressionInExpressionPath {
-        fn from(mut value: (SubexpressionInExpressionPath,ImmediateSubexpressionInExpressionPath)) -> Self {
+    impl From<(TblSubexpressionInExpressionPath,ImmediateSubexpressionInExpressionPath)> for TblSubexpressionInExpressionPath {
+        fn from(mut value: (TblSubexpressionInExpressionPath,ImmediateSubexpressionInExpressionPath)) -> Self {
             value.0.0.push(value.1);
             value.0
         }
     }
-    impl From<(ImmediateSubexpressionInExpressionPath,SubexpressionInExpressionPath)> for SubexpressionInExpressionPath {
-        fn from(mut value: (ImmediateSubexpressionInExpressionPath,SubexpressionInExpressionPath)) -> Self {
+    impl From<(ImmediateSubexpressionInExpressionPath,TblSubexpressionInExpressionPath)> for TblSubexpressionInExpressionPath {
+        fn from(mut value: (ImmediateSubexpressionInExpressionPath,TblSubexpressionInExpressionPath)) -> Self {
             value.1.0.insert(0,value.0);
             value.1
         }
     }
-    impl From<(SubexpressionInExpressionPath,SubexpressionInExpressionPath)> for SubexpressionInExpressionPath {
-        fn from(mut value: (SubexpressionInExpressionPath,SubexpressionInExpressionPath)) -> Self {
+    impl From<(TblSubexpressionInExpressionPath,TblSubexpressionInExpressionPath)> for TblSubexpressionInExpressionPath {
+        fn from(mut value: (TblSubexpressionInExpressionPath,TblSubexpressionInExpressionPath)) -> Self {
             value.0.0.append(&mut value.1.0);
             value.0
         }
@@ -64,9 +64,9 @@ mod from {
 
 #[cfg(test)]
 mod tests {
-    use crate::structures::expressions::atomic::AtomicTblExpression;
+    // use crate::structures::expressions::atomic::AtomicTblExpression;
 
-    use super::*;
+    // use super::*;
 
     // #[test]
     // fn test_get_subexpr_on_atom() {

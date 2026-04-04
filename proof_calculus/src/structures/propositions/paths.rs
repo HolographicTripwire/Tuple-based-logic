@@ -39,3 +39,12 @@ impl Display for PropositionInSequentialProofStepPath {
             PropositionInSequentialProofStepPath::Conclusion(conclusion_path) => write!(f, "{}", conclusion_path),
     }}
 }
+
+impl From<AssumptionInSequentialProofStepPath> for PropositionInSequentialProofStepPath {
+    fn from(value: AssumptionInSequentialProofStepPath) -> Self
+        { Self::Assumption(value) }
+}
+impl From<ExplicitConclusionInSequentialProofStepPath> for PropositionInSequentialProofStepPath {
+    fn from(value: ExplicitConclusionInSequentialProofStepPath) -> Self
+        { Self::Conclusion(value) }
+}

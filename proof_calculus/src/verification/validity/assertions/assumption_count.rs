@@ -10,7 +10,7 @@ impl <P: Proposition, Rule: InferenceRule<P>> AssumptionCountCheckError<P,Rule> 
 }
 
 /// Check that the provided [Inference](OwnedInferenceInProof) has expected_count assumptions, returning an error otherwise
-pub fn assert_assumption_count<'a,P: Proposition, Rule: InferenceRule<P>>(inference: &Inference<P,Rule>, expected_count: usize) -> Result<(), AssumptionCountCheckError<Rule>> {
+pub fn assert_assumption_count<'a,P: Proposition, Rule: InferenceRule<P>>(inference: &Inference<P,Rule>, expected_count: usize) -> Result<(), AssumptionCountCheckError<P,Rule>> {
     if inference.assumptions.len() == expected_count { Ok(()) }
     else { Err(AssumptionCountCheckError{
         expected_count, 

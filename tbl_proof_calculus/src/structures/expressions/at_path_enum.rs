@@ -7,8 +7,8 @@ pub enum TblExpressionAtPathEnum<'a,C: CompoundTblExpression, Path> {
     Compound(CompoundTblExpressionAtPath<'a,C,Path>)
 }
 impl <'a,C:CompoundTblExpression,Path> TblExpressionAtPathEnum<'a,C,Path> {
-    fn is_atom(&self) -> bool { if let TblExpressionAtPathEnum::Atomic(_) = self { true } else { false } }
-    fn is_compound(&self) -> bool { if let TblExpressionAtPathEnum::Atomic(_) = self { true } else { false } }
+    pub fn is_atom(&self) -> bool { if let TblExpressionAtPathEnum::Atomic(_) = self { true } else { false } }
+    pub fn is_compound(&self) -> bool { if let TblExpressionAtPathEnum::Atomic(_) = self { true } else { false } }
 }
 impl <'a,C:CompoundTblExpression,Path> TryInto<AtomicTblExpressionAtPath<'a,Path>> for TblExpressionAtPathEnum<'a,C,Path> {
     type Error = ();
@@ -44,8 +44,8 @@ pub enum OwnedTblExpressionAtPathEnum<C: CompoundTblExpression, Path> {
     Compound(OwnedObjAtPath<C,Path>)
 }
 impl <C:CompoundTblExpression,Path> OwnedTblExpressionAtPathEnum<C,Path> {
-    fn is_atom(&self) -> bool { if let OwnedTblExpressionAtPathEnum::Atomic(_) = self { true } else { false } }
-    fn is_compound(&self) -> bool { if let OwnedTblExpressionAtPathEnum::Atomic(_) = self { true } else { false } }
+    pub fn is_atom(&self) -> bool { if let OwnedTblExpressionAtPathEnum::Atomic(_) = self { true } else { false } }
+    pub fn is_compound(&self) -> bool { if let OwnedTblExpressionAtPathEnum::Atomic(_) = self { true } else { false } }
 }
 impl <C:CompoundTblExpression,Path> TryInto<OwnedAtomicTblExpressionAtPath<Path>> for OwnedTblExpressionAtPathEnum<C,Path> {
     type Error = ();

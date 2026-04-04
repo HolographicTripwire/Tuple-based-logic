@@ -1,10 +1,10 @@
-use crate::structures::expressions::{TblExpression, at_path_enum::TblExpressionAtPathEnum, compound::CompoundTblExpression, subexpressions::{ParentOfSubexpressions, SubexpressionInExpressionPath, immediate::{ImmediateSubexpressionInExpressionPath, ParentOfImmediateSubexpressions}}};
+use crate::structures::expressions::{TblExpression, compound::CompoundTblExpression, subexpressions::{ParentOfSubexpressions, TblSubexpressionInExpressionPath, immediate::{ImmediateSubexpressionInExpressionPath, ParentOfImmediateSubexpressions}}};
 
 #[derive(Debug,Clone,PartialEq,Eq,Hash)]
 pub struct BoxCompoundTblExpression(pub Box<[TblExpression<BoxCompoundTblExpression>]>);
 impl CompoundTblExpression for BoxCompoundTblExpression {
     fn len(&self) -> usize { self.0.len() }
-
+    fn as_slice(&self) -> &[TblExpression<Self>] { &self.0 }
     fn replace(&self, to_replace: &TblExpression<Self>, replace_with: &TblExpression<Self>) -> Self {
         self.0.iter()
             .map(|v| v.replace(to_replace, replace_with))
@@ -19,19 +19,9 @@ impl ParentOfImmediateSubexpressions<BoxCompoundTblExpression> for BoxCompoundTb
         { self.0.get(path.0).ok_or(()) }
 }
 
-impl BoxCompoundTblExpression {
-    fn get_subexpressions_helper(&self,path: &SubexpressionInExpressionPath, index: usize) -> Result<&TblExpression<BoxCompoundTblExpression>,()> {
-        let immediate_path = path.0.get(index).ok_or(())?;
-        let inner = self.get_immediate_subexpression(immediate_path)?;
-        if index == path.0.len() { Ok(inner) }
-        else { match inner {
-            TblExpression::Atomic(_) => Err(()),
-            TblExpression::Compound(compound) => compound.get_subexpressions_helper(path, index+1),
-        }}
-    }
-}
+
 impl ParentOfSubexpressions<BoxCompoundTblExpression> for BoxCompoundTblExpression {
-    fn get_subexpression_paths(&self) -> impl IntoIterator<Item = SubexpressionInExpressionPath>  {
+    fn get_subexpression_paths(&self) -> impl IntoIterator<Item = TblSubexpressionInExpressionPath>  {
         let immediate = self.get_immediate_subexpression_paths()
             .into_iter()
             .map(|x| x.into());
@@ -42,7 +32,7 @@ impl ParentOfSubexpressions<BoxCompoundTblExpression> for BoxCompoundTblExpressi
         immediate.chain(deferred)
     }
 
-    fn get_subexpression(&self,path: &SubexpressionInExpressionPath) -> Result<&TblExpression<BoxCompoundTblExpression>,()> { 
+    fn get_subexpression(&self,path: &TblSubexpressionInExpressionPath) -> Result<&TblExpression<BoxCompoundTblExpression>,()> { 
         let v = path.0.get(0).ok_or(())?;
         let inner = self.get_immediate_subexpression(v)?;
         if 1 == path.0.len() { Ok(inner) }

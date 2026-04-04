@@ -2,15 +2,12 @@ mod deduction;
 mod verbatim;
 
 use deduction::*;
+use proof_calculus::{structures::inferences::InferenceRule, verification::validity::ValidatableInferenceRule};
+use tbl_proof_calculus::structures::{expressions::compound::CompoundTblExpression, proof_calculus_derived::aliases::{inferences::{TblInference}, propositions::TblProposition}};
 use verbatim::*;
 
-use tbl_structures::{inference::{Inference, InferenceRule}};
-
-use tbl_verification::errors::specification_error::VerifiableInferenceRule;
-
-
 #[derive(Clone,PartialEq)]
-pub enum StandardInferenceRule {
+pub enum PhilosophicaInferenceRule {
     // Deduction rules
     ConjunctionIntroduction,
     ImplicationElimination,
@@ -21,31 +18,32 @@ pub enum StandardInferenceRule {
     TupleAppendation,
 }
 #[derive(Clone)]
-pub enum StandardInferenceErr {
-    ConjunctionIntroduction(ConjunctionIntroductionError),
-    ImplicationElimination(ImplicationEliminationError),
-    UniversalSubstitution(UniversalSubstitutionError),
-    AtomicityAssertion(AtomicityAssertionError),
-    AtomDifferentiation(AtomDifferentiationError),
-    TupleAppendation(TupleAppendationError),
+pub enum PhilosophicaInferenceErr<C: CompoundTblExpression> {
+    ConjunctionIntroduction(ConjunctionIntroductionError<C>),
+    ImplicationElimination(ImplicationEliminationError<C>),
+    UniversalSubstitution(UniversalSubstitutionError<C>),
+    AtomicityAssertion(AtomicityAssertionError<C>),
+    AtomDifferentiation(AtomDifferentiationError<C>),
+    TupleAppendation(TupleAppendationError<C>),
 }
 
-impl InferenceRule for StandardInferenceRule {}
-impl VerifiableInferenceRule<StandardInferenceErr> for StandardInferenceRule {
-    fn verify(inference: &Inference<Self>) -> Result<(),StandardInferenceErr> {
+impl <C: CompoundTblExpression> InferenceRule<TblProposition<C>> for PhilosophicaInferenceRule {}
+impl <C: CompoundTblExpression> ValidatableInferenceRule<TblProposition<C>> for PhilosophicaInferenceRule {
+    type Err = PhilosophicaInferenceErr<C>;
+    fn validate(inference: &TblInference<C,Self>) -> Result<(),PhilosophicaInferenceErr<C>> {
         match inference.inference_type {
-            StandardInferenceRule::ConjunctionIntroduction => validate_conjunction_introduction(inference)
-                .map_err(|e| StandardInferenceErr::ConjunctionIntroduction(e)),
-            StandardInferenceRule::ImplicationElimination => verify_implication_elimination(inference)
-                .map_err(|e| StandardInferenceErr::ImplicationElimination(e)),
-            StandardInferenceRule::UniversalSubstitution => verify_universal_substitution(inference)
-                .map_err(|e| StandardInferenceErr::UniversalSubstitution(e)),
-            StandardInferenceRule::AtomicityAssertion => verify_atomicity_assertion(inference)
-                .map_err(|e| StandardInferenceErr::AtomicityAssertion(e)),
-            StandardInferenceRule::AtomDifferentiation => verify_atom_differentiation(inference)
-                .map_err(|e| StandardInferenceErr::AtomDifferentiation(e)),
-            StandardInferenceRule::TupleAppendation => verify_tuple_appendation(inference)
-                .map_err(|e| StandardInferenceErr::TupleAppendation(e)),
+            PhilosophicaInferenceRule::ConjunctionIntroduction => validate_conjunction_introduction(inference)
+                .map_err(|e| PhilosophicaInferenceErr::ConjunctionIntroduction(e)),
+            PhilosophicaInferenceRule::ImplicationElimination => verify_implication_elimination(inference)
+                .map_err(|e| PhilosophicaInferenceErr::ImplicationElimination(e)),
+            PhilosophicaInferenceRule::UniversalSubstitution => verify_universal_substitution(inference)
+                .map_err(|e| PhilosophicaInferenceErr::UniversalSubstitution(e)),
+            PhilosophicaInferenceRule::AtomicityAssertion => verify_atomicity_assertion(inference)
+                .map_err(|e| PhilosophicaInferenceErr::AtomicityAssertion(e)),
+            PhilosophicaInferenceRule::AtomDifferentiation => verify_atom_differentiation(inference)
+                .map_err(|e| PhilosophicaInferenceErr::AtomDifferentiation(e)),
+            PhilosophicaInferenceRule::TupleAppendation => verify_tuple_appendation(inference)
+                .map_err(|e| PhilosophicaInferenceErr::TupleAppendation(e)),
         }
     }
 }

@@ -11,5 +11,7 @@ pub type OwnedAssumptionInSequentialProofStep<P: Proposition> = OwnedObjAtPath<P
 pub type ExplicitConclusionInSequentialProofStep<'a,P: Proposition> = ObjAtPath<'a,P,ExplicitConclusionInSequentialProofStepPath>;
 pub type OwnedExplicitConclusionInSequentialProofStep<P: Proposition> = OwnedObjAtPath<P,ExplicitConclusionInSequentialProofStepPath>;
 
-pub type PropositionInSequentialProofStep<'a,P: Proposition> = ObjAtPath<'a,P,PropositionInSequentialProofStepPath>;
-pub type OwnedPropositionInSequentialProofStep<P: Proposition> = OwnedObjAtPath<P,PropositionInSequentialProofStepPath>;
+pub type PropositionAtPath<'a,P: Proposition,Path> = ObjAtPath<'a,P,Path>;
+pub type OwnedPropositionAtPath<P: Proposition,Path> = OwnedObjAtPath<P,Path>;
+pub type PropositionInSequentialProofStep<'a,P: Proposition> = PropositionAtPath<'a,P,PropositionInSequentialProofStepPath>;
+pub type OwnedPropositionInSequentialProofStep<P: Proposition> = OwnedPropositionAtPath<P,PropositionInSequentialProofStepPath>;

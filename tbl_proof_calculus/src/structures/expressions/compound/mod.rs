@@ -1,4 +1,4 @@
-use std::hash::Hash;
+use std::{hash::Hash, fmt::Debug};
 
 use path_lib::obj_at_path::{ObjAtPath, OwnedObjAtPath};
 
@@ -9,9 +9,9 @@ pub mod r#box;
 pub mod rc;
 pub mod arc;
 
-pub trait CompoundTblExpression: Clone + PartialEq + Eq + Hash + ParentOfImmediateSubexpressions<Self> + ParentOfSubexpressions<Self> {
+pub trait CompoundTblExpression: Clone + PartialEq + Eq + Hash + Debug + ParentOfImmediateSubexpressions<Self> + ParentOfSubexpressions<Self> {
     fn replace(&self, to_replace: &TblExpression<Self>, replace_with: &TblExpression<Self>) -> Self;
-
+    fn as_slice(&self) -> &[TblExpression<Self>];
     fn len(&self) -> usize;
 }
 

@@ -1,6 +1,6 @@
 use proof_calculus::structures::propositions::Proposition;
 
-use crate::structures::expressions::{atomic::AtomicTblExpression, compound::{CompoundTblExpression, arc::ArcCompoundTblExpression, r#box::BoxCompoundTblExpression, rc::RcCompoundTblExpression}, subexpressions::{ParentOfSubexpressions, SubexpressionInExpressionPath, immediate::{ImmediateSubexpressionInExpressionPath, ParentOfImmediateSubexpressions}}};
+use crate::structures::expressions::{atomic::AtomicTblExpression, compound::{CompoundTblExpression, arc::ArcCompoundTblExpression, r#box::BoxCompoundTblExpression, rc::RcCompoundTblExpression}, subexpressions::{ParentOfSubexpressions, TblSubexpressionInExpressionPath, immediate::{ImmediateSubexpressionInExpressionPath, ParentOfImmediateSubexpressions}}};
 
 pub mod atomic;
 pub mod compound;
@@ -38,7 +38,7 @@ impl <C: CompoundTblExpression> TblExpression<C> {
     pub fn is_atom(&self) -> bool { if let TblExpression::Atomic(_) = self { true } else { false } }
     pub fn is_compound(&self) -> bool { if let TblExpression::Compound(_) = self { true } else { false } }
 
-    pub fn get_subexpressions_helper(&self,path: &SubexpressionInExpressionPath, index: usize) -> Result<&TblExpression<C>,()> {
+    pub fn get_subexpressions_helper(&self,path: &TblSubexpressionInExpressionPath, index: usize) -> Result<&TblExpression<C>,()> {
         let immediate_path = path.0.get(index).ok_or(())?;
         let inner = self.get_immediate_subexpression(immediate_path)?;
         if index == path.0.len() { Ok(inner) }
@@ -54,12 +54,12 @@ impl <C: CompoundTblExpression> TblExpression<C> {
     // }
 
     /// If this expression is a Tuple, get its subexpressions. Otherwise throw an error 
-    // pub fn as_slice(&self) -> Result<&[TblExpression], ()> {
-    //     match self {
-    //         TblExpression::Atomic(_) => Err(()),
-    //         TblExpression::Compound(proposition_exprs) => Ok(&proposition_exprs.0),
-    //     }
-    // }
+    pub fn as_slice(&self) -> Result<&[TblExpression<C>], ()> {
+        match self {
+            TblExpression::Atomic(_) => Err(()),
+            TblExpression::Compound(proposition_exprs) => Ok(proposition_exprs.as_slice()),
+        }
+    }
 
     pub fn len(&self) -> Option<usize> {
         match self {
@@ -95,7 +95,7 @@ impl <C:CompoundTblExpression> ParentOfImmediateSubexpressions<C> for TblExpress
     }}
 }
 impl <C:CompoundTblExpression> ParentOfSubexpressions<C> for TblExpression<C> {
-    fn get_subexpression_paths(&self) -> impl IntoIterator<Item = SubexpressionInExpressionPath> {
+    fn get_subexpression_paths(&self) -> impl IntoIterator<Item = TblSubexpressionInExpressionPath> {
         let immediate = self.get_immediate_subexpression_paths()
             .into_iter()
             .map(|x| x.into());
@@ -109,7 +109,7 @@ impl <C:CompoundTblExpression> ParentOfSubexpressions<C> for TblExpression<C> {
         immediate.chain(deferred)
     }
 
-    fn get_subexpression(&self,path: &SubexpressionInExpressionPath) -> Result< &TblExpression<C> ,()>
+    fn get_subexpression(&self,path: &TblSubexpressionInExpressionPath) -> Result< &TblExpression<C> ,()>
         { self.get_subexpressions_helper(path, 0) }
 }
 

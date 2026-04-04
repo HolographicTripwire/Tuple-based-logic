@@ -1,36 +1,35 @@
-use tbl_structures::expressions::TblExpression;
-use tbl_structures::inference::{Inference, InferenceRule};
-use tbl_structures::atomic::BuiltInAtom;
+use proof_calculus::{structures::propositions::{ParentOfAssumptions as _, ParentOfExplicitConclusions}, verification::validity::assertions::as_sized_slice};
+use tbl_proof_calculus::{structures::{expressions::{TblExpression, compound::CompoundTblExpression}, proof_calculus_derived::aliases::inferences::{TblInference, TblInferenceRule}}, verification::assertions::{assert_expression_value, assert_expression_value_equality, expression_as_sized_slice_in_inference}};
 
-use tbl_verification::validity::*;
+use crate::structures::atoms::PhilosophicaInferenceAtoms;
 
 #[derive(Clone)]
-pub enum ImplicationEliminationError {
-    WrongExplicitConclusionCount(usize),
+pub enum ImplicationEliminationError<C: CompoundTblExpression> {
     WrongAssumptionCount(usize),
     ImplicationWrongSize(Option<usize>),
-    ImplicationWrongHead(TblExpression),
-    AntecedentInequal(TblExpression,TblExpression),
-    ConsequentInequal(TblExpression,TblExpression)
+    ImplicationWrongHead(TblExpression<C>),
+    AntecedentInequal(TblExpression<C>,TblExpression<C>),
+    ConsequentInequal(TblExpression<C>,TblExpression<C>)
 }
 
 /// Verify that the assumptions and the conclusion form a valid instance of implication elimination ("a" and "a implies b" entails "b")
-pub fn verify_implication_elimination<'a,Rule: InferenceRule>(inference: &Inference<Rule>) -> Result<(),ImplicationEliminationError> {
+pub fn verify_implication_elimination<'a,C: CompoundTblExpression, Rule: TblInferenceRule<C>>(inference: &TblInference<C,Rule>) -> Result<(),ImplicationEliminationError<C>> {
     // Throw an error if there is not exactly one conclusion
-    let [conclusion] = *explicit_conclusions_as_sized_slice(inference)
-        .map_err(|e| ImplicationEliminationError::WrongExplicitConclusionCount(e.get_actual_count()))?;
-    // Throw an error if there are not exactly two assumptions
-    let [assumption_left, assumption_right] = *assumptions_as_sized_slice(inference)
-        .map_err(|e| ImplicationEliminationError::WrongAssumptionCount(e.get_actual_count()))?;
+    let [conclusion] = as_sized_slice(inference.get_located_explicit_conclusions())
+        .expect("Inference objects must always return exactly one conclusion");
+    // Throw an error if there are not/ exactly two assumptions
+    let [assumption_left, assumption_right] = as_sized_slice(inference.get_located_assumptions())
+        .map_err(|e| ImplicationEliminationError::WrongAssumptionCount(e.len()))?;
+
     // Throw an error if the implication does not contain three expressions
-    let [implication_head, antecedent, consequent] = *proposition_as_sized_slice(&assumption_right)
+    let [implication_head, antecedent, consequent] = *expression_as_sized_slice_in_inference(&assumption_right)
         .map_err(|e| ImplicationEliminationError::ImplicationWrongSize(e.get_actual_length()))?;
     // Throw errors if the values of the inference components are incorrect
-    assert_expression_value(&implication_head, &BuiltInAtom::Implication.into())
+    assert_expression_value(&implication_head, &PhilosophicaInferenceAtoms::Implication.into())
         .map_err(|e| ImplicationEliminationError::ImplicationWrongHead(e.into_expression()))?;
-    assert_expression_value_equality(&[&antecedent, &assumption_left.into()])
+    assert_expression_value_equality(&[&antecedent, &assumption_left.transform_path()])
         .map_err(|e| ImplicationEliminationError::AntecedentInequal(e.expressions[0].obj.clone(), e.expressions[1].obj.clone()))?;
-    assert_expression_value_equality(&[&consequent, &conclusion.into()])
+    assert_expression_value_equality(&[&consequent, &conclusion.transform_path()])
         .map_err(|e| ImplicationEliminationError::ConsequentInequal(e.expressions[0].obj.clone(), e.expressions[1].obj.clone()))?;
     Ok(())
 }

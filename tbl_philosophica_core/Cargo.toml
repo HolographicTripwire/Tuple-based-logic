@@ -9,3 +9,4 @@ tbl_proof_calculus = { path = "../tbl_proof_calculus" }
 
 bimap = { version = "0.6.3" }
 itertools = { version = "0.14.0" }
+enum-iterator = { version = "2.1.0" }

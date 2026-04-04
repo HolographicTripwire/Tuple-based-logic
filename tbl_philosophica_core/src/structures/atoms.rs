@@ -1,8 +1,9 @@
-use tbl_structures::expressions::{TblExpression, atomic::AtomicTblExpression};
+use enum_iterator::Sequence;
+use tbl_proof_calculus::structures::expressions::{TblExpression, atomic::AtomicTblExpression, compound::CompoundTblExpression};
 
 /// Atoms which are built in to Tuple-Based Logic, and will appear in all axiomatic systems in Tuple-Based Logic
 #[derive(Clone,Sequence)]
-pub enum StandardAtoms {
+pub enum PhilosophicaInferenceAtoms {
     // Deduction
     Conjunction,
     Implication,
@@ -17,43 +18,42 @@ pub enum StandardAtoms {
     Atomic,
 }
 
-impl Into<AtomicTblExpression> for StandardAtoms {
+impl Into<AtomicTblExpression> for PhilosophicaInferenceAtoms {
     /// Assigns each built in atom a unique atom id
     fn into(self) -> AtomicTblExpression {
         AtomicTblExpression(match self {
             // Deduction
-            StandardAtoms::Conjunction => 0,
-            StandardAtoms::UniversalQuantifier => 1,
-            StandardAtoms::Implication => 2,
+            PhilosophicaInferenceAtoms::Conjunction => 0,
+            PhilosophicaInferenceAtoms::UniversalQuantifier => 1,
+            PhilosophicaInferenceAtoms::Implication => 2,
             // Contradiction
-            StandardAtoms::Negation => 3,
+            PhilosophicaInferenceAtoms::Negation => 3,
             // Identity
-            StandardAtoms::Identity => 4,
+            PhilosophicaInferenceAtoms::Identity => 4,
             // Verbatim
-            StandardAtoms::Verbatim => 5,
-            StandardAtoms::Concatenate => 6,
-            StandardAtoms::Atomic => 7,
+            PhilosophicaInferenceAtoms::Verbatim => 5,
+            PhilosophicaInferenceAtoms::Concatenate => 6,
+            PhilosophicaInferenceAtoms::Atomic => 7,
         })
     }
 }
 
-impl Into<AtomicTblExpression> for BuiltInAtom {
-    fn into(self) -> AtomicTblExpression
-        { AtomicTblExpression::from(self.into()) }
-}
-impl Into<TblExpression> for BuiltInAtom {
-    fn into(self) -> TblExpression
-        { TblExpression::from(self.into()) }
+impl <C: CompoundTblExpression> Into<TblExpression<C>> for PhilosophicaInferenceAtoms {
+    fn into(self) -> TblExpression<C>
+        { AtomicTblExpression::from(self.into()).into() }
 }
 
 
-#[cfg(tests)]
+#[cfg(test)]
 mod tests {
     use enum_iterator::all;
+    use tbl_proof_calculus::structures::expressions::atomic::AtomicTblExpression;
+
+    use crate::structures::atoms::PhilosophicaInferenceAtoms;
 
     #[test]
     fn test_differentiation_of_builtins() {
-        let builtins  = all::<BuiltInAtom>().collect::<Vec<_>>();
+        let builtins  = all::<PhilosophicaInferenceAtoms>().collect::<Vec<_>>();
         for (i, ix) in builtins.iter().enumerate() {
             for (j, jx) in builtins.iter().enumerate() {
                 let ia: AtomicTblExpression = (*ix).clone().into();

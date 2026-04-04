@@ -1,13 +1,13 @@
 use std::sync::Arc;
 
-use crate::structures::expressions::{TblExpression, at_path_enum::TblExpressionAtPathEnum, compound::CompoundTblExpression, subexpressions::{ParentOfSubexpressions, SubexpressionInExpressionPath, immediate::{ImmediateSubexpressionInExpressionPath, ParentOfImmediateSubexpressions}}};
+use crate::structures::expressions::{TblExpression, compound::CompoundTblExpression, subexpressions::{ParentOfSubexpressions, TblSubexpressionInExpressionPath, immediate::{ImmediateSubexpressionInExpressionPath, ParentOfImmediateSubexpressions}}};
 
 /// A compound unit in Tuple-Based Logic, which are used to build up [Propositions](Proposition)
 #[derive(Debug,Clone,PartialEq,Eq,Hash)]
 pub struct ArcCompoundTblExpression(pub Arc<[TblExpression<ArcCompoundTblExpression>]>);
 impl CompoundTblExpression for ArcCompoundTblExpression {
     fn len(&self) -> usize { self.0.len() }
-    
+    fn as_slice(&self) -> &[TblExpression<Self>] { &self.0 }
     fn replace(&self, to_replace: &TblExpression<Self>, replace_with: &TblExpression<Self>) -> Self {
         self.0.iter()
             .map(|v| v.replace(to_replace, replace_with))
@@ -24,7 +24,7 @@ impl ParentOfImmediateSubexpressions<ArcCompoundTblExpression> for ArcCompoundTb
 }
 
 impl ParentOfSubexpressions<ArcCompoundTblExpression> for ArcCompoundTblExpression {
-    fn get_subexpression_paths(&self) -> impl IntoIterator<Item = SubexpressionInExpressionPath>  {
+    fn get_subexpression_paths(&self) -> impl IntoIterator<Item = TblSubexpressionInExpressionPath>  {
         let immediate = self.get_immediate_subexpression_paths()
             .into_iter()
             .map(|x| x.into());
@@ -35,7 +35,7 @@ impl ParentOfSubexpressions<ArcCompoundTblExpression> for ArcCompoundTblExpressi
         immediate.chain(deferred)
     }
 
-    fn get_subexpression(&self,path: &SubexpressionInExpressionPath) -> Result<&TblExpression<ArcCompoundTblExpression>,()> { 
+    fn get_subexpression(&self,path: &TblSubexpressionInExpressionPath) -> Result<&TblExpression<ArcCompoundTblExpression>,()> { 
         let v = path.0.get(0).ok_or(())?;
         let inner = self.get_immediate_subexpression(v)?;
         if 1 == path.0.len() { Ok(inner) }

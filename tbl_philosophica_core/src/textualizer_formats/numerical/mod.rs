@@ -1,7 +1,5 @@
 use std::sync::{Arc, LazyLock};
 
-use tbl_textualization::{structures::{atoms::AtomStyle, expressions::{functional::SpecialCasesBuilder, raw::RawExpressionStyle, ExpressionStyle}}};
-
 pub const EXPRESSION_STYLE: LazyLock<ExpressionStyle> = LazyLock::new(|| -> ExpressionStyle {
     let atom_style = AtomStyle::from_strs("#");
     let raw_expression_style  = RawExpressionStyle::from_strs(atom_style, "(", ")", ",");
@@ -13,8 +11,7 @@ pub const EXPRESSION_STYLE: LazyLock<ExpressionStyle> = LazyLock::new(|| -> Expr
 mod tests {
     use std::{collections::HashMap};
 
-    use tbl_structures::{atomic::AtomicExpression, expressions::TblExpression};
-    use tbl_textualization::{helpers::styles::Stylable, structures::expressions::expression_parser};
+    use tbl_proof_calculus::structures::expressions::TblExpression;
 
     use super::*;
 
