@@ -13,7 +13,6 @@ pub enum TblExpression<C: CompoundTblExpression> {
     Atomic(AtomicTblExpression),
     Compound(C)
 }
-impl <C: CompoundTblExpression> Proposition for TblExpression<C> {}
 impl <C1: CompoundTblExpression, C2: CompoundTblExpression + PartialEq<C1>> PartialEq<TblExpression<C1>> for TblExpression<C2> {
     fn eq(&self, other: &TblExpression<C1>) -> bool { match (self,other) {
         (TblExpression::Atomic(atom_left), TblExpression::Atomic(atom_right)) => atom_left == atom_right,
@@ -28,7 +27,7 @@ pub type RcTblExpression = TblExpression<RcCompoundTblExpression>;
 pub type ArcTblExpression = TblExpression<ArcCompoundTblExpression>;
 
 impl <C: CompoundTblExpression> TblExpression<C> {
-    pub fn replace(&self, to_replace: &TblExpression<C>, replace_with: &TblExpression<C>) -> TblExpression<C> {
+    pub fn replace(&self, to_replace: &TblExpression<C>, replace_with: &TblExpression<C>) -> Self {
         if self == to_replace { replace_with.clone() }
         else if let TblExpression::Compound(compound) = self
             { TblExpression::Compound(compound.replace(to_replace, replace_with)) }
