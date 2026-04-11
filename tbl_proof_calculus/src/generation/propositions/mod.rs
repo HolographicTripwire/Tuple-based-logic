@@ -1,16 +1,13 @@
-use proof_calculus::generation::propositions::UnassignedProposition;
+use proof_calculus::{generation::propositions::{PartialPropositionalAssignment, PropositionalAssignment, UnassignedProposition}, utils::collections::dense_usize_map::DenseUsizeMap};
 
-use crate::{generation::expressions::{PartialTblExpressionAssignment, TblExpressionAssignment, UnassignedTblExpression, compound::UnassignedCompoundTblExpression}, structures::expressions::TblExpression};
-
-pub mod assignments;
+use crate::{generation::expressions::{PartialTblExpressionAssignment, TblExpressionAssignment, UnassignedTblExpression, compound::UnassignedCompoundTblExpression}, structures::expressions::{TblExpression, compound::CompoundTblExpression}};
 
 pub type UnassignedTblProposition<C> = UnassignedTblExpression<C>;
 
-impl <C: UnassignedCompoundTblExpression> UnassignedProposition for UnassignedTblProposition<C> {
+impl <C: UnassignedCompoundTblExpression> UnassignedProposition for UnassignedTblExpression<C> {
     type AssignedResult = TblExpression<C::InnerCompound>;
     type Assignment = TblExpressionAssignment<C::InnerCompound>;
     type PartialAssignment = PartialTblExpressionAssignment<C>;
-    
     
     fn assign(&self, assignment: &Self::Assignment) -> Result<Self::AssignedResult,()> {
         todo!()
@@ -42,4 +39,22 @@ impl <C: UnassignedCompoundTblExpression> UnassignedProposition for UnassignedTb
             _ => Err(())
         }
     }
-} 
+}
+
+impl <C: CompoundTblExpression> PropositionalAssignment for TblExpressionAssignment<C> {
+    fn combine<I: IntoIterator<Item = Self>>(assignments: I) -> Result<Self,()> {
+        match DenseUsizeMap::merge_without_conflicts(assignments.into_iter().map(|x| x.0)) {
+            Ok(merged) => Ok(Self(merged)),
+            Err(_) => Err(()),
+        }
+    }
+}
+
+impl <C: UnassignedCompoundTblExpression> PartialPropositionalAssignment for PartialTblExpressionAssignment<C> {
+    fn combine<I: IntoIterator<Item = Self>>(assignments: I) -> Result<Self,()> {
+        match DenseUsizeMap::merge_without_conflicts(assignments.into_iter().map(|x| x.0)) {
+            Ok(merged) => Ok(Self(merged)),
+            Err(_) => Err(()),
+        }
+    }
+}

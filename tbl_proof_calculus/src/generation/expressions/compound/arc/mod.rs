@@ -1,20 +1,20 @@
 use std::sync::Arc;
 
-use crate::{generation::expressions::{UnassignedTblExpression, compound::UnassignedCompoundTblExpression, subexpressions::{ParentOfUnassignedSubexpressions, immediate::ParentOfImmediateUnassignedSubexpressions}}, structures::expressions::{TblExpression, compound::CompoundTblExpression, subexpressions::{ParentOfSubexpressions, TblSubexpressionInExpressionPath, immediate::{ImmediateSubexpressionInExpressionPath, ParentOfImmediateSubexpressions}}}};
+use crate::{generation::expressions::{UnassignedTblExpression, compound::UnassignedCompoundTblExpression, subexpressions::{ParentOfUnassignedSubexpressions, immediate::ParentOfImmediateUnassignedSubexpressions}}, structures::expressions::{TblExpression, compound::{CompoundTblExpression, arc::ArcCompoundTblExpression}, subexpressions::{ParentOfSubexpressions, TblSubexpressionInExpressionPath, immediate::{ImmediateSubexpressionInExpressionPath, ParentOfImmediateSubexpressions}}}};
 
 /// A compound unit in Tuple-Based Logic, which are used to build up [Propositions](Proposition)
 #[derive(Debug,Clone,PartialEq,Eq,Hash)]
 pub struct UnassignedArcCompoundTblExpression(pub Arc<[UnassignedTblExpression<UnassignedArcCompoundTblExpression>]>);
 impl UnassignedCompoundTblExpression for UnassignedArcCompoundTblExpression {
-    // type InnerCompound;
-
+    type InnerCompound = ArcCompoundTblExpression;
+    
     fn len(&self) -> usize { self.0.len() }
-    // fn as_slice(&self) -> &[UnassignedTblExpression<Self>] { &self.0 }
-    // fn replace(&self, to_replace: &UnassignedTblExpression<Self>, replace_with: &UnassignedTblExpression<Self>) -> Self {
-    //     self.0.iter()
-    //         .map(|v| v.replace(to_replace, replace_with))
-    //         .collect()
-    // }
+    fn replace(&self, to_replace: &UnassignedTblExpression<Self>, replace_with: &UnassignedTblExpression<Self>) -> Self {
+        todo!()
+    }
+    fn as_slice(&self) -> &[UnassignedTblExpression<Self>] {
+        todo!()
+    }
 }
 
 impl ParentOfImmediateUnassignedSubexpressions<UnassignedArcCompoundTblExpression> for UnassignedArcCompoundTblExpression {
@@ -48,7 +48,19 @@ impl ParentOfUnassignedSubexpressions<UnassignedArcCompoundTblExpression> for Un
 mod from {
     use std::{rc::Rc, sync::Arc};
 
-    use crate::{generation::expressions::{UnassignedTblExpression, compound::arc::UnassignedArcCompoundTblExpression}, structures::expressions::{TblExpression, compound::{r#box::BoxCompoundTblExpression, rc::RcCompoundTblExpression}}};
+    use crate::{generation::expressions::{UnassignedTblExpression, compound::arc::UnassignedArcCompoundTblExpression}, structures::expressions::{TblExpression, compound::{arc::ArcCompoundTblExpression, r#box::BoxCompoundTblExpression, rc::RcCompoundTblExpression}}};
+
+    impl From<ArcCompoundTblExpression> for UnassignedArcCompoundTblExpression {
+        fn from(value: ArcCompoundTblExpression) -> Self { todo!() }
+    }
+    impl TryInto<ArcCompoundTblExpression> for UnassignedArcCompoundTblExpression {
+        type Error = ();
+    
+        fn try_into(self) -> Result<ArcCompoundTblExpression, Self::Error> {
+            todo!()
+        }
+    }
+
 
     impl <const N: usize> From<[UnassignedTblExpression<UnassignedArcCompoundTblExpression>;N]> for UnassignedArcCompoundTblExpression {
         fn from(exprs: [UnassignedTblExpression<UnassignedArcCompoundTblExpression>;N]) -> Self { Self(Arc::new(exprs)) }
