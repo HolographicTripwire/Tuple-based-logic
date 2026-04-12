@@ -9,11 +9,11 @@ impl UnassignedCompoundTblExpression for UnassignedArcCompoundTblExpression {
     type InnerCompound = ArcCompoundTblExpression;
     
     fn len(&self) -> usize { self.0.len() }
+    fn as_slice(&self) -> &[UnassignedTblExpression<Self>] { &self.0 }
     fn replace(&self, to_replace: &UnassignedTblExpression<Self>, replace_with: &UnassignedTblExpression<Self>) -> Self {
-        todo!()
-    }
-    fn as_slice(&self) -> &[UnassignedTblExpression<Self>] {
-        todo!()
+        self.0.iter()
+            .map(|v| v.replace(to_replace, replace_with))
+            .collect()
     }
 }
 
@@ -51,13 +51,23 @@ mod from {
     use crate::{generation::expressions::{UnassignedTblExpression, compound::arc::UnassignedArcCompoundTblExpression}, structures::expressions::{TblExpression, compound::{arc::ArcCompoundTblExpression, r#box::BoxCompoundTblExpression, rc::RcCompoundTblExpression}}};
 
     impl From<ArcCompoundTblExpression> for UnassignedArcCompoundTblExpression {
-        fn from(value: ArcCompoundTblExpression) -> Self { todo!() }
+        fn from(value: ArcCompoundTblExpression) -> Self { 
+            value.0
+                .into_iter()
+                .cloned()
+                .map(|v| UnassignedTblExpression::from(v))
+                .collect()
+        }
     }
     impl TryInto<ArcCompoundTblExpression> for UnassignedArcCompoundTblExpression {
-        type Error = ();
+        type Error = usize;
     
         fn try_into(self) -> Result<ArcCompoundTblExpression, Self::Error> {
-            todo!()
+            self.0
+                .into_iter()
+                .cloned()
+                .map(|v| v.try_into())
+                .collect()
         }
     }
 

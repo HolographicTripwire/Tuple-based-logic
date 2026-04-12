@@ -1,6 +1,6 @@
 use proof_calculus::generation::propositions::UnassignedProposition;
 
-use crate::{generation::expressions::{PartialTblExpressionAssignment, TblExpressionAssignment, UnassignedTblExpression, compound::UnassignedCompoundTblExpression}, structures::expressions::TblExpression};
+use crate::{generation::expressions::{UnassignedTblExpression, assignments::{PartialTblExpressionAssignment, TblExpressionAssignment}, compound::UnassignedCompoundTblExpression}, structures::expressions::TblExpression};
 
 pub mod assignments;
 

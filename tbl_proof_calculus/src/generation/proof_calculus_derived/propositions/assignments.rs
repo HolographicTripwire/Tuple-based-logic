@@ -1,6 +1,6 @@
 use proof_calculus::{generation::propositions::assignments::{PartialPropositionalAssignment, PropositionalAssignment}, utils::collections::dense_usize_map::DenseUsizeMap};
 
-use crate::{generation::expressions::{PartialTblExpressionAssignment, TblExpressionAssignment, compound::UnassignedCompoundTblExpression}, structures::expressions::compound::CompoundTblExpression};
+use crate::{generation::expressions::{assignments::{PartialTblExpressionAssignment, TblExpressionAssignment}, compound::UnassignedCompoundTblExpression}, structures::expressions::compound::CompoundTblExpression};
 
 impl <C: CompoundTblExpression> PropositionalAssignment for TblExpressionAssignment<C> {
     fn combine<I: IntoIterator<Item = Self>>(assignments: I) -> Result<Self,()> {
