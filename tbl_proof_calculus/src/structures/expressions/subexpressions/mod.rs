@@ -23,8 +23,8 @@ generate_parent_of_children_trait!{
     "subexpression", "subexpressions", "Subexpressions"
 }
 
-pub type SubexpressionInExpression<'a,C> = ObjAtPath<'a,TblExpression<C>,TblSubexpressionInExpressionPath>;
-pub type OwnedSubexpressionInExpression<C> = OwnedObjAtPath<TblExpression<C>,TblSubexpressionInExpressionPath>;
+pub type TblSubexpressionInExpression<'a,C> = ObjAtPath<'a,TblExpression<C>,TblSubexpressionInExpressionPath>;
+pub type OwnedTblSubexpressionInExpression<C> = OwnedObjAtPath<TblExpression<C>,TblSubexpressionInExpressionPath>;
 
 mod from {
     use super::*;

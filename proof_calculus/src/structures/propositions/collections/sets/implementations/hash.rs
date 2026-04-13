@@ -1,6 +1,6 @@
 use std::{collections::HashSet, hash::Hash};
 
-use crate::structures::{propositions::Proposition, propsets::{PropSet1O}};
+use crate::structures::{propositions::{Proposition, collections::sets::PropSet1O}};
 
 pub type HashPropSet1O<P:Proposition+Hash> = HashSet<P>;
 impl <P: Proposition + Hash> PropSet1O<P> for HashPropSet1O<P> {

@@ -1,4 +1,4 @@
-use crate::{structures::{propositions::Proposition, propsets::PropSet1O, sequential_proofs::{SequentialProof, subproofs::SequentialProofInProofPath}}, verification::{grounding::{get_proof_grounding_errors, verify_proof_grounding}, validity::{ValidatableInferenceRule, get_proof_validity_errors, stepper::result::ProofValidityStepErr, verify_proof_validity}}};
+use crate::{structures::{propositions::{Proposition, collections::sets::PropSet1O}, sequential_proofs::{SequentialProof, subproofs::SequentialProofInProofPath}}, verification::{grounding::{get_proof_grounding_errors, verify_proof_grounding}, validity::{ValidatableInferenceRule, get_proof_validity_errors, stepper::result::ProofValidityStepErr, verify_proof_validity}}};
 
 pub mod grounding;
 pub mod validity;

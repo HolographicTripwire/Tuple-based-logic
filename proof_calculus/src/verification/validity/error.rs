@@ -2,7 +2,7 @@ use std::marker::PhantomData;
 
 use path_lib::obj_at_path::{ObjAtPath, OwnedObjAtPath};
 
-use crate::structures::{propositions::Proposition, propsets::{implementations::hash::HashPropSet1O}, sequential_proofs::errors::{ErrorInProof, OwnedErrorInProof}};
+use crate::structures::{propositions::{Proposition, collections::sets::{implementations::hash::HashPropSet1O}}, sequential_proofs::errors::{ErrorInProof, OwnedErrorInProof}};
 
 #[derive(Clone,PartialEq,Eq,Debug)]
 pub enum ProofValidityError<P:Proposition, InferenceErr> {

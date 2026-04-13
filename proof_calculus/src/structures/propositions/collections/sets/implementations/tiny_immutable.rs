@@ -1,4 +1,4 @@
-use crate::{structures::{propositions::Proposition, propsets::{PropSet1O, PropSet2O}}, utils::{collections::tiny_immutable_ordered_set::TinyImmutableOrderedSet, traits::fast_ord::FastOrd}};
+use crate::{structures::{propositions::{Proposition,collections::sets::{PropSet1O, PropSet2O}}}, utils::{collections::tiny_immutable_ordered_set::TinyImmutableOrderedSet, traits::fast_ord::FastOrd}};
 
 pub type TinyImmutablePropSet1O<P:Proposition+FastOrd> = TinyImmutableOrderedSet<P>;
 impl <P: Proposition + FastOrd> PropSet1O<P> for TinyImmutablePropSet1O<P> {

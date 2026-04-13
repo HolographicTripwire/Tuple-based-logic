@@ -7,6 +7,7 @@ pub mod compound;
 pub mod located;
 pub mod subexpressions;
 pub mod at_path_enum;
+pub mod collections;
 
 #[derive(Debug,Clone,Eq,Hash)]
 pub enum TblExpression<C: CompoundTblExpression> {

@@ -2,10 +2,14 @@ use path_lib::obj_at_path::{ObjAtPath, OwnedObjAtPath};
 
 use crate::structures::expressions::{TblExpression, atomic::{AtomicTblExpression, AtomicTblExpressionAtPath, OwnedAtomicTblExpressionAtPath}, compound::{CompoundTblExpression, CompoundTblExpressionAtPath, OwnedCompoundTblExpressionAtPath}};
 
+mod with_path_specified;
+pub use with_path_specified::*;
+
 pub enum TblExpressionAtPathEnum<'a,C: CompoundTblExpression, Path> {
     Atomic(AtomicTblExpressionAtPath<'a,Path>),
     Compound(CompoundTblExpressionAtPath<'a,C,Path>)
 }
+
 impl <'a,C:CompoundTblExpression,Path> TblExpressionAtPathEnum<'a,C,Path> {
     pub fn is_atom(&self) -> bool { if let TblExpressionAtPathEnum::Atomic(_) = self { true } else { false } }
     pub fn is_compound(&self) -> bool { if let TblExpressionAtPathEnum::Atomic(_) = self { true } else { false } }
