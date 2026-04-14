@@ -27,7 +27,7 @@ pub type OwnedTblExpressionInInference<C: CompoundTblExpression> = OwnedObjAtPat
 mod from {
     use proof_calculus::structures::propositions::paths::{AssumptionInSequentialProofStepPath, ExplicitConclusionInSequentialProofStepPath};
 
-    use crate::structures::expressions::subexpressions::immediate::ImmediateSubexpressionInExpressionPath;
+    use crate::structures::expressions::subexpressions::immediate::ImmediateTblSubexpressionInExpressionPath;
 
     use super::*;
 
@@ -37,8 +37,8 @@ mod from {
             subexpression_path: TblSubexpressionInExpressionPath::default(),
         }}
     }
-    impl From<(TblExpressionInInferencePath,ImmediateSubexpressionInExpressionPath)> for TblExpressionInInferencePath {
-        fn from(mut value: (TblExpressionInInferencePath,ImmediateSubexpressionInExpressionPath)) -> Self { 
+    impl From<(TblExpressionInInferencePath,ImmediateTblSubexpressionInExpressionPath)> for TblExpressionInInferencePath {
+        fn from(mut value: (TblExpressionInInferencePath,ImmediateTblSubexpressionInExpressionPath)) -> Self { 
             value.0.subexpression_path.0.push(value.1);
             value.0
         }
@@ -55,8 +55,8 @@ mod from {
             subexpression_path: value.1
         }}
     }
-    impl From<(PropositionInSequentialProofStepPath,ImmediateSubexpressionInExpressionPath)> for TblExpressionInInferencePath {
-        fn from(value: (PropositionInSequentialProofStepPath,ImmediateSubexpressionInExpressionPath)) -> Self { Self {
+    impl From<(PropositionInSequentialProofStepPath,ImmediateTblSubexpressionInExpressionPath)> for TblExpressionInInferencePath {
+        fn from(value: (PropositionInSequentialProofStepPath,ImmediateTblSubexpressionInExpressionPath)) -> Self { Self {
             proposition_path: value.0,
             subexpression_path: TblSubexpressionInExpressionPath(vec![value.1])
         }}
@@ -67,8 +67,8 @@ mod from {
             (PropositionInSequentialProofStepPath::from(value),TblSubexpressionInExpressionPath::from(vec![])).into()
         }
     }
-    impl From<(AssumptionInSequentialProofStepPath,ImmediateSubexpressionInExpressionPath)> for TblExpressionInInferencePath {
-        fn from(value: (AssumptionInSequentialProofStepPath,ImmediateSubexpressionInExpressionPath)) -> Self { 
+    impl From<(AssumptionInSequentialProofStepPath,ImmediateTblSubexpressionInExpressionPath)> for TblExpressionInInferencePath {
+        fn from(value: (AssumptionInSequentialProofStepPath,ImmediateTblSubexpressionInExpressionPath)) -> Self { 
             (PropositionInSequentialProofStepPath::from(value.0),value.1).into()
         }
     }
@@ -78,8 +78,8 @@ mod from {
             (PropositionInSequentialProofStepPath::from(value),TblSubexpressionInExpressionPath::from(vec![])).into()
         }
     }
-    impl From<(ExplicitConclusionInSequentialProofStepPath,ImmediateSubexpressionInExpressionPath)> for TblExpressionInInferencePath {
-        fn from(value: (ExplicitConclusionInSequentialProofStepPath,ImmediateSubexpressionInExpressionPath)) -> Self { 
+    impl From<(ExplicitConclusionInSequentialProofStepPath,ImmediateTblSubexpressionInExpressionPath)> for TblExpressionInInferencePath {
+        fn from(value: (ExplicitConclusionInSequentialProofStepPath,ImmediateTblSubexpressionInExpressionPath)) -> Self { 
             (PropositionInSequentialProofStepPath::from(value.0),value.1).into()
         }
     }

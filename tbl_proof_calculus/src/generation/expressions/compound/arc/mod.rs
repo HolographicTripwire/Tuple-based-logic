@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use crate::{generation::expressions::{UnassignedTblExpression, compound::UnassignedCompoundTblExpression, subexpressions::{ParentOfUnassignedSubexpressions, immediate::ParentOfImmediateUnassignedSubexpressions}}, structures::expressions::{TblExpression, compound::{CompoundTblExpression, arc::ArcCompoundTblExpression}, subexpressions::{ParentOfSubexpressions, TblSubexpressionInExpressionPath, immediate::{ImmediateSubexpressionInExpressionPath, ParentOfImmediateSubexpressions}}}};
+use crate::{generation::expressions::{UnassignedTblExpression, compound::UnassignedCompoundTblExpression, subexpressions::{ParentOfUnassignedSubexpressions, immediate::ParentOfImmediateUnassignedSubexpressions}}, structures::expressions::{TblExpression, compound::{CompoundTblExpression, arc::ArcCompoundTblExpression}, subexpressions::{ParentOfSubexpressions, TblSubexpressionInExpressionPath, immediate::{ImmediateTblSubexpressionInExpressionPath, ParentOfImmediateSubexpressions}}}};
 
 /// A compound unit in Tuple-Based Logic, which are used to build up [Propositions](Proposition)
 #[derive(Debug,Clone,PartialEq,Eq,Hash)]
@@ -18,10 +18,10 @@ impl UnassignedCompoundTblExpression for UnassignedArcCompoundTblExpression {
 }
 
 impl ParentOfImmediateUnassignedSubexpressions<UnassignedArcCompoundTblExpression> for UnassignedArcCompoundTblExpression {
-    fn get_immediate_subexpression_paths(&self) -> impl IntoIterator<Item = ImmediateSubexpressionInExpressionPath>
+    fn get_immediate_subexpression_paths(&self) -> impl IntoIterator<Item = ImmediateTblSubexpressionInExpressionPath>
         { (0..self.0.len()).map(|x| x.into()) }
 
-    fn get_immediate_subexpression(&self,path: &ImmediateSubexpressionInExpressionPath) -> Result<&UnassignedTblExpression<UnassignedArcCompoundTblExpression>, ()>
+    fn get_immediate_subexpression(&self,path: &ImmediateTblSubexpressionInExpressionPath) -> Result<&UnassignedTblExpression<UnassignedArcCompoundTblExpression>, ()>
         { self.0.get(path.0).ok_or(()) }
 }
 

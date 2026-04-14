@@ -5,6 +5,7 @@ use crate::structures::propositions::paths::{AssumptionInSequentialProofStepPath
 
 pub mod paths;
 pub mod located;
+pub mod bounds;
 pub mod collections;
 
 generate_parent_of_children_trait!{

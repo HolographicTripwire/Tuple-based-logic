@@ -1,6 +1,6 @@
 use path_lib::obj_at_path::{ObjAtPath, OwnedObjAtPath};
 
-use crate::structures::expressions::{TblExpression, atomic::{AtomicTblExpression, AtomicTblExpressionAtPath, OwnedAtomicTblExpressionAtPath}, compound::{CompoundTblExpression, CompoundTblExpressionAtPath, OwnedCompoundTblExpressionAtPath}};
+use crate::structures::expressions::{OwnedTblExpressionAtPath, TblExpression, atomic::{AtomicTblExpressionAtPath, OwnedAtomicTblExpressionAtPath}, compound::{CompoundTblExpression, CompoundTblExpressionAtPath, OwnedCompoundTblExpressionAtPath}};
 
 mod with_path_specified;
 pub use with_path_specified::*;
@@ -32,7 +32,7 @@ impl <'a,C:CompoundTblExpression,Path> TryInto<CompoundTblExpressionAtPath<'a,C,
 impl <'a,C: CompoundTblExpression, Path> From<ObjAtPath<'a,TblExpression<C>,Path>> for TblExpressionAtPathEnum<'a,C,Path> {
     fn from(value: ObjAtPath<'a,TblExpression<C>,Path>) -> Self { match value.obj {
         TblExpression::Atomic(atom) => Self::Atomic(ObjAtPath { obj: atom, path: value.path }),
-        TblExpression::Compound(compound) => Self::Compound(ObjAtPath { obj: &compound, path: value.path }),
+        TblExpression::Compound(compound) => Self::Compound(ObjAtPath { obj: compound, path: value.path }),
     }}
 }
 // impl <'a,Path> Into<OwnedObjAtPath<Expression,Path>> for ExpressionAtPathEnum<'a,Path> {
@@ -44,8 +44,8 @@ impl <'a,C: CompoundTblExpression, Path> From<ObjAtPath<'a,TblExpression<C>,Path
 
 
 pub enum OwnedTblExpressionAtPathEnum<C: CompoundTblExpression, Path> {
-    Atomic(OwnedObjAtPath<AtomicTblExpression,Path>),
-    Compound(OwnedObjAtPath<C,Path>)
+    Atomic(OwnedAtomicTblExpressionAtPath<Path>),
+    Compound(OwnedCompoundTblExpressionAtPath<C,Path>)
 }
 impl <C:CompoundTblExpression,Path> OwnedTblExpressionAtPathEnum<C,Path> {
     pub fn is_atom(&self) -> bool { if let OwnedTblExpressionAtPathEnum::Atomic(_) = self { true } else { false } }
@@ -66,13 +66,13 @@ impl <C:CompoundTblExpression,Path> TryInto<OwnedCompoundTblExpressionAtPath<C,P
     }}
 }
 
-impl <C: CompoundTblExpression, Path> From<OwnedObjAtPath<TblExpression<C>,Path>> for OwnedTblExpressionAtPathEnum<C,Path> {
+impl <C: CompoundTblExpression, Path> From<OwnedTblExpressionAtPath<C,Path>> for OwnedTblExpressionAtPathEnum<C,Path> {
     fn from(value: OwnedObjAtPath<TblExpression<C>,Path>) -> Self { match value.obj {
         TblExpression::Atomic(atom) => Self::Atomic(OwnedObjAtPath { obj: atom, path: value.path }),
         TblExpression::Compound(compound) => Self::Compound(OwnedObjAtPath { obj: compound, path: value.path }),
     }}
 }
-impl <C: CompoundTblExpression,Path> Into<OwnedObjAtPath<TblExpression<C>,Path>> for OwnedTblExpressionAtPathEnum<C,Path> {
+impl <C: CompoundTblExpression,Path> Into<OwnedTblExpressionAtPath<C,Path>> for OwnedTblExpressionAtPathEnum<C,Path> {
     fn into(self) -> OwnedObjAtPath<TblExpression<C>, Path> { match self {
         Self::Atomic(inner) => OwnedObjAtPath { obj: TblExpression::Atomic(inner.obj), path: inner.path },
         Self::Compound(inner) => OwnedObjAtPath { obj: TblExpression::Compound(inner.obj), path: inner.path },

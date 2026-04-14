@@ -1,7 +1,7 @@
 use itertools::Either;
 use path_lib::obj_at_path::ObjAtPath;
 
-use crate::{structures::expressions::{TblExpression, compound::CompoundTblExpression, located::{OwnedTblExpressionAtPath, TblExpressionAtPath}, subexpressions::immediate::ImmediateSubexpressionInExpressionPath}, verification::assertions::{ExpressionLengthCheckError, ExpressionValueCheckError, assert_expression_value, expression_as_slice}};
+use crate::{structures::expressions::{TblExpression, compound::CompoundTblExpression, located::{OwnedTblExpressionAtPath, TblExpressionAtPath}, subexpressions::immediate::ImmediateTblSubexpressionInExpressionPath}, verification::assertions::{ExpressionLengthCheckError, ExpressionValueCheckError, assert_expression_value, expression_as_slice}};
 
 #[derive(Clone)]
 pub enum UnwrapInvocationExpressionError<C1: CompoundTblExpression, Path, Path2, C2: CompoundTblExpression> {
@@ -15,7 +15,7 @@ pub fn unwrap_invocation_expression<'a,C1, Path, Path2, C2>(invocation: &'a ObjA
 C1: CompoundTblExpression + PartialEq<C2>,
 C2: CompoundTblExpression + PartialEq<C1>,
 Path: Clone,
-Path2: Clone + From<(Path,ImmediateSubexpressionInExpressionPath)> {
+Path2: Clone + From<(Path,ImmediateTblSubexpressionInExpressionPath)> {
     let vec: Box<[ObjAtPath<'_, TblExpression<C1>, Path2>]> = expression_as_slice(invocation)
         .map_err(|e| UnwrapInvocationExpressionError::ExpressionAtomic(e.expression))?;
     let (head, tail) = vec.split_first().ok_or(UnwrapInvocationExpressionError::NoFirstElement(invocation.clone().into()))?;
@@ -29,7 +29,7 @@ pub fn unwrap_fixed_length_invocation_expression<'a,const N: usize,C1,Path,Path2
 C1: CompoundTblExpression + PartialEq<C2>,
 C2: CompoundTblExpression + PartialEq<C1>,
 Path: Clone,
-Path2: Clone + From<(Path,ImmediateSubexpressionInExpressionPath)> {
+Path2: Clone + From<(Path,ImmediateTblSubexpressionInExpressionPath)> {
     let tail = unwrap_invocation_expression(invocation, expected_head)
         .map_err(|err| Either::Left(err))?;
     // let vec = expression_as_slice(invocation)

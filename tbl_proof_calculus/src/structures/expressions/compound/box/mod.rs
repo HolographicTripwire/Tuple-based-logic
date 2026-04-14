@@ -1,4 +1,4 @@
-use crate::structures::expressions::{TblExpression, compound::CompoundTblExpression, subexpressions::{ParentOfSubexpressions, TblSubexpressionInExpressionPath, immediate::{ImmediateSubexpressionInExpressionPath, ParentOfImmediateSubexpressions}}};
+use crate::structures::expressions::{TblExpression, compound::CompoundTblExpression, subexpressions::{ParentOfSubexpressions, TblSubexpressionInExpressionPath, immediate::{ImmediateTblSubexpressionInExpressionPath, ParentOfImmediateSubexpressions}}};
 
 #[derive(Debug,Clone,PartialEq,Eq,Hash)]
 pub struct BoxCompoundTblExpression(pub Box<[TblExpression<BoxCompoundTblExpression>]>);
@@ -13,9 +13,9 @@ impl CompoundTblExpression for BoxCompoundTblExpression {
 }
 
 impl ParentOfImmediateSubexpressions<BoxCompoundTblExpression> for BoxCompoundTblExpression {
-    fn get_immediate_subexpression_paths(&self) -> impl IntoIterator<Item = ImmediateSubexpressionInExpressionPath>
+    fn get_immediate_subexpression_paths(&self) -> impl IntoIterator<Item = ImmediateTblSubexpressionInExpressionPath>
         { (0..self.0.len()).map(|x| x.into()) }
-    fn get_immediate_subexpression(&self,path: &ImmediateSubexpressionInExpressionPath) -> Result<&TblExpression<BoxCompoundTblExpression>,()>
+    fn get_immediate_subexpression(&self,path: &ImmediateTblSubexpressionInExpressionPath) -> Result<&TblExpression<BoxCompoundTblExpression>,()>
         { self.0.get(path.0).ok_or(()) }
 }
 

@@ -28,7 +28,7 @@ pub type ExpressionInProof<'a,C: CompoundTblExpression> = ObjAtPath<'a,TblExpres
 pub type OwnedExpressionInProof<C: CompoundTblExpression> = OwnedObjAtPath<TblExpression<C>,ExpressionInProofPath>;
 
 mod from {
-    use crate::structures::{expressions::subexpressions::{TblSubexpressionInExpressionPath, immediate::ImmediateSubexpressionInExpressionPath}, proof_calculus_derived::path_composites::PropositionInProofPath};
+    use crate::structures::{expressions::subexpressions::{TblSubexpressionInExpressionPath, immediate::ImmediateTblSubexpressionInExpressionPath}, proof_calculus_derived::path_composites::PropositionInProofPath};
 
     use super::*;
 
@@ -39,8 +39,8 @@ mod from {
             subexpression_path: TblSubexpressionInExpressionPath::default(),
         }}
     }
-    impl From<(ExpressionInProofPath,ImmediateSubexpressionInExpressionPath)> for ExpressionInProofPath {
-        fn from(mut value: (ExpressionInProofPath,ImmediateSubexpressionInExpressionPath)) -> Self { 
+    impl From<(ExpressionInProofPath,ImmediateTblSubexpressionInExpressionPath)> for ExpressionInProofPath {
+        fn from(mut value: (ExpressionInProofPath,ImmediateTblSubexpressionInExpressionPath)) -> Self { 
             value.0.subexpression_path.0.push(value.1);
             value.0
         }
@@ -58,8 +58,8 @@ mod from {
                 subexpression_path: value.1
         }}
     }
-    impl From<(PropositionInProofPath,ImmediateSubexpressionInExpressionPath)> for ExpressionInProofPath {
-        fn from(value: (PropositionInProofPath,ImmediateSubexpressionInExpressionPath)) -> Self { Self {
+    impl From<(PropositionInProofPath,ImmediateTblSubexpressionInExpressionPath)> for ExpressionInProofPath {
+        fn from(value: (PropositionInProofPath,ImmediateTblSubexpressionInExpressionPath)) -> Self { Self {
                 step_path: value.0.step_path,
                 proposition_path: value.0.proposition_path,
                 subexpression_path: value.1.into()

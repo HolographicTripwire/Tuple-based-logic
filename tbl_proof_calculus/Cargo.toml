@@ -10,3 +10,4 @@ proof_calculus = { path = "../proof_calculus" }
 
 trait-aliases = { version = "0.3.0" }
 itertools = { version = "0.14.0" }
+genawaiter = { version = "0.99.1" }

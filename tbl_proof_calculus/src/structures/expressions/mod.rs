@@ -1,12 +1,12 @@
-use proof_calculus::structures::propositions::Proposition;
+use path_lib::obj_at_path::{ObjAtPath, OwnedObjAtPath};
 
-use crate::structures::expressions::{atomic::AtomicTblExpression, compound::{CompoundTblExpression, arc::ArcCompoundTblExpression, r#box::BoxCompoundTblExpression, rc::RcCompoundTblExpression}, subexpressions::{ParentOfSubexpressions, TblSubexpressionInExpressionPath, immediate::{ImmediateSubexpressionInExpressionPath, ParentOfImmediateSubexpressions}}};
+use crate::structures::expressions::{atomic::AtomicTblExpression, compound::{CompoundTblExpression, arc::ArcCompoundTblExpression, r#box::BoxCompoundTblExpression, rc::RcCompoundTblExpression}, subexpressions::{ParentOfSubexpressions, TblSubexpressionInExpressionPath, immediate::{ImmediateTblSubexpressionInExpressionPath, ParentOfImmediateSubexpressions}}};
 
 pub mod atomic;
 pub mod compound;
-pub mod located;
 pub mod subexpressions;
 pub mod at_path_enum;
+pub mod bounds;
 pub mod collections;
 
 #[derive(Debug,Clone,Eq,Hash)]
@@ -14,6 +14,9 @@ pub enum TblExpression<C: CompoundTblExpression> {
     Atomic(AtomicTblExpression),
     Compound(C)
 }
+pub type TblExpressionAtPath<'a,C: CompoundTblExpression, Path> = ObjAtPath<'a,TblExpression<C>,Path>;
+pub type OwnedTblExpressionAtPath<C: CompoundTblExpression, Path> = OwnedObjAtPath<TblExpression<C>,Path>;
+
 impl <C1: CompoundTblExpression, C2: CompoundTblExpression + PartialEq<C1>> PartialEq<TblExpression<C1>> for TblExpression<C2> {
     fn eq(&self, other: &TblExpression<C1>) -> bool { match (self,other) {
         (TblExpression::Atomic(atom_left), TblExpression::Atomic(atom_right)) => atom_left == atom_right,
@@ -84,12 +87,12 @@ impl <C: CompoundTblExpression> TryInto<AtomicTblExpression> for TblExpression<C
 // }
 
 impl <C:CompoundTblExpression> ParentOfImmediateSubexpressions<C> for TblExpression<C> {
-    fn get_immediate_subexpression_paths(&self) -> impl IntoIterator<Item = ImmediateSubexpressionInExpressionPath> { match self {
+    fn get_immediate_subexpression_paths(&self) -> impl IntoIterator<Item = ImmediateTblSubexpressionInExpressionPath> { match self {
         TblExpression::Atomic(_) => Box::from_iter([]),
         TblExpression::Compound(compound) => compound.get_immediate_subexpression_paths().into_iter().collect(),
     }}
 
-    fn get_immediate_subexpression(&self,path: &ImmediateSubexpressionInExpressionPath) -> Result< &TblExpression<C> ,()>  { match self {
+    fn get_immediate_subexpression(&self,path: &ImmediateTblSubexpressionInExpressionPath) -> Result< &TblExpression<C> ,()>  { match self {
         TblExpression::Atomic(_) => Err(()),
         TblExpression::Compound(c) => c.get_immediate_subexpression(path),
     }}

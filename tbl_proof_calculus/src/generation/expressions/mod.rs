@@ -1,18 +1,22 @@
-use std::collections::HashMap;
-
+use path_lib::obj_at_path::{ObjAtPath, OwnedObjAtPath};
 use proof_calculus::utils::collections::dense_usize_map::DenseUsizeMap;
 
-use crate::{generation::expressions::compound::UnassignedCompoundTblExpression, structures::expressions::{TblExpression, atomic::AtomicTblExpression, compound::CompoundTblExpression, subexpressions::TblSubexpressionInExpressionPath}};
+use crate::{generation::expressions::{compound::UnassignedCompoundTblExpression, variable::TblExpressionVariable}, structures::expressions::{TblExpression, atomic::AtomicTblExpression, compound::CompoundTblExpression, subexpressions::TblSubexpressionInExpressionPath}};
 
+pub mod variable;
 pub mod compound;
 pub mod subexpressions;
+pub mod at_path_enum;
 
 #[derive(Clone,PartialEq,Eq,Hash,Debug)]
 pub enum UnassignedTblExpression<C: UnassignedCompoundTblExpression> {
     Atomic(AtomicTblExpression),
     Compound(C),
-    Variable(usize)
+    Variable(TblExpressionVariable)
 }
+pub type UnassignedTblExpressionAtPath<'a,C: UnassignedCompoundTblExpression, Path> = ObjAtPath<'a,UnassignedTblExpression<C>,Path>;
+pub type OwnedUnassignedTblExpressionAtPath<C: UnassignedCompoundTblExpression, Path> = OwnedObjAtPath<UnassignedTblExpression<C>,Path>;
+
 impl <C: UnassignedCompoundTblExpression> UnassignedTblExpression<C> {
     pub fn replace(&self, to_replace: &UnassignedTblExpression<C>, replace_with: &UnassignedTblExpression<C>) -> Self {
         if self == to_replace { replace_with.clone() }

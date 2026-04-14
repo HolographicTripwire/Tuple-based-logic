@@ -1,7 +1,7 @@
 use path_lib::{obj_at_path::{ObjAtPath, OwnedObjAtPath}};
 use path_lib_proc_macros::generate_parent_of_children_trait;
 
-use crate::{generation::expressions::{UnassignedTblExpression, compound::UnassignedCompoundTblExpression}, structures::expressions::{TblExpression, subexpressions::TblSubexpressionInExpressionPath}};
+use crate::{generation::expressions::{UnassignedTblExpression, compound::UnassignedCompoundTblExpression}, structures::expressions::{subexpressions::TblSubexpressionInExpressionPath}};
 
 pub mod immediate;
 
@@ -10,8 +10,8 @@ generate_parent_of_children_trait!{
     "subexpression", "subexpressions", "UnassignedSubexpressions"
 }
 
-pub type UnassignedSubexpressionInExpression<'a,C> = ObjAtPath<'a,TblExpression<C>,TblSubexpressionInExpressionPath>;
-pub type OwnedUnassignedSubexpressionInExpression<C> = OwnedObjAtPath<TblExpression<C>,TblSubexpressionInExpressionPath>;
+pub type UnassignedTblSubexpressionInExpression<'a,C> = ObjAtPath<'a,UnassignedTblExpression<C>,TblSubexpressionInExpressionPath>;
+pub type OwnedUnassignedTblSubexpressionInExpression<C> = OwnedObjAtPath<UnassignedTblExpression<C>,TblSubexpressionInExpressionPath>;
 
 #[cfg(test)]
 mod tests {

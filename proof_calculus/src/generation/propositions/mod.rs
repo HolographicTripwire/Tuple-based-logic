@@ -3,6 +3,8 @@ use std::hash::Hash;
 use crate::{generation::propositions::assignments::{PartialPropositionalAssignment, PropositionalAssignment}, structures::propositions::Proposition};
 
 pub mod assignments;
+pub mod bounds;
+pub mod collections;
 
 pub trait UnassignedProposition: Clone + PartialEq + Eq + Hash {
     type AssignedResult: Proposition;
