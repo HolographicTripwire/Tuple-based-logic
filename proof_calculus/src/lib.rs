@@ -1,5 +1,7 @@
 pub mod utils;
-pub mod structures;
-pub mod verification;
-pub mod generation;
+
+pub mod propositions;
+pub mod normal_forms;
+pub mod proofs;
+
 // pub mod stringification;

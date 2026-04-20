@@ -1,7 +1,5 @@
 use std::collections::HashSet;
 
-use nom::Map;
-
 #[derive(Clone,PartialEq,Eq,Debug)]
 pub struct DenseUsizeMap<V> {
     assigned: HashSet<usize>, // Keeps track of what entries are actually assigned a value. Used for iteration
