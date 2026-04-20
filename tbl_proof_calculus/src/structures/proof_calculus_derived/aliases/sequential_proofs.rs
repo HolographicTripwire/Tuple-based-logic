@@ -1,4 +1,4 @@
-use proof_calculus::structures::sequential_proofs::SequentialProof;
+use proof_calculus::proofs::sequential::SequentialProof;
 
 use crate::structures::{proof_calculus_derived::aliases::{inferences::TblInferenceRule, propositions::TblProposition}, expressions::compound::CompoundTblExpression};
 

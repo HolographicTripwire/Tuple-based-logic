@@ -1,4 +1,4 @@
-use proof_calculus::{structures::propositions::bounds::PropositionBound, utils::traits::fast_ord::FastOrd};
+use proof_calculus::utils::traits::fast_ord::FastOrd;
 
 use crate::structures::expressions::{TblExpression, compound::CompoundTblExpression, subexpressions::TblSubexpressionInExpressionPath};
 
@@ -23,4 +23,3 @@ impl TblExpressionBoundValueDuplicated {
 }
 
 pub type TblPropositionBoundValueDuplicated = TblExpressionBoundValueDuplicated;
-impl <C: CompoundTblExpression> PropositionBound<TblExpression<C>> for TblPropositionBoundValueDuplicated {}

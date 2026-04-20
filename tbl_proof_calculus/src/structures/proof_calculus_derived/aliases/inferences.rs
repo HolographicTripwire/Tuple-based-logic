@@ -1,4 +1,4 @@
-use proof_calculus::structures::inferences::{Inference, InferenceRule};
+use proof_calculus::proofs::inferences::{Inference, InferenceRule};
 use trait_aliases::trait_aliases;
 
 use crate::structures::{proof_calculus_derived::aliases::propositions::TblProposition, expressions::{compound::CompoundTblExpression}};

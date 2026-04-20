@@ -16,7 +16,6 @@ pub trait ValidatableInferenceRule<P:Proposition>: InferenceRule<P> {
     //fn validate_located<Path>(located_inference: InferenceAtPath<P,Self,Path>)
 }
 
-
 pub fn validate_inference<P: Proposition,Rule: ValidatableInferenceRule<P>>(inference: &Inference<P,Rule>) -> Result<(),ProofValidityError<P,Rule::Err>> {
     Rule::validate(inference)
         .map_err(|err| ProofValidityError::InvalidInference(err,PhantomData))
@@ -26,7 +25,7 @@ pub fn validate_located_inference<'a, P: Proposition, Rule: ValidatableInference
 }
 
 pub fn verify_proof_validity<'a, P: Proposition, Rule: ValidatableInferenceRule<P>>(proof: &'a SequentialProof<P,Rule>) -> Result<(),ProofValidityStepErr<P,Rule::Err,(),SequentialProofInProofPath>>
-    { get_proof_validity_errors(proof).try_collect() }
+    { get_proof_validity_errors(proof).collect() }
 
 pub fn get_proof_validity_errors<'a, P: Proposition, Rule: ValidatableInferenceRule<P>>(proof: &'a SequentialProof<P,Rule>) -> impl Iterator<Item = ProofValidityStepResult<P,Rule::Err,(),SequentialProofInProofPath>> {
     get_located_proof_validity_errors(ObjAtPath { obj: proof, path: SequentialProofInProofPath(vec![]) })

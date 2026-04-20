@@ -1,16 +1,28 @@
-use crate::{propositions::{Proposition, unassigned::UnassignedProposition}};
+use trait_aliases::trait_aliases;
 
-pub trait PropositionBoundsAssignedInsertion<'a, P: 'a + Proposition, B>: IntoIterator<Item=B> + From<&'a P> {}
-pub trait PropositionBoundsAssignedIdentity<'a, PE: 'a + Proposition, PM: Proposition, B>: IntoIterator<Item=B> + From<&'a PE> {}
-pub trait PropositionBoundsUnassignedSubsumesAssigned<'a, PE: 'a + UnassignedProposition, PM: Proposition, B>: IntoIterator<Item=B> + From<&'a PE> {}
+use crate::{propositions::Proposition, utils::collections::binders::{Binder, InsertBinder, InsertBounds, UniqueGetBounds}};
+
+trait_aliases!{
+    pub trait GetBoundsForPropIdenticalToProp<'a, PE: 'a + Proposition, B: Binder> = UniqueGetBounds<B> + From<&'a PE>;
+    pub trait InsertBoundsForProp<'a,PE: 'a + Proposition, B: InsertBinder<Self>> = InsertBounds<B> + From<&'a PE>;
+}
 
 // Feature: Generation
 pub mod unassigned {
-    use crate::propositions::{Proposition, unassigned::UnassignedProposition};
+    use crate::{propositions::{Proposition, unassigned::UnassignedProposition}, utils::collections::binders::{Binder, GetBounds, InsertBinder, InsertBounds, UniqueGetBounds}};
+    use trait_aliases::trait_aliases;
 
-    pub trait PropositionBoundsUnassignedInsertion<'a, P1: 'a + Proposition, B>: IntoIterator<Item=B> + From<&'a P1> {}
-    pub trait PropositionBoundsUnassignedIdentity<'a, P1: 'a + UnassignedProposition, P2: UnassignedProposition, B>: IntoIterator<Item=B> + From<&'a P1> {}
-    pub trait PropositionBoundsUnassignedEquiv<'a, P: 'a + UnassignedProposition, P2: UnassignedProposition, B>: IntoIterator<Item=B> + From<&'a P> {}
-    pub trait PropositionBoundsUnassignedSubsumesUnassigned<'a, P1: 'a + UnassignedProposition, P2: UnassignedProposition, B>: IntoIterator<Item=B> + From<&'a P1> {}
-    pub trait PropositionBoundsUnassignedSubsumedByUnassigned<'a, P1: 'a + UnassignedProposition, P2: UnassignedProposition, B>: IntoIterator<Item=B> + From<&'a P1> {}
+    trait_aliases!{
+        pub trait GetBoundsForPropsSubsumedByUprop<'a, UPE: 'a + UnassignedProposition, B: Binder> = GetBounds<B> + From<&'a UPE>;
+    }
+    trait_aliases!{
+        pub trait GetBoundsForUpropIdenticalToUprop<'a, UPE: 'a + UnassignedProposition, B: Binder> = UniqueGetBounds<B> + From<&'a UPE>;
+        pub trait GetBoundsForUpropsEquivalentToUprop<'a, UPE: 'a + UnassignedProposition, B: Binder> = GetBounds<B> + From<&'a UPE>;
+        pub trait GetBoundsForUpropsSubsumingProp<'a, PE: 'a + Proposition, B: Binder> = GetBounds<B> + From<&'a PE>;
+        pub trait GetBoundsForUpropsSubsumedByUprop<'a, UPE: 'a + UnassignedProposition, B: Binder> = GetBounds<B> + From<&'a UPE>;
+        pub trait GetBoundsForUpropsSubsumingByUprop<'a, UPE: 'a + UnassignedProposition, B: Binder> = GetBounds<B> + From<&'a UPE>;
+
+        pub trait InsertBoundsForUprop<'a,UPE: 'a + UnassignedProposition, B: InsertBinder<Self>> = InsertBounds<B> + From<&'a UPE>;
+
+    }
 }

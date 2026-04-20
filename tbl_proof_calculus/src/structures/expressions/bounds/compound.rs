@@ -1,6 +1,4 @@
-use proof_calculus::structures::propositions::bounds::PropositionBound;
-
-use crate::structures::{expressions::{compound::CompoundTblExpression, subexpressions::TblSubexpressionInExpressionPath}, proof_calculus_derived::aliases::propositions::TblProposition};
+use crate::structures::{expressions::{subexpressions::TblSubexpressionInExpressionPath}};
 
 #[derive(Clone,PartialEq,Eq,Debug,Hash)]
 pub struct TblExpressionBoundCompoundExactLength {
@@ -13,4 +11,3 @@ impl TblExpressionBoundCompoundExactLength {
 }
 
 pub type TblPropositionBoundCompoundExactLength = TblExpressionBoundCompoundExactLength;
-impl <C: CompoundTblExpression> PropositionBound<TblProposition<C>> for TblPropositionBoundCompoundExactLength {}

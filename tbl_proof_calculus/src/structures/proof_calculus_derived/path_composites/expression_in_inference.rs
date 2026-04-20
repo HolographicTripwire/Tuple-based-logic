@@ -1,7 +1,7 @@
 use std::fmt::Display;
 
 use path_lib::obj_at_path::{ObjAtPath, OwnedObjAtPath};
-use proof_calculus::structures::propositions::paths::PropositionInSequentialProofStepPath;
+use proof_calculus::propositions::paths::PropositionInSequentialProofStepPath;
 
 use crate::structures::expressions::{TblExpression, atomic::AtomicTblExpression, compound::CompoundTblExpression, subexpressions::TblSubexpressionInExpressionPath};
 
@@ -25,7 +25,7 @@ pub type TblExpressionInInference<'a,C: CompoundTblExpression> = ObjAtPath<'a,Tb
 pub type OwnedTblExpressionInInference<C: CompoundTblExpression> = OwnedObjAtPath<TblExpression<C>,TblExpressionInInferencePath>;
 
 mod from {
-    use proof_calculus::structures::propositions::paths::{AssumptionInSequentialProofStepPath, ExplicitConclusionInSequentialProofStepPath};
+    use proof_calculus::propositions::paths::{AssumptionInSequentialProofStepPath, ExplicitConclusionInSequentialProofStepPath};
 
     use crate::structures::expressions::subexpressions::immediate::ImmediateTblSubexpressionInExpressionPath;
 
@@ -62,7 +62,7 @@ mod from {
         }}
     }
     
-    impl From<(AssumptionInSequentialProofStepPath)> for TblExpressionInInferencePath {
+    impl From<AssumptionInSequentialProofStepPath> for TblExpressionInInferencePath {
         fn from(value: AssumptionInSequentialProofStepPath) -> Self { 
             (PropositionInSequentialProofStepPath::from(value),TblSubexpressionInExpressionPath::from(vec![])).into()
         }
@@ -73,7 +73,7 @@ mod from {
         }
     }
 
-    impl From<(ExplicitConclusionInSequentialProofStepPath)> for TblExpressionInInferencePath {
+    impl From<ExplicitConclusionInSequentialProofStepPath> for TblExpressionInInferencePath {
         fn from(value: ExplicitConclusionInSequentialProofStepPath) -> Self { 
             (PropositionInSequentialProofStepPath::from(value),TblSubexpressionInExpressionPath::from(vec![])).into()
         }

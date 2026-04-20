@@ -6,7 +6,6 @@ pub mod iterators;
 pub use atom::TblExpressionBoundAtomExactValue;
 pub use compound::TblExpressionBoundCompoundExactLength;
 pub use duplication::TblExpressionBoundValueDuplicated;
-use proof_calculus::structures::propositions::bounds::PropositionBound;
 
 use crate::structures::{expressions::{compound::CompoundTblExpression, subexpressions::TblSubexpressionInExpressionPath}, proof_calculus_derived::aliases::propositions::TblProposition};
 
@@ -30,4 +29,3 @@ impl From<TblExpressionBoundCompoundExactLength> for TblExpressionIdentityBound 
 }
 
 pub type TblPropositionIdentityBound = TblExpressionIdentityBound;
-impl <C: CompoundTblExpression> PropositionBound<TblProposition<C>> for TblPropositionIdentityBound {}
