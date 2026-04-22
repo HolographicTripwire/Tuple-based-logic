@@ -1,6 +1,6 @@
 use std::{sync::LazyLock};
 
-use tbl_textualization::{structures::expressions::{special_cases::{SpecialCaseParser, SpecialCaseStringifierSet}, SpecialCase}, Stringifier};
+use tbl_textualization::{expressions::assigned::{special_cases::{SpecialCaseParser, SpecialCaseStringifierSet}, SpecialCase}, Stringifier};
 
 use crate::textualizer_formats::plaintext::expression::EXPR_PATTERN_LEXER;
 

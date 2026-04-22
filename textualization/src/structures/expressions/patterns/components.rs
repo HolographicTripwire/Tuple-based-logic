@@ -1,6 +1,6 @@
 use parsertools::Parser;
 
-use crate::{helpers::{parsers::{controlled::{controlled_word_parser, ControlStrings}, string_parser}, styles::Style}, structures::expressions::patterns::{assignments::ExprPatternAssignment, parser::ExprPatternStyle}};
+use crate::{helpers::{parsers::{controlled::{controlled_word_parser, ControlStrings}, string_parser}, styles::Style}, expressions::assigned::patterns::{assignments::ExprPatternAssignment, parser::ExprPatternStyle}};
 
 #[derive(Clone,PartialEq,Eq,Debug,Hash)]
 pub enum ExprPatternComponent {
@@ -69,7 +69,7 @@ impl Style<ExprPatternComponent> for ExprPatternStyle {
 #[cfg(test)]
 mod tests {
 
-    use crate::{structures::expressions::patterns::components::{ExprPatternAssignment, ExprPatternComponent}};
+    use crate::{expressions::assigned::patterns::components::{ExprPatternAssignment, ExprPatternComponent}};
 
     #[test]
     fn test_assign_with_const_and_const() {

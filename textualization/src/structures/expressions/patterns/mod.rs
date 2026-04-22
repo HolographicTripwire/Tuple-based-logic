@@ -1,7 +1,7 @@
 use hashable::HashableHashSet;
 use parsertools::{transformers::conjoin, Parser};
 
-use crate::structures::expressions::patterns::{assignments::{pattern_assignment_parser, ExprPatternAssignment}, components::ExprPatternComponent};
+use crate::expressions::assigned::patterns::{assignments::{pattern_assignment_parser, ExprPatternAssignment}, components::ExprPatternComponent};
 
 pub mod components;
 pub mod assignments;

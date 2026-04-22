@@ -1,5 +1,5 @@
 use proof_calculus::{structures::propositions::{ParentOfAssumptions, ParentOfExplicitConclusions}, verification::validity::assertions::as_sized_slice};
-use tbl_proof_calculus::{structures::{expressions::{TblExpression, compound::CompoundTblExpression}, proof_calculus_derived::aliases::inferences::{TblInference, TblInferenceRule}}, verification::assertions::{assert_expression_atomicity, assert_expression_value, expression_as_sized_slice_in_inference}};
+use tbl_proof_calculus::{structures::{expressions::{TblExpression, compound::CompoundTblExpression}, proof_calculus_derived::aliases::inferences::{TblInference, TblInferenceRule}}, proofs::assertions::{assert_expression_atomicity, assert_expression_value, expression_as_sized_slice_in_inference}};
 
 use crate::{inference_rules::verbatim::unwrap_verbatim_expression, structures::atoms::PhilosophicaInferenceAtoms};
 

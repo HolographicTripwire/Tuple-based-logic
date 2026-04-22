@@ -1,6 +1,6 @@
 use parsertools::{helpers::lazy, Parser};
 
-use crate::{helpers::parsers::{string_parser, word_parser}, structures::expressions::patterns::components::ExprPatternComponent};
+use crate::{helpers::parsers::{string_parser, word_parser}, expressions::assigned::patterns::components::ExprPatternComponent};
 
 #[derive(PartialEq,Eq,Clone,Hash,Debug)]
 pub enum ExprPatternAssignment {

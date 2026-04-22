@@ -4,9 +4,9 @@ use crate::{propositions::{Proposition, bounds::{GetBoundsForPropIdenticalToProp
 pub mod unassigned;
 
 pub trait GetBinderForPropIdenticalToProp<PE: Proposition>: Binder {
-    type DefaultBounds<'a>: GetBoundsForPropIdenticalToProp<'a,PE,Self> where PE: 'a;
+    type DefaultGetBoundsForPropIdenticalToProp<'a>: GetBoundsForPropIdenticalToProp<'a,PE,Self> where PE: 'a;
     #[inline]
-    fn get_identical_to(&self, element: &PE) -> Option<&Self::Value> { self.get_unique_by_bounds(&Self::DefaultBounds::from(element)) }
+    fn get_identical_to(&self, element: &PE) -> Option<&Self::Value> { self.get_unique_by_bounds(&Self::DefaultGetBoundsForPropIdenticalToProp::from(element)) }
 }
 
 pub trait InsertBinderForProp<'a,PE: 'a + Proposition>: InsertBinder<Self::DefaultInsertionBounds> {

@@ -11,7 +11,7 @@ pub const EXPRESSION_STYLE: LazyLock<ExpressionStyle> = LazyLock::new(|| -> Expr
 mod tests {
     use std::{collections::HashMap};
 
-    use tbl_proof_calculus::structures::expressions::TblExpression;
+    use tbl_proof_calculus::expressions::assigned::TblExpression;
 
     use super::*;
 

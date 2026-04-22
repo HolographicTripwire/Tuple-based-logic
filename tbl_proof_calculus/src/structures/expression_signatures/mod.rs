@@ -1,4 +1,4 @@
-use crate::structures::expressions::{TblExpression, atomic::AtomicTblExpression, compound::CompoundTblExpression};
+use crate::expressions::assigned::{TblExpression, atomic::AtomicTblExpression, compound::CompoundTblExpression};
 
 /// An object which uniquely identifies a given [Expression], while being structured differently
 #[derive(Clone,PartialEq,Eq,Hash,Debug)]

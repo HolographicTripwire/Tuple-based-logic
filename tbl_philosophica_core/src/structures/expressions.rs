@@ -1,4 +1,4 @@
-use tbl_proof_calculus::structures::expressions::{TblExpression, compound::CompoundTblExpression};
+use tbl_proof_calculus::expressions::assigned::{TblExpression, compound::CompoundTblExpression};
 
 use crate::structures::atoms::PhilosophicaInferenceAtoms;
 
@@ -34,7 +34,7 @@ pub fn negation_level<C1: CompoundTblExpression>(prop: &TblExpression<C1>) -> us
 #[cfg(test)]
 mod tests {
     use enum_iterator::cardinality;
-    use tbl_proof_calculus::structures::expressions::{TblExpression, compound::r#box::BoxCompoundTblExpression};
+    use tbl_proof_calculus::expressions::assigned::{TblExpression, compound::r#box::BoxCompoundTblExpression};
 
     use crate::structures::{atoms::PhilosophicaInferenceAtoms, expressions::get_negated};
 

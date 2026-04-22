@@ -1,6 +1,6 @@
 use std::collections::{HashMap, HashSet};
 
-use tbl_structures::expressions::Expression;
+use tbl_expressions::assigned::Expression;
 
 struct QueryAssignment {
     x: Vec<Expression>

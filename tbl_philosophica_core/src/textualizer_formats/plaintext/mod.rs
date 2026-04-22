@@ -30,7 +30,7 @@ mod tests {
     use std::{collections::HashMap};
 
     use tbl_structures::{atomic::BuiltInAtom, expressions::TblExpression};
-    use tbl_textualization::{helpers::styles::Stylable, structures::expressions::expression_parser};
+    use tbl_textualization::{helpers::styles::Stylable, expressions::assigned::expression_parser};
 
     use super::*;
 

@@ -1,9 +1,9 @@
 use std::collections::{HashMap, HashSet};
 
 use proof_calculus::structures::{propsets::implementations::hash::HashPropSet1O};
-use tbl_proof_calculus::structures::expressions::{TblExpression, compound::CompoundTblExpression};
+use tbl_proof_calculus::expressions::assigned::{TblExpression, compound::CompoundTblExpression};
 
-use crate::structures::expressions::{is_negation_of, negation_level};
+use crate::expressions::assigned::{is_negation_of, negation_level};
 
 /// Get HashMap mapping negation levels onto sets of propositions at that negation level
 fn by_negation_level<'a, C: CompoundTblExpression, I: IntoIterator<Item=&'a TblExpression<C>>>(propositions: I) -> HashMap<usize,HashSet<&'a TblExpression<C>>> {

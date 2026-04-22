@@ -4,7 +4,7 @@ mod tuple_appendation;
 
 pub use atom_differentiation::*;
 pub use atomicity_assertion::*;
-use tbl_proof_calculus::{structures::{expressions::{compound::CompoundTblExpression, located::OwnedTblExpressionAtPath}, proof_calculus_derived::path_composites::{TblExpressionInInference, TblExpressionInInferencePath}}, verification::assertions::{ExpressionLengthCheckError, UnwrapInvocationExpressionError, unwrap_fixed_length_invocation_expression}};
+use tbl_proof_calculus::{structures::{expressions::{compound::CompoundTblExpression, located::OwnedTblExpressionAtPath}, proof_calculus_derived::path_composites::{TblExpressionInInference, TblExpressionInInferencePath}}, proofs::assertions::{ExpressionLengthCheckError, UnwrapInvocationExpressionError, unwrap_fixed_length_invocation_expression}};
 pub use tuple_appendation::*;
 
 use itertools::Either;

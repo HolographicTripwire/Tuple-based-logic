@@ -1,4 +1,3 @@
-pub mod structures;
-pub mod verification;
-pub mod generation;
-pub mod stringification;
+pub mod expressions;
+pub mod proofs;
+pub mod proof_calculus_derived;

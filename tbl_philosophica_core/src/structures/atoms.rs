@@ -1,5 +1,5 @@
 use enum_iterator::Sequence;
-use tbl_proof_calculus::structures::expressions::{TblExpression, atomic::AtomicTblExpression, compound::CompoundTblExpression};
+use tbl_proof_calculus::expressions::assigned::{TblExpression, atomic::AtomicTblExpression, compound::CompoundTblExpression};
 
 /// Atoms which are built in to Tuple-Based Logic, and will appear in all axiomatic systems in Tuple-Based Logic
 #[derive(Clone,Sequence)]
@@ -47,7 +47,7 @@ impl <C: CompoundTblExpression> Into<TblExpression<C>> for PhilosophicaInference
 #[cfg(test)]
 mod tests {
     use enum_iterator::all;
-    use tbl_proof_calculus::structures::expressions::atomic::AtomicTblExpression;
+    use tbl_proof_calculus::expressions::assigned::atomic::AtomicTblExpression;
 
     use crate::structures::atoms::PhilosophicaInferenceAtoms;
 

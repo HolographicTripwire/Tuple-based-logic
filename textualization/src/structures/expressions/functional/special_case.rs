@@ -1,4 +1,4 @@
-use crate::structures::expressions::{patterns::{components::ExprPatternComponent, special_case::ExprPatternPair, ExprPattern}, raw::RawExpressionStyle};
+use crate::expressions::assigned::{patterns::{components::ExprPatternComponent, special_case::ExprPatternPair, ExprPattern}, raw::RawExpressionStyle};
 
 pub(super) fn symbol_atom(atom_id: usize, after: &str, style: &RawExpressionStyle) -> ExprPatternPair 
     { symbol(&style.atom_style().to_id(atom_id), after) }
@@ -122,7 +122,7 @@ pub(super) fn allfix_function<'a>(input_head: &str, arity: usize, output_left: &
 mod tests {
     use parsertools::results::ParseError;
 
-    use crate::structures::expressions::{functional::special_case::{symbol, symbol_atom, variadic_infix_function, variadic_prefix_function}, patterns::special_case::ExprPatternPair, raw::tests::TEST_RAW_EXPRESSION_STYLE};
+    use crate::expressions::assigned::{functional::special_case::{symbol, symbol_atom, variadic_infix_function, variadic_prefix_function}, patterns::special_case::ExprPatternPair, raw::tests::TEST_RAW_EXPRESSION_STYLE};
 
     fn pre_rtl_test(pair: ExprPatternPair, l: &str, r: &str) -> (Result<String, ParseError<char>>,Result<String, ParseError<char>>) {
         let right = pair.left_to_right().parse_unambiguous(l.chars());

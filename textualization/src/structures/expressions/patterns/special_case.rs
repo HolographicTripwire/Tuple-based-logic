@@ -1,7 +1,7 @@
 use parsertools::Parser;
-use tbl_structures::expressions::TblExpression;
+use tbl_expressions::assigned::TblExpression;
 
-use crate::structures::expressions::{patterns::{expr_pattern_matcher, ExprPattern}, SpecialCase};
+use crate::expressions::assigned::{patterns::{expr_pattern_matcher, ExprPattern}, SpecialCase};
 
 #[derive(Clone)]
 pub struct ExprPatternPair {
@@ -38,9 +38,9 @@ mod tests {
     use std::{collections::HashSet, sync::LazyLock};
 
     use parsertools::{results::ParseError, Parser};
-    use tbl_structures::expressions::TblExpression;
+    use tbl_expressions::assigned::TblExpression;
 
-    use crate::{helpers::styles::Style, structures::expressions::{patterns::{parser::{TEST_BLACKLIST, TEST_PATTERN_STYLE}, ExprPattern}, raw::tests::TEST_RAW_EXPRESSION_STYLE}, test_helpers::{parse_all_str, parse_str}};
+    use crate::{helpers::styles::Style, expressions::assigned::{patterns::{parser::{TEST_BLACKLIST, TEST_PATTERN_STYLE}, ExprPattern}, raw::tests::TEST_RAW_EXPRESSION_STYLE}, test_helpers::{parse_all_str, parse_str}};
 
     fn parse_pattern(s: &str) -> ExprPattern
         { parse_str(TEST_PATTERN_STYLE.parser(TEST_BLACKLIST.clone()), s).unwrap() }

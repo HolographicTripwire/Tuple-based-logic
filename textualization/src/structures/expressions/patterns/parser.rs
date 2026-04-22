@@ -2,7 +2,7 @@ use std::collections::HashSet;
 
 use parsertools::{transformers::alternating, Parser};
 
-use crate::{helpers::{parsers::controlled::ControlStrings, styles::Style}, structures::expressions::patterns::{components::ExprPatternComponent, ExprPattern}};
+use crate::{helpers::{parsers::controlled::ControlStrings, styles::Style}, expressions::assigned::patterns::{components::ExprPatternComponent, ExprPattern}};
 
 #[derive(Clone,PartialEq,Eq,Debug,Hash)]
 pub struct ExprPatternStyle {
@@ -52,7 +52,7 @@ mod tests {
 
     use super::*;
 
-    use crate::{structures::expressions::patterns::parser::ExprPatternStyle, test_helpers::parse_str};
+    use crate::{expressions::assigned::patterns::parser::ExprPatternStyle, test_helpers::parse_str};
 
     pub const TEST_PATTERN_STYLE: LazyLock<ExprPatternStyle> = LazyLock::new(|| {
         ExprPatternStyle::from_strs("@", "..")

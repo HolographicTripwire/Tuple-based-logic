@@ -2,9 +2,9 @@ use std::{collections::HashSet, sync::Arc};
 
 use dyn_clone::DynClone;
 use parsertools::{helpers::lazy, tokens::pred, Parser};
-use tbl_structures::expressions::TblExpression;
+use tbl_expressions::assigned::TblExpression;
 
-use crate::{helpers::{parsers::controlled::ControlStrings, styles::Style}, structures::expressions::raw::RawExpressionStyle};
+use crate::{helpers::{parsers::controlled::ControlStrings, styles::Style}, expressions::assigned::raw::RawExpressionStyle};
 
 pub mod raw;
 pub mod patterns;
