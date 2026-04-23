@@ -6,6 +6,7 @@ pub mod variable;
 pub mod compound;
 pub mod subexpressions;
 pub mod at_path_enum;
+pub mod binding;
 pub mod assignments;
 
 #[derive(Clone,PartialEq,Eq,Hash,Debug)]

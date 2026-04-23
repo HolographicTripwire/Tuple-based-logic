@@ -5,6 +5,7 @@ use crate::expressions::assigned::{OwnedTblExpressionAtPath, TblExpression, atom
 mod with_path_specified;
 pub use with_path_specified::*;
 
+#[derive(Clone,PartialEq,Eq,Debug,Hash)]
 pub enum TblExpressionAtPathEnum<'a,C: CompoundTblExpression, Path> {
     Atomic(AtomicTblExpressionAtPath<'a,Path>),
     Compound(CompoundTblExpressionAtPath<'a,C,Path>)

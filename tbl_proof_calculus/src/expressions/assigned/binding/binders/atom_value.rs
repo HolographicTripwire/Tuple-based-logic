@@ -2,7 +2,7 @@ use std::{collections::{HashMap, HashSet}, hash::Hash};
 
 use proof_calculus::utils::collections::multimap::MultiMap;
 
-use crate::expressions::assigned::{atomic::AtomicTblExpression, binding::{binders::{get_helper, insert_helper}, bounds::atom_value::TblExpressionBoundAtomExactValue}, subexpressions::TblSubexpressionInExpressionPath};
+use crate::expressions::assigned::{atomic::AtomicTblExpression, binding::{binders::{get_helper, insert_helper}, bounds::TblExpressionBoundAtomExactValue}, subexpressions::TblSubexpressionInExpressionPath};
 
 pub struct TblExpressionTrackerBoundsAtomExactValue<T: Hash>(HashMap<TblSubexpressionInExpressionPath,MultiMap<AtomicTblExpression,T>>);
 

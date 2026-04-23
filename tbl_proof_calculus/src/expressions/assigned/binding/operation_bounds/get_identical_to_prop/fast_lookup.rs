@@ -2,7 +2,7 @@ use std::collections::HashSet;
 
 use itertools::Itertools;
 
-use crate::expressions::assigned::{TblExpression, binding::{action_bounds::get_identical_to_prop::fast_construct::TblFastConstructGetBoundsForExprIdenticalToExpr, bounds::TblExpressionIdentityBound}, compound::CompoundTblExpression, subexpressions::TblSubexpressionInExpressionPath};
+use crate::expressions::assigned::{TblExpression, binding::{operation_bounds::get_identical_to_prop::fast_construct::TblFastConstructGetBoundsForExprIdenticalToExpr, bounds::TblExpressionIdentityBound}, compound::CompoundTblExpression, subexpressions::TblSubexpressionInExpressionPath};
 
 #[derive(Clone,Copy,PartialEq,Eq,Hash,Debug)]
 pub struct PathEliminationHeuristic {

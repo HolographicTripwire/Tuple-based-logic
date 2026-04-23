@@ -2,7 +2,7 @@ use std::{collections::{HashMap, HashSet}, hash::Hash};
 
 use proof_calculus::utils::collections::multimap::MultiMap;
 
-use crate::expressions::assigned::{binding::{binders::{get_helper, insert_helper}, bounds::compound_length::TblExpressionBoundCompoundExactLength}, subexpressions::TblSubexpressionInExpressionPath};
+use crate::expressions::assigned::{binding::{binders::{get_helper, insert_helper}, bounds::TblExpressionBoundCompoundExactLength}, subexpressions::TblSubexpressionInExpressionPath};
 
 pub struct TblExpressionTrackerCompoundLengthBounds<T: Hash + Eq>(HashMap<TblSubexpressionInExpressionPath,MultiMap<usize,T>>);
 

@@ -2,7 +2,10 @@ use std::collections::{HashMap, HashSet};
 
 use crate::expressions::assigned::subexpressions::{TblSubexpressionInExpressionPath, immediate::ImmediateTblSubexpressionInExpressionPath};
 
-mod get_identical_to_prop;
+pub mod get_identical_to_prop;
+// Feature: Generation
+pub mod get_subsumed_by_uprop;
+pub mod insert;
 
 #[derive(Default)]
 struct ImportantPathsConstructor(HashMap<TblSubexpressionInExpressionPath,ImmediateTblSubexpressionInExpressionPath>);

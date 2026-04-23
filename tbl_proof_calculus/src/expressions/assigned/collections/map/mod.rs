@@ -1,6 +1,6 @@
 use std::collections::{HashMap, HashSet};
 
-use crate::expressions::{assigned::{RcTblExpression, collections::tracker::TblExpressionBinder}, unassigned::{UnassignedTblExpression, compound::UnassignedCompoundTblExpression}};
+use crate::expressions::{assigned::{RcTblExpression, binding::binders::TblExpressionBinder}, unassigned::{UnassignedTblExpression, compound::UnassignedCompoundTblExpression}};
 
 mod atomic;
 

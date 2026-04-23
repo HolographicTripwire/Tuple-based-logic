@@ -7,6 +7,7 @@ use proof_calculus::utils::traits::fast_ord::{FastOrd, fastcmp_for_sorted_slices
 use crate::expressions::assigned::{TblExpression, compound::CompoundTblExpression, subexpressions::immediate::ImmediateTblSubexpressionInExpressionPath};
 
 pub mod immediate;
+pub mod iterators;
 
 #[derive(Clone,PartialEq,Eq,Hash,Debug,Default)]
 pub struct TblSubexpressionInExpressionPath(pub Vec<ImmediateTblSubexpressionInExpressionPath>);
