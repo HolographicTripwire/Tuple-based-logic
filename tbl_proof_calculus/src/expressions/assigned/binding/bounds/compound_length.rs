@@ -1,4 +1,4 @@
-use crate::expressions::assigned::{subexpressions::TblSubexpressionInExpressionPath};
+use crate::expressions::assigned::subexpressions::TblSubexpressionInExpressionPath;
 
 #[derive(Clone,PartialEq,Eq,Debug,Hash)]
 pub struct TblExpressionBoundCompoundExactLength {

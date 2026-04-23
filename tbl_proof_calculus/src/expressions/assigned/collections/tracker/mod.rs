@@ -3,16 +3,16 @@ use std::{collections::{HashMap, HashSet}, hash::Hash};
 
 use proof_calculus::{propositions::collections::binders::{GetBinderForPropIdenticalToProp, InsertBinderForProp, unassigned::GetBinderForPropsSubsumedByUprop}, utils::collections::binders::{Binder, GetBinder}};
 
-use crate::{expressions::{assigned::{bounds::{atom::TblPropositionBoundAtomExactValue, compound::TblPropositionBoundCompoundExactLength, duplication::TblPropositionBoundValueDuplicated}, collections::tracker::bounds::{TblExpressionTrackerBoundsAtomExactValue, TblExpressionTrackerCompoundLengthBounds, TblExpressionTrackerDuplicationBounds}, compound::CompoundTblExpression, subexpressions::TblSubexpressionInExpressionPath}, unassigned::compound::UnassignedCompoundTblExpression}, proof_calculus_derived::aliases::propositions::{TblProposition, UnassignedTblProposition}};
+use crate::{expressions::{assigned::{binding::{TblPropositionIdentityBound, atom::TblPropositionBoundAtomExactValue, compound::TblPropositionBoundCompoundExactLength, duplication::TblPropositionBoundValueDuplicated}, collections::tracker::bounds::{TblExpressionTrackerBoundsAtomExactValue, TblExpressionTrackerCompoundLengthBounds, TblExpressionTrackerDuplicationBounds}, compound::CompoundTblExpression, subexpressions::TblSubexpressionInExpressionPath}, unassigned::compound::UnassignedCompoundTblExpression}, proof_calculus_derived::aliases::propositions::{TblProposition, UnassignedTblProposition}};
 
 pub mod bounds;
 
-pub struct TblExpressionTracker<T: Hash + Eq + Clone> {
+pub struct TblExpressionBinder<T: Hash + Eq + Clone> {
     atom_value_bounds: TblExpressionTrackerBoundsAtomExactValue<T>,
     compound_length_bounds: TblExpressionTrackerCompoundLengthBounds<T>,
     duplicate_value_bounds: TblExpressionTrackerDuplicationBounds<T>,
 }
-impl <T: Hash + Eq + Clone> TblExpressionTracker<T> {
+impl <T: Hash + Eq + Clone> TblExpressionBinder<T> {
     fn get_unbounded_path_matches(&self, path: &TblSubexpressionInExpressionPath) -> HashSet<&T> {
         match (self.atom_value_bounds.get_no_bound(path), self.compound_length_bounds.get_no_bound(path)) {
             (None, None) => HashSet::new(),
@@ -23,7 +23,7 @@ impl <T: Hash + Eq + Clone> TblExpressionTracker<T> {
     }
 }
 
-pub type TblPropositionTracker<T> = TblExpressionTracker<T>;
+pub type TblPropositionTracker<T> = TblExpressionBinder<T>;
 impl <T: Hash + Eq + Clone> Binder for TblPropositionTracker<T> {
     type Value = T;
     
@@ -45,9 +45,17 @@ impl <T: Hash + Eq + Clone> GetBinder<TblPropositionBoundValueDuplicated> for Tb
     fn get<'a>(&'a self, key: &TblPropositionBoundValueDuplicated) -> HashSet<&'a Self::Value>
         { self.duplicate_value_bounds.get2(&key) }
 }
+impl <T: Hash + Eq + Clone> GetBinder<TblPropositionIdentityBound> for TblPropositionTracker<T> {
+    #[inline]
+    fn get<'a>(&'a self, key: &TblPropositionIdentityBound) -> HashSet<&'a Self::Value> { match key {
+        crate::expressions::assigned::binding::TblExpressionIdentityBound::AtomValue(atom_bound) => self.get(atom_bound),
+        crate::expressions::assigned::binding::TblExpressionIdentityBound::CompoundLength(compound_bound) => self.get(compound_bound),
+    }}
+}
+
 
 impl <C: CompoundTblExpression, T: Hash + Eq + Clone> GetBinderForPropIdenticalToProp<TblProposition<C>> for TblPropositionTracker<T> {
-    type DefaultGetBoundsForPropIdenticalToProp<'a> = usize where TblProposition<C>: 'a;
+    type DefaultGetBoundsForPropIdenticalToProp<'a> = Fast where TblProposition<C>: 'a;
 }
 impl <C: UnassignedCompoundTblExpression, T: Hash + Eq + Clone> GetBinderForPropsSubsumedByUprop<UnassignedTblProposition<C>> for TblPropositionTracker<T> {
     type DefaultGetBoundsForPropsSubsumedByUprop<'a> = usize where TblProposition<C>: 'a;

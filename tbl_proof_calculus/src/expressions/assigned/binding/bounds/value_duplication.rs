@@ -3,7 +3,7 @@ use proof_calculus::utils::traits::fast_ord::FastOrd;
 use crate::expressions::assigned::subexpressions::TblSubexpressionInExpressionPath;
 
 #[derive(Clone,PartialEq,Eq,Debug,Hash)]
-pub struct TblExpressionBoundValueDuplicated{
+pub struct TblExpressionBoundValueDuplicated {
     path1: TblSubexpressionInExpressionPath,
     path2: TblSubexpressionInExpressionPath
 }

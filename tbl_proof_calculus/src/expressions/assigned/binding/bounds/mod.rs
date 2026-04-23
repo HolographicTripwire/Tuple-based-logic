@@ -1,14 +1,10 @@
-pub mod atom;
-pub mod compound;
-pub mod duplication;
-pub mod iterators;
+use crate::expressions::assigned::{binding::bounds::{atom_value::TblExpressionBoundAtomExactValue, compound_length::TblExpressionBoundCompoundExactLength}, subexpressions::TblSubexpressionInExpressionPath};
 
-pub use atom::TblExpressionBoundAtomExactValue;
-pub use compound::TblExpressionBoundCompoundExactLength;
-pub use duplication::TblExpressionBoundValueDuplicated;
+pub mod atom_value;
+pub mod compound_length;
+pub mod value_duplication;
 
-use crate::expressions::assigned::subexpressions::TblSubexpressionInExpressionPath;
-
+#[derive(Clone,PartialEq,Eq,Hash,Debug)]
 pub enum TblExpressionIdentityBound {
     AtomValue(TblExpressionBoundAtomExactValue),
     CompoundLength(TblExpressionBoundCompoundExactLength),

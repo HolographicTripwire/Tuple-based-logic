@@ -6,7 +6,7 @@ pub mod atomic;
 pub mod compound;
 pub mod subexpressions;
 pub mod at_path_enum;
-pub mod bounds;
+pub mod binding;
 pub mod collections;
 
 #[derive(Debug,Clone,Eq,Hash)]

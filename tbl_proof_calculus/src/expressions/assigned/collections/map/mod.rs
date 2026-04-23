@@ -1,6 +1,6 @@
 use std::collections::{HashMap, HashSet};
 
-use crate::expressions::{assigned::{RcTblExpression, collections::tracker::TblExpressionTracker}, unassigned::{UnassignedTblExpression, compound::UnassignedCompoundTblExpression}};
+use crate::expressions::{assigned::{RcTblExpression, collections::tracker::TblExpressionBinder}, unassigned::{UnassignedTblExpression, compound::UnassignedCompoundTblExpression}};
 
 mod atomic;
 
@@ -8,7 +8,7 @@ pub use atomic::AtomicTblExpressionMap;
 
 pub struct TblExpressionMap<V> {
     values: HashMap<RcTblExpression,V>,
-    tracker: TblExpressionTracker<RcTblExpression>
+    tracker: TblExpressionBinder<RcTblExpression>
 }
 
 impl <V> TblExpressionMap<V> {

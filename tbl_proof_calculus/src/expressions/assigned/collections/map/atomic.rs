@@ -1,8 +1,8 @@
 use std::collections::{HashMap, HashSet};
 
-use crate::expressions::assigned::{ArcTblExpression, collections::tracker::TblExpressionTracker};
+use crate::expressions::assigned::{ArcTblExpression, collections::tracker::TblExpressionBinder};
 
 pub struct AtomicTblExpressionMap<T> {
     values: HashMap<ArcTblExpression,T>,
-    tracker: TblExpressionTracker<ArcTblExpression>
+    tracker: TblExpressionBinder<ArcTblExpression>
 }

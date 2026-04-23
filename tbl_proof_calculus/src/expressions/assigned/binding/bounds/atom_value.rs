@@ -1,8 +1,7 @@
-
 use crate::expressions::assigned::{atomic::AtomicTblExpression, subexpressions::TblSubexpressionInExpressionPath};
 
 #[derive(Clone,PartialEq,Eq,Debug,Hash)]
-pub struct TblExpressionBoundAtomExactValue{
+pub struct TblExpressionBoundAtomExactValue {
     pub path: TblSubexpressionInExpressionPath,
     pub value: AtomicTblExpression
 }

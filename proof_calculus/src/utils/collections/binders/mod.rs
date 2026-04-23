@@ -5,15 +5,15 @@ pub trait Binder: Sized {
 
     fn get_all<'a>(&'a self) -> HashSet<&'a Self::Value>;
     #[inline]
-    fn get_by_bounds<'a,B: GetBounds<Self>>(&'a self, bounds: &B) -> HashSet<&'a Self::Value> { bounds.get_from(self) }
+    fn get_by_bounds<'a,'b,B: GetBounds<Self>>(&'a self, bounds: &'b B) -> HashSet<&'a Self::Value> { bounds.get_from(self) }
     #[inline]
-    fn get_unique_by_bounds<'a,B: UniqueGetBounds<Self>>(&'a self, bounds: &B) -> Option<&'a Self::Value> { bounds.get_unique_from(self) }
+    fn get_unique_by_bounds<'a,'b,'c:,B: UniqueGetBounds<Self>>(&'a self, bounds: &'c B) -> Option<&'a Self::Value> { bounds.get_unique_from(self) }
 }
 
 pub trait GetBinder<B>: Binder {
-    fn get<'a>(&'a self, key: &B) -> HashSet<&'a Self::Value>;
+    fn get<'a>(&'a self, key: B) -> HashSet<&'a Self::Value>;
 
-    fn get_intersection<'a, 'b, I: IntoIterator<Item=&'b B>>(&'a self, bounds: I) -> HashSet<&'a Self::Value> where B: 'b {
+    fn get_intersection<'a, I: IntoIterator<Item=B>>(&'a self, bounds: I) -> HashSet<&'a Self::Value> {
         let mut iter = bounds.into_iter();
         if let Some(value) = iter.next() {
             let mut results = self.get(value);
@@ -27,11 +27,11 @@ pub trait GetBinder<B>: Binder {
 }
 
 pub trait GetBounds<B: Binder>: Sized {
-    fn get_from<'a>(&self, binder: &'a B) -> HashSet<&'a B::Value>;
+    fn get_from<'b>(&self, binder: &'b B) -> HashSet<&'b B::Value>;
 }
 
 pub trait UniqueGetBounds<B: Binder>: GetBounds<B> {
-    fn get_unique_from<'a>(&self, binder: &'a B) -> Option<&'a B::Value> {
+    fn get_unique_from<'b>(&self, binder: &'b B) -> Option<&'b B::Value> {
         let mut all = self.get_from(binder).into_iter();
         let first = all.next();
         debug_assert!(all.count() == 0, "<{} as UniqueGetBounds>::get_unique returned more than one value", std::any::type_name::<Self>());
@@ -45,4 +45,3 @@ pub trait InsertBinder<B>: Binder {
 pub trait InsertBounds<B: InsertBinder<Self>>: Sized
     { fn insert_into(&self, binder: &mut B, value: B::Value) { binder.insert_by_bounds(self, value); } }
 impl <Bs, Br: InsertBinder<Bs>> InsertBounds<Br> for Bs {} 
-

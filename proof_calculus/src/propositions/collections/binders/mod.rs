@@ -1,4 +1,4 @@
-use crate::{propositions::{Proposition, bounds::{GetBoundsForPropIdenticalToProp, InsertBoundsForProp}}, utils::collections::binders::{Binder, InsertBinder}};
+use crate::{propositions::{Proposition, bounds::{GetBoundsForPropIdenticalToProp, InsertBoundsForProp}}, utils::collections::binders::{Binder, InsertBinder, UniqueGetBounds}};
 
 // Feature: generation
 pub mod unassigned;
@@ -6,7 +6,11 @@ pub mod unassigned;
 pub trait GetBinderForPropIdenticalToProp<PE: Proposition>: Binder {
     type DefaultGetBoundsForPropIdenticalToProp<'a>: GetBoundsForPropIdenticalToProp<'a,PE,Self> where PE: 'a;
     #[inline]
-    fn get_identical_to(&self, element: &PE) -> Option<&Self::Value> { self.get_unique_by_bounds(&Self::DefaultGetBoundsForPropIdenticalToProp::from(element)) }
+    fn get_identical_to<'a>(&'a self, element: &'a PE) -> Option<&'a Self::Value> {
+        let x = Self::DefaultGetBoundsForPropIdenticalToProp::from(element);
+        let y: Option<&<Self as Binder>::Value> = self.get_unique_by_bounds(&x);
+        None
+    }
 }
 
 pub trait InsertBinderForProp<'a,PE: 'a + Proposition>: InsertBinder<Self::DefaultInsertionBounds> {

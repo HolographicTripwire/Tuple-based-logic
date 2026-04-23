@@ -2,7 +2,7 @@ use std::{collections::{HashMap, HashSet}, hash::Hash};
 
 use proof_calculus::utils::{collections::multimap::MultiMap, traits::fast_ord::FastOrd};
 
-use crate::expressions::assigned::{bounds::TblExpressionBoundValueDuplicated, collections::tracker::bounds::{get_helper, insert_helper}, subexpressions::TblSubexpressionInExpressionPath};
+use crate::expressions::assigned::{binding::{binders::{get_helper, insert_helper}, bounds::value_duplication::TblExpressionBoundValueDuplicated}, subexpressions::TblSubexpressionInExpressionPath};
 
 pub struct TblExpressionTrackerDuplicationBounds<T: Hash + Eq>(HashMap<TblSubexpressionInExpressionPath,MultiMap<TblSubexpressionInExpressionPath,T>>);
 

@@ -1,9 +1,8 @@
 use std::collections::HashSet;
 
 use itertools::Itertools;
-use proof_calculus::structures::propositions::bounds::PropositionIdentityBounds;
 
-use crate::expressions::assigned::{TblExpression, bounds::{TblExpressionIdentityBound, iterators::fast_construct::TblExpressionFastConstructIdentityBounds}, compound::CompoundTblExpression, subexpressions::TblSubexpressionInExpressionPath};
+use crate::expressions::assigned::{TblExpression, binding::{action_bounds::get_identical_to_prop::fast_construct::TblFastConstructGetBoundsForExprIdenticalToExpr, bounds::TblExpressionIdentityBound}, compound::CompoundTblExpression, subexpressions::TblSubexpressionInExpressionPath};
 
 #[derive(Clone,Copy,PartialEq,Eq,Hash,Debug)]
 pub struct PathEliminationHeuristic {
@@ -38,7 +37,7 @@ pub struct TblExpressionFastLookupIdentityBounds(Vec<TblExpressionIdentityBound>
 
 impl TblExpressionFastLookupIdentityBounds {
     pub fn new<C: CompoundTblExpression>(expr: &TblExpression<C>, heuristic: PathEliminationHeuristic) -> Self {
-        let (vec, important_paths) = TblExpressionFastConstructIdentityBounds::new(expr).bounds_and_important();
+        let (vec, important_paths) = TblFastConstructGetBoundsForExprIdenticalToExpr::from(expr).bounds_and_important();
         Self(vec.into_iter().sorted_by_cached_key(
             |bound| heuristic.evaluate(&bound, &important_paths)
         ).collect())

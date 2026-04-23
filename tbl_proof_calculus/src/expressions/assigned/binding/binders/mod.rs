@@ -1,13 +1,10 @@
-mod atom;
-mod compound;
-mod duplication;
-
 use std::{collections::{HashMap, HashSet}, hash::Hash};
 
-pub use atom::TblExpressionTrackerBoundsAtomExactValue;
-pub use compound::TblExpressionTrackerCompoundLengthBounds;
-pub use duplication::TblExpressionTrackerDuplicationBounds;
 use proof_calculus::utils::collections::multimap::MultiMap;
+
+mod atom_value;
+mod compound_length;
+mod value_duplication;
 
 fn get_helper<'a,K1: Hash + Eq + Clone,K2: Hash + Eq,V: Hash + Eq>(map: &'a HashMap<K1,MultiMap<K2,V>>, key1: &K1, key2: &K2) -> HashSet<&'a V> {
     let optional_found = map.get(key1)
