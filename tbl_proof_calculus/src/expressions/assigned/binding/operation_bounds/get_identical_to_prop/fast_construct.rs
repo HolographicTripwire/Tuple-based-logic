@@ -34,10 +34,4 @@ impl <'a, C: CompoundTblExpression> From<&'a TblExpression<C>> for TblFastConstr
 impl <'a> TblFastConstructGetBoundsForExprIdenticalToExpr {
     pub fn bounds(&self) -> &Box<[TblExpressionIdentityBound]> { &self.0 }
 }
-// impl <'a, C: CompoundTblExpression> IntoIterator for TblFastConstructGetBoundsForExprIdenticalToExpr<'a,C> {
-//     type Item = TblExpressionIdentityBound;
-//     type IntoIter = TblExpressionFastConstructIdentityBoundsIterator<'a,C>;
-
-//     fn into_iter(self) -> Self::IntoIter { TblExpressionFastConstructIdentityBoundsIterator::new(self.0) }
-// }
 

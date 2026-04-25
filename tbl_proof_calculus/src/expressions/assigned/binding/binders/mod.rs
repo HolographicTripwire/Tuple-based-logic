@@ -2,7 +2,7 @@ use std::{collections::{HashMap, HashSet}, hash::Hash};
 
 use proof_calculus::{propositions::collections::binders::{GetBinderForPropIdenticalToProp, InsertBinderForProp}, utils::collections::{binders::{Binder, GetBinder, InsertBinder}, multimap::MultiMap}};
 
-use crate::{expressions::assigned::{binding::{binders::{atom_value::TblExpressionTrackerBoundsAtomExactValue, compound_length::TblExpressionTrackerCompoundLengthBounds, value_duplication::TblExpressionTrackerDuplicationBounds}, bounds::{TblExpressionIdentityBound, TblExpressionInsertionBound, TblPropositionBoundAtomExactValue, TblPropositionBoundCompoundExactLength, TblPropositionBoundValueDuplicated, TblPropositionIdentityBound}, operation_bounds::{get_identical_to_prop::fast_construct::TblFastConstructGetBoundsForPropIdenticalToProp, insert::TblFastConstructInsertionBoundsForProp}}, compound::CompoundTblExpression, subexpressions::TblSubexpressionInExpressionPath}, proof_calculus_derived::aliases::propositions::TblProposition};
+use crate::{expressions::assigned::{binding::{binders::{atom_value::TblExpressionTrackerBoundsAtomExactValue, compound_length::TblExpressionTrackerCompoundLengthBounds, value_duplication::TblExpressionTrackerDuplicationBounds}, bounds::{TblExpressionIdentityBound, TblExpressionSubsumptionBound, TblPropositionBoundAtomExactValue, TblPropositionBoundCompoundExactLength, TblPropositionBoundValueDuplicated, TblPropositionIdentityBound}, operation_bounds::{get_identical_to_prop::fast_construct::TblFastConstructGetBoundsForPropIdenticalToProp, insert::TblFastConstructInsertionBoundsForProp}}, compound::CompoundTblExpression, subexpressions::TblSubexpressionInExpressionPath}, proof_calculus_derived::aliases::propositions::TblProposition};
 
 mod atom_value;
 mod compound_length;
@@ -57,11 +57,11 @@ impl <T: Hash + Eq + Clone> GetBinder<TblPropositionIdentityBound> for TblPropos
 impl <T: Hash + Eq + Clone> InsertBinder<TblFastConstructInsertionBoundsForProp> for TblPropositionBinder<T> {
     fn insert_by_bounds(&mut self, bounds: &TblFastConstructInsertionBoundsForProp, value: Self::Value) {
         for bound in bounds.bounds() { match bound {
-            TblExpressionInsertionBound::AtomValue(atom_bound) => 
+            TblExpressionSubsumptionBound::AtomValue(atom_bound) => 
                 self.atom_value_bounds.insert(&atom_bound.path, atom_bound.value, value.clone()),
-            TblExpressionInsertionBound::CompoundLength(compound_bound) => 
+            TblExpressionSubsumptionBound::CompoundLength(compound_bound) => 
                 self.compound_length_bounds.insert(&compound_bound.path, compound_bound.length, value.clone()),
-            TblExpressionInsertionBound::ValueDuplicated(dups_bound) => 
+            TblExpressionSubsumptionBound::ValueDuplicated(dups_bound) => 
                 self.duplicate_value_bounds.insert(dups_bound.path1().clone(), dups_bound.path2().clone(), value.clone()),
         };}
     }

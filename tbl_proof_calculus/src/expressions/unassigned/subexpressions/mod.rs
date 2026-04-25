@@ -4,6 +4,7 @@ use path_lib_proc_macros::generate_parent_of_children_trait;
 use crate::{expressions::unassigned::{UnassignedTblExpression, compound::UnassignedCompoundTblExpression}, expressions::assigned::{subexpressions::TblSubexpressionInExpressionPath}};
 
 pub mod immediate;
+pub mod iterators;
 
 generate_parent_of_children_trait!{
     UnassignedTblExpression<C>, TblSubexpressionInExpressionPath, (C: UnassignedCompoundTblExpression),

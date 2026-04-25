@@ -10,4 +10,4 @@ pub use compound_length::{TblExpressionBoundCompoundExactLength,TblPropositionBo
 pub use value_duplication::{TblExpressionBoundValueDuplicated,TblPropositionBoundValueDuplicated};
 
 pub use identity::{TblExpressionIdentityBound,TblPropositionIdentityBound};
-pub use insertion::{TblExpressionInsertionBound,TblPropositionInsertionBound};
+pub use insertion::{TblExpressionSubsumptionBound,TblPropositionInsertionBound};
