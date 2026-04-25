@@ -4,9 +4,9 @@ use proof_calculus::utils::collections::multimap::MultiMap;
 
 use crate::expressions::assigned::{atomic::AtomicTblExpression, binding::{binders::{get_helper, insert_helper}, bounds::TblExpressionBoundAtomExactValue}, subexpressions::TblSubexpressionInExpressionPath};
 
-pub struct TblExpressionTrackerBoundsAtomExactValue<T: Hash>(HashMap<TblSubexpressionInExpressionPath,MultiMap<AtomicTblExpression,T>>);
+pub struct TblExpressionBinderAtomExactValue<T: Hash>(HashMap<TblSubexpressionInExpressionPath,MultiMap<AtomicTblExpression,T>>);
 
-impl <T: Hash + Eq> TblExpressionTrackerBoundsAtomExactValue<T> {
+impl <T: Hash + Eq> TblExpressionBinderAtomExactValue<T> {
     #[inline]
     pub fn get(&self, path: &TblSubexpressionInExpressionPath, value: &AtomicTblExpression) -> HashSet<&T>
         { get_helper(&self.0, path, value) }

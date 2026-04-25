@@ -2,16 +2,16 @@ use std::{collections::{HashMap, HashSet}, hash::Hash};
 
 use proof_calculus::{propositions::collections::binders::{GetBinderForPropIdenticalToProp, InsertBinderForProp}, utils::collections::{binders::{Binder, GetBinder, InsertBinder}, multimap::MultiMap}};
 
-use crate::{expressions::assigned::{binding::{binders::{atom_value::TblExpressionTrackerBoundsAtomExactValue, compound_length::TblExpressionTrackerCompoundLengthBounds, value_duplication::TblExpressionTrackerDuplicationBounds}, bounds::{TblExpressionIdentityBound, TblExpressionInsertionBound, TblPropositionBoundAtomExactValue, TblPropositionBoundCompoundExactLength, TblPropositionBoundValueDuplicated, TblPropositionIdentityBound}, operation_bounds::{get_identical_to_prop::fast_construct::TblFastConstructGetBoundsForPropIdenticalToProp, insert::TblFastConstructInsertionBoundsForProp}}, compound::CompoundTblExpression, subexpressions::TblSubexpressionInExpressionPath}, proof_calculus_derived::aliases::propositions::TblProposition};
+use crate::{expressions::assigned::{binding::{binders::{atom_value::TblExpressionBinderAtomExactValue, compound_length::TblExpressionBinderCompoundExactLength, value_duplication::TblExpressionBinderValueDuplication}, bounds::{TblExpressionIdentityBound, TblExpressionInsertionBound, TblPropositionBoundAtomExactValue, TblPropositionBoundCompoundExactLength, TblPropositionBoundValueDuplicated, TblPropositionIdentityBound}, operation_bounds::{get_identical_to_prop::fast_construct::TblFastConstructGetBoundsForPropIdenticalToProp, insert::TblFastConstructInsertionBoundsForProp}}, compound::CompoundTblExpression, subexpressions::TblSubexpressionInExpressionPath}, proof_calculus_derived::aliases::propositions::TblProposition};
 
-mod atom_value;
-mod compound_length;
-mod value_duplication;
+pub mod atom_value;
+pub mod compound_length;
+pub mod value_duplication;
 
 pub struct TblExpressionBinder<T: Hash + Eq + Clone> {
-    atom_value_bounds: TblExpressionTrackerBoundsAtomExactValue<T>,
-    compound_length_bounds: TblExpressionTrackerCompoundLengthBounds<T>,
-    duplicate_value_bounds: TblExpressionTrackerDuplicationBounds<T>,
+    atom_value_bounds: TblExpressionBinderAtomExactValue<T>,
+    compound_length_bounds: TblExpressionBinderCompoundExactLength<T>,
+    duplicate_value_bounds: TblExpressionBinderValueDuplication<T>,
 }
 impl <T: Hash + Eq + Clone> TblExpressionBinder<T> {
     fn get_unbounded_path_matches(&self, path: &TblSubexpressionInExpressionPath) -> HashSet<&T> {
@@ -75,13 +75,13 @@ impl <'prop, C: 'prop + CompoundTblExpression, T: Hash + Eq + Clone> InsertBinde
     type DefaultInsertionBounds = TblFastConstructInsertionBoundsForProp;
 }
 
-fn get_helper<'a,K1: Hash + Eq + Clone,K2: Hash + Eq,V: Hash + Eq>(map: &'a HashMap<K1,MultiMap<K2,V>>, key1: &K1, key2: &K2) -> HashSet<&'a V> {
+pub (crate) fn get_helper<'a,K1: Hash + Eq + Clone,K2: Hash + Eq,V: Hash + Eq>(map: &'a HashMap<K1,MultiMap<K2,V>>, key1: &K1, key2: &K2) -> HashSet<&'a V> {
     let optional_found = map.get(key1)
         .map(|inner| inner.get_refs(&key2));
     if let Some(Some(found)) = optional_found { found } else { HashSet::new() }
 }
 
-fn insert_helper<K1: Hash + Eq + Clone,K2: Hash + Eq,V: Hash + Eq>(map: &mut HashMap<K1,MultiMap<K2,V>>, key1: &K1, key2: K2, value: V) -> bool {
+pub (crate) fn insert_helper<K1: Hash + Eq + Clone,K2: Hash + Eq,V: Hash + Eq>(map: &mut HashMap<K1,MultiMap<K2,V>>, key1: &K1, key2: K2, value: V) -> bool {
     match map.get_mut(&key1) {
         Some(inner) => inner.insert(key2, value),
         None => {

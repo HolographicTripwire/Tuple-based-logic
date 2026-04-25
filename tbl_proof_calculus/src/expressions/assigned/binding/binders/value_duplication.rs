@@ -4,9 +4,9 @@ use proof_calculus::utils::{collections::multimap::MultiMap, traits::fast_ord::F
 
 use crate::expressions::assigned::{binding::{binders::{get_helper, insert_helper}, bounds::TblExpressionBoundValueDuplicated}, subexpressions::TblSubexpressionInExpressionPath};
 
-pub struct TblExpressionTrackerDuplicationBounds<T: Hash + Eq>(HashMap<TblSubexpressionInExpressionPath,MultiMap<TblSubexpressionInExpressionPath,T>>);
+pub struct TblExpressionBinderValueDuplication<T: Hash + Eq>(HashMap<TblSubexpressionInExpressionPath,MultiMap<TblSubexpressionInExpressionPath,T>>);
 
-impl <T: Hash + Eq> TblExpressionTrackerDuplicationBounds<T> {
+impl <T: Hash + Eq> TblExpressionBinderValueDuplication<T> {
     pub fn get(&self, path1: &TblSubexpressionInExpressionPath, path2: &TblSubexpressionInExpressionPath) -> HashSet<&T> {
         let key = if path1.fast_cmp(&path2).is_lt() { (path1, path2) } else { (path2, path1) };
         get_helper(&self.0, key.0, key.1)

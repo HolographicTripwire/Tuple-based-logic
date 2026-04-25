@@ -5,7 +5,7 @@ pub trait Binder: Sized {
 
     fn get_all<'binder>(&'binder self) -> HashSet<&'binder Self::Value>;
     #[inline]
-    fn get_by_bounds<'bounds,'binder,B: GetBounds<Self>>(&'binder self, bounds: &'binder B) -> HashSet<&'binder Self::Value>
+    fn get_by_bounds<'binder,B: GetBounds<Self>>(&'binder self, bounds: &B) -> HashSet<&'binder Self::Value>
         { bounds.get_from(self) }
     #[inline]
     fn get_unique_by_bounds<'binder,B: UniqueGetBounds<Self>>(&'binder self, bounds: &B) -> Option<&'binder Self::Value>
