@@ -31,7 +31,7 @@ impl <'a, C: CompoundTblExpression> From<&'a TblExpression<C>> for TblFastConstr
     }
 }
 
-impl <'a> TblFastConstructGetBoundsForExprIdenticalToExpr {
+impl TblFastConstructGetBoundsForExprIdenticalToExpr {
     pub fn bounds(&self) -> &Box<[TblExpressionIdentityBound]> { &self.0 }
 }
 

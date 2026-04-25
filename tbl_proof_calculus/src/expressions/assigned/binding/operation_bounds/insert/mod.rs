@@ -1,9 +1,9 @@
 use proof_calculus::{propositions::bounds::InsertBoundsForProp, utils::collections::{binders::InsertBinder, multimap::MultiMap}};
 
-use crate::expressions::assigned::{TblExpression, at_path_enum::TblExpressionAtPathEnum, binding::bounds::{TblExpressionBoundAtomExactValue, TblExpressionBoundCompoundExactLength, TblExpressionBoundValueDuplicated, TblExpressionSubsumptionBound}, compound::CompoundTblExpression, subexpressions::iterators::back_depth_first::BackDepthFirstTblExpressionIterator};
+use crate::expressions::assigned::{TblExpression, at_path_enum::TblExpressionAtPathEnum, binding::bounds::{TblExpressionBoundAtomExactValue, TblExpressionBoundCompoundExactLength, TblExpressionBoundValueDuplicated, TblExpressionInsertionBound}, compound::CompoundTblExpression, subexpressions::iterators::back_depth_first::BackDepthFirstTblExpressionIterator};
 
 #[derive(Clone,PartialEq,Eq,Hash,Debug)]
-pub struct TblFastConstructInsertionBoundsForExpr(Box<[TblExpressionSubsumptionBound]>);
+pub struct TblFastConstructInsertionBoundsForExpr(Box<[TblExpressionInsertionBound]>);
 pub type TblFastConstructInsertionBoundsForProp = TblFastConstructInsertionBoundsForExpr;
 impl <'prop,C: 'prop + CompoundTblExpression,B:InsertBinder<Self>> InsertBoundsForProp<'prop,TblExpression<C>,B> for TblFastConstructInsertionBoundsForProp {}
 
@@ -27,7 +27,10 @@ impl <'a, C: CompoundTblExpression> From<&'a TblExpression<C>> for TblFastConstr
                 }
             }).collect();
         // Construct duplicate bounds
-        let dups = dup_atoms.into_values().into_iter().chain(dup_compounds.into_values());
+        let dups = dup_atoms
+            .into_values()
+            .into_iter()
+            .chain(dup_compounds.into_values());
         for values in dups {
             let values: Vec<_> = values.into_iter().collect();
             for i in 0..values.len() {
@@ -43,5 +46,5 @@ impl <'a, C: CompoundTblExpression> From<&'a TblExpression<C>> for TblFastConstr
 }
 
 impl TblFastConstructInsertionBoundsForExpr {
-    pub fn bounds(&self) -> &Box<[TblExpressionSubsumptionBound]> { &self.0 }
+    pub fn bounds(&self) -> &Box<[TblExpressionInsertionBound]> { &self.0 }
 }

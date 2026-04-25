@@ -1,29 +1,29 @@
 use crate::expressions::assigned::{binding::bounds::{atom_value::TblExpressionBoundAtomExactValue, compound_length::TblExpressionBoundCompoundExactLength, value_duplication::TblExpressionBoundValueDuplicated}, subexpressions::TblSubexpressionInExpressionPath};
 
 #[derive(Clone,PartialEq,Eq,Hash,Debug)]
-pub enum TblExpressionSubsumptionBound {
+pub enum TblExpressionInsertionBound {
     AtomValue(TblExpressionBoundAtomExactValue),
     CompoundLength(TblExpressionBoundCompoundExactLength),
     ValueDuplicated(TblExpressionBoundValueDuplicated)
 }
-impl TblExpressionSubsumptionBound {
+impl TblExpressionInsertionBound {
     fn path(&self) -> (&TblSubexpressionInExpressionPath,Option<&TblSubexpressionInExpressionPath>) { match self {
-        TblExpressionSubsumptionBound::AtomValue(atom_bound) => (&atom_bound.path,None),
-        TblExpressionSubsumptionBound::CompoundLength(compound_bound) => (&compound_bound.path,None),
-        TblExpressionSubsumptionBound::ValueDuplicated(duplication_bound) => (duplication_bound.path1(),Some(duplication_bound.path2())),
+        TblExpressionInsertionBound::AtomValue(atom_bound) => (&atom_bound.path,None),
+        TblExpressionInsertionBound::CompoundLength(compound_bound) => (&compound_bound.path,None),
+        TblExpressionInsertionBound::ValueDuplicated(duplication_bound) => (duplication_bound.path1(),Some(duplication_bound.path2())),
     }}
 }
-impl From<TblExpressionBoundAtomExactValue> for TblExpressionSubsumptionBound {
+impl From<TblExpressionBoundAtomExactValue> for TblExpressionInsertionBound {
     fn from(bound: TblExpressionBoundAtomExactValue) -> Self
         { Self::AtomValue(bound) }
 }
-impl From<TblExpressionBoundCompoundExactLength> for TblExpressionSubsumptionBound {
+impl From<TblExpressionBoundCompoundExactLength> for TblExpressionInsertionBound {
     fn from(bound: TblExpressionBoundCompoundExactLength) -> Self
         { Self::CompoundLength(bound) }
 }
-impl From<TblExpressionBoundValueDuplicated> for TblExpressionSubsumptionBound {
+impl From<TblExpressionBoundValueDuplicated> for TblExpressionInsertionBound {
     fn from(bound: TblExpressionBoundValueDuplicated) -> Self
         { Self::ValueDuplicated(bound) }
 }
 
-pub type TblPropositionInsertionBound = TblExpressionSubsumptionBound;
+pub type TblPropositionInsertionBound = TblExpressionInsertionBound;
