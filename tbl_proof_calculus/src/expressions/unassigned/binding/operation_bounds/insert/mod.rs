@@ -14,9 +14,9 @@ impl <'a, C: UnassignedCompoundTblExpression> From<&'a UnassignedTblExpression<C
         let mut dup_variables = MultiMap::new();
         let mut dup_compounds = MultiMap::new();
         // Construct element bounds
-        let mut bounds: Vec<_> = BackDepthFirstUnassignedTblSubexpressionIterator::new(expr)
+        let mut bounds: Vec<_> = CounterclockwiseDepthFirstLocatedUnassignedTblSubexpressionIterator::new(expr)
             .map(|v| { 
-                match v {
+                match v.into() {
                     UnassignedTblExpressionAtPathEnum::Atomic(atom) => {
                         dup_atoms.insert(atom.obj, atom.path.clone());
                         TblExpressionBoundAtomExactValue::new(atom.path, *atom.obj).into()

@@ -1,41 +1,44 @@
 use itertools::Itertools;
-use proof_calculus::utils::collections::optional_iterator::OptionalIterator;
 
 use crate::expressions::assigned::{TblExpression, at_path_enum::TblExpressionAtPathEnum, compound::CompoundTblExpression, subexpressions::{TblSubexpressionInExpression, immediate::LocatedParentOfImmediateSubexpressions, iterators::depth_first::{DepthFirstLocatedTblSubexpressionIterator, DepthFirstTblSubexpressionIterator}}};
 
-pub struct CounterclockwiseDepthFirstTblSubexpressionIterator<'a,C: CompoundTblExpression,I: IntoIterator<Item=&'a TblExpression<C>>>(
-    DepthFirstTblSubexpressionIterator<'a,C,I,fn(&'a TblExpression<C>) -> I>
+pub struct CounterclockwiseDepthFirstTblSubexpressionIterator<'a,C: CompoundTblExpression>(
+    DepthFirstTblSubexpressionIterator<'a,C,Vec<&'a TblExpression<C>>,fn(&'a TblExpression<C>) -> Vec<&'a TblExpression<C>>>
 );
-impl <'a, C: CompoundTblExpression, I: IntoIterator<Item=&'a TblExpression<C>>> CounterclockwiseDepthFirstTblSubexpressionIterator<'a,C,I> {
-    pub fn new(expr: &'a TblExpression<C>) -> CounterclockwiseDepthFirstTblSubexpressionIterator<'a, C, impl IntoIterator<Item = &'a TblExpression<C>>>
+impl <'a, C: CompoundTblExpression> CounterclockwiseDepthFirstTblSubexpressionIterator<'a,C> {
+    pub fn new(expr: &'a TblExpression<C>) -> CounterclockwiseDepthFirstTblSubexpressionIterator<'a, C>
         { CounterclockwiseDepthFirstTblSubexpressionIterator(DepthFirstTblSubexpressionIterator::new(expr, Self::expansion_helper)) }
     
-    fn expansion_helper(expr: &'a TblExpression<C>) -> impl IntoIterator<Item = &'a TblExpression<C>> {
+    fn expansion_helper(expr: &'a TblExpression<C>) -> Vec<&'a TblExpression<C>> {
         if let TblExpression::Compound(compound) = expr {
-            OptionalIterator::Some(compound.get_immediate_subexpressions().into_iter().collect_vec().into_iter().rev())
-        } else { OptionalIterator::None }
+            let mut result = compound.get_immediate_subexpressions().into_iter().collect_vec();
+            result.reverse();
+            result
+        } else { vec![] }
     }
 }
-impl <'a, C: CompoundTblExpression,I: IntoIterator<Item=&'a TblExpression<C>>> Iterator for CounterclockwiseDepthFirstTblSubexpressionIterator<'a,C,I> {
+impl <'a, C: CompoundTblExpression> Iterator for CounterclockwiseDepthFirstTblSubexpressionIterator<'a,C> {
     type Item = &'a TblExpression<C>;
     fn next(&mut self) -> Option<Self::Item> { self.0.next() }
 }
 
-pub struct CounterclockwiseDepthFirstLocatedTblSubexpressionIterator<'a,C: CompoundTblExpression, I: IntoIterator<Item=TblSubexpressionInExpression<'a,C>>>(
-    DepthFirstLocatedTblSubexpressionIterator<'a,C,I,fn(TblSubexpressionInExpression<'a,C>) -> I>
+pub struct CounterclockwiseDepthFirstLocatedTblSubexpressionIterator<'a,C: CompoundTblExpression>(
+    DepthFirstLocatedTblSubexpressionIterator<'a,C,Vec<TblSubexpressionInExpression<'a,C>>,fn(TblSubexpressionInExpression<'a,C>) -> Vec<TblSubexpressionInExpression<'a,C>>>
 );
-impl <'a, C: CompoundTblExpression,I: IntoIterator<Item=TblSubexpressionInExpression<'a,C>>> CounterclockwiseDepthFirstLocatedTblSubexpressionIterator<'a,C,I> {
-    pub fn new(expr: &'a TblExpression<C>) -> CounterclockwiseDepthFirstLocatedTblSubexpressionIterator<'a, C, impl IntoIterator<Item = TblSubexpressionInExpression<'a,C>>> {
+impl <'a, C: CompoundTblExpression> CounterclockwiseDepthFirstLocatedTblSubexpressionIterator<'a,C> {
+    pub fn new(expr: &'a TblExpression<C>) -> CounterclockwiseDepthFirstLocatedTblSubexpressionIterator<'a, C> {
         CounterclockwiseDepthFirstLocatedTblSubexpressionIterator(DepthFirstLocatedTblSubexpressionIterator::new(expr, Self::expansion_helper))
     }
 
-    fn expansion_helper(expr: TblSubexpressionInExpression<'a,C>) -> impl IntoIterator<Item = TblSubexpressionInExpression<'a,C>> {
+    fn expansion_helper(expr: TblSubexpressionInExpression<'a,C>) -> Vec<TblSubexpressionInExpression<'a,C>> {
         if let TblExpressionAtPathEnum::Compound(compound) = expr.into() {
-            OptionalIterator::Some(compound.into_located_immediate_subexpressions().into_iter().collect_vec().into_iter().rev())
-        } else { OptionalIterator::None }
+            let mut result = compound.into_located_immediate_subexpressions().into_iter().collect_vec();
+            result.reverse();
+            result
+        } else { vec![] }
     }
 }
-impl <'a, C: CompoundTblExpression,I: IntoIterator<Item=TblSubexpressionInExpression<'a,C>>> Iterator for CounterclockwiseDepthFirstLocatedTblSubexpressionIterator<'a,C,I> {
+impl <'a, C: CompoundTblExpression> Iterator for CounterclockwiseDepthFirstLocatedTblSubexpressionIterator<'a,C> {
     type Item = TblSubexpressionInExpression<'a,C>;
     fn next(&mut self) -> Option<Self::Item> { self.0.next() }
 }

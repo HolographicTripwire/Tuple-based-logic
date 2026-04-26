@@ -1,6 +1,6 @@
 use path_lib::obj_at_path::{ObjAtPath, OwnedObjAtPath};
 
-use crate::expressions::assigned::{atomic::AtomicTblExpression, compound::{CompoundTblExpression, arc::ArcCompoundTblExpression, r#box::BoxCompoundTblExpression, rc::RcCompoundTblExpression}, subexpressions::{ParentOfSubexpressions, TblSubexpressionInExpression, TblSubexpressionInExpressionPath, immediate::{ImmediateTblSubexpressionInExpressionPath, ParentOfImmediateSubexpressions}, iterators::back_depth_first::{BackDepthFirstLocatedTblSubexpressionIterator, BackDepthFirstTblSubexpressionIterator}}};
+use crate::expressions::assigned::{atomic::AtomicTblExpression, compound::{CompoundTblExpression, arc::ArcCompoundTblExpression, r#box::BoxCompoundTblExpression, rc::RcCompoundTblExpression}, subexpressions::{ParentOfSubexpressions, TblSubexpressionInExpression, TblSubexpressionInExpressionPath, immediate::{ImmediateTblSubexpressionInExpressionPath, ParentOfImmediateSubexpressions}, iterators::depth_first::counterclockwise::{CounterclockwiseDepthFirstTblSubexpressionIterator,CounterclockwiseDepthFirstLocatedTblSubexpressionIterator}}};
 
 pub mod atomic;
 pub mod compound;
@@ -106,10 +106,10 @@ impl <C:CompoundTblExpression> ParentOfSubexpressions<C> for TblExpression<C> {
     
     #[inline]
     fn get_subexpressions<'a>(&'a self) -> impl IntoIterator<Item =  &'a TblExpression<C> >where TblExpression<C> :'a
-        { BackDepthFirstTblSubexpressionIterator::new(self) }
+        { CounterclockwiseDepthFirstTblSubexpressionIterator::new(self) }
     #[inline]
     fn get_located_subexpressions<'a>(&'a self) -> impl IntoIterator<Item = TblSubexpressionInExpression<'a,C>> where TblExpression<C> :'a
-        { BackDepthFirstLocatedTblSubexpressionIterator::new(self) }
+        { CounterclockwiseDepthFirstLocatedTblSubexpressionIterator::new(self) }
 }
 
 mod from {

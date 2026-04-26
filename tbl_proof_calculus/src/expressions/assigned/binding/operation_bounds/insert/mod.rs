@@ -1,6 +1,6 @@
-use proof_calculus::{propositions::bounds::InsertBoundsForProp, utils::collections::{binders::InsertBinder, multimap::MultiMap}};
+use proof_calculus::{propositions::assigned::binding::bounds::InsertBoundsForProp, utils::collections::{binders::InsertBinder, multimap::MultiMap}};
 
-use crate::expressions::assigned::{TblExpression, at_path_enum::TblExpressionAtPathEnum, binding::bounds::{TblExpressionBoundAtomExactValue, TblExpressionBoundCompoundExactLength, TblExpressionBoundValueDuplicated, TblExpressionInsertionBound}, compound::CompoundTblExpression, subexpressions::iterators::back_depth_first::BackDepthFirstLocatedTblSubexpressionIterator};
+use crate::expressions::assigned::{TblExpression, at_path_enum::TblExpressionAtPathEnum, binding::bounds::{TblExpressionBoundAtomExactValue, TblExpressionBoundCompoundExactLength, TblExpressionBoundValueDuplicated, TblExpressionInsertionBound}, compound::CompoundTblExpression, subexpressions::iterators::depth_first::counterclockwise::CounterclockwiseDepthFirstLocatedTblSubexpressionIterator};
 
 #[derive(Clone,PartialEq,Eq,Hash,Debug)]
 pub struct TblFastConstructInsertionBoundsForExpr(Box<[TblExpressionInsertionBound]>);
@@ -13,9 +13,9 @@ impl <'a, C: CompoundTblExpression> From<&'a TblExpression<C>> for TblFastConstr
         let mut dup_atoms = MultiMap::new();
         let mut dup_compounds = MultiMap::new();
         // Construct element bounds
-        let mut bounds: Vec<_> = BackDepthFirstLocatedTblSubexpressionIterator::new(expr)
+        let mut bounds: Vec<_> = CounterclockwiseDepthFirstLocatedTblSubexpressionIterator::new(expr)
             .map(|v| { 
-                match v {
+                match v.into() {
                     TblExpressionAtPathEnum::Atomic(atom) => {
                         dup_atoms.insert(atom.obj, atom.path.clone());
                         TblExpressionBoundAtomExactValue::new(atom.path, *atom.obj).into()

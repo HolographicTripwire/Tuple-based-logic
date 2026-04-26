@@ -1,7 +1,7 @@
 use path_lib::obj_at_path::{ObjAtPath, OwnedObjAtPath};
 use proof_calculus::propositions::unassigned::UnassignedProposition;
 
-use crate::{expressions::{assigned::{TblExpression, atomic::AtomicTblExpression, compound::{CompoundTblExpression, r#box::BoxCompoundTblExpression}, subexpressions::{TblSubexpressionInExpressionPath, immediate::ImmediateSubexpressionInExpressionPath}}, unassigned::{compound::UnassignedCompoundTblExpression, subexpressions::{ParentOfUnassignedSubexpressions, UnassignedTblSubexpressionInExpression, immediate::ParentOfImmediateUnassignedSubexpressions, iterators::back_depth_first::{BackDepthFirstLocatedUnassignedTblSubexpressionIterator, BackDepthFirstUnassignedTblSubexpressionIterator}}, variable::TblExpressionVariable}}, proof_calculus_derived::aliases::propositions::UnassignedTblProposition};
+use crate::{expressions::{assigned::{TblExpression, atomic::AtomicTblExpression, compound::{CompoundTblExpression, r#box::BoxCompoundTblExpression}, subexpressions::{TblSubexpressionInExpressionPath, immediate::ImmediateSubexpressionInExpressionPath}}, unassigned::{compound::UnassignedCompoundTblExpression, subexpressions::{ParentOfUnassignedSubexpressions, UnassignedTblSubexpressionInExpression, immediate::ParentOfImmediateUnassignedSubexpressions, iterators::{depth_first::counterclockwise::{CounterclockwiseDepthFirstLocatedUnassignedTblSubexpressionIterator, CounterclockwiseDepthFirstUnassignedTblSubexpressionIterator}}, variable::TblExpressionVariable}}, proof_calculus_derived::aliases::propositions::UnassignedTblProposition};
 
 pub mod variable;
 pub mod compound;
@@ -127,10 +127,10 @@ impl <C:UnassignedCompoundTblExpression> ParentOfUnassignedSubexpressions<C> for
     
     #[inline]
     fn get_subexpressions<'a>(&'a self) -> impl IntoIterator<Item =  &'a UnassignedTblExpression<C> >where TblExpression<C> :'a
-        { BackDepthFirstUnassignedTblSubexpressionIterator::new(self) }
+        { CounterclockwiseDepthFirstUnassignedTblSubexpressionIterator::new(self) }
     #[inline]
     fn get_located_subexpressions<'a>(&'a self) -> impl IntoIterator<Item = UnassignedTblSubexpressionInExpression<'a,C>> where TblExpression<C> :'a
-        { BackDepthFirstLocatedUnassignedTblSubexpressionIterator::new(self) }
+        { CounterclockwiseDepthFirstLocatedUnassignedTblSubexpressionIterator::new(self) }
 }
 
 mod from {

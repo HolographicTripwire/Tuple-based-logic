@@ -1,8 +1,8 @@
 use std::collections::{HashMap, HashSet};
 
-use proof_calculus::{propositions::bounds::unassigned::GetBoundsForPropsSubsumedByUprop, utils::collections::binders::{Binder, GetBinder, GetBounds, UniqueGetBounds}};
+use proof_calculus::{propositions::{assigned::binding::bounds::GetBoundsForPropsSubsumedByUprop}, utils::collections::binders::{Binder, GetBinder, GetBounds, UniqueGetBounds}};
 
-use crate::{expressions::{assigned::{binding::bounds::{TblExpressionBoundAtomExactValue, TblExpressionBoundCompoundExactLength, TblExpressionBoundValueDuplicated, TblExpressionInsertionBound}, subexpressions::TblSubexpressionInExpressionPath}, unassigned::{UnassignedTblExpression, at_path_enum::UnassignedTblExpressionAtPathEnum, compound::UnassignedCompoundTblExpression, subexpressions::iterators::back_depth_first::BackDepthFirstUnassignedTblSubexpressionIterator, variable::TblExpressionVariable}}, proof_calculus_derived::aliases::propositions::UnassignedTblProposition};
+use crate::{expressions::{assigned::{binding::bounds::{TblExpressionBoundAtomExactValue, TblExpressionBoundCompoundExactLength, TblExpressionBoundValueDuplicated, TblExpressionInsertionBound}, subexpressions::TblSubexpressionInExpressionPath}, unassigned::{UnassignedTblExpression, at_path_enum::UnassignedTblExpressionAtPathEnum, compound::UnassignedCompoundTblExpression, subexpressions::iterators::depth_first::counterclockwise::CounterclockwiseDepthFirstLocatedUnassignedTblSubexpressionIterator, variable::TblExpressionVariable}}, proof_calculus_derived::aliases::propositions::UnassignedTblProposition};
 
 #[derive(Clone,PartialEq,Eq,Hash,Debug)]
 pub struct TblFastConstructGetBoundsForExprsSubsumedByUexpr(Box<[TblExpressionInsertionBound]>);
@@ -17,9 +17,9 @@ impl <'prop,C: 'prop + UnassignedCompoundTblExpression, B: GetBinder<TblExpressi
 impl <'a, C: UnassignedCompoundTblExpression> From<&'a UnassignedTblExpression<C>> for TblFastConstructGetBoundsForPropsSubsumedByUprop {
     fn from(expr: &'a UnassignedTblExpression<C>) -> Self {
         let mut first_var_instances: HashMap<TblExpressionVariable, TblSubexpressionInExpressionPath> = HashMap::new();
-        let bounds = BackDepthFirstUnassignedTblSubexpressionIterator::new(expr)
+        let bounds = CounterclockwiseDepthFirstLocatedUnassignedTblSubexpressionIterator::new(expr)
             .filter_map(|v| 
-                match v {
+                match v.into() {
                     UnassignedTblExpressionAtPathEnum::Atomic(atom) =>
                         Some(TblExpressionBoundAtomExactValue::new(atom.path, *atom.obj).into()),
                     UnassignedTblExpressionAtPathEnum::Variable(variable) => { match first_var_instances.get(variable.obj) {

@@ -1,6 +1,6 @@
 use std::{collections::{HashMap, HashSet}, hash::Hash};
 
-use proof_calculus::{propositions::collections::binders::{GetBinderForPropIdenticalToProp, InsertBinderForProp}, utils::collections::{binders::{Binder, GetBinder, InsertBinder}, multimap::MultiMap}};
+use proof_calculus::{propositions::assigned::binding::binders::{GetBinderForPropIdenticalToProp, InsertBinderForProp}, utils::collections::{binders::{Binder, GetBinder, InsertBinder}, multimap::MultiMap}};
 
 use crate::{expressions::assigned::{binding::{binders::{atom_value::TblExpressionBinderAtomExactValue, compound_length::TblExpressionBinderCompoundExactLength, value_duplication::TblExpressionBinderValueDuplication}, bounds::{TblExpressionIdentityBound, TblExpressionInsertionBound, TblPropositionBoundAtomExactValue, TblPropositionBoundCompoundExactLength, TblPropositionBoundValueDuplicated, TblPropositionIdentityBound}, operation_bounds::{get_identical_to_prop::fast_construct::TblFastConstructGetBoundsForPropIdenticalToProp, insert::TblFastConstructInsertionBoundsForProp}}, compound::CompoundTblExpression, subexpressions::TblSubexpressionInExpressionPath}, proof_calculus_derived::aliases::propositions::TblProposition};
 
