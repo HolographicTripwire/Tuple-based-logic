@@ -1,4 +1,4 @@
-use proof_calculus::propositions::Proposition;
+use proof_calculus::propositions::assigned::Proposition;
 
 use crate::{expressions::{assigned::{TblExpression, compound::CompoundTblExpression}, unassigned::UnassignedTblExpression}, proof_calculus_derived::path_composites::OwnedTblPropositionInProof};
 
@@ -22,7 +22,6 @@ pub mod unassigned {
         type AssignedResult = TblExpression<C::InnerCompound>;
         type Assignment = TblExpressionAssignment<C::InnerCompound>;
         type PartialAssignment = PartialTblExpressionAssignment<C>;
-        
         
         fn assign(&self, assignment: &Self::Assignment) -> Result<Self::AssignedResult,()> {
             todo!()

@@ -1,14 +1,6 @@
 use std::collections::HashSet;
-use crate::{propositions::{Proposition, bounds::unassigned::{GetBoundsForPropsSubsumedByUprop, GetBoundsForUpropIdenticalToUprop, GetBoundsForUpropsEquivalentToUprop, GetBoundsForUpropsSubsumedByUprop, GetBoundsForUpropsSubsumingProp, InsertBoundsForUprop}, unassigned::UnassignedProposition}, utils::collections::binders::{Binder, InsertBinder}};
 
-
-
-pub trait GetBinderForPropsSubsumedByUprop<UPE: UnassignedProposition>: Binder {
-    type DefaultGetBoundsForPropsSubsumedByUprop<'prop>: GetBoundsForPropsSubsumedByUprop<'prop,UPE,Self> where UPE: 'prop;
-    #[inline]
-    fn get_subsumed_by<'prop,'binder>(&'binder self, element: &'prop UPE) -> HashSet<&'binder Self::Value>
-        { self.get_by_bounds(&Self::DefaultGetBoundsForPropsSubsumedByUprop::from(element)) }
-}
+use crate::{propositions::{assigned::Proposition, unassigned::{UnassignedProposition, binding::bounds::{GetBoundsForUpropIdenticalToUprop, GetBoundsForUpropsEquivalentToUprop, GetBoundsForUpropsSubsumedByUprop, GetBoundsForUpropsSubsumingProp, InsertBoundsForUprop}}}, utils::collections::binders::{Binder, InsertBinder}};
 
 pub trait GetBinderForUpropIdenticalToUprop<UPE: UnassignedProposition>: Binder {
     type DefaultGetBoundsForPropIdenticalToProp<'prop>: GetBoundsForUpropIdenticalToUprop<'prop,UPE,Self> where UPE: 'prop;

@@ -1,4 +1,4 @@
-use crate::{proofs::{errors::{ValidatableInferenceRule, get_proof_validity_errors, grounding::{get_proof_grounding_errors, verify_proof_grounding}, stepper::result::ProofValidityStepErr, verify_proof_validity}, sequential::{SequentialProof, subproofs::SequentialProofInProofPath}}, propositions::{Proposition, collections::sets::PropSet1O}};
+use crate::{proofs::{errors::{ValidatableInferenceRule, get_proof_validity_errors, grounding::{get_proof_grounding_errors, verify_proof_grounding}, stepper::result::ProofValidityStepErr, verify_proof_validity}, sequential::{SequentialProof, subproofs::SequentialProofInProofPath}}, propositions::assigned::{Proposition, collections::sets::PropSet1O}};
 
 pub enum ProofSoundnessError<P: Proposition, Err: Clone>{
     LacksGrounding(P),

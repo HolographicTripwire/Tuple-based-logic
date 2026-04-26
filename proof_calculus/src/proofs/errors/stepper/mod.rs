@@ -1,6 +1,6 @@
 use itertools::Either;
 
-use crate::{proofs::{errors::{ValidatableInferenceRule, stepper::{composite::CompositeProofValidityStepper, inference::InferenceValidityStepper, result::{ProofValidityStepResult, ProofValidityStepResultWrapper}}}, sequential::{at_path_enum::SequentialProofAtPathEnum, subproofs::{SequentialProofAtPath, immediate::ImmediateSequentialProofInProofPath}}}, propositions::Proposition};
+use crate::{proofs::{errors::{ValidatableInferenceRule, stepper::{composite::CompositeProofValidityStepper, inference::InferenceValidityStepper, result::{ProofValidityStepResult, ProofValidityStepResultWrapper}}}, sequential::{at_path_enum::SequentialProofAtPathEnum, subproofs::{SequentialProofAtPath, immediate::ImmediateSequentialProofInProofPath}}}, propositions::assigned::Proposition};
 
 mod inference;
 mod composite;

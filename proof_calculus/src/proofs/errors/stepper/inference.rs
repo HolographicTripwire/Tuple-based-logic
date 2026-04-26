@@ -1,4 +1,4 @@
-use crate::{proofs::{errors::{ValidatableInferenceRule, stepper::result::ProofValidityStepResultWrapper, validate_located_inference}, inferences::located::InferenceAtPath}, propositions::Proposition};
+use crate::{proofs::{errors::{ValidatableInferenceRule, stepper::result::ProofValidityStepResultWrapper, validate_located_inference}, inferences::located::InferenceAtPath}, propositions::assigned::Proposition};
 
 pub struct InferenceValidityStepper<'a,P:Proposition,Rule:ValidatableInferenceRule<P>,Path>(
     Option<InferenceAtPath<'a,P,Rule,Path>>

@@ -1,7 +1,7 @@
 use std::fmt::Display;
 
 use path_lib::obj_at_path::{ObjAtPath, OwnedObjAtPath};
-use proof_calculus::{propositions::paths::PropositionInSequentialProofStepPath, proofs::sequential::subproofs::SequentialProofInProofPath};
+use proof_calculus::{propositions::assigned::paths::PropositionInSequentialProofStepPath, proofs::sequential::subproofs::SequentialProofInProofPath};
 
 use crate::expressions::assigned::compound::CompoundTblExpression;
 

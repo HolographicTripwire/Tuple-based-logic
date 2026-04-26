@@ -1,7 +1,7 @@
-use crate::{propositions::{Proposition, bounds::{GetBoundsForPropIdenticalToProp, InsertBoundsForProp}}, utils::collections::binders::{Binder, InsertBinder}};
+use std::collections::HashSet;
 
-// Feature: generation
-pub mod unassigned;
+use crate::{propositions::{assigned::{Proposition, binding::bounds::{GetBoundsForPropIdenticalToProp, GetBoundsForPropsSubsumedByUprop, InsertBoundsForProp}}, unassigned::UnassignedProposition}, utils::collections::binders::{Binder, InsertBinder}};
+
 
 pub trait GetBinderForPropIdenticalToProp<PE: Proposition>: Binder {
     type DefaultGetBoundsForPropIdenticalToProp<'prop>: GetBoundsForPropIdenticalToProp<'prop,PE,Self> where PE: 'prop;
@@ -9,6 +9,13 @@ pub trait GetBinderForPropIdenticalToProp<PE: Proposition>: Binder {
     #[inline]
     fn get_identical_to<'prop,'binder>(&'binder self, prop: &'prop PE) -> Option<&'binder Self::Value>
         { self.get_unique_by_bounds(&Self::DefaultGetBoundsForPropIdenticalToProp::from(prop)) }
+}
+// Feature: Generation
+pub trait GetBinderForPropsSubsumedByUprop<UPE: UnassignedProposition>: Binder {
+    type DefaultGetBoundsForPropsSubsumedByUprop<'prop>: GetBoundsForPropsSubsumedByUprop<'prop,UPE,Self> where UPE: 'prop;
+    #[inline]
+    fn get_subsumed_by<'prop,'binder>(&'binder self, element: &'prop UPE) -> HashSet<&'binder Self::Value>
+        { self.get_by_bounds(&Self::DefaultGetBoundsForPropsSubsumedByUprop::from(element)) }
 }
 
 pub trait InsertBinderForProp<'prop,PE: 'prop + Proposition>: InsertBinder<Self::DefaultInsertionBounds> {

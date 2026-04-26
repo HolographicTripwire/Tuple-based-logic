@@ -1,4 +1,4 @@
-use crate::{proofs::{inferences::InferenceRule, sequential::SequentialProof}, propositions::{ParentOfAssumptions, Proposition, collections::sets::PropSet1O}};
+use crate::{proofs::{inferences::InferenceRule, sequential::SequentialProof}, propositions::assigned::{ParentOfAssumptions, Proposition, collections::sets::PropSet1O}};
 
 /// Check that all of the premises of a given [Proof] are contained within some [PropositionSet]
 /// Used to check the "grounding" of a proof - that is, are all of the proof's premises assumed to be true? If they are, we can trust the proof's conclusions

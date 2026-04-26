@@ -2,7 +2,7 @@ use std::collections::{HashMap, HashSet};
 
 use path_lib_proc_macros::generate_parent_of_children_trait;
 
-use crate::{proofs::inferences::{Inference, InferenceRule}, propositions::Proposition};
+use crate::{proofs::inferences::{Inference, InferenceRule}, propositions::assigned::Proposition};
 
 pub struct AbstractProof<P: Proposition, Rule: InferenceRule<P>> {
     inferences: HashMap<P,Inference<P,Rule>>,
@@ -62,7 +62,7 @@ impl <P: Proposition, Rule: InferenceRule<P>> ParentOfInferences<P,Rule> for Abs
 pub mod valid {
     use std::collections::{HashMap, HashSet};
 
-    use crate::{proofs::{errors::ValidatableInferenceRule, inferences::verifiable::ValidInference}, propositions::Proposition};
+    use crate::{proofs::{errors::ValidatableInferenceRule, inferences::verifiable::ValidInference}, propositions::assigned::Proposition};
     
     pub struct ValidAbstractProof<P: Proposition, Rule: ValidatableInferenceRule<P>> {
         inferences: HashMap<P,ValidInference<P,Rule>>,
