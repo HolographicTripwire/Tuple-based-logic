@@ -15,7 +15,7 @@ pub mod equality {
                 o.path().to_string()
                 + " -> " +
                 &style.stringify(o.obj)
-            ).collect::<Vec<_>>().join(", ")
+            ).collect_vec().join(", ")
         )
     }
     pub fn format_fixed_length_expression_value_equality_error<const N: usize>(err: FixedLengthExpressionValueEqualityError<N>, style: ExpressionStyle) -> String {
@@ -24,7 +24,7 @@ pub mod equality {
                 o.path().to_string()
                 + " -> " +
                 &style.stringify(o.obj)
-            ).collect::<Vec<_>>().join(", ")
+            ).collect_vec().join(", ")
         )
     }
 }
@@ -36,7 +36,7 @@ pub mod inequality {
                 o.path().to_string()
                 + " -> " +
                 &style.stringify(o.obj)
-            ).collect::<Vec<_>>().join(", ")
+            ).collect_vec().join(", ")
         )
     }
 
@@ -46,7 +46,7 @@ pub mod inequality {
                 o.path().to_string()
                 + " -> " +
                 &style.stringify(o.obj)
-            ).collect::<Vec<_>>().join(", ")
+            ).collect_vec().join(", ")
         )
     }
 }

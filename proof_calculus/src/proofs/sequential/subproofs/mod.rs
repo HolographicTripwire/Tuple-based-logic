@@ -1,5 +1,6 @@
 use std::fmt::Display;
 
+use itertools::Itertools;
 use path_lib::obj_at_path::{ObjAtPath, OwnedObjAtPath};
 use path_lib_proc_macros::generate_parent_of_children_trait;
 
@@ -13,7 +14,7 @@ impl Display for SequentialProofInProofPath {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let components = self.0.clone().into_iter();
         let component_strings = components.map(|x| x.to_string());
-        let joined = component_strings.collect::<Vec<_>>().join(".");
+        let joined = component_strings.collect_vec().join(".");
         write!(f,"{}",joined)
     }
 }

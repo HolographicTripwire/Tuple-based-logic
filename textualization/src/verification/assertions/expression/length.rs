@@ -16,7 +16,7 @@ pub mod equality {
                 o.path().to_string()
                 + " -> " +
                 &stringify_length(o.obj)
-            ).collect::<Vec<_>>().join(", ")
+            ).collect_vec().join(", ")
         )
     }
     
@@ -26,7 +26,7 @@ pub mod equality {
                 o.path().to_string()
                 + " -> " +
                 &stringify_length(o.obj)
-            ).collect::<Vec<_>>().join(", ")
+            ).collect_vec().join(", ")
         )
     }
 }
@@ -38,7 +38,7 @@ pub mod inequality {
                 o.path().to_string()
                 + " -> " +
                 &stringify_length(o.obj)
-            ).collect::<Vec<_>>().join(", ")
+            ).collect_vec().join(", ")
         )
     }
     
@@ -48,7 +48,7 @@ pub mod inequality {
                 o.path().to_string()
                 + " -> " +
                 &stringify_length(o.obj)
-            ).collect::<Vec<_>>().join(", ")
+            ).collect_vec().join(", ")
         )
     }
 }

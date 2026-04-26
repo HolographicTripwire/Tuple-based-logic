@@ -1,7 +1,6 @@
 use crate::expressions::{assigned::atomic::{AtomicTblExpression, AtomicTblExpressionAtPath}, unassigned::{UnassignedTblExpression, UnassignedTblExpressionAtPath, compound::UnassignedCompoundTblExpression, variable::{TblExpressionVariable, TblExpressionVariableAtPath}}};
 
-pub mod front_depth_first;
-pub mod back_depth_first;
+pub mod depth_first;
 
 trait UnassignedTblExpressionIterator<'a,C: 'a + UnassignedCompoundTblExpression>: Sized + Iterator<Item = &'a UnassignedTblExpression<C>> {
     fn filter_atoms(self) -> impl Iterator<Item = AtomicTblExpression> { self.filter_map(|expr| match expr {

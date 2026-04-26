@@ -53,7 +53,7 @@ mod tests {
 
     #[test]
     fn test_differentiation_of_builtins() {
-        let builtins  = all::<PhilosophicaInferenceAtoms>().collect::<Vec<_>>();
+        let builtins  = all::<PhilosophicaInferenceAtoms>().collect_vec();
         for (i, ix) in builtins.iter().enumerate() {
             for (j, jx) in builtins.iter().enumerate() {
                 let ia: AtomicTblExpression = (*ix).clone().into();

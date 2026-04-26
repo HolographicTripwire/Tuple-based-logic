@@ -16,7 +16,7 @@ mod equality {
                 o.path().to_string()
                 + " -> " +
                 &stringify_length(o.obj)
-            ).collect::<Vec<_>>().join(", ")
+            ).collect_vec().join(", ")
         )
     }
     pub fn format_fixed_length_proposition_length_equality_error<const N: usize>(err: FixedLengthPropositionLengthEqualityError<N>) -> String {
@@ -25,7 +25,7 @@ mod equality {
                 o.path().to_string()
                 + " -> " +
                 &stringify_length(o.obj)
-            ).collect::<Vec<_>>().join(", ")
+            ).collect_vec().join(", ")
         )
     }
 }
@@ -37,7 +37,7 @@ mod inequality {
                 o.path().to_string()
                 + " -> " +
                 &stringify_length(o.obj)
-            ).collect::<Vec<_>>().join(", ")
+            ).collect_vec().join(", ")
         )
     }
     pub fn format_fixed_length_proposition_length_inequality_error<const N: usize>(err: FixedLengthPropositionLengthInequalityError<N>) -> String {
@@ -46,7 +46,7 @@ mod inequality {
                 o.path().to_string()
                 + " -> " +
                 &stringify_length(o.obj)
-            ).collect::<Vec<_>>().join(", ")
+            ).collect_vec().join(", ")
         )
     }
 }

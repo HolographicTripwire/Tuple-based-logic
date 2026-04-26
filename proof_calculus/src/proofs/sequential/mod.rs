@@ -3,6 +3,8 @@ pub mod subproofs;
 pub mod at_path_enum;
 pub mod errors;
 
+use itertools::Itertools;
+
 use crate::{proofs::{inferences::{Inference, InferenceRule}, sequential::composite::CompositeSequentialProof}, propositions::assigned::{ParentOfAssumptions, ParentOfExplicitConclusions, Proposition, paths::{AssumptionInSequentialProofStepPath, ExplicitConclusionInSequentialProofStepPath}}};
 
 /// This struct represents a step within a larger proof
@@ -14,7 +16,7 @@ pub enum SequentialProof<P: Proposition, Rule: InferenceRule<P>> {
 
 impl <P: Proposition, Rule: InferenceRule<P>> ParentOfAssumptions<P> for SequentialProof<P, Rule> {
     fn get_assumption_paths(&self) -> impl IntoIterator<Item = AssumptionInSequentialProofStepPath>  { match self {
-        SequentialProof::Inference(inference) => inference.get_assumption_paths().into_iter().collect::<Vec<_>>(),
+        SequentialProof::Inference(inference) => inference.get_assumption_paths().into_iter().collect_vec(),
         SequentialProof::Composite(composite) => composite.get_assumption_paths().into_iter().collect(),
     }}
     
@@ -25,7 +27,7 @@ impl <P: Proposition, Rule: InferenceRule<P>> ParentOfAssumptions<P> for Sequent
 }
 impl <P:Proposition, Rule: InferenceRule<P>> ParentOfExplicitConclusions<P> for SequentialProof<P,Rule> {
     fn get_explicit_conclusion_paths(&self) -> impl IntoIterator<Item = ExplicitConclusionInSequentialProofStepPath> {match self {
-        SequentialProof::Inference(inference) => inference.get_explicit_conclusion_paths().into_iter().collect::<Vec<_>>(),
+        SequentialProof::Inference(inference) => inference.get_explicit_conclusion_paths().into_iter().collect_vec(),
         SequentialProof::Composite(composite) => composite.get_explicit_conclusion_paths().into_iter().collect(),
     }}
     

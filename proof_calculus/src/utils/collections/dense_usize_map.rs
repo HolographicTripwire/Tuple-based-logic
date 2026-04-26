@@ -1,5 +1,7 @@
 use std::collections::HashSet;
 
+use itertools::Itertools;
+
 #[derive(Clone,PartialEq,Eq,Debug)]
 pub struct DenseUsizeMap<V> {
     assigned: HashSet<usize>, // Keeps track of what entries are actually assigned a value. Used for iteration
@@ -98,7 +100,7 @@ impl <V> IntoIterator for DenseUsizeMap<V> {
                     .get_mut(*key)
                     .expect(KEYSET_VALUE_OUT_OF_BOUNDS_EXCEPTION);
                 (*key, std::mem::take(value).expect(KEYSET_VALUE_UNASSIGNED_EXCEPTION))
-            }).collect::<Vec<_>>().into_iter()
+            }).collect_vec().into_iter()
     }
 }
 

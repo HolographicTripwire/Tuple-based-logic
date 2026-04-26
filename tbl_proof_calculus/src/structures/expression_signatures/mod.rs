@@ -42,7 +42,7 @@ impl ExprSignature {
                 .into_immediate_subexpressions_owned()
                 .into_iter()
                 .map(|expr| Self::from_expression_inner(expr, contents))
-                .collect::<Vec<_>>()
+                .collect_vec()
                 .into()
         }
     }
