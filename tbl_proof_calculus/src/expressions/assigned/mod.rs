@@ -1,6 +1,6 @@
 use path_lib::obj_at_path::{ObjAtPath, OwnedObjAtPath};
 
-use crate::expressions::assigned::{atomic::AtomicTblExpression, compound::{CompoundTblExpression, arc::ArcCompoundTblExpression, r#box::BoxCompoundTblExpression, rc::RcCompoundTblExpression}, subexpressions::{ParentOfSubexpressions, TblSubexpressionInExpressionPath, immediate::{ImmediateTblSubexpressionInExpressionPath, ParentOfImmediateSubexpressions}}};
+use crate::expressions::assigned::{atomic::AtomicTblExpression, compound::{CompoundTblExpression, arc::ArcCompoundTblExpression, r#box::BoxCompoundTblExpression, rc::RcCompoundTblExpression}, subexpressions::{ParentOfSubexpressions, TblSubexpressionInExpression, TblSubexpressionInExpressionPath, immediate::{ImmediateTblSubexpressionInExpressionPath, ParentOfImmediateSubexpressions}, iterators::back_depth_first::{BackDepthFirstLocatedTblSubexpressionIterator, BackDepthFirstTblSubexpressionIterator}}};
 
 pub mod atomic;
 pub mod compound;
@@ -98,22 +98,18 @@ impl <C:CompoundTblExpression> ParentOfImmediateSubexpressions<C> for TblExpress
     }}
 }
 impl <C:CompoundTblExpression> ParentOfSubexpressions<C> for TblExpression<C> {
-    fn get_subexpression_paths(&self) -> impl IntoIterator<Item = TblSubexpressionInExpressionPath> {
-        let immediate = self.get_immediate_subexpression_paths()
-            .into_iter()
-            .map(|x| x.into());
-        let deferred = self.get_located_immediate_subexpressions()
-            .into_iter()
-            .map(|inner| inner.obj.get_subexpression_paths()
-                .into_iter()
-                .map(|p| (inner.path,p).into())
-                .collect::<Vec<_>>()
-            ).flatten();
-        immediate.chain(deferred)
-    }
+    fn get_subexpression_paths(&self) -> impl IntoIterator<Item = TblSubexpressionInExpressionPath>
+        { self.get_located_subexpressions().into_iter().map(|expr| expr.path) }
 
     fn get_subexpression(&self,path: &TblSubexpressionInExpressionPath) -> Result< &TblExpression<C> ,()>
         { self.get_subexpressions_helper(path, 0) }
+    
+    #[inline]
+    fn get_subexpressions<'a>(&'a self) -> impl IntoIterator<Item =  &'a TblExpression<C> >where TblExpression<C> :'a
+        { BackDepthFirstTblSubexpressionIterator::new(self) }
+    #[inline]
+    fn get_located_subexpressions<'a>(&'a self) -> impl IntoIterator<Item = TblSubexpressionInExpression<'a,C>> where TblExpression<C> :'a
+        { BackDepthFirstLocatedTblSubexpressionIterator::new(self) }
 }
 
 mod from {

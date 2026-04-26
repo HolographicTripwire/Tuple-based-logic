@@ -1,6 +1,6 @@
 use proof_calculus::{propositions::bounds::unassigned::InsertBoundsForUprop, utils::collections::{binders::InsertBinder, multimap::MultiMap}};
 
-use crate::expressions::{assigned::binding::bounds::{TblExpressionBoundAtomExactValue, TblExpressionBoundCompoundExactLength, TblExpressionBoundValueDuplicated}, unassigned::{UnassignedTblExpression, at_path_enum::UnassignedTblExpressionAtPathEnum, binding::bounds::{TblExpressionBoundVariableExactValue, UnassignedTblExpressionInsertionBound}, compound::UnassignedCompoundTblExpression, subexpressions::iterators::back_depth_first::BackDepthFirstUnassignedTblExpressionIterator}};
+use crate::expressions::{assigned::binding::bounds::{TblExpressionBoundAtomExactValue, TblExpressionBoundCompoundExactLength, TblExpressionBoundValueDuplicated}, unassigned::{UnassignedTblExpression, at_path_enum::UnassignedTblExpressionAtPathEnum, binding::bounds::{TblExpressionBoundVariableExactValue, UnassignedTblExpressionInsertionBound}, compound::UnassignedCompoundTblExpression, subexpressions::iterators::back_depth_first::BackDepthFirstUnassignedTblSubexpressionIterator}};
 
 #[derive(Clone,PartialEq,Eq,Hash,Debug)]
 pub struct TblFastConstructInsertionBoundsForUexpr(Box<[UnassignedTblExpressionInsertionBound]>);
@@ -14,7 +14,7 @@ impl <'a, C: UnassignedCompoundTblExpression> From<&'a UnassignedTblExpression<C
         let mut dup_variables = MultiMap::new();
         let mut dup_compounds = MultiMap::new();
         // Construct element bounds
-        let mut bounds: Vec<_> = BackDepthFirstUnassignedTblExpressionIterator::new(expr)
+        let mut bounds: Vec<_> = BackDepthFirstUnassignedTblSubexpressionIterator::new(expr)
             .map(|v| { 
                 match v {
                     UnassignedTblExpressionAtPathEnum::Atomic(atom) => {

@@ -15,6 +15,10 @@ impl UnassignedCompoundTblExpression for UnassignedArcCompoundTblExpression {
             .map(|v| v.replace(to_replace, replace_with))
             .collect()
     }
+    
+    fn reverse_assign(&self, assigned: &Self) -> Result<crate::expressions::unassigned::assignments::TblExpressionAssignment<Self::InnerCompound>,()> {
+        todo!()
+    }
 }
 
 impl ParentOfImmediateUnassignedSubexpressions<UnassignedArcCompoundTblExpression> for UnassignedArcCompoundTblExpression {

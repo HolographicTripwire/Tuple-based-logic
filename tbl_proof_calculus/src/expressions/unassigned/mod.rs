@@ -1,6 +1,7 @@
 use path_lib::obj_at_path::{ObjAtPath, OwnedObjAtPath};
+use proof_calculus::propositions::unassigned::UnassignedProposition;
 
-use crate::{expressions::unassigned::{compound::UnassignedCompoundTblExpression, subexpressions::{ParentOfUnassignedSubexpressions, immediate::ParentOfImmediateUnassignedSubexpressions}, variable::TblExpressionVariable}, expressions::assigned::{TblExpression, atomic::AtomicTblExpression, compound::{CompoundTblExpression, r#box::BoxCompoundTblExpression}, subexpressions::{TblSubexpressionInExpressionPath, immediate::ImmediateSubexpressionInExpressionPath}}};
+use crate::{expressions::{assigned::{TblExpression, atomic::AtomicTblExpression, compound::{CompoundTblExpression, r#box::BoxCompoundTblExpression}, subexpressions::{TblSubexpressionInExpressionPath, immediate::ImmediateSubexpressionInExpressionPath}}, unassigned::{compound::UnassignedCompoundTblExpression, subexpressions::{ParentOfUnassignedSubexpressions, UnassignedTblSubexpressionInExpression, immediate::ParentOfImmediateUnassignedSubexpressions, iterators::back_depth_first::{BackDepthFirstLocatedUnassignedTblSubexpressionIterator, BackDepthFirstUnassignedTblSubexpressionIterator}}, variable::TblExpressionVariable}}, proof_calculus_derived::aliases::propositions::UnassignedTblProposition};
 
 pub mod variable;
 pub mod compound;
@@ -71,6 +72,24 @@ impl <C: UnassignedCompoundTblExpression> UnassignedTblExpression<C> {
         }
     }
 }
+impl <C: UnassignedCompoundTblExpression> UnassignedProposition for UnassignedTblProposition<C> {
+    type AssignedResult;
+    type PartialAssignment;
+    type DefaultNormalisation;
+
+    fn assign(&self, assignment: &Self::Assignment) -> Result<Self::AssignedResult,()> {
+        todo!()
+    }
+    fn reverse_assign(&self, assigned: Self::AssignedResult) -> Result<Self::Assignment,()> {
+        todo!()
+    }
+    fn partial_assign(self, assignment: &Self::PartialAssignment) -> Self {
+        todo!()
+    }
+    fn partial_reverse_assign(&self, assigned: &Self) -> Result<Self::PartialAssignment,()> {
+        todo!()
+    }
+}
 
 impl <C: UnassignedCompoundTblExpression> TryInto<AtomicTblExpression> for UnassignedTblExpression<C> {
     type Error = ();
@@ -100,21 +119,18 @@ impl <C:UnassignedCompoundTblExpression> ParentOfImmediateUnassignedSubexpressio
 }
 impl <C:UnassignedCompoundTblExpression> ParentOfUnassignedSubexpressions<C> for UnassignedTblExpression<C> {
     fn get_subexpression_paths(&self) -> impl IntoIterator<Item = TblSubexpressionInExpressionPath> {
-        let immediate = self.get_immediate_subexpression_paths()
-            .into_iter()
-            .map(|x| x.into());
-        let deferred = self.get_located_immediate_subexpressions()
-            .into_iter()
-            .map(|inner| inner.obj.get_subexpression_paths()
-                .into_iter()
-                .map(|p| (inner.path,p).into())
-                .collect::<Vec<_>>()
-            ).flatten();
-        immediate.chain(deferred)
+        self.get_located_subexpressions().into_iter().map(|expr| expr.path)
     }
 
     fn get_subexpression(&self,path: &TblSubexpressionInExpressionPath) -> Result< &UnassignedTblExpression<C> ,()>
         { self.get_subexpressions_helper(path, 0) }
+    
+    #[inline]
+    fn get_subexpressions<'a>(&'a self) -> impl IntoIterator<Item =  &'a UnassignedTblExpression<C> >where TblExpression<C> :'a
+        { BackDepthFirstUnassignedTblSubexpressionIterator::new(self) }
+    #[inline]
+    fn get_located_subexpressions<'a>(&'a self) -> impl IntoIterator<Item = UnassignedTblSubexpressionInExpression<'a,C>> where TblExpression<C> :'a
+        { BackDepthFirstLocatedUnassignedTblSubexpressionIterator::new(self) }
 }
 
 mod from {

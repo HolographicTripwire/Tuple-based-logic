@@ -2,7 +2,7 @@ use std::{collections::HashSet};
 
 use proof_calculus::{propositions::bounds::GetBoundsForPropIdenticalToProp, utils::collections::binders::{Binder, GetBinder, GetBounds, UniqueGetBounds}};
 
-use crate::{expressions::assigned::{TblExpression, at_path_enum::{TblExpressionAtPathEnum}, binding::bounds::{TblExpressionIdentityBound, TblPropositionIdentityBound, TblExpressionBoundAtomExactValue, TblExpressionBoundCompoundExactLength}, compound::CompoundTblExpression, subexpressions::iterators::back_depth_first::BackDepthFirstTblExpressionIterator}, proof_calculus_derived::aliases::propositions::TblProposition};
+use crate::{expressions::assigned::{TblExpression, at_path_enum::{TblExpressionAtPathEnum}, binding::bounds::{TblExpressionIdentityBound, TblPropositionIdentityBound, TblExpressionBoundAtomExactValue, TblExpressionBoundCompoundExactLength}, compound::CompoundTblExpression, subexpressions::iterators::back_depth_first::BackDepthFirstLocatedTblSubexpressionIterator}, proof_calculus_derived::aliases::propositions::TblProposition};
 
 /// [PropositionIdentityBounds] for [TblProposition] which is fast to construct
 /// To see [PropositionIdentityBounds] for [TblProposition] which fast to perform lookups with, see [TblExpressionFastLookupIdentityBounds]
@@ -18,7 +18,7 @@ impl <B: GetBinder<TblPropositionIdentityBound>> UniqueGetBounds<B> for TblFastC
 impl <'prop,C: 'prop + CompoundTblExpression, B: GetBinder<TblPropositionIdentityBound>> GetBoundsForPropIdenticalToProp<'prop,TblProposition<C>,B> for TblFastConstructGetBoundsForExprIdenticalToExpr {}
 impl <'a, C: CompoundTblExpression> From<&'a TblExpression<C>> for TblFastConstructGetBoundsForPropIdenticalToProp {
     fn from(expr: &'a TblExpression<C>) -> Self {
-        let bounds = BackDepthFirstTblExpressionIterator::new(expr)
+        let bounds = BackDepthFirstLocatedTblSubexpressionIterator::new(expr)
             .map(|v| 
                 match v {
                     TblExpressionAtPathEnum::Atomic(atom) =>

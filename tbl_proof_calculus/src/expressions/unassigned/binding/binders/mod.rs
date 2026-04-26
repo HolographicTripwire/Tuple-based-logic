@@ -1,6 +1,6 @@
 use std::{collections::HashSet, hash::Hash};
 
-use proof_calculus::{propositions::collections::binders::unassigned::{GetBinderForUpropIdenticalToUprop, InsertBinderForUprop}, utils::collections::binders::{Binder, GetBinder, InsertBinder}};
+use proof_calculus::{propositions::unassigned::binding::binders::{GetBinderForUpropIdenticalToUprop, InsertBinderForUprop}, utils::collections::binders::{Binder, GetBinder, InsertBinder}};
 
 use crate::{expressions::{assigned::{binding::{binders::{atom_value::TblExpressionBinderAtomExactValue, compound_length::TblExpressionBinderCompoundExactLength, value_duplication::TblExpressionBinderValueDuplication}, bounds::{TblPropositionBoundAtomExactValue, TblPropositionBoundCompoundExactLength, TblPropositionBoundValueDuplicated}}, subexpressions::TblSubexpressionInExpressionPath}, unassigned::{binding::{binders::variable_value::TblExpressionBinderVariableExactValue, bounds::{TblPropositionBoundVariableExactValue, UnassignedTblExpressionInsertionBound, UnassignedTblPropositionIdentityBound}, operation_bounds::{get_identical_to_uprop::fast_construct::TblFastConstructGetBoundsForUpropIdenticalToUprop, insert::TblFastConstructInsertionBoundsForUprop}}, compound::UnassignedCompoundTblExpression}}, proof_calculus_derived::aliases::propositions::UnassignedTblProposition};
 
