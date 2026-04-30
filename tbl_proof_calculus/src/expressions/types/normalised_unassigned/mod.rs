@@ -1,0 +1,15 @@
+use proof_calculus::propositions::normalised_unassigned::NormalisedUnassignedProposition;
+
+use crate::expressions::types::unassigned::{UnassignedTblExpression, compound::UnassignedCompoundTblExpression};
+
+pub struct NormalisedUnassignedTblExpression<C: UnassignedCompoundTblExpression>(UnassignedTblExpression<C>);
+pub type NormalisedUnassignedTblProposition<C: UnassignedCompoundTblExpression> = NormalisedUnassignedTblExpression<C>;
+
+impl <C: UnassignedCompoundTblExpression> NormalisedUnassignedTblProposition<C> {
+    fn new_unchecked(inner: UnassignedTblExpression<C>) -> Self { Self(inner) }
+}
+impl <C: UnassignedCompoundTblExpression> NormalisedUnassignedProposition for NormalisedUnassignedTblProposition<C> {
+    type Inner = UnassignedTblExpression<C>;
+    fn inner(&self) -> &Self::Inner { &self.0 }
+    fn into_inner(self) -> Self::Inner { self.0 }
+}

@@ -1,4 +1,4 @@
-use crate::expressions::assigned::{compound::CompoundTblExpression, OwnedTblExpressionAtPath, TblExpressionAtPath};
+use crate::expressions::types::assigned::{compound::CompoundTblExpression, OwnedTblExpressionAtPath, TblExpressionAtPath};
 
 pub struct ExpressionAtomicityEqualityError<C: CompoundTblExpression,Path> {
     pub expressions: Box<[OwnedTblExpressionAtPath<C,Path>]>

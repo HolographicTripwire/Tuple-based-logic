@@ -1,5 +1,5 @@
 
-use crate::expressions::assigned::{TblExpression, atomic::AtomicTblExpression, compound::CompoundTblExpression, OwnedTblExpressionAtPath, TblExpressionAtPath};
+use crate::expressions::types::assigned::{TblExpression, atomic::AtomicTblExpression, compound::CompoundTblExpression, OwnedTblExpressionAtPath, TblExpressionAtPath};
 
 pub struct ExpressionValueEqualityError<C: CompoundTblExpression, Path> {
     pub expressions: Box<[OwnedTblExpressionAtPath<C,Path>]>

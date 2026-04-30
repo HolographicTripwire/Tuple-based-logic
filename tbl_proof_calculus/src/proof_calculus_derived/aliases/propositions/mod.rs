@@ -1,6 +1,6 @@
 use proof_calculus::propositions::assigned::Proposition;
 
-use crate::{expressions::{assigned::{TblExpression, compound::CompoundTblExpression}, unassigned::UnassignedTblExpression}, proof_calculus_derived::path_composites::OwnedTblPropositionInProof};
+use crate::{expressions::types::{assigned::{TblExpression, compound::CompoundTblExpression}, unassigned::UnassignedTblExpression}, proof_calculus_derived::path_composites::OwnedTblPropositionInProof};
 
 pub mod bounds;
 pub mod assignments;
@@ -16,7 +16,7 @@ pub type UnassignedTblProposition<C> = UnassignedTblExpression<C>;
 pub mod unassigned {
     use proof_calculus::propositions::unassigned::UnassignedProposition;
 
-    use crate::{expressions::{assigned::TblExpression, unassigned::{UnassignedTblExpression, assignments::{PartialTblExpressionAssignment, TblExpressionAssignment}, compound::UnassignedCompoundTblExpression}}, proof_calculus_derived::aliases::propositions::UnassignedTblProposition};
+    use crate::{expressions::types::{assigned::TblExpression, unassigned::{UnassignedTblExpression, compound::UnassignedCompoundTblExpression}}, proof_calculus_derived::aliases::propositions::UnassignedTblProposition};
 
     impl <C: UnassignedCompoundTblExpression> UnassignedProposition for UnassignedTblProposition<C> {
         type AssignedResult = TblExpression<C::InnerCompound>;

@@ -1,6 +1,6 @@
 use proof_calculus::{propositions::assignments::{PartialPropositionalAssignment, PropositionalAssignment}, utils::{collections::maps::{KeyConflictError, dense_usize_map::DenseUsizeMap}, traits::try_from_iter::TryFromIterator}};
 
-use crate::expressions::{assigned::{TblExpression, compound::CompoundTblExpression}, unassigned::{UnassignedTblExpression, compound::UnassignedCompoundTblExpression, variable::TblExpressionVariable}};
+use crate::expressions::types::{assigned::{TblExpression, compound::CompoundTblExpression}, unassigned::{UnassignedTblExpression, compound::UnassignedCompoundTblExpression, variable::TblExpressionVariable}};
 
 #[derive(Clone,PartialEq,Eq,Debug)]
 pub struct DenseTblExpressionAssignment<C: CompoundTblExpression>(DenseUsizeMap<TblExpression<C>>);

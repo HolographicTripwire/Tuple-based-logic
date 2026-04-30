@@ -22,7 +22,7 @@ pub use value_equality_check::*;
 pub use value_inequality_check::*;
 pub use functional::*;
 
-use crate::{expressions::assigned::{TblExpression, compound::CompoundTblExpression, OwnedTblExpressionAtPath, TblExpressionAtPath, subexpressions::{TblSubexpressionInExpressionPath, immediate::{ImmediateTblSubexpressionInExpressionPath, LocatedParentOfImmediateSubexpressions as _}}}, proof_calculus_derived::path_composites::{TblExpressionInInference, TblExpressionInInferencePath}};
+use crate::{expressions::{paths::{TblSubexpressionInExpressionPath, immediate::ImmediateTblSubexpressionInExpressionPath}, types::assigned::{OwnedTblExpressionAtPath, TblExpression, TblExpressionAtPath, compound::CompoundTblExpression, subexpressions::LocatedParentOfImmediateSubexpressions}}, proof_calculus_derived::path_composites::{TblExpressionInInference, TblExpressionInInferencePath}};
 
 pub struct ExpressionSubpathError<C: CompoundTblExpression, ParentPath> {
     pub subpath: TblSubexpressionInExpressionPath,

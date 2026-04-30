@@ -3,7 +3,7 @@ use std::fmt::Display;
 use path_lib::obj_at_path::{ObjAtPath, OwnedObjAtPath};
 use proof_calculus::propositions::assigned::paths::PropositionInSequentialProofStepPath;
 
-use crate::expressions::assigned::{TblExpression, atomic::AtomicTblExpression, compound::CompoundTblExpression, subexpressions::TblSubexpressionInExpressionPath};
+use crate::expressions::{paths::TblSubexpressionInExpressionPath, types::assigned::{TblExpression, atomic::AtomicTblExpression, compound::CompoundTblExpression}};
 
 #[derive(Clone,PartialEq,Eq,Debug)]
 pub struct TblExpressionInInferencePath {
@@ -27,7 +27,7 @@ pub type OwnedTblExpressionInInference<C: CompoundTblExpression> = OwnedObjAtPat
 mod from {
     use proof_calculus::propositions::assigned::paths::{AssumptionInSequentialProofStepPath, ExplicitConclusionInSequentialProofStepPath};
 
-    use crate::expressions::assigned::subexpressions::immediate::ImmediateTblSubexpressionInExpressionPath;
+    use crate::expressions::paths::immediate::ImmediateTblSubexpressionInExpressionPath;
 
     use super::*;
 

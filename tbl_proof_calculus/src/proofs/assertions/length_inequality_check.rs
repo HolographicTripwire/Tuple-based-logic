@@ -2,7 +2,7 @@ use std::collections::HashSet;
 
 use path_lib::obj_at_path::OwnedObjAtPath;
 
-use crate::expressions::assigned::{TblExpression, compound::CompoundTblExpression, OwnedTblExpressionAtPath, TblExpressionAtPath};
+use crate::expressions::types::assigned::{TblExpression, compound::CompoundTblExpression, OwnedTblExpressionAtPath, TblExpressionAtPath};
 
 pub struct ExpressionLengthInequalityError<C: CompoundTblExpression, Path> {
     pub expressions: Vec<OwnedObjAtPath<TblExpression<C>,Path>>

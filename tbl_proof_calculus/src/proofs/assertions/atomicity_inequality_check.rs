@@ -1,4 +1,4 @@
-use crate::expressions::assigned::{compound::CompoundTblExpression, OwnedTblExpressionAtPath, TblExpressionAtPath};
+use crate::expressions::types::assigned::{compound::CompoundTblExpression, OwnedTblExpressionAtPath, TblExpressionAtPath};
 
 pub struct ExpressionAtomicityInequalityError<C: CompoundTblExpression, Path> {
     pub expr1: OwnedTblExpressionAtPath<C, Path>,

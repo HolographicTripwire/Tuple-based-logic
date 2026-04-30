@@ -1,7 +1,7 @@
 use itertools::Either;
 use path_lib::obj_at_path::ObjAtPath;
 
-use crate::{expressions::assigned::{TblExpression, compound::CompoundTblExpression, OwnedTblExpressionAtPath, TblExpressionAtPath, subexpressions::immediate::ImmediateTblSubexpressionInExpressionPath}, proofs::assertions::{ExpressionLengthCheckError, ExpressionValueCheckError, assert_expression_value, expression_as_slice}};
+use crate::{expressions::{paths::immediate::ImmediateTblSubexpressionInExpressionPath, types::assigned::{OwnedTblExpressionAtPath, TblExpression, TblExpressionAtPath, compound::CompoundTblExpression}}, proofs::assertions::{ExpressionLengthCheckError, ExpressionValueCheckError, assert_expression_value, expression_as_slice}};
 
 #[derive(Clone)]
 pub enum UnwrapInvocationExpressionError<C1: CompoundTblExpression, Path, Path2, C2: CompoundTblExpression> {

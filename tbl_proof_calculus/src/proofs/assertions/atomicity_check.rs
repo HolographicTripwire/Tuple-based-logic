@@ -1,4 +1,4 @@
-use crate::expressions::assigned::{TblExpression, compound::CompoundTblExpression, OwnedTblExpressionAtPath, TblExpressionAtPath};
+use crate::expressions::types::assigned::{TblExpression, compound::CompoundTblExpression, OwnedTblExpressionAtPath, TblExpressionAtPath};
 
 #[derive(Clone)]
 pub struct ExpressionAtomicityCheckError<C: CompoundTblExpression, Path> {

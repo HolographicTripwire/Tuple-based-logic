@@ -1,2 +1,2 @@
-mod dense;
-mod sparse;
+pub mod dense;
+pub mod sparse;

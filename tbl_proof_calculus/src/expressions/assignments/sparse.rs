@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use proof_calculus::{propositions::assignments::{PartialPropositionalAssignment, PropositionalAssignment}, utils::collections::maps::{KeyConflictError, hashmap::combine_hashmaps_without_conflicts}};
 
-use crate::expressions::{assigned::{TblExpression, compound::CompoundTblExpression}, unassigned::{UnassignedTblExpression, compound::UnassignedCompoundTblExpression, variable::TblExpressionVariable}};
+use crate::expressions::{types::assigned::{TblExpression, compound::CompoundTblExpression}, types::unassigned::{UnassignedTblExpression, compound::UnassignedCompoundTblExpression, variable::TblExpressionVariable}};
 
 #[derive(Clone,PartialEq,Eq,Debug)]
 pub struct SparseTblExpressionAssignment<C: CompoundTblExpression>(pub HashMap<TblExpressionVariable, TblExpression<C>>);
