@@ -2,7 +2,7 @@ use std::{hash::Hash, fmt::Debug};
 
 use path_lib::obj_at_path::{ObjAtPath, OwnedObjAtPath};
 
-use crate::{expressions::unassigned::{UnassignedTblExpression, assignments::{PartialTblExpressionAssignment, TblExpressionAssignment}, subexpressions::{ParentOfUnassignedSubexpressions, immediate::ParentOfImmediateUnassignedSubexpressions}}, expressions::assigned::{TblExpression, compound::CompoundTblExpression}};
+use crate::{expressions::unassigned::{UnassignedTblExpression, subexpressions::{ParentOfUnassignedSubexpressions, immediate::ParentOfImmediateUnassignedSubexpressions}}, expressions::assigned::{TblExpression, compound::CompoundTblExpression}};
 
 //pub mod r#ref;
 pub mod r#box;
@@ -16,8 +16,9 @@ pub trait UnassignedCompoundTblExpression: Clone + PartialEq + Eq + Hash + Debug
     fn as_slice(&self) -> &[UnassignedTblExpression<Self>];
     fn len(&self) -> usize;
 
-    fn reverse_assign(&self, assigned: &Self) -> Result<TblExpressionAssignment<Self::InnerCompound>,()>;
-    fn partial_reverse_assign(&self, assigned: &Self) -> Result<PartialTblExpressionAssignment<Self>,()> {
+    fn construct_assignment(&self, assigned: &Self) -> Result<TblExpressionAssignment<Self::InnerCompound>,()>;
+    fn construct_partial_assignment(&self, assigned: &Self) -> Result<PartialTblExpressionAssignment<Self>,()> {
+        if self.len() != assigned.len() { return Err(()) }
         self.as_slice().into_iter()
     }
 }

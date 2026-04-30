@@ -1,2 +1,3 @@
 pub mod fast_construct;
-pub mod fast_lookup;
+// TODO: Reimplement fast_lookup
+//pub mod fast_lookup;

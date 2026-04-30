@@ -1,6 +1,6 @@
 use std::collections::HashSet;
 
-use crate::{propositions::{assigned::Proposition, unassigned::{UnassignedProposition, binding::bounds::{GetBoundsForUpropIdenticalToUprop, GetBoundsForUpropsEquivalentToUprop, GetBoundsForUpropsSubsumedByUprop, GetBoundsForUpropsSubsumingProp, InsertBoundsForUprop}}}, utils::collections::binders::{Binder, InsertBinder}};
+use crate::{propositions::{assigned::Proposition, unassigned::{UnassignedProposition, binding::bounds::{GetBoundsForUpropIdenticalToUprop, GetBoundsForUpropsEquivalentToUprop, GetBoundsForUpropsSubsumedByUprop, GetBoundsForUpropsSubsumingProp, InsertBoundsForUprop}}}, utils::collections::binding::binders::{Binder, InsertBinder}};
 
 pub trait GetBinderForUpropIdenticalToUprop<UPE: UnassignedProposition>: Binder {
     type DefaultGetBoundsForPropIdenticalToProp<'prop>: GetBoundsForUpropIdenticalToUprop<'prop,UPE,Self> where UPE: 'prop;

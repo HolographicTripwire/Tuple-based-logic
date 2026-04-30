@@ -1,4 +1,4 @@
-use proof_calculus::{propositions::bounds::unassigned::GetBoundsForUpropsSubsumedByUprop, utils::collections::binders::GetBinder};
+use proof_calculus::{propositions::unassigned::binding::bounds::GetBoundsForUpropsSubsumedByUprop, utils::collections::binding::binders::GetBinder};
 
 use crate::{expressions::{assigned::binding::{bounds::TblExpressionInsertionBound, operation_bounds::get_subsumed_by_uprop::fast_construct::{TblFastConstructGetBoundsForExprsSubsumedByUexpr, TblFastConstructGetBoundsForPropsSubsumedByUprop}}, unassigned::compound::UnassignedCompoundTblExpression}, proof_calculus_derived::aliases::propositions::UnassignedTblProposition};
 

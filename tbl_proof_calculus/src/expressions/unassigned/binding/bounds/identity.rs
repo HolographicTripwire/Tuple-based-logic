@@ -1,10 +1,12 @@
-use crate::expressions::{assigned::{binding::bounds::{TblExpressionBoundAtomExactValue, TblExpressionBoundCompoundExactLength}, subexpressions::TblSubexpressionInExpressionPath}, unassigned::binding::bounds::TblExpressionBoundVariableExactValue};
+use proof_calculus::utils::collections::binding::bounds::GetBound;
+
+use crate::expressions::{assigned::{binding::bounds::{TblExpressionBoundAtomExactValue, TblExpressionBoundCompoundExactLength}, subexpressions::TblSubexpressionInExpressionPath}, unassigned::binding::bounds::UnassignedTblExpressionBoundVariableExactValue};
 
 
 #[derive(Clone,PartialEq,Eq,Hash,Debug)]
 pub enum UnassignedTblExpressionIdentityBound {
     AtomValue(TblExpressionBoundAtomExactValue),
-    VariableValue(TblExpressionBoundVariableExactValue),
+    VariableValue(UnassignedTblExpressionBoundVariableExactValue),
     CompoundLength(TblExpressionBoundCompoundExactLength),
 }
 impl UnassignedTblExpressionIdentityBound {
@@ -14,12 +16,14 @@ impl UnassignedTblExpressionIdentityBound {
         UnassignedTblExpressionIdentityBound::CompoundLength(compound_bound) => &compound_bound.path,
     } }
 }
+impl GetBound for UnassignedTblExpressionIdentityBound { type ExtraReturnData = (); }
+
 impl From<TblExpressionBoundAtomExactValue> for UnassignedTblExpressionIdentityBound {
     fn from(bound: TblExpressionBoundAtomExactValue) -> Self
         { Self::AtomValue(bound) }
 }
-impl From<TblExpressionBoundVariableExactValue> for UnassignedTblExpressionIdentityBound {
-    fn from(bound: TblExpressionBoundVariableExactValue) -> Self
+impl From<UnassignedTblExpressionBoundVariableExactValue> for UnassignedTblExpressionIdentityBound {
+    fn from(bound: UnassignedTblExpressionBoundVariableExactValue) -> Self
         { Self::VariableValue(bound) }
 }
 impl From<TblExpressionBoundCompoundExactLength> for UnassignedTblExpressionIdentityBound {

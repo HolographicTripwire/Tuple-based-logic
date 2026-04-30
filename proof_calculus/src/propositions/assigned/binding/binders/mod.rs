@@ -1,6 +1,6 @@
 use std::collections::HashSet;
 
-use crate::{propositions::{assigned::{Proposition, binding::bounds::{GetBoundsForPropIdenticalToProp, GetBoundsForPropsSubsumedByUprop, InsertBoundsForProp}}, unassigned::UnassignedProposition}, utils::collections::binders::{Binder, InsertBinder}};
+use crate::{propositions::{assigned::{Proposition, binding::bounds::{GetBoundsForPropIdenticalToProp, GetBoundsForPropsSubsumedByUprop, InsertBoundsForProp}}, unassigned::UnassignedProposition}, utils::collections::binding::binders::{Binder, InsertBinder}};
 
 
 pub trait GetBinderForPropIdenticalToProp<PE: Proposition>: Binder {
@@ -10,7 +10,6 @@ pub trait GetBinderForPropIdenticalToProp<PE: Proposition>: Binder {
     fn get_identical_to<'prop,'binder>(&'binder self, prop: &'prop PE) -> Option<&'binder Self::Value>
         { self.get_unique_by_bounds(&Self::DefaultGetBoundsForPropIdenticalToProp::from(prop)) }
 }
-// Feature: Generation
 pub trait GetBinderForPropsSubsumedByUprop<UPE: UnassignedProposition>: Binder {
     type DefaultGetBoundsForPropsSubsumedByUprop<'prop>: GetBoundsForPropsSubsumedByUprop<'prop,UPE,Self> where UPE: 'prop;
     #[inline]

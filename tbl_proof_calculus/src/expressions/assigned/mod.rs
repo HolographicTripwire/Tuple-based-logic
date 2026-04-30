@@ -70,6 +70,11 @@ impl <C: CompoundTblExpression> TblExpression<C> {
             TblExpression::Compound(exprs) => Some(exprs.len())
         }
     }
+
+    pub fn transmute_compound<'a,C2: CompoundTblExpression + From<&'a C>>(&'a self) -> TblExpression<C2> { match self {
+        TblExpression::Atomic(atomic) => TblExpression::Atomic(*atomic),
+        TblExpression::Compound(compound) => TblExpression::Compound(compound.into()),
+    }}
 }
 impl <C: CompoundTblExpression> TryInto<AtomicTblExpression> for TblExpression<C> {
     type Error = ();
@@ -104,10 +109,8 @@ impl <C:CompoundTblExpression> ParentOfSubexpressions<C> for TblExpression<C> {
     fn get_subexpression(&self,path: &TblSubexpressionInExpressionPath) -> Result< &TblExpression<C> ,()>
         { self.get_subexpressions_helper(path, 0) }
     
-    #[inline]
     fn get_subexpressions<'a>(&'a self) -> impl IntoIterator<Item =  &'a TblExpression<C> >where TblExpression<C> :'a
         { CounterclockwiseDepthFirstTblSubexpressionIterator::new(self) }
-    #[inline]
     fn get_located_subexpressions<'a>(&'a self) -> impl IntoIterator<Item = TblSubexpressionInExpression<'a,C>> where TblExpression<C> :'a
         { CounterclockwiseDepthFirstLocatedTblSubexpressionIterator::new(self) }
 }

@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use crate::{expressions::unassigned::{UnassignedTblExpression, compound::UnassignedCompoundTblExpression, subexpressions::{ParentOfUnassignedSubexpressions, immediate::ParentOfImmediateUnassignedSubexpressions}}, expressions::assigned::{TblExpression, compound::{CompoundTblExpression, arc::ArcCompoundTblExpression}, subexpressions::{ParentOfSubexpressions, TblSubexpressionInExpressionPath, immediate::{ImmediateTblSubexpressionInExpressionPath, ParentOfImmediateSubexpressions}}}};
+use crate::expressions::{assigned::{TblExpression, compound::{CompoundTblExpression, arc::ArcCompoundTblExpression}, subexpressions::{ParentOfSubexpressions, TblSubexpressionInExpressionPath, immediate::{ImmediateTblSubexpressionInExpressionPath, ParentOfImmediateSubexpressions}}}, assignments::DenseTblExpressionAssignment, unassigned::{UnassignedTblExpression, compound::UnassignedCompoundTblExpression, subexpressions::{ParentOfUnassignedSubexpressions, immediate::ParentOfImmediateUnassignedSubexpressions}}};
 
 /// A compound unit in Tuple-Based Logic, which are used to build up [Propositions](Proposition)
 #[derive(Debug,Clone,PartialEq,Eq,Hash)]
@@ -16,7 +16,7 @@ impl UnassignedCompoundTblExpression for UnassignedArcCompoundTblExpression {
             .collect()
     }
     
-    fn reverse_assign(&self, assigned: &Self) -> Result<crate::expressions::unassigned::assignments::TblExpressionAssignment<Self::InnerCompound>,()> {
+    fn construct_assignment(&self, assigned: &Self) -> Result<DenseTblExpressionAssignment<Self::InnerCompound>,()> {
         todo!()
     }
 }
@@ -95,8 +95,8 @@ mod from {
         fn from_iter<T: IntoIterator<Item = UnassignedTblExpression<UnassignedArcCompoundTblExpression>>>(iter: T) -> Self { Self(iter.into_iter().collect()) }
     }
 
-    impl From<UnassignedBoxCompoundTblExpression> for UnassignedArcCompoundTblExpression {
-        fn from(value: BoxCompoundTblExpression) -> Self {
+    impl From<&UnassignedBoxCompoundTblExpression> for UnassignedArcCompoundTblExpression {
+        fn from(value: &BoxCompoundTblExpression) -> Self {
             value.0.iter()
                 .map(|i| match i {
                     UnassignedTblExpression::Atomic(atomic) => TblExpression::Atomic(atomic.clone()),
@@ -105,8 +105,8 @@ mod from {
                 .collect()
         }
     }
-    impl From<UnassignedRcCompoundTblExpression> for UnassignedArcCompoundTblExpression {
-        fn from(value: UnassignedRcCompoundTblExpression) -> Self {
+    impl From<&UnassignedRcCompoundTblExpression> for UnassignedArcCompoundTblExpression {
+        fn from(value: &UnassignedRcCompoundTblExpression) -> Self {
             value.0.iter()
                 .map(|i| match i {
                     TblExpression::Atomic(atomic) => UnassignedTblExpression::Atomic(atomic.clone()),

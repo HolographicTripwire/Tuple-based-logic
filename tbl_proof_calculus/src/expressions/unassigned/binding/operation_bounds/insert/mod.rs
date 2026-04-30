@@ -1,6 +1,6 @@
-use proof_calculus::{propositions::bounds::unassigned::InsertBoundsForUprop, utils::collections::{binders::InsertBinder, multimap::MultiMap}};
+use proof_calculus::{propositions::unassigned::binding::bounds::InsertBoundsForUprop, utils::collections::{binding::binders::InsertBinder, maps::multimap::MultiMap}};
 
-use crate::expressions::{assigned::binding::bounds::{TblExpressionBoundAtomExactValue, TblExpressionBoundCompoundExactLength, TblExpressionBoundValueDuplicated}, unassigned::{UnassignedTblExpression, at_path_enum::UnassignedTblExpressionAtPathEnum, binding::bounds::{TblExpressionBoundVariableExactValue, UnassignedTblExpressionInsertionBound}, compound::UnassignedCompoundTblExpression, subexpressions::iterators::back_depth_first::BackDepthFirstUnassignedTblSubexpressionIterator}};
+use crate::expressions::{assigned::binding::bounds::{TblExpressionBoundAtomExactValue, TblExpressionBoundCompoundExactLength, TblExpressionBoundValueDuplicated}, unassigned::{UnassignedTblExpression, at_path_enum::UnassignedTblExpressionAtPathEnum, binding::bounds::{UnassignedTblExpressionBoundVariableExactValue, UnassignedTblExpressionInsertionBound}, compound::UnassignedCompoundTblExpression, subexpressions::iterators::{depth_first::counterclockwise::CounterclockwiseDepthFirstLocatedUnassignedTblSubexpressionIterator}}};
 
 #[derive(Clone,PartialEq,Eq,Hash,Debug)]
 pub struct TblFastConstructInsertionBoundsForUexpr(Box<[UnassignedTblExpressionInsertionBound]>);
@@ -23,7 +23,7 @@ impl <'a, C: UnassignedCompoundTblExpression> From<&'a UnassignedTblExpression<C
                     },
                     UnassignedTblExpressionAtPathEnum::Variable(variable) => {
                         dup_variables.insert(variable.obj, variable.path.clone());
-                        TblExpressionBoundVariableExactValue::new(variable.path, *variable.obj).into()
+                        UnassignedTblExpressionBoundVariableExactValue::new(variable.path, *variable.obj).into()
                     },
                     UnassignedTblExpressionAtPathEnum::Compound(compound) => {
                         dup_compounds.insert(compound.obj.clone(), compound.path.clone());

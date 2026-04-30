@@ -1,4 +1,4 @@
-use proof_calculus::{propositions::assigned::binding::bounds::InsertBoundsForProp, utils::collections::{binders::InsertBinder, multimap::MultiMap}};
+use proof_calculus::{propositions::assigned::binding::bounds::InsertBoundsForProp, utils::collections::{binding::binders::InsertBinder, maps::multimap::MultiMap}};
 
 use crate::expressions::assigned::{TblExpression, at_path_enum::TblExpressionAtPathEnum, binding::bounds::{TblExpressionBoundAtomExactValue, TblExpressionBoundCompoundExactLength, TblExpressionBoundValueDuplicated, TblExpressionInsertionBound}, compound::CompoundTblExpression, subexpressions::iterators::depth_first::counterclockwise::CounterclockwiseDepthFirstLocatedTblSubexpressionIterator};
 

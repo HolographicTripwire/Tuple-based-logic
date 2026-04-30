@@ -1,6 +1,6 @@
 use std::collections::{HashMap, HashSet};
 
-use proof_calculus::{propositions::{assigned::binding::bounds::GetBoundsForPropsSubsumedByUprop}, utils::collections::binders::{Binder, GetBinder, GetBounds, UniqueGetBounds}};
+use proof_calculus::{propositions::assigned::binding::bounds::GetBoundsForPropsSubsumedByUprop, utils::collections::binding::{binders::{Binder, GetBinder}, bounds::{GetBounds, UniqueGetBounds}}};
 
 use crate::{expressions::{assigned::{binding::bounds::{TblExpressionBoundAtomExactValue, TblExpressionBoundCompoundExactLength, TblExpressionBoundValueDuplicated, TblExpressionInsertionBound}, subexpressions::TblSubexpressionInExpressionPath}, unassigned::{UnassignedTblExpression, at_path_enum::UnassignedTblExpressionAtPathEnum, compound::UnassignedCompoundTblExpression, subexpressions::iterators::depth_first::counterclockwise::CounterclockwiseDepthFirstLocatedUnassignedTblSubexpressionIterator, variable::TblExpressionVariable}}, proof_calculus_derived::aliases::propositions::UnassignedTblProposition};
 

@@ -1,14 +1,13 @@
 use path_lib::obj_at_path::{ObjAtPath, OwnedObjAtPath};
 use proof_calculus::propositions::unassigned::UnassignedProposition;
 
-use crate::{expressions::{assigned::{TblExpression, atomic::AtomicTblExpression, compound::{CompoundTblExpression, r#box::BoxCompoundTblExpression}, subexpressions::{TblSubexpressionInExpressionPath, immediate::ImmediateSubexpressionInExpressionPath}}, unassigned::{compound::UnassignedCompoundTblExpression, subexpressions::{ParentOfUnassignedSubexpressions, UnassignedTblSubexpressionInExpression, immediate::ParentOfImmediateUnassignedSubexpressions, iterators::{depth_first::counterclockwise::{CounterclockwiseDepthFirstLocatedUnassignedTblSubexpressionIterator, CounterclockwiseDepthFirstUnassignedTblSubexpressionIterator}}, variable::TblExpressionVariable}}, proof_calculus_derived::aliases::propositions::UnassignedTblProposition};
+use crate::{expressions::{assigned::{atomic::AtomicTblExpression, subexpressions::{TblSubexpressionInExpressionPath, immediate::ImmediateTblSubexpressionInExpressionPath}}, unassigned::{compound::UnassignedCompoundTblExpression, subexpressions::{ParentOfUnassignedSubexpressions, UnassignedTblSubexpressionInExpression, immediate::ParentOfImmediateUnassignedSubexpressions, iterators::depth_first::counterclockwise::{CounterclockwiseDepthFirstLocatedUnassignedTblSubexpressionIterator, CounterclockwiseDepthFirstUnassignedTblSubexpressionIterator}}, variable::TblExpressionVariable}}, proof_calculus_derived::aliases::propositions::UnassignedTblProposition};
 
 pub mod variable;
 pub mod compound;
 pub mod subexpressions;
 pub mod at_path_enum;
 pub mod binding;
-pub mod assignments;
 
 #[derive(Clone,PartialEq,Eq,Hash,Debug)]
 pub enum UnassignedTblExpression<C: UnassignedCompoundTblExpression> {
@@ -16,19 +15,19 @@ pub enum UnassignedTblExpression<C: UnassignedCompoundTblExpression> {
     Compound(C),
     Variable(TblExpressionVariable)
 }
-pub type BoxUnassignedTblExpression = TblExpression<UnassignedBoxCompoundTblExpression>;
-pub type RcUnassignedTblExpression = TblExpression<UnassignedRcCompoundTblExpression>;
-pub type ArcUnassignedTblExpression = TblExpression<UnassignedArcCompoundTblExpression>;
+pub type BoxUnassignedTblExpression = UnassignedTblExpression<UnassignedBoxCompoundTblExpression>;
+pub type RcUnassignedTblExpression = UnassignedTblExpression<UnassignedRcCompoundTblExpression>;
+pub type ArcUnassignedTblExpression = UnassignedTblExpression<UnassignedArcCompoundTblExpression>;
 
 pub type UnassignedTblExpressionAtPath<'a,C: UnassignedCompoundTblExpression, Path> = ObjAtPath<'a,UnassignedTblExpression<C>,Path>;
-pub type BoxUnassignedTblExpressionAtPath<'a,Path> = UnassignedTblExpressionAtPath<'a,BoxCompoundTblExpression,Path>;
-pub type RcUnassignedTblExpressionAtPath<'a,Path> = UnassignedTblExpressionAtPath<'a,RcCompoundTblExpression,Path>;
-pub type ArcUnassignedTblExpressionAtPath<'a,Path> = UnassignedTblExpressionAtPath<'a,ArcCompoundTblExpression,Path>;
+pub type BoxUnassignedTblExpressionAtPath<'a,Path> = UnassignedTblExpressionAtPath<'a,UnassignedBoxCompoundTblExpression,Path>;
+pub type RcUnassignedTblExpressionAtPath<'a,Path> = UnassignedTblExpressionAtPath<'a,UnassignedRcCompoundTblExpression,Path>;
+pub type ArcUnassignedTblExpressionAtPath<'a,Path> = UnassignedTblExpressionAtPath<'a,UnassignedArcCompoundTblExpression,Path>;
 
 pub type OwnedUnassignedTblExpressionAtPath<C: UnassignedCompoundTblExpression, Path> = OwnedObjAtPath<UnassignedTblExpression<C>,Path>;
-pub type OwnedBoxUnassignedTblExpressionAtPath<Path> = OwnedUnassignedTblExpressionAtPath<BoxCompoundTblExpression,Path>;
-pub type OwnedRcUnassignedTblExpressionAtPath<Path> = OwnedUnassignedTblExpressionAtPath<RcCompoundTblExpression,Path>;
-pub type OwnedArcUnassignedTblExpressionAtPath<Path> = OwnedUnassignedTblExpressionAtPath<ArcCompoundTblExpression,Path>;
+pub type OwnedBoxUnassignedTblExpressionAtPath<Path> = OwnedUnassignedTblExpressionAtPath<UnassignedBoxCompoundTblExpression,Path>;
+pub type OwnedRcUnassignedTblExpressionAtPath<Path> = OwnedUnassignedTblExpressionAtPath<UnassignedRcCompoundTblExpression,Path>;
+pub type OwnedArcUnassignedTblExpressionAtPath<Path> = OwnedUnassignedTblExpressionAtPath<UnassignedArcCompoundTblExpression,Path>;
 
 impl <C: UnassignedCompoundTblExpression> UnassignedTblExpression<C> {
     pub fn replace(&self, to_replace: &UnassignedTblExpression<C>, replace_with: &UnassignedTblExpression<C>) -> Self {
@@ -107,12 +106,12 @@ impl <C: UnassignedCompoundTblExpression> TryInto<AtomicTblExpression> for Unass
 // }
 
 impl <C:UnassignedCompoundTblExpression> ParentOfImmediateUnassignedSubexpressions<C> for UnassignedTblExpression<C> {
-    fn get_immediate_subexpression_paths(&self) -> impl IntoIterator<Item = ImmediateSubexpressionInExpressionPath> { match self {
+    fn get_immediate_subexpression_paths(&self) -> impl IntoIterator<Item = ImmediateTblSubexpressionInExpressionPath> { match self {
         UnassignedTblExpression::Compound(compound) => compound.get_immediate_subexpression_paths().into_iter().collect(),
         _ => Box::from_iter([]),
     }}
 
-    fn get_immediate_subexpression(&self,path: &ImmediateSubexpressionInExpressionPath) -> Result<&UnassignedTblExpression<C> ,()>  { match self {
+    fn get_immediate_subexpression(&self,path: &ImmediateTblSubexpressionInExpressionPath) -> Result<&UnassignedTblExpression<C> ,()>  { match self {
         UnassignedTblExpression::Compound(c) => c.get_immediate_subexpression(path),
         _ => Err(()),
     }}
@@ -125,11 +124,9 @@ impl <C:UnassignedCompoundTblExpression> ParentOfUnassignedSubexpressions<C> for
     fn get_subexpression(&self,path: &TblSubexpressionInExpressionPath) -> Result< &UnassignedTblExpression<C> ,()>
         { self.get_subexpressions_helper(path, 0) }
     
-    #[inline]
-    fn get_subexpressions<'a>(&'a self) -> impl IntoIterator<Item =  &'a UnassignedTblExpression<C> >where TblExpression<C> :'a
+    fn get_subexpressions<'a>(&'a self) -> impl IntoIterator<Item =  &'a UnassignedTblExpression<C> > where UnassignedTblExpression<C> :'a
         { CounterclockwiseDepthFirstUnassignedTblSubexpressionIterator::new(self) }
-    #[inline]
-    fn get_located_subexpressions<'a>(&'a self) -> impl IntoIterator<Item = UnassignedTblSubexpressionInExpression<'a,C>> where TblExpression<C> :'a
+    fn get_located_subexpressions<'a>(&'a self) -> impl IntoIterator<Item = UnassignedTblSubexpressionInExpression<'a,C>> where UnassignedTblExpression<C> :'a
         { CounterclockwiseDepthFirstLocatedUnassignedTblSubexpressionIterator::new(self) }
 }
 

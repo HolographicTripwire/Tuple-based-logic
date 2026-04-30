@@ -1,3 +1,5 @@
+use proof_calculus::utils::collections::binding::bounds::GetBound;
+
 use crate::expressions::assigned::{binding::bounds::{atom_value::TblExpressionBoundAtomExactValue, compound_length::TblExpressionBoundCompoundExactLength}, subexpressions::TblSubexpressionInExpressionPath};
 
 #[derive(Clone,PartialEq,Eq,Hash,Debug)]
@@ -11,6 +13,8 @@ impl TblExpressionIdentityBound {
         TblExpressionIdentityBound::CompoundLength(compound_bound) => &compound_bound.path,
     } }
 }
+impl GetBound for TblExpressionIdentityBound { type ExtraReturnData = (); }
+
 impl From<TblExpressionBoundAtomExactValue> for TblExpressionIdentityBound {
     fn from(bound: TblExpressionBoundAtomExactValue) -> Self
         { Self::AtomValue(bound) }

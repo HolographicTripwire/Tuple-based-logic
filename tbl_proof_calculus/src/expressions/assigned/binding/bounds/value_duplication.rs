@@ -1,4 +1,4 @@
-use proof_calculus::utils::traits::fast_ord::FastOrd;
+use proof_calculus::utils::{collections::binding::bounds::GetBound, traits::fast_ord::FastOrd};
 
 use crate::expressions::assigned::subexpressions::TblSubexpressionInExpressionPath;
 
@@ -21,5 +21,6 @@ impl TblExpressionBoundValueDuplicated {
     pub fn path2(&self) -> &TblSubexpressionInExpressionPath { &self.path2 }
     pub fn into_paths(self) -> (TblSubexpressionInExpressionPath,TblSubexpressionInExpressionPath) { (self.path1,self.path2) }
 }
+impl GetBound for TblExpressionBoundValueDuplicated { type ExtraReturnData = (); }
 
 pub type TblPropositionBoundValueDuplicated = TblExpressionBoundValueDuplicated;

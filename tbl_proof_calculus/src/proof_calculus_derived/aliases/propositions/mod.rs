@@ -47,7 +47,7 @@ pub mod unassigned {
                 (UnassignedTblExpression::Atomic(a1), UnassignedTblExpression::Atomic(a2)) => 
                     if a1 == a2 { Ok(PartialTblExpressionAssignment::default()) } else { Err(()) },
                 (UnassignedTblExpression::Compound(c1), UnassignedTblExpression::Compound(c2)) =>
-                    c1.partial_reverse_assign(c2),
+                    c1.construct_partial_assignment(c2),
                 (UnassignedTblExpression::Variable(var), other) => 
                     Ok(PartialTblExpressionAssignment::from([(*var,other.clone())])),
                 _ => Err(())

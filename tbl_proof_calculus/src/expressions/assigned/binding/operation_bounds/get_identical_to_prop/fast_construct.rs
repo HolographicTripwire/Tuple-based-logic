@@ -1,6 +1,6 @@
 use std::{collections::HashSet};
 
-use proof_calculus::{propositions::assigned::binding::bounds::GetBoundsForPropIdenticalToProp, utils::collections::binders::{Binder, GetBinder, GetBounds, UniqueGetBounds}};
+use proof_calculus::{propositions::assigned::binding::bounds::GetBoundsForPropIdenticalToProp, utils::collections::binding::{binders::{Binder, GetBinder}, bounds::{GetBounds, UniqueGetBounds}}};
 
 use crate::{expressions::assigned::{TblExpression, at_path_enum::{TblExpressionAtPathEnum}, binding::bounds::{TblExpressionIdentityBound, TblPropositionIdentityBound, TblExpressionBoundAtomExactValue, TblExpressionBoundCompoundExactLength}, compound::CompoundTblExpression, subexpressions::iterators::depth_first::counterclockwise::CounterclockwiseDepthFirstLocatedTblSubexpressionIterator}, proof_calculus_derived::aliases::propositions::TblProposition};
 

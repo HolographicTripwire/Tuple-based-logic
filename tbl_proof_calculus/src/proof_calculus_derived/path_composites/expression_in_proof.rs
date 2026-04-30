@@ -18,14 +18,14 @@ impl Display for ExpressionInProofPath {
     }
 }
 
-pub type AtomicExpressionInProof<'a> = ObjAtPath<'a,AtomicTblExpression,ExpressionInProofPath>;
-pub type OwnedAtomicExpressionInProof = OwnedObjAtPath<AtomicTblExpression,ExpressionInProofPath>;
+pub type AtomicTblExpressionInProof<'a> = ObjAtPath<'a,AtomicTblExpression,ExpressionInProofPath>;
+pub type OwnedAtomicTblExpressionInProof = OwnedObjAtPath<AtomicTblExpression,ExpressionInProofPath>;
 
-pub type CompoundExpressionInProof<'a,C: CompoundTblExpression> = ObjAtPath<'a,C,ExpressionInProofPath>;
-pub type OwnedCompoundExpressionInProof<C: CompoundTblExpression> = OwnedObjAtPath<C,ExpressionInProofPath>;
+pub type CompoundTblExpressionInProof<'a,C: CompoundTblExpression> = ObjAtPath<'a,C,ExpressionInProofPath>;
+pub type OwnedTblCompoundExpressionInProof<C: CompoundTblExpression> = OwnedObjAtPath<C,ExpressionInProofPath>;
 
-pub type ExpressionInProof<'a,C: CompoundTblExpression> = ObjAtPath<'a,TblExpression<C>,ExpressionInProofPath>;
-pub type OwnedExpressionInProof<C: CompoundTblExpression> = OwnedObjAtPath<TblExpression<C>,ExpressionInProofPath>;
+pub type TblExpressionInProof<'a,C: CompoundTblExpression> = ObjAtPath<'a,TblExpression<C>,ExpressionInProofPath>;
+pub type TblOwnedExpressionInProof<C: CompoundTblExpression> = OwnedObjAtPath<TblExpression<C>,ExpressionInProofPath>;
 
 mod from {
     use crate::{expressions::assigned::subexpressions::{TblSubexpressionInExpressionPath, immediate::ImmediateTblSubexpressionInExpressionPath}, proof_calculus_derived::path_composites::PropositionInProofPath};

@@ -1,5 +1,4 @@
-// Feature: Generation
-use crate::propositions::{assigned::Proposition, normalised_unassigned::NormalisedUnassignedProposition};
+use crate::propositions::{assigned::Proposition, assignments::{PartialPropositionalAssignment, PropositionalAssignment}, normalised_unassigned::NormalisedUnassignedProposition};
 use std::hash::Hash;
 
 pub mod binding;
@@ -7,7 +6,7 @@ pub mod binding;
 pub trait UnassignedProposition: Clone + PartialEq + Eq + Hash {
     type AssignedResult: Proposition;
     type DefaultAssignment: PropositionalAssignment<Self>;
-    type DefaultPartialAssignment: PropositionalAssignment<Self>;
+    type DefaultPartialAssignment: PartialPropositionalAssignment<Self>;
     type DefaultNormalisation: NormalisedUnassignedProposition;
 
     fn assign<Assignment: PropositionalAssignment<Self>>(&self, assignment: Assignment) -> Result<Self::AssignedResult,()>;
@@ -17,8 +16,3 @@ pub trait UnassignedProposition: Clone + PartialEq + Eq + Hash {
 
     fn normalise(self) -> Self::DefaultNormalisation;
 }
-
-pub trait PropositionalAssignment<UP: UnassignedProposition>: Sized {
-    fn combine<I: IntoIterator<Item = Self>>(assignments: I) -> Result<Self,()>;
-}
-

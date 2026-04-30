@@ -12,7 +12,7 @@ impl From<usize> for ImmediateTblSubexpressionInExpressionPath {
     fn from(value: usize) -> Self { Self(value) }
 }
 impl FastOrd for ImmediateTblSubexpressionInExpressionPath {
-    #[inline] fn fast_cmp(&self, other: &Self) -> std::cmp::Ordering { self.cmp(other) }
+    fn fast_cmp(&self, other: &Self) -> std::cmp::Ordering { self.cmp(other) }
 }
 
 impl Display for ImmediateTblSubexpressionInExpressionPath {

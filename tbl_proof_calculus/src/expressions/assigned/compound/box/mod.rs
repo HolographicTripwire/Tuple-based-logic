@@ -64,23 +64,17 @@ mod from {
         fn from_iter<T: IntoIterator<Item = TblExpression<BoxCompoundTblExpression>>>(iter: T) -> Self { Self(iter.into_iter().collect()) }
     }
 
-    impl From<RcCompoundTblExpression> for BoxCompoundTblExpression {
-        fn from(value: RcCompoundTblExpression) -> Self {
+    impl From<&RcCompoundTblExpression> for BoxCompoundTblExpression {
+        fn from(value: &RcCompoundTblExpression) -> Self {
             value.0.iter()
-                .map(|i| match i {
-                    TblExpression::Atomic(atomic) => TblExpression::Atomic(atomic.clone()),
-                    TblExpression::Compound(compound) => TblExpression::Compound(BoxCompoundTblExpression::from(compound.clone())),
-                })
+                .map(|i| i.transmute_compound())
                 .collect()
         }
     }
-    impl From<ArcCompoundTblExpression> for BoxCompoundTblExpression {
-        fn from(value: ArcCompoundTblExpression) -> Self {
+    impl From<&ArcCompoundTblExpression> for BoxCompoundTblExpression {
+        fn from(value: &ArcCompoundTblExpression) -> Self {
             value.0.iter()
-                .map(|i| match i {
-                    TblExpression::Atomic(atomic) => TblExpression::Atomic(atomic.clone()),
-                    TblExpression::Compound(compound) => TblExpression::Compound(BoxCompoundTblExpression::from(compound.clone())),
-                })
+                .map(|i| i.transmute_compound())
                 .collect()
         }
     }

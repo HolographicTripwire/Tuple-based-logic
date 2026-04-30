@@ -1,9 +1,11 @@
-use crate::expressions::{assigned::{binding::bounds::{TblExpressionBoundAtomExactValue, TblExpressionBoundCompoundExactLength, TblExpressionBoundValueDuplicated}, subexpressions::TblSubexpressionInExpressionPath}, unassigned::binding::bounds::TblExpressionBoundVariableExistsAtLocation};
+use proof_calculus::utils::collections::binding::bounds::GetBound;
+
+use crate::expressions::{assigned::{binding::bounds::{TblExpressionBoundAtomExactValue, TblExpressionBoundCompoundExactLength, TblExpressionBoundValueDuplicated}, subexpressions::TblSubexpressionInExpressionPath}, unassigned::binding::bounds::UnassignedTblExpressionBoundVariableExistsAtLocation};
 
 #[derive(Clone,PartialEq,Eq,Hash,Debug)]
 pub enum UnassignedTblExpressionEquivalenceBound {
     AtomValue(TblExpressionBoundAtomExactValue),
-    Variable(TblExpressionBoundVariableExistsAtLocation),
+    Variable(UnassignedTblExpressionBoundVariableExistsAtLocation),
     CompoundLength(TblExpressionBoundCompoundExactLength),
     ValueDuplicated(TblExpressionBoundValueDuplicated)
 }
@@ -15,12 +17,14 @@ impl UnassignedTblExpressionEquivalenceBound {
         UnassignedTblExpressionEquivalenceBound::ValueDuplicated(duplication_bound) => (duplication_bound.path1(),Some(duplication_bound.path2())),
     }}
 }
+impl GetBound for UnassignedTblExpressionEquivalenceBound { type ExtraReturnData = (); }
+
 impl From<TblExpressionBoundAtomExactValue> for UnassignedTblExpressionEquivalenceBound {
     fn from(bound: TblExpressionBoundAtomExactValue) -> Self
         { Self::AtomValue(bound) }
 }
-impl From<TblExpressionBoundVariableExistsAtLocation> for UnassignedTblExpressionEquivalenceBound {
-    fn from(bound: TblExpressionBoundVariableExistsAtLocation) -> Self
+impl From<UnassignedTblExpressionBoundVariableExistsAtLocation> for UnassignedTblExpressionEquivalenceBound {
+    fn from(bound: UnassignedTblExpressionBoundVariableExistsAtLocation) -> Self
         { Self::Variable(bound) }
 }
 impl From<TblExpressionBoundCompoundExactLength> for UnassignedTblExpressionEquivalenceBound {

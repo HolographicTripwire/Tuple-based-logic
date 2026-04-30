@@ -1,4 +1,4 @@
-use crate::propositions::unassigned::{PropositionalAssignment, UnassignedProposition};
+use crate::propositions::{assignments::PropositionalAssignment, unassigned::UnassignedProposition};
 
 pub trait NormalisedUnassignedProposition: Sized {
     type Inner: UnassignedProposition;
@@ -7,15 +7,15 @@ pub trait NormalisedUnassignedProposition: Sized {
     fn into_inner(self) -> Self::Inner;
 
     #[inline]
-    fn assign<Assignment: PropositionalAssignment<Self::Inner>>(&self, assignment: Assignment) -> Result<<Self::Inner as UnassignedProposition>::AssignedResult,()>
+    fn apply_assignment<Assignment: PropositionalAssignment<Self::Inner>>(&self, assignment: Assignment) -> Result<<Self::Inner as UnassignedProposition>::AssignedResult,()>
         { self.inner().assign(assignment) }
     #[inline]
-    fn reverse_assign(&self, assigned: <Self::Inner as UnassignedProposition>::AssignedResult) -> Result<<Self::Inner as UnassignedProposition>::DefaultAssignment,()>
+    fn construct_assignment(&self, assigned: <Self::Inner as UnassignedProposition>::AssignedResult) -> Result<<Self::Inner as UnassignedProposition>::DefaultAssignment,()>
         { self.inner().reverse_assign(assigned) }
     #[inline]
-    fn partial_assign<PartialAssignment: PropositionalAssignment<Self::Inner>>(self, assignment: &PartialAssignment) -> Self::Inner
+    fn apply_partial_assignment<PartialAssignment: PropositionalAssignment<Self::Inner>>(self, assignment: &PartialAssignment) -> Self::Inner
         { self.into_inner().partial_assign(assignment) }
     #[inline]
-    fn partial_reverse_assign(&self, assigned: &Self::Inner) -> Result<<Self::Inner as UnassignedProposition>::DefaultPartialAssignment,()>
+    fn construct_partial_assignment(&self, assigned: &Self::Inner) -> Result<<Self::Inner as UnassignedProposition>::DefaultPartialAssignment,()>
         { self.inner().partial_reverse_assign(assigned) }
 }

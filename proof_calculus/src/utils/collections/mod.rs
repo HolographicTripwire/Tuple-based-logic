@@ -1,5 +1,4 @@
-pub mod optional_iterator;
-pub mod dense_usize_map;
-pub mod tiny_immutable_ordered_set;
-pub mod multimap;
-pub mod binders;
+pub mod iterators;
+pub mod sets;
+pub mod maps;
+pub mod binding;

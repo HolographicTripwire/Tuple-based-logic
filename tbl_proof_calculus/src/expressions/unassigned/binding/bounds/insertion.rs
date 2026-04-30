@@ -1,9 +1,11 @@
-use crate::expressions::{assigned::{binding::bounds::{TblExpressionBoundAtomExactValue, TblExpressionBoundCompoundExactLength, TblExpressionBoundValueDuplicated}, subexpressions::TblSubexpressionInExpressionPath}, unassigned::binding::bounds::TblExpressionBoundVariableExactValue};
+use proof_calculus::utils::collections::binding::bounds::GetBound;
+
+use crate::expressions::{assigned::{binding::bounds::{TblExpressionBoundAtomExactValue, TblExpressionBoundCompoundExactLength, TblExpressionBoundValueDuplicated}, subexpressions::TblSubexpressionInExpressionPath}, unassigned::binding::bounds::UnassignedTblExpressionBoundVariableExactValue};
 
 #[derive(Clone,PartialEq,Eq,Hash,Debug)]
 pub enum UnassignedTblExpressionInsertionBound {
     AtomValue(TblExpressionBoundAtomExactValue),
-    VariableValue(TblExpressionBoundVariableExactValue),
+    VariableValue(UnassignedTblExpressionBoundVariableExactValue),
     CompoundLength(TblExpressionBoundCompoundExactLength),
     ValueDuplicated(TblExpressionBoundValueDuplicated)
 }
@@ -15,12 +17,14 @@ impl UnassignedTblExpressionInsertionBound {
         UnassignedTblExpressionInsertionBound::ValueDuplicated(duplication_bound) => (duplication_bound.path1(),Some(duplication_bound.path2())),
     }}
 }
+impl GetBound for UnassignedTblExpressionInsertionBound { type ExtraReturnData = (); }
+
 impl From<TblExpressionBoundAtomExactValue> for UnassignedTblExpressionInsertionBound {
     fn from(bound: TblExpressionBoundAtomExactValue) -> Self
         { Self::AtomValue(bound) }
 }
-impl From<TblExpressionBoundVariableExactValue> for UnassignedTblExpressionInsertionBound {
-    fn from(bound: TblExpressionBoundVariableExactValue) -> Self
+impl From<UnassignedTblExpressionBoundVariableExactValue> for UnassignedTblExpressionInsertionBound {
+    fn from(bound: UnassignedTblExpressionBoundVariableExactValue) -> Self
         { Self::VariableValue(bound) }
 }
 impl From<TblExpressionBoundCompoundExactLength> for UnassignedTblExpressionInsertionBound {

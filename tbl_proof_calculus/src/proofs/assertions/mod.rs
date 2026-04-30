@@ -67,7 +67,6 @@ pub fn expression_subexpression<'a,C:CompoundTblExpression,ParentPath:Clone,Join
      */
 }
 
-#[inline]
 pub fn expression_as_slice_in_inference<'a,C:CompoundTblExpression,Path:Clone>(expression: &'a TblExpressionAtPath<'a,C,Path>) -> Result<Box<[TblExpressionInInference<'a,C>]>,ExpressionAtomicityCheckError<C,Path>>  where TblExpressionInInferencePath: From<(Path,ImmediateTblSubexpressionInExpressionPath)>
     { expression_as_slice(expression) }
 pub fn expression_as_slice<'a,C:CompoundTblExpression,Path:'a + Clone, JoinedPath: From<(Path,ImmediateTblSubexpressionInExpressionPath)>>(expression: &'a TblExpressionAtPath<'a,C,Path>) -> Result<Box<[TblExpressionAtPath<'a,C,JoinedPath>]>,ExpressionAtomicityCheckError<C,Path>> {
@@ -81,7 +80,6 @@ pub fn expression_as_slice<'a,C:CompoundTblExpression,Path:'a + Clone, JoinedPat
         .collect())
 }
 
-#[inline]
 pub fn expression_into_slice_in_inference<'a,C:CompoundTblExpression,Path:'a + Clone>(expression: TblExpressionAtPath<'a,C,Path>) -> Result<Box<[TblExpressionInInference<'a,C>]>,ExpressionAtomicityCheckError<C,Path>>  where TblExpressionInInferencePath: From<(Path,ImmediateTblSubexpressionInExpressionPath)>
     { expression_into_slice(expression) }
 pub fn expression_into_slice<'a,C:CompoundTblExpression,Path:'a + Clone,JoinedPath: From<(Path,ImmediateTblSubexpressionInExpressionPath)>>(expression: TblExpressionAtPath<'a,C,Path>) -> Result<Box<[TblExpressionAtPath<'a,C,JoinedPath>]>,ExpressionAtomicityCheckError<C,Path>> {
@@ -95,7 +93,6 @@ pub fn expression_into_slice<'a,C:CompoundTblExpression,Path:'a + Clone,JoinedPa
     )
 }
 
-#[inline]
 pub fn expression_as_sized_slice_in_inference<'a,const EXPECTED_SIZE: usize,C:CompoundTblExpression,Path: Clone>(expression: &'a TblExpressionAtPath<'a,C,Path>) -> Result<Box<[TblExpressionInInference<'a,C>; EXPECTED_SIZE]>,ExpressionLengthCheckError<C,Path>> where TblExpressionInInferencePath: From<(Path,ImmediateTblSubexpressionInExpressionPath)>
     { expression_as_sized_slice(expression) }
 pub fn expression_as_sized_slice<'a,const EXPECTED_SIZE: usize,C:CompoundTblExpression,Path:Clone,JoinedPath: From<(Path,ImmediateTblSubexpressionInExpressionPath)>>(expression: &'a TblExpressionAtPath<'a,C,Path>) -> Result<Box<[TblExpressionAtPath<'a,C,JoinedPath>; EXPECTED_SIZE]>,ExpressionLengthCheckError<C,Path>> {

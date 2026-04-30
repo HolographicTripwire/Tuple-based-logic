@@ -21,7 +21,7 @@ impl <V> TblExpressionMap<V> {
         self.values.insert(key, value);
     }
 
-    fn get_subsumed_by<C: UnassignedCompoundTblExpression>(expr: UnassignedTblExpression<C>) -> HashSet<> {
+    // fn get_subsumed_by<C: UnassignedCompoundTblExpression>(expr: UnassignedTblExpression<C>) -> HashSet<> {
 
-    }
+    // }
 }

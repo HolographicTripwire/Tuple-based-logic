@@ -1,4 +1,7 @@
-use std::{collections::HashSet, hash::Hash};
+use std::hash::Hash;
+use std::collections::HashSet;
+
+use crate::utils::collections::binding::bounds::{GetBound, GetBounds, UniqueGetBounds};
 
 pub trait Binder: Sized {
     type Value: Eq + Hash;
@@ -12,8 +15,9 @@ pub trait Binder: Sized {
         { bounds.get_unique_from(self) }
 }
 
-pub trait GetBinder<B>: Binder {
-    fn get<'binder>(&'binder self, key: &B) -> HashSet<&'binder Self::Value>;
+pub trait GetBinder<B: GetBound>: Binder {
+    fn get<'binder>(&'binder self, bound: &B) -> HashSet<&'binder Self::Value>;
+    fn get_with_extra_data<'binder>(&'binder self, bound: &B) -> HashSet<(&'binder Self::Value,B::ExtraReturnData)>;
 
     fn get_intersection<'binder, 'bounds, I: IntoIterator<Item=&'bounds B>>(&'binder self, bounds: I) -> HashSet<&'binder Self::Value> where B: 'bounds {
         let mut iter = bounds.into_iter();
@@ -28,22 +32,8 @@ pub trait GetBinder<B>: Binder {
     }
 }
 
-pub trait GetBounds<B: Binder>: Sized {
-    fn get_from<'binder>(&self, binder: &'binder B) -> HashSet<&'binder B::Value>;
-}
-
-pub trait UniqueGetBounds<B: Binder>: GetBounds<B> {
-    fn get_unique_from<'binder>(&self, binder: &'binder B) -> Option<&'binder B::Value> {
-        let mut all = self.get_from(binder).into_iter();
-        let first = all.next();
-        debug_assert!(all.count() == 0, "<{} as UniqueGetBounds>::get_unique returned more than one value", std::any::type_name::<Self>());
-        first
-    }
-}
 
 pub trait InsertBinder<B>: Binder {
     fn insert_by_bounds(&mut self, bounds: &B, value: Self::Value);
 }
-pub trait InsertBounds<B: InsertBinder<Self>>: Sized
-    { fn insert_into(&self, binder: &mut B, value: B::Value) { binder.insert_by_bounds(self, value); } }
-impl <Bs, Br: InsertBinder<Bs>> InsertBounds<Br> for Bs {} 
+

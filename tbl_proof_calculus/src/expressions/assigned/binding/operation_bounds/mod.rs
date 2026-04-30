@@ -3,7 +3,6 @@ use std::collections::{HashMap, HashSet};
 use crate::expressions::assigned::subexpressions::{TblSubexpressionInExpressionPath, immediate::ImmediateTblSubexpressionInExpressionPath};
 
 pub mod get_identical_to_prop;
-// Feature: Generation
 pub mod get_subsumed_by_uprop;
 pub mod insert;
 

@@ -1,3 +1,5 @@
+use proof_calculus::utils::collections::binding::bounds::GetBound;
+
 use crate::expressions::assigned::{atomic::AtomicTblExpression, subexpressions::TblSubexpressionInExpressionPath};
 
 #[derive(Clone,PartialEq,Eq,Debug,Hash)]
@@ -6,9 +8,9 @@ pub struct TblExpressionBoundAtomExactValue {
     pub value: AtomicTblExpression
 }
 impl TblExpressionBoundAtomExactValue {
-    #[inline]
     pub fn new(path: TblSubexpressionInExpressionPath, value: AtomicTblExpression) -> Self
         { Self { path, value } }
 }
+impl GetBound for TblExpressionBoundAtomExactValue { type ExtraReturnData = (); }
 
 pub type TblPropositionBoundAtomExactValue = TblExpressionBoundAtomExactValue;

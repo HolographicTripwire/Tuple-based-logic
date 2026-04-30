@@ -1,3 +1,5 @@
+use proof_calculus::utils::collections::binding::bounds::GetBound;
+
 use crate::expressions::assigned::{binding::bounds::{atom_value::TblExpressionBoundAtomExactValue, compound_length::TblExpressionBoundCompoundExactLength, value_duplication::TblExpressionBoundValueDuplicated}, subexpressions::TblSubexpressionInExpressionPath};
 
 #[derive(Clone,PartialEq,Eq,Hash,Debug)]
@@ -13,6 +15,8 @@ impl TblExpressionInsertionBound {
         TblExpressionInsertionBound::ValueDuplicated(duplication_bound) => (duplication_bound.path1(),Some(duplication_bound.path2())),
     }}
 }
+impl GetBound for TblExpressionInsertionBound { type ExtraReturnData = (); }
+
 impl From<TblExpressionBoundAtomExactValue> for TblExpressionInsertionBound {
     fn from(bound: TblExpressionBoundAtomExactValue) -> Self
         { Self::AtomValue(bound) }
