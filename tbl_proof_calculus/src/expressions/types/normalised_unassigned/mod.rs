@@ -1,4 +1,4 @@
-use proof_calculus::propositions::normalised_unassigned::NormalisedUnassignedProposition;
+use proof_calculus::propositions::types::normalised_unassigned::NormalisedUnassignedProposition;
 
 use crate::expressions::types::unassigned::{UnassignedTblExpression, compound::UnassignedCompoundTblExpression};
 

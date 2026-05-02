@@ -1,6 +1,6 @@
 use path_lib::obj_at_path::OwnedObjAtPath;
 
-use crate::{propositions::assigned::Proposition, propositions::assigned::{ParentOfAssumptions, ParentOfExplicitConclusions, paths::{AssumptionInSequentialProofStepPath, ExplicitConclusionInSequentialProofStepPath}}};
+use crate::{propositions::types::assigned::Proposition, propositions::types::assigned::{ParentOfAssumptions, ParentOfExplicitConclusions, paths::{AssumptionInSequentialProofStepPath, ExplicitConclusionInSequentialProofStepPath}}};
 
 pub mod located;
 
@@ -46,7 +46,7 @@ impl <P: Proposition, Rule: InferenceRule<P>> ParentOfExplicitConclusions<P> for
 
 // Feature: Verification
 pub mod verifiable {
-    use crate::{proofs::{errors::ValidatableInferenceRule, inferences::Inference}, propositions::assigned::Proposition};
+    use crate::{proofs::{errors::ValidatableInferenceRule, inferences::Inference}, propositions::types::assigned::Proposition};
 
     pub struct ValidInference<P: Proposition, Rule: ValidatableInferenceRule<P>>(Inference<P,Rule>);
     impl <P: Proposition, Rule: ValidatableInferenceRule<P>> ValidInference<P,Rule> {

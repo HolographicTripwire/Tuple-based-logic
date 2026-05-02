@@ -1,4 +1,4 @@
-use crate::propositions::unassigned::UnassignedProposition;
+use crate::propositions::types::unassigned::UnassignedProposition;
 
 pub mod implementations;
 

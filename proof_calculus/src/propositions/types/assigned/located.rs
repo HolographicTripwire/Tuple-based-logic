@@ -1,6 +1,6 @@
 use path_lib::obj_at_path::{ObjAtPath, OwnedObjAtPath};
 
-use crate::propositions::assigned::{Proposition, paths::{AssumptionInSequentialProofStepPath, ExplicitConclusionInSequentialProofStepPath, PropositionInSequentialProofStepPath}};
+use crate::propositions::types::assigned::{Proposition, paths::{AssumptionInSequentialProofStepPath, ExplicitConclusionInSequentialProofStepPath, PropositionInSequentialProofStepPath}};
 
 // type LocatedProposition<'a,P: Proposition, Path> = ObjAtPath<'a,P,Path>;
 // type OwnedLocatedProposition<P: Proposition, Path> = OwnedObjAtPath<P,Path>;

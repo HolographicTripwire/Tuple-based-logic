@@ -1,8 +1,8 @@
 use std::{collections::HashSet};
 
-use proof_calculus::{propositions::assigned::binding::bounds::GetBoundsForPropIdenticalToProp, utils::collections::binding::{binders::{Binder, GetBinder}, bounds::{GetBounds, UniqueGetBounds}}};
+use proof_calculus::{propositions::types::assigned::binding::bounds::GetBoundsForPropIdenticalToProp, utils::collections::binding::{binders::{Binder, GetBinder}, bounds::{GetBounds, UniqueGetBounds}}};
 
-use crate::{expressions::types::assigned::{TblExpression, at_path_enum::{TblExpressionAtPathEnum}, binding::bounds::{TblExpressionIdentityBound, TblPropositionIdentityBound, TblExpressionBoundAtomExactValue, TblExpressionBoundCompoundExactLength}, compound::CompoundTblExpression, subexpressions::iterators::depth_first::counterclockwise::CounterclockwiseDepthFirstLocatedTblSubexpressionIterator}, proof_calculus_derived::aliases::propositions::TblProposition};
+use crate::{expressions::types::assigned::{TblExpression, at_path_enum::{TblExpressionAtPathEnum}, binding::bounds::{TblExpressionIdentityBound, TblPropositionIdentityBound, TblExpressionBoundAtomExactValue, TblExpressionBoundCompoundExactLength}, compound::CompoundTblExpression, subexpressions::iterators::depth_first::counterclockwise::CounterclockwiseDepthFirstLocatedTblSubexpressionIterator}, proof_calculus_derived::aliases::propositions::types::TblProposition};
 
 /// [PropositionIdentityBounds] for [TblProposition] which is fast to construct
 /// To see [PropositionIdentityBounds] for [TblProposition] which fast to perform lookups with, see [TblExpressionFastLookupIdentityBounds]

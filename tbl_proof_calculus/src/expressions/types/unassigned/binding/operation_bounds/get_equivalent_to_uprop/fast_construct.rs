@@ -1,8 +1,8 @@
 use std::collections::{HashMap, HashSet};
 
-use proof_calculus::{propositions::unassigned::binding::bounds::GetBoundsForUpropsEquivalentToUprop, utils::collections::binding::{binders::{Binder, GetBinder}, bounds::{GetBounds, UniqueGetBounds}}};
+use proof_calculus::{propositions::types::unassigned::binding::bounds::GetBoundsForUpropsEquivalentToUprop, utils::collections::binding::{binders::{Binder, GetBinder}, bounds::{GetBounds, UniqueGetBounds}}};
 
-use crate::{expressions::{paths::TblSubexpressionInExpressionPath, types::{assigned::binding::bounds::{TblExpressionBoundAtomExactValue, TblExpressionBoundCompoundExactLength, TblExpressionBoundValueDuplicated}, unassigned::{UnassignedTblExpression, at_path_enum::UnassignedTblExpressionAtPathEnum, binding::bounds::{UnassignedTblExpressionBoundVariableExistsAtLocation, UnassignedTblExpressionEquivalenceBound}, compound::UnassignedCompoundTblExpression, subexpressions::iterators::depth_first::counterclockwise::CounterclockwiseDepthFirstLocatedUnassignedTblSubexpressionIterator, variable::TblExpressionVariable}}}, proof_calculus_derived::aliases::propositions::UnassignedTblProposition};
+use crate::{expressions::{paths::TblSubexpressionInExpressionPath, types::{assigned::binding::bounds::{TblExpressionBoundAtomExactValue, TblExpressionBoundCompoundExactLength, TblExpressionBoundValueDuplicated}, unassigned::{UnassignedTblExpression, at_path_enum::UnassignedTblExpressionAtPathEnum, binding::bounds::{UnassignedTblExpressionBoundVariableExistsAtLocation, UnassignedTblExpressionEquivalenceBound}, compound::UnassignedCompoundTblExpression, subexpressions::iterators::depth_first::counterclockwise::CounterclockwiseDepthFirstLocatedUnassignedTblSubexpressionIterator, variable::TblExpressionVariable}}}, proof_calculus_derived::aliases::propositions::types::UnassignedTblProposition};
 
 #[derive(Clone,PartialEq,Eq,Hash,Debug)]
 pub struct TblFastConstructGetBoundsForUexprsEquivalentToUexpr(Box<[UnassignedTblExpressionEquivalenceBound]>);

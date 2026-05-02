@@ -1,7 +1,7 @@
 use std::fmt::Display;
 
 use path_lib::obj_at_path::{ObjAtPath, OwnedObjAtPath};
-use proof_calculus::propositions::assigned::paths::PropositionInSequentialProofStepPath;
+use proof_calculus::propositions::types::assigned::paths::PropositionInSequentialProofStepPath;
 
 use crate::expressions::{paths::TblSubexpressionInExpressionPath, types::assigned::{TblExpression, atomic::AtomicTblExpression, compound::CompoundTblExpression}};
 
@@ -25,7 +25,7 @@ pub type TblExpressionInInference<'a,C: CompoundTblExpression> = ObjAtPath<'a,Tb
 pub type OwnedTblExpressionInInference<C: CompoundTblExpression> = OwnedObjAtPath<TblExpression<C>,TblExpressionInInferencePath>;
 
 mod from {
-    use proof_calculus::propositions::assigned::paths::{AssumptionInSequentialProofStepPath, ExplicitConclusionInSequentialProofStepPath};
+    use proof_calculus::propositions::types::assigned::paths::{AssumptionInSequentialProofStepPath, ExplicitConclusionInSequentialProofStepPath};
 
     use crate::expressions::paths::immediate::ImmediateTblSubexpressionInExpressionPath;
 

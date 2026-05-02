@@ -1,4 +1,4 @@
-use crate::{proofs::inferences::{Inference, InferenceRule, located::InferenceAtPath}, propositions::assigned::{ParentOfExplicitConclusions, Proposition, located::ExplicitConclusionInSequentialProofStep, paths::ExplicitConclusionInSequentialProofStepPath}};
+use crate::{proofs::inferences::{Inference, InferenceRule, located::InferenceAtPath}, propositions::types::assigned::{ParentOfExplicitConclusions, Proposition, located::ExplicitConclusionInSequentialProofStep, paths::ExplicitConclusionInSequentialProofStepPath}};
 
 
 // pub struct ExplicitConclusionCountCheckError<P: Proposition, Rule: InferenceRule<P>> {

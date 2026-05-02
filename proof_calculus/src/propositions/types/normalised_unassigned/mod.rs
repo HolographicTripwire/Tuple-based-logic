@@ -1,4 +1,4 @@
-use crate::propositions::{assignments::PropositionalAssignment, unassigned::UnassignedProposition};
+use crate::propositions::{assignments::PropositionalAssignment, types::unassigned::UnassignedProposition};
 
 pub trait NormalisedUnassignedProposition: Sized {
     type Inner: UnassignedProposition;

@@ -1,7 +1,7 @@
 use itertools::Either;
 use path_lib::obj_at_path::OwnedObjAtPath;
 
-use crate::{proofs::{errors::{ValidatableInferenceRule, stepper::result::{ProofValidityStepErr, ProofValidityStepResultWrapper}, validate_inference, validity::ProofValidityError}, sequential::{at_path_enum::SequentialProofAtPathEnum, composite::CompositeSequentialProofAtPath, subproofs::{ParentOfSubproofs, SequentialProofAtPath, immediate::{ImmediateSequentialProofInProofPath, LocatedParentOfImmediateSubproofs}}}}, propositions::assigned::{LocatedParentOfExplicitConclusions, ParentOfAssumptions, ParentOfExplicitConclusions, Proposition, collections::sets::implementations::hash::HashPropSet1O}};
+use crate::{proofs::{errors::{ValidatableInferenceRule, stepper::result::{ProofValidityStepErr, ProofValidityStepResultWrapper}, validate_inference, validity::ProofValidityError}, sequential::{at_path_enum::SequentialProofAtPathEnum, composite::CompositeSequentialProofAtPath, subproofs::{ParentOfSubproofs, SequentialProofAtPath, immediate::{ImmediateSequentialProofInProofPath, LocatedParentOfImmediateSubproofs}}}}, propositions::types::assigned::{LocatedParentOfExplicitConclusions, ParentOfAssumptions, ParentOfExplicitConclusions, Proposition, collections::sets::implementations::hash::HashPropSet1O}};
 
 #[derive(PartialEq,Eq,Debug)]
 enum CompositeProofValidityStep {

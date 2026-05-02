@@ -1,6 +1,6 @@
 use path_lib_proc_macros::generate_parent_of_children_trait;
 
-use crate::propositions::assigned::paths::{AssumptionInSequentialProofStepPath, ExplicitConclusionInSequentialProofStepPath};
+use crate::propositions::types::assigned::paths::{AssumptionInSequentialProofStepPath, ExplicitConclusionInSequentialProofStepPath};
 use std::hash::Hash;
 
 pub mod paths;

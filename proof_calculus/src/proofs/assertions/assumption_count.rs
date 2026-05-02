@@ -1,4 +1,4 @@
-use crate::{proofs::{inferences::{Inference, InferenceRule}}, propositions::assigned::Proposition};
+use crate::{proofs::{inferences::{Inference, InferenceRule}}, propositions::types::assigned::Proposition};
 
 pub struct AssumptionCountCheckError<P: Proposition, Rule: InferenceRule<P>> {
     pub expected_count: usize,

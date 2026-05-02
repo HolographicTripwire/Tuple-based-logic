@@ -1,4 +1,4 @@
-use crate::{propositions::assigned::Proposition, proofs::errors::OwnedProofValidityErrorAtPath};
+use crate::{propositions::types::assigned::Proposition, proofs::errors::OwnedProofValidityErrorAtPath};
 
 pub struct ProofValidityStepResultWrapper<P:Proposition,IE:Clone,ParentPath,JoinedPath> {
     pub is_finished: bool,

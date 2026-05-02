@@ -2,7 +2,7 @@ use std::marker::PhantomData;
 
 use path_lib::obj_at_path::{ObjAtPath, OwnedObjAtPath};
 
-use crate::{proofs::{errors::{validity::{OwnedProofValidityErrorAtPath, ProofValidityError}, stepper::{ProofValidityStepper, result::{ProofValidityStepErr, ProofValidityStepResult}}}, inferences::{Inference, InferenceRule, located::InferenceAtPath}, sequential::{SequentialProof, subproofs::{SequentialProofAtPath, SequentialProofInProofPath, immediate::ImmediateSequentialProofInProofPath}}}, propositions::assigned::Proposition};
+use crate::{proofs::{errors::{validity::{OwnedProofValidityErrorAtPath, ProofValidityError}, stepper::{ProofValidityStepper, result::{ProofValidityStepErr, ProofValidityStepResult}}}, inferences::{Inference, InferenceRule, located::InferenceAtPath}, sequential::{SequentialProof, subproofs::{SequentialProofAtPath, SequentialProofInProofPath, immediate::ImmediateSequentialProofInProofPath}}}, propositions::types::assigned::Proposition};
 
 pub mod grounding;
 pub mod validity;

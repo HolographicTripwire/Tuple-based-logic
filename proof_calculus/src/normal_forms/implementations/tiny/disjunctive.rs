@@ -1,6 +1,6 @@
 use std::{cmp::Ordering, ops::Deref};
 
-use crate::{normal_forms::{UnassignedDnf, UnassignedDnfClause}, propositions::unassigned::UnassignedProposition, utils::{collections::sets::tiny_immutable_ordered_set::TinyImmutableOrderedSet, traits::fast_ord::FastOrd}};
+use crate::{normal_forms::{UnassignedDnf, UnassignedDnfClause}, propositions::types::unassigned::UnassignedProposition, utils::{collections::sets::tiny_immutable_ordered_set::TinyImmutableOrderedSet, traits::fast_ord::FastOrd}};
 
 #[derive(Clone,PartialEq,Eq,Hash,Debug)]
 pub struct TinyUnassignedDnf<UP: UnassignedProposition + FastOrd>(TinyImmutableOrderedSet<TinyUnassignedDnfClause<UP>>);

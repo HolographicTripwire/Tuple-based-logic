@@ -1,4 +1,4 @@
-use proof_calculus::propositions::assigned::collections::sets::implementations::hash::HashPropSet1O;
+use proof_calculus::propositions::types::assigned::collections::sets::implementations::hash::HashPropSet1O;
 
 use crate::expressions::types::assigned::{TblExpression, compound::CompoundTblExpression};
 

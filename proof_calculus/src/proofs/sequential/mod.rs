@@ -5,7 +5,7 @@ pub mod errors;
 
 use itertools::Itertools;
 
-use crate::{proofs::{inferences::{Inference, InferenceRule}, sequential::composite::CompositeSequentialProof}, propositions::assigned::{ParentOfAssumptions, ParentOfExplicitConclusions, Proposition, paths::{AssumptionInSequentialProofStepPath, ExplicitConclusionInSequentialProofStepPath}}};
+use crate::{proofs::{inferences::{Inference, InferenceRule}, sequential::composite::CompositeSequentialProof}, propositions::types::assigned::{ParentOfAssumptions, ParentOfExplicitConclusions, Proposition, paths::{AssumptionInSequentialProofStepPath, ExplicitConclusionInSequentialProofStepPath}}};
 
 /// This struct represents a step within a larger proof
 #[derive(Clone,PartialEq,Eq,Debug)]

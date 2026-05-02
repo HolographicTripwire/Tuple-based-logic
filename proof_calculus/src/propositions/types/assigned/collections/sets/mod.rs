@@ -1,4 +1,4 @@
-use crate::propositions::assigned::Proposition;
+use crate::propositions::types::assigned::Proposition;
 
 pub mod implementations;
 // pub mod normal_forms;

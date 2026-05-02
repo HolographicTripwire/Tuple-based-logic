@@ -1,4 +1,4 @@
-use crate::propositions::{assigned::Proposition, assignments::{PartialPropositionalAssignment, PropositionalAssignment}, normalised_unassigned::NormalisedUnassignedProposition};
+use crate::propositions::{types::{assigned::Proposition, normalised_unassigned::NormalisedUnassignedProposition}, assignments::{PartialPropositionalAssignment, PropositionalAssignment}};
 use std::hash::Hash;
 
 pub mod binding;

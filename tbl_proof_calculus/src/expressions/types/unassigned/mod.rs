@@ -1,5 +1,5 @@
 use path_lib::obj_at_path::{ObjAtPath, OwnedObjAtPath};
-use proof_calculus::propositions::unassigned::UnassignedProposition;
+use proof_calculus::propositions::types::unassigned::UnassignedProposition;
 
 use crate::{expressions::{paths::{TblSubexpressionInExpressionPath, immediate::ImmediateTblSubexpressionInExpressionPath}, types::{assigned::atomic::AtomicTblExpression, unassigned::{compound::UnassignedCompoundTblExpression, subexpressions::{ParentOfUnassignedSubexpressions, UnassignedTblSubexpressionInExpression, immediate::ParentOfImmediateUnassignedSubexpressions, iterators::depth_first::counterclockwise::{CounterclockwiseDepthFirstLocatedUnassignedTblSubexpressionIterator, CounterclockwiseDepthFirstUnassignedTblSubexpressionIterator}}, variable::TblExpressionVariable}}}, proof_calculus_derived::aliases::propositions::UnassignedTblProposition};
 

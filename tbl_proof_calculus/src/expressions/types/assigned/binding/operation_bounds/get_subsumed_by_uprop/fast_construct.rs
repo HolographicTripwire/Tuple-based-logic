@@ -1,23 +1,26 @@
 use std::collections::{HashMap, HashSet};
 
-use proof_calculus::{propositions::assigned::binding::bounds::GetBoundsForPropsSubsumedByUprop, utils::collections::binding::{binders::{Binder, GetBinder}, bounds::{GetBounds, UniqueGetBounds}}};
+use proof_calculus::{propositions::types::assigned::binding::bounds::GetBoundsForPropsSubsumedByUprop, utils::collections::binding::{binders::{Binder, GetBinder}, bounds::{GetBounds, UniqueGetBounds}}};
 
-use crate::{expressions::{paths::TblSubexpressionInExpressionPath, types::{assigned::binding::bounds::{TblExpressionBoundAtomExactValue, TblExpressionBoundCompoundExactLength, TblExpressionBoundValueDuplicated, TblExpressionInsertionBound}, unassigned::{UnassignedTblExpression, at_path_enum::UnassignedTblExpressionAtPathEnum, compound::UnassignedCompoundTblExpression, subexpressions::iterators::depth_first::counterclockwise::CounterclockwiseDepthFirstLocatedUnassignedTblSubexpressionIterator, variable::TblExpressionVariable}}}, proof_calculus_derived::aliases::propositions::UnassignedTblProposition};
+use crate::{expressions::{paths::TblSubexpressionInExpressionPath, types::{assigned::binding::bounds::{TblExpressionBoundAtomExactValue, TblExpressionBoundCompoundExactLength, TblExpressionBoundValueDuplicated, TblExpressionInsertionBound}, unassigned::{UnassignedTblExpression, at_path_enum::UnassignedTblExpressionAtPathEnum, compound::UnassignedCompoundTblExpression, subexpressions::iterators::depth_first::counterclockwise::CounterclockwiseDepthFirstLocatedUnassignedTblSubexpressionIterator, variable::TblExpressionVariable}}}, proof_calculus_derived::aliases::propositions::types::UnassignedTblProposition};
 
 #[derive(Clone,PartialEq,Eq,Hash,Debug)]
-pub struct TblFastConstructGetBoundsForExprsSubsumedByUexpr(Box<[TblExpressionInsertionBound]>);
+pub struct TblFastConstructGetBoundsForExprsSubsumedByUexpr{
+    get_bounds: Box<[TblExpressionInsertionBound]>,
+    assignment_constructor: ()
+}
 pub type TblFastConstructGetBoundsForPropsSubsumedByUprop = TblFastConstructGetBoundsForExprsSubsumedByUexpr;
 
 impl <B: GetBinder<TblExpressionInsertionBound>> GetBounds<B> for TblFastConstructGetBoundsForExprsSubsumedByUexpr {
     fn get_from<'binder>(&self, binder: &'binder B) -> HashSet<&'binder <B as Binder>::Value>
-        { binder.get_intersection(self.0.iter()) }
+        { binder.get_intersection(self.get_bounds.iter()) }
 }
 impl <B: GetBinder<TblExpressionInsertionBound>> UniqueGetBounds<B> for TblFastConstructGetBoundsForExprsSubsumedByUexpr {}
 impl <'prop,C: 'prop + UnassignedCompoundTblExpression, B: GetBinder<TblExpressionInsertionBound>> GetBoundsForPropsSubsumedByUprop<'prop,UnassignedTblProposition<C>,B> for TblFastConstructGetBoundsForExprsSubsumedByUexpr {}
 impl <'a, C: UnassignedCompoundTblExpression> From<&'a UnassignedTblExpression<C>> for TblFastConstructGetBoundsForPropsSubsumedByUprop {
     fn from(expr: &'a UnassignedTblExpression<C>) -> Self {
         let mut first_var_instances: HashMap<TblExpressionVariable, TblSubexpressionInExpressionPath> = HashMap::new();
-        let bounds = CounterclockwiseDepthFirstLocatedUnassignedTblSubexpressionIterator::new(expr)
+        let get_bounds = CounterclockwiseDepthFirstLocatedUnassignedTblSubexpressionIterator::new(expr)
             .filter_map(|v| 
                 match v.into() {
                     UnassignedTblExpressionAtPathEnum::Atomic(atom) =>
@@ -31,10 +34,10 @@ impl <'a, C: UnassignedCompoundTblExpression> From<&'a UnassignedTblExpression<C
                         Some(TblExpressionBoundCompoundExactLength::new(compound.path, compound.obj.len()).into()),
                 })
             .collect();
-        Self(bounds)
+        Self{get_bounds, assignment_constructor: ()}
     }
 }
 
 impl TblFastConstructGetBoundsForExprsSubsumedByUexpr {
-    pub fn bounds(&self) -> &Box<[TblExpressionInsertionBound]> { &self.0 }
+    pub fn bounds(&self) -> &Box<[TblExpressionInsertionBound]> { &self.get_bounds }
 }

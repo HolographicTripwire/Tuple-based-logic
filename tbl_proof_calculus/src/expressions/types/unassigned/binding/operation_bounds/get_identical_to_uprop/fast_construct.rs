@@ -1,7 +1,7 @@
 use std::{collections::HashSet};
 
-use proof_calculus::{propositions::unassigned::binding::bounds::GetBoundsForUpropIdenticalToUprop, utils::collections::binding::{binders::{Binder, GetBinder}, bounds::{GetBounds, UniqueGetBounds}}};
-use crate::{expressions::types::{assigned::binding::bounds::{TblExpressionBoundAtomExactValue, TblExpressionBoundCompoundExactLength}, unassigned::{UnassignedTblExpression, at_path_enum::UnassignedTblExpressionAtPathEnum, binding::bounds::{UnassignedTblExpressionBoundVariableExactValue, UnassignedTblExpressionIdentityBound}, compound::UnassignedCompoundTblExpression, subexpressions::iterators::depth_first::counterclockwise::CounterclockwiseDepthFirstLocatedUnassignedTblSubexpressionIterator}}, proof_calculus_derived::aliases::propositions::UnassignedTblProposition};
+use proof_calculus::{propositions::types::unassigned::binding::bounds::GetBoundsForUpropIdenticalToUprop, utils::collections::binding::{binders::{Binder, GetBinder}, bounds::{GetBounds, UniqueGetBounds}}};
+use crate::{expressions::types::{assigned::binding::bounds::{TblExpressionBoundAtomExactValue, TblExpressionBoundCompoundExactLength}, unassigned::{UnassignedTblExpression, at_path_enum::UnassignedTblExpressionAtPathEnum, binding::bounds::{UnassignedTblExpressionBoundVariableExactValue, UnassignedTblExpressionIdentityBound}, compound::UnassignedCompoundTblExpression, subexpressions::iterators::depth_first::counterclockwise::CounterclockwiseDepthFirstLocatedUnassignedTblSubexpressionIterator}}, proof_calculus_derived::aliases::propositions::types::UnassignedTblProposition};
 
 #[derive(Clone,PartialEq,Eq,Hash,Debug)]
 pub struct TblFastConstructGetBoundsForUexprIdenticalToUexpr(Box<[UnassignedTblExpressionIdentityBound]>);
