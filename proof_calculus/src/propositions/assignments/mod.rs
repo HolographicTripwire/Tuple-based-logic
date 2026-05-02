@@ -1,17 +1,19 @@
-use crate::propositions::types::unassigned::UnassignedProposition;
+use crate::{propositions::types::{assigned::Proposition,unassigned::UnassignedProposition}, utils::traits::combinable::TryCombine};
 
-pub trait PropositionalAssignment<UP: UnassignedProposition>: Sized {
-    type CombinationError;
-    fn combine<I: IntoIterator<Item = Self>>(assignments: I) -> Result<Self,Self::CombinationError>;
-}
-pub trait PropositionalAssignmentConstructor<UP: UnassignedProposition, PA: PropositionalAssignment<UP>>: Sized {
-    fn construct(prop: UP) -> PA;
+pub trait PropositionalAssignment<FromUprop: UnassignedProposition,ToProp: Proposition>: TryCombine {
+    fn assign_to(&self, uprop: &FromUprop) -> Result<ToProp,()>;
 }
 
-pub trait PartialPropositionalAssignment<UP: UnassignedProposition>: Sized {
-    type CombinationError;
-    fn combine<I: IntoIterator<Item = Self>>(assignments: I) -> Result<Self,Self::CombinationError>;
+pub trait PropositionalAssignmentConstructor<FromUprop: UnassignedProposition, ToProp: Proposition, Assignment: PropositionalAssignment<FromUprop,ToProp>>: Sized {
+    type Error;
+    fn try_construct(&self, prop: &ToProp) -> Result<Assignment,Self::Error>;
 }
-pub trait UnassignedPropositionalAssignmentConstructor<UP: UnassignedProposition, PA: PartialPropositionalAssignment<UP>>: Sized {
-    fn construct(prop: UP) -> PA;
+
+
+pub trait PartialPropositionalAssignment<'assignment,'from,FromUprop: UnassignedProposition, ToUprop: UnassignedProposition>: TryCombine {
+    fn assign_to(&'assignment self, uprop: &'from FromUprop) -> ToUprop;
+}
+pub trait PartialPropositionalAssignmentConstructor<'assignment, 'from, FromUprop: UnassignedProposition, ToUprop: UnassignedProposition, Assignment: PartialPropositionalAssignment<'assignment,'from,FromUprop,ToUprop>>: Sized {
+    type Error;
+    fn try_construct(&self, prop: &FromUprop) -> Result<Assignment,Self::Error>;
 }

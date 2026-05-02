@@ -45,37 +45,26 @@ mod from {
 
     use crate::expressions::types::assigned::{TblExpression, compound::{arc::ArcCompoundTblExpression, r#box::BoxCompoundTblExpression, rc::RcCompoundTblExpression}};
 
-    impl <const N: usize> From<[TblExpression<BoxCompoundTblExpression>;N]> for BoxCompoundTblExpression {
-        fn from(exprs: [TblExpression<BoxCompoundTblExpression>;N]) -> Self { Self(Box::new(exprs)) }
-    }
-    impl From<Box<[TblExpression<BoxCompoundTblExpression>]>> for BoxCompoundTblExpression {
-        fn from(exprs: Box<[TblExpression<BoxCompoundTblExpression>]>) -> Self { Self(exprs) }
-    }
-    impl From<Rc<[TblExpression<BoxCompoundTblExpression>]>> for BoxCompoundTblExpression {
-        fn from(exprs: Rc<[TblExpression<BoxCompoundTblExpression>]>) -> Self { Self(Box::from(exprs.into_iter().as_slice())) }
-    }
-    impl From<Arc<[TblExpression<BoxCompoundTblExpression>]>> for BoxCompoundTblExpression {
-        fn from(exprs: Arc<[TblExpression<BoxCompoundTblExpression>]>) -> Self { Self(Box::from(exprs.into_iter().as_slice())) }
-    }
-    impl From<Vec<TblExpression<BoxCompoundTblExpression>>> for BoxCompoundTblExpression {
-        fn from(exprs: Vec<TblExpression<BoxCompoundTblExpression>>) -> Self { Self(exprs.into()) }
-    }
-    impl FromIterator<TblExpression<BoxCompoundTblExpression>> for BoxCompoundTblExpression {
-        fn from_iter<T: IntoIterator<Item = TblExpression<BoxCompoundTblExpression>>>(iter: T) -> Self { Self(iter.into_iter().collect()) }
-    }
+    impl <const N: usize> From<[TblExpression<Self>;N]> for BoxCompoundTblExpression
+        { fn from(exprs: [TblExpression<Self>;N]) -> Self { Self(Box::new(exprs)) } }
+    impl From<Box<[TblExpression<Self>]>> for BoxCompoundTblExpression
+        { fn from(exprs: Box<[TblExpression<Self>]>) -> Self { Self(exprs) } }
+    impl From<Rc<[TblExpression<Self>]>> for BoxCompoundTblExpression
+        { fn from(exprs: Rc<[TblExpression<Self>]>) -> Self { Self(Box::from(exprs.into_iter().as_slice())) } }
+    impl From<Arc<[TblExpression<Self>]>> for BoxCompoundTblExpression
+        { fn from(exprs: Arc<[TblExpression<Self>]>) -> Self { Self(Box::from(exprs.into_iter().as_slice())) } }
+    impl From<Vec<TblExpression<Self>>> for BoxCompoundTblExpression
+        { fn from(exprs: Vec<TblExpression<Self>>) -> Self { Self(exprs.into()) } }
+    impl FromIterator<TblExpression<Self>> for BoxCompoundTblExpression
+        { fn from_iter<T: IntoIterator<Item = TblExpression<Self>>>(iter: T) -> Self { Self(iter.into_iter().collect()) } }
 
+    impl <'a> From<&'a Self> for BoxCompoundTblExpression 
+        { fn from(value: &'a Self) -> Self { value.clone() } }
     impl From<&RcCompoundTblExpression> for BoxCompoundTblExpression {
-        fn from(value: &RcCompoundTblExpression) -> Self {
-            value.0.iter()
-                .map(|i| i.transmute_compound())
-                .collect()
-        }
-    }
-    impl From<&ArcCompoundTblExpression> for BoxCompoundTblExpression {
-        fn from(value: &ArcCompoundTblExpression) -> Self {
-            value.0.iter()
-                .map(|i| i.transmute_compound())
-                .collect()
-        }
+        fn from(value: &RcCompoundTblExpression) -> Self
+            { value.0.iter() .map(|i| i.transmute_compound()).collect() }
+    } impl From<&ArcCompoundTblExpression> for BoxCompoundTblExpression {
+        fn from(value: &ArcCompoundTblExpression) -> Self 
+            { value.0.iter().map(|i| i.transmute_compound()).collect() }
     }
 }

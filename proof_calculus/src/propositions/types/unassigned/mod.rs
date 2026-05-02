@@ -4,15 +4,16 @@ use std::hash::Hash;
 pub mod binding;
 
 pub trait UnassignedProposition: Clone + PartialEq + Eq + Hash {
-    type AssignedResult: Proposition;
-    type DefaultAssignment: PropositionalAssignment<Self>;
-    type DefaultPartialAssignment: PartialPropositionalAssignment<Self>;
+    type DefaultPartialAssignment<'slf>: PartialPropositionalAssignment<'slf,'slf,Self,Self>;
     type DefaultNormalisation: NormalisedUnassignedProposition;
 
-    fn assign<Assignment: PropositionalAssignment<Self>>(&self, assignment: Assignment) -> Result<Self::AssignedResult,()>;
-    fn reverse_assign(&self, assigned: Self::AssignedResult) -> Result<Self::DefaultAssignment,()>;
-    fn partial_assign<PartialAssignment: PropositionalAssignment<Self>>(self, assignment: &PartialAssignment) -> Self;
-    fn partial_reverse_assign(&self, assigned: &Self) -> Result<Self::DefaultPartialAssignment,()>;
+    fn partial_assign<'slf, PartialAssignment: PartialPropositionalAssignment<'slf,'slf,Self,Self>>(self, assignment: &PartialAssignment) -> Self;
+    fn partial_reverse_assign<'slf>(&self, assigned: &Self) -> Result<Self::DefaultPartialAssignment<'slf>,()>;
 
     fn normalise(self) -> Self::DefaultNormalisation;
+}
+pub trait UnassignedPropositionForProp<Prop: Proposition>: UnassignedProposition {
+    type DefaultAssignment: PropositionalAssignment<Self,Prop>;
+    fn assign<Assignment: PropositionalAssignment<Self,Prop>>(&self, assignment: Assignment) -> Result<Prop,()>;
+    fn reverse_assign(&self, assigned: Prop) -> Result<Self::DefaultAssignment,()>;
 }

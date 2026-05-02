@@ -1,7 +1,7 @@
 use path_lib::obj_at_path::{ObjAtPath, OwnedObjAtPath};
 use proof_calculus::propositions::types::unassigned::UnassignedProposition;
 
-use crate::{expressions::{paths::{TblSubexpressionInExpressionPath, immediate::ImmediateTblSubexpressionInExpressionPath}, types::{assigned::atomic::AtomicTblExpression, unassigned::{compound::UnassignedCompoundTblExpression, subexpressions::{ParentOfUnassignedSubexpressions, UnassignedTblSubexpressionInExpression, immediate::ParentOfImmediateUnassignedSubexpressions, iterators::depth_first::counterclockwise::{CounterclockwiseDepthFirstLocatedUnassignedTblSubexpressionIterator, CounterclockwiseDepthFirstUnassignedTblSubexpressionIterator}}, variable::TblExpressionVariable}}}, proof_calculus_derived::aliases::propositions::UnassignedTblProposition};
+use crate::{expressions::{paths::{TblSubexpressionInExpressionPath, immediate::ImmediateTblSubexpressionInExpressionPath}, types::{assigned::atomic::AtomicTblExpression, unassigned::{compound::UnassignedCompoundTblExpression, subexpressions::{ParentOfUnassignedSubexpressions, UnassignedTblSubexpressionInExpression, immediate::ParentOfImmediateUnassignedSubexpressions, iterators::depth_first::counterclockwise::{CounterclockwiseDepthFirstLocatedUnassignedTblSubexpressionIterator, CounterclockwiseDepthFirstUnassignedTblSubexpressionIterator}}, variable::TblExpressionVariable}}}};
 
 pub mod variable;
 pub mod compound;
@@ -12,8 +12,8 @@ pub mod binding;
 #[derive(Clone,PartialEq,Eq,Hash,Debug)]
 pub enum UnassignedTblExpression<C: UnassignedCompoundTblExpression> {
     Atomic(AtomicTblExpression),
+    Variable(TblExpressionVariable),
     Compound(C),
-    Variable(TblExpressionVariable)
 }
 pub type BoxUnassignedTblExpression = UnassignedTblExpression<UnassignedBoxCompoundTblExpression>;
 pub type RcUnassignedTblExpression = UnassignedTblExpression<UnassignedRcCompoundTblExpression>;
@@ -70,6 +70,12 @@ impl <C: UnassignedCompoundTblExpression> UnassignedTblExpression<C> {
             _ => None,
         }
     }
+
+    pub fn transmute_compound<'a: 'b,'b,C2: UnassignedCompoundTblExpression + From<&'b C>>(&'a self) -> UnassignedTblExpression<C2> { match self {
+        UnassignedTblExpression::Atomic(atom) => UnassignedTblExpression::Atomic(*atom),
+        UnassignedTblExpression::Variable(variable) => UnassignedTblExpression::Variable(*variable),
+        UnassignedTblExpression::Compound(compound) => UnassignedTblExpression::Compound(compound.into()),
+    }}
 }
 impl <C: UnassignedCompoundTblExpression> UnassignedProposition for UnassignedTblProposition<C> {
     type AssignedResult;
@@ -143,7 +149,6 @@ mod from {
     }
     impl <C: CompoundTblExpression, UC: UnassignedCompoundTblExpression> TryInto<TblExpression<C>> for UnassignedTblExpression<UC> where UC: TryInto<C,Error=usize> {
         type Error = TblExpressionVariable;
-    
         fn try_into(self) -> Result<TblExpression<C>, Self::Error> { match self {
             UnassignedTblExpression::Atomic(atom) => Ok(TblExpression::Atomic(atom)),
             UnassignedTblExpression::Compound(compound) => Ok(TblExpression::Compound(compound.try_into()?)),
@@ -151,37 +156,23 @@ mod from {
         }}
     }
 
-
-    impl <C: UnassignedCompoundTblExpression> From<AtomicTblExpression> for UnassignedTblExpression<C> {
-        fn from(id: AtomicTblExpression) -> Self
-            { Self::Atomic(id) }
-    }
-    impl <C: UnassignedCompoundTblExpression> From<u16> for UnassignedTblExpression<C> {
-        fn from(id: u16) -> Self
-            { AtomicTblExpression(id).into() }
-    }
-    impl <C: UnassignedCompoundTblExpression> From<C> for UnassignedTblExpression<C> {
-        fn from(expr: C) -> Self
-            { Self::Compound(expr) }
-    }
-    impl <const N: usize, C: UnassignedCompoundTblExpression> From<[TblExpression<C>;N]> for UnassignedTblExpression<C> where C: From<[UnassignedTblExpression<C>;N]> {
-        fn from(exprs: [UnassignedTblExpression<C>;N]) -> Self
-            { C::from(exprs).into() }
-    }
-    impl <C: UnassignedCompoundTblExpression> From<Box<[UnassignedTblExpression<C>]>> for UnassignedTblExpression<C> where C: From<Box<[UnassignedTblExpression<C>]>> {
-        fn from(exprs: Box<[UnassignedTblExpression<C>]>) -> Self
-            { C::from(exprs).into() }
-    }
-    impl <C: UnassignedCompoundTblExpression> From<Rc<[TblExpression<C>]>> for UnassignedTblExpression<C> where C: From<Rc<[UnassignedTblExpression<C>]>> {
-        fn from(exprs: Rc<[UnassignedTblExpression<C>]>) -> Self
-            { C::from(exprs).into() }
-    }
-    impl <C: UnassignedCompoundTblExpression> From<Arc<[TblExpression<C>]>> for UnassignedTblExpression<C> where C: From<Arc<[UnassignedTblExpression<C>]>> {
-        fn from(exprs: Arc<[UnassignedTblExpression<C>]>) -> Self
-            { C::from(exprs).into() }
-    }
-    impl <C: UnassignedCompoundTblExpression> From<Vec<TblExpression<C>>> for UnassignedTblExpression<C> where C: From<Vec<UnassignedTblExpression<C>>> {
-        fn from(exprs: Vec<UnassignedTblExpression<C>>) -> Self
-            { C::from(exprs).into() }
-    }
+    impl <UC: UnassignedCompoundTblExpression> From<AtomicTblExpression> for UnassignedTblExpression<UC> 
+        { fn from(id: AtomicTblExpression) -> Self { Self::Atomic(id) } }
+    impl <UC: UnassignedCompoundTblExpression> From<u16> for UnassignedTblExpression<UC> 
+        { fn from(id: u16) -> Self { AtomicTblExpression(id).into() } }
+    impl <UC: UnassignedCompoundTblExpression> From<UC> for UnassignedTblExpression<UC> 
+        { fn from(expr: UC) -> Self { Self::Compound(expr) } }
+    impl <const N: usize, C: UnassignedCompoundTblExpression> From<[Self;N]> for UnassignedTblExpression<C> where C: From<[Self;N]>
+        { fn from(exprs: [Self;N]) -> Self { C::from(exprs).into() } }
+    impl <UC: UnassignedCompoundTblExpression> From<Box<[Self]>> for UnassignedTblExpression<UC> where UC: From<Box<[Self]>> 
+        { fn from(exprs: Box<[Self]>) -> Self { UC::from(exprs).into() } }
+    impl <UC: UnassignedCompoundTblExpression> From<Rc<[Self]>> for UnassignedTblExpression<UC> where UC: From<Rc<[Self]>> 
+        { fn from(exprs: Rc<[Self]>) -> Self { UC::from(exprs).into() } }
+    impl <UC: UnassignedCompoundTblExpression> From<Arc<[Self]>> for UnassignedTblExpression<UC> where UC: From<Arc<[Self]>> 
+        { fn from(exprs: Arc<[Self]>) -> Self { UC::from(exprs).into() } }
+    impl <UC: UnassignedCompoundTblExpression> From<Vec<Self>> for UnassignedTblExpression<UC> where UC: From<Vec<Self>> 
+        { fn from(exprs: Vec<Self>) -> Self { UC::from(exprs).into() } }
+    
+    impl <UC: UnassignedCompoundTblExpression> FromIterator<Self> for UnassignedTblExpression<UC>
+        { fn from_iter<T: IntoIterator<Item = Self>>(iter: T) -> Self { Self::Compound(UC::from_iter(iter)) } }
 }

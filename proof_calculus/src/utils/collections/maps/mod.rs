@@ -1,6 +1,3 @@
-use std::hash::Hash;
-use std::collections::HashMap;
-
 pub mod hashmap;
 pub mod dense_usize_map;
 pub mod multimap;
@@ -16,4 +13,3 @@ impl <K,V: PartialEq<V>> KeyConflictError<K,V> {
         Self { key, value1, value2 }
     }
 }
-

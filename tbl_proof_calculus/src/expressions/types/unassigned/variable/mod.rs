@@ -1,3 +1,5 @@
+use std::ops::Deref;
+
 use path_lib::obj_at_path::{ObjAtPath, OwnedObjAtPath};
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug, Hash)]
@@ -5,6 +7,10 @@ pub struct TblExpressionVariable(pub usize);
 impl TblExpressionVariable {
     pub fn first() -> Self { Self(0) }
     pub fn next(&self) -> Self { Self(self.0 + 1) }
+}
+impl Deref for TblExpressionVariable {
+    type Target = usize;
+    fn deref(&self) -> &Self::Target { &self.0 }
 }
 impl From<usize> for TblExpressionVariable {
     fn from(value: usize) -> Self { Self(value) }

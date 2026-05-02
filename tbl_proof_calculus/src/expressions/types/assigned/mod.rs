@@ -121,38 +121,26 @@ mod from {
 
     use crate::expressions::types::assigned::{TblExpression, atomic::AtomicTblExpression, compound::CompoundTblExpression};
 
-    impl <C: CompoundTblExpression> From<AtomicTblExpression> for TblExpression<C> {
-        fn from(id: AtomicTblExpression) -> Self
-            { Self::Atomic(id) }
-    }
-    impl <C: CompoundTblExpression> From<u16> for TblExpression<C> {
-        fn from(id: u16) -> Self
-            { AtomicTblExpression(id).into() }
-    }
-    impl <C: CompoundTblExpression> From<C> for TblExpression<C> {
-        fn from(expr: C) -> Self
-            { Self::Compound(expr) }
-    }
-    impl <const N: usize, C: CompoundTblExpression> From<[TblExpression<C>;N]> for TblExpression<C> where C: From<[TblExpression<C>;N]> {
-        fn from(exprs: [TblExpression<C>;N]) -> Self
-            { C::from(exprs).into() }
-    }
-    impl <C: CompoundTblExpression> From<Box<[TblExpression<C>]>> for TblExpression<C> where C: From<Box<[TblExpression<C>]>> {
-        fn from(exprs: Box<[TblExpression<C>]>) -> Self
-            { C::from(exprs).into() }
-    }
-    impl <C: CompoundTblExpression> From<Rc<[TblExpression<C>]>> for TblExpression<C> where C: From<Rc<[TblExpression<C>]>> {
-        fn from(exprs: Rc<[TblExpression<C>]>) -> Self
-            { C::from(exprs).into() }
-    }
-    impl <C: CompoundTblExpression> From<Arc<[TblExpression<C>]>> for TblExpression<C> where C: From<Arc<[TblExpression<C>]>> {
-        fn from(exprs: Arc<[TblExpression<C>]>) -> Self
-            { C::from(exprs).into() }
-    }
-    impl <C: CompoundTblExpression> From<Vec<TblExpression<C>>> for TblExpression<C> where C: From<Vec<TblExpression<C>>> {
-        fn from(exprs: Vec<TblExpression<C>>) -> Self
-            { C::from(exprs).into() }
-    }
+    impl <C: CompoundTblExpression> From<AtomicTblExpression> for TblExpression<C> 
+        { fn from(id: AtomicTblExpression) -> Self { Self::Atomic(id) } }
+    impl <C: CompoundTblExpression> From<u16> for TblExpression<C> 
+        { fn from(id: u16) -> Self { AtomicTblExpression(id).into() } }
+    impl <C: CompoundTblExpression> From<C> for TblExpression<C> 
+        { fn from(expr: C) -> Self { Self::Compound(expr) } }
+    
+    impl <const N: usize, C: CompoundTblExpression> From<[Self;N]> for TblExpression<C> where C: From<[Self;N]> 
+        { fn from(exprs: [Self;N]) -> Self { C::from(exprs).into() } }
+    impl <C: CompoundTblExpression> From<Box<[Self]>> for TblExpression<C> where C: From<Box<[Self]>> 
+        { fn from(exprs: Box<[Self]>) -> Self { C::from(exprs).into() } }
+    impl <C: CompoundTblExpression> From<Rc<[Self]>> for TblExpression<C> where C: From<Rc<[Self]>> 
+        { fn from(exprs: Rc<[Self]>) -> Self { C::from(exprs).into() } }
+    impl <C: CompoundTblExpression> From<Arc<[Self]>> for TblExpression<C> where C: From<Arc<[Self]>> 
+        { fn from(exprs: Arc<[Self]>) -> Self { C::from(exprs).into() } }
+    impl <C: CompoundTblExpression> From<Vec<Self>> for TblExpression<C> where C: From<Vec<Self>> 
+        { fn from(exprs: Vec<Self>) -> Self { C::from(exprs).into() } }
+
+    impl <C: CompoundTblExpression> FromIterator<Self> for TblExpression<C>
+        { fn from_iter<T: IntoIterator<Item = Self>>(iter: T) -> Self { Self::Compound(C::from_iter(iter)) } }
 }
 
 // #[cfg(test)]
