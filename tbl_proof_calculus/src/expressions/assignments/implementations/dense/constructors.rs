@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use itertools::Itertools;
 use proof_calculus::{propositions::assignments::{PartialPropositionalAssignmentConstructor, PropositionalAssignmentConstructor}, utils::{collections::maps::{KeyConflictError, dense_usize_map::DenseUsizeMap}, traits::{combinable::TryCombine, try_from_iter::TryFromIterator}}};
 
@@ -68,23 +70,12 @@ PartialPropositionalAssignmentConstructor<'assignment,'from2,UnassignedTblPropos
 for DenseTblExpressionAssignmentConstructor {
     type Error = ();
     fn try_construct(&self, prop: &UnassignedTblProposition<FromUcompound>) -> Result<SparsePartialTblPropositionAssignment<ToUcompound>,()> {
-        let values= self.0.iter()
+        let values: HashMap<_,_> = self.0.iter()
             .map(|(variable,path)| Ok((variable,match prop.get_subexpression_owned(path) {
                 Ok(uexpr) => uexpr.transmute_compound(),
                 Err(e) => return Err(e),
             })))
             .try_collect()?;
-        Ok(SparsePartialTblPropositionAssignment::from_map_unchecked(values))
+        Ok(SparsePartialTblPropositionAssignment::from(values))
     }
 }
-// impl <'assignment,'uprop,UC: UnassignedCompoundTblExpression>
-// PartialPropositionalAssignmentConstructor<'assignment,'uprop,UnassignedTblProposition<UC>, UnassignedTblProposition<UC>, SparsePartialTblPropositionAssignment<UC>>
-// for DenseTblExpressionAssignmentConstructor {
-//     type Error = ();
-//     fn try_construct(&self, prop: &UnassignedTblProposition<UC>) -> Result<SparsePartialTblPropositionAssignment<UC>,()> {
-        // let values: Vec<_>= self.0.iter()
-        //     .map(|(variable,path)| Ok((variable,prop.get_subexpression_owned(path)?)))
-        //     .try_collect()?;
-        // Ok(SparsePartialTblPropositionAssignment::from_iter_unchecked(values))
-//     }
-// }

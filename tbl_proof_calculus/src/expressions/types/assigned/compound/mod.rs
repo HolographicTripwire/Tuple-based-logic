@@ -13,6 +13,8 @@ pub trait CompoundTblExpression: Clone + PartialEq + Eq + Hash + Debug + ParentO
     fn replace(&self, to_replace: &TblExpression<Self>, replace_with: &TblExpression<Self>) -> Self;
     fn as_slice(&self) -> &[TblExpression<Self>];
     fn len(&self) -> usize;
+
+    
 }
 
 pub type CompoundTblExpressionAtPath<'a,C:CompoundTblExpression,Path> = ObjAtPath<'a,C,Path>;

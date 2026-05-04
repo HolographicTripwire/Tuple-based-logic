@@ -1,4 +1,4 @@
-pub mod hashmap;
+pub mod conflictless_hashmap;
 pub mod dense_usize_map;
 pub mod multimap;
 

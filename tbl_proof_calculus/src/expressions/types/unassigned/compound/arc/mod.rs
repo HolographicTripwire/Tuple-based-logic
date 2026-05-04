@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use crate::expressions::{assignments::dense::DenseTblExpressionAssignment, paths::{TblSubexpressionInExpressionPath, immediate::ImmediateTblSubexpressionInExpressionPath}, types::{assigned::{compound::{CompoundTblExpression, arc::ArcCompoundTblExpression}, subexpressions::ParentOfSubexpressions}, unassigned::{UnassignedTblExpression, compound::UnassignedCompoundTblExpression, subexpressions::{ParentOfUnassignedSubexpressions, immediate::ParentOfImmediateUnassignedSubexpressions}}}};
+use crate::expressions::{assignments::implementations::dense::DenseTblExpressionAssignment, paths::{TblSubexpressionInExpressionPath, immediate::ImmediateTblSubexpressionInExpressionPath}, types::{assigned::compound::arc::ArcCompoundTblExpression, unassigned::{UnassignedTblExpression, compound::UnassignedCompoundTblExpression, subexpressions::{ParentOfUnassignedSubexpressions, immediate::ParentOfImmediateUnassignedSubexpressions}}}};
 
 /// A compound unit in Tuple-Based Logic, which are used to build up [Propositions](Proposition)
 #[derive(Debug,Clone,PartialEq,Eq,Hash)]
