@@ -6,7 +6,7 @@ pub trait GetBoundsForPropIdenticalToProp<'elem, ElemProp: 'elem + Proposition, 
 pub trait InsertBoundsForProp<'elem, ElemProp: 'elem + Proposition, B: InsertBinder<Self>>: InsertBounds<B> + From<&'elem ElemProp> {}
 
 pub trait GetBoundsForPropsSubsumedByUprop<'elem, ElemUprop: 'elem + UnassignedProposition, B: Binder>: GetBounds<B> + From<&'elem ElemUprop> {}
-pub trait GetBoundsForConstructiblePropsSubsumedByUprop<'uprop,MapProp: Proposition,ElemUprop:'uprop + UnassignedProposition,Assignment: PropositionalAssignment<ElemUprop,MapProp>, B: Binder>: GetBoundsForPropsSubsumedByUprop<'uprop,ElemUprop,B> {
-    type AssignmentConstructor: PropositionalAssignmentConstructor<ElemUprop,MapProp,Assignment>;
-    fn get_from_with_assignment_constructors<'binder>(&self, binder: &'binder B) -> HashSet<(&'binder B::Value, Self::AssignmentConstructor)>;
+pub trait GetBoundsForConstructiblePropsSubsumedByUprop<'uprop,SubsumedMapProp: Proposition,SubsumerElemUprop:'uprop + UnassignedProposition,Assignment: PropositionalAssignment<SubsumerElemUprop,SubsumedMapProp>, B: Binder>: GetBoundsForPropsSubsumedByUprop<'uprop,SubsumerElemUprop,B> {
+    type ElemToMapConstructor: PropositionalAssignmentConstructor<SubsumerElemUprop,SubsumedMapProp,Assignment>;
+    fn get_from_with_elem_to_map_constructors<'binder>(&self, binder: &'binder B) -> HashSet<(&'binder B::Value, Self::ElemToMapConstructor)>;
 }

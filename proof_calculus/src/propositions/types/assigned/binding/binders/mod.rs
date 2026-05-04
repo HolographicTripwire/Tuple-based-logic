@@ -7,14 +7,14 @@ pub trait GetBinderForPropIdenticalToProp<ElemProp: Proposition>: Binder {
     fn get_identical_to<'prop,'binder>(&'binder self, prop: &'prop ElemProp) -> Option<&'binder Self::Value>
         { self.get_unique_by_bounds(&Self::DefaultGetBoundsForPropIdenticalToProp::from(prop)) }
 }
-pub trait GetBinderForPropsSubsumedByUprop<ElemUprop: UnassignedProposition>: Binder {
-    type DefaultGetBoundsForPropsSubsumedByUprop<'elem>: GetBoundsForPropsSubsumedByUprop<'elem,ElemUprop,Self> where ElemUprop: 'elem;
-    fn get_subsumed_by<'prop,'binder>(&'binder self, element: &'prop ElemUprop) -> HashSet<&'binder Self::Value>
+pub trait GetBinderForPropsSubsumedByUprop<SubsumerElemUprop: UnassignedProposition>: Binder {
+    type DefaultGetBoundsForPropsSubsumedByUprop<'elem>: GetBoundsForPropsSubsumedByUprop<'elem,SubsumerElemUprop,Self> where SubsumerElemUprop: 'elem;
+    fn get_subsumed_by<'prop,'binder>(&'binder self, element: &'prop SubsumerElemUprop) -> HashSet<&'binder Self::Value>
         { self.get_by_bounds(&Self::DefaultGetBoundsForPropsSubsumedByUprop::from(element)) }
-    fn get_subsumed_by_with_assignment_constructor<'uprop,'binder,MapProp:Proposition,Assignment:PropositionalAssignment<ElemUprop,MapProp>>(&'binder self, element: &'uprop ElemUprop) -> 
-        HashSet<(&'binder Self::Value,<Self::DefaultGetBoundsForPropsSubsumedByUprop<'uprop> as GetBoundsForConstructiblePropsSubsumedByUprop<'uprop,MapProp,ElemUprop,Assignment,Self>>::AssignmentConstructor)>
-        where Self::DefaultGetBoundsForPropsSubsumedByUprop<'uprop>: GetBoundsForConstructiblePropsSubsumedByUprop<'uprop,MapProp,ElemUprop,Assignment,Self>
-        { Self::DefaultGetBoundsForPropsSubsumedByUprop::from(element).get_from_with_assignment_constructors(self) }
+    fn get_subsumed_by_with_elem_to_map_constructor<'uprop,'binder,SubsumedMapProp:Proposition,Assignment:PropositionalAssignment<SubsumerElemUprop,SubsumedMapProp>>(&'binder self, element: &'uprop SubsumerElemUprop) -> 
+        HashSet<(&'binder Self::Value,<Self::DefaultGetBoundsForPropsSubsumedByUprop<'uprop> as GetBoundsForConstructiblePropsSubsumedByUprop<'uprop,SubsumedMapProp,SubsumerElemUprop,Assignment,Self>>::ElemToMapConstructor)>
+        where Self::DefaultGetBoundsForPropsSubsumedByUprop<'uprop>: GetBoundsForConstructiblePropsSubsumedByUprop<'uprop,SubsumedMapProp,SubsumerElemUprop,Assignment,Self>
+        { Self::DefaultGetBoundsForPropsSubsumedByUprop::from(element).get_from_with_elem_to_map_constructors(self) }
 }
 
 pub trait InsertBinderForProp<'elem,ElemProp: 'elem + Proposition>: InsertBinder<Self::DefaultInsertionBounds> {
