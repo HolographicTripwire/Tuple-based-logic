@@ -9,13 +9,11 @@ pub mod r#box;
 pub mod rc;
 pub mod arc;
 
-pub trait CompoundTblExpression: Clone + PartialEq + Eq + Hash + Debug + ParentOfImmediateSubexpressions<Self> + ParentOfSubexpressions<Self> {
+pub trait TblExpressionCompound: Clone + PartialEq + Eq + Hash + Debug + ParentOfImmediateSubexpressions<Self> + ParentOfSubexpressions<Self> {
     fn replace(&self, to_replace: &TblExpression<Self>, replace_with: &TblExpression<Self>) -> Self;
     fn as_slice(&self) -> &[TblExpression<Self>];
     fn len(&self) -> usize;
-
-    
 }
 
-pub type CompoundTblExpressionAtPath<'a,C:CompoundTblExpression,Path> = ObjAtPath<'a,C,Path>;
-pub type OwnedCompoundTblExpressionAtPath<C:CompoundTblExpression,Path> = OwnedObjAtPath<C,Path>;
+pub type TblExpressionCompoundAtPath<'a,C:TblExpressionCompound,Path> = ObjAtPath<'a,C,Path>;
+pub type OwnedTblExpressionCompoundAtPath<C:TblExpressionCompound,Path> = OwnedObjAtPath<C,Path>;

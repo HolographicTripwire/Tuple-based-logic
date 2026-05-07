@@ -3,7 +3,7 @@ use std::{collections::{HashMap, HashSet}, hash::Hash};
 use proof_calculus::{propositions::types::assigned::binding::binders::{GetBinderForPropIdenticalToProp, InsertBinderForProp}, utils::collections::{binding::binders::{Binder, GetBinder, InsertBinder}, maps::multimap::MultiMap, sets::hashset::transform_hashset}};
 use ref_cast::RefCast;
 
-use crate::{expressions::types::assigned::{atomic::AtomicTblExpression, binding::{binders::{atom_value::TblExpressionBinderAtomExactValue, compound_length::TblExpressionBinderCompoundExactLength, value_duplication::TblExpressionBinderValueDuplication}, bounds::{AtomOrCompoundLength, TblExpressionBoundAtomExistsAtLocation, TblExpressionBoundCompoundExistsAtLocation, TblExpressionBoundExpressionExistsAtLocation, TblExpressionIdentityBound, TblExpressionInsertionBound, TblPropositionBoundAtomExactValue, TblPropositionBoundAtomExistsAtLocation, TblPropositionBoundCompoundExactLength, TblPropositionBoundCompoundExistsAtLocation, TblPropositionBoundExpressionExistsAtLocation, TblPropositionBoundValueDuplicated, TblPropositionIdentityBound}, operation_bounds::{get_identical_to_prop::fast_construct::TblFastConstructGetBoundsForPropIdenticalToProp, insert::TblFastConstructInsertionBoundsForProp}}, compound::CompoundTblExpression}, proof_calculus_derived::aliases::propositions::types::TblProposition};
+use crate::{expressions::types::assigned::{atom::TblExpressionAtom, binding::{binders::{atom_value::TblExpressionBinderAtomExactValue, compound_length::TblExpressionBinderCompoundExactLength, value_duplication::TblExpressionBinderValueDuplication}, bounds::{AtomOrCompoundLength, TblExpressionBoundAtomExistsAtLocation, TblExpressionBoundCompoundExistsAtLocation, TblExpressionBoundExpressionExistsAtLocation, TblExpressionIdentityBound, TblExpressionInsertionBound, TblPropositionBoundAtomExactValue, TblPropositionBoundAtomExistsAtLocation, TblPropositionBoundCompoundExactLength, TblPropositionBoundCompoundExistsAtLocation, TblPropositionBoundExpressionExistsAtLocation, TblPropositionBoundValueDuplicated, TblPropositionIdentityBound}, operation_bounds::{get_identical_to_prop::fast_construct::TblFastConstructGetBoundsForPropIdenticalToProp, insert::TblFastConstructInsertionBoundsForProp}}, compound::TblExpressionCompound}, proof_calculus_derived::aliases::propositions::types::TblProposition};
 
 pub mod atom_value;
 pub mod compound_length;
@@ -24,7 +24,7 @@ impl <T: Hash + Eq + Clone> Binder for TblPropositionBinder<T> {
 impl <T: Hash + Eq + Clone> GetBinder<TblPropositionBoundAtomExistsAtLocation> for TblPropositionBinder<T> {
     fn get<'binder>(&'binder self, bound: &TblPropositionBoundAtomExistsAtLocation) -> HashSet<&'binder Self::Value>
         { self.atom_value_bounds.get(bound) }    
-    fn get_with_extra_data<'binder>(&'binder self, bound: &TblPropositionBoundAtomExistsAtLocation) -> HashSet<(&'binder Self::Value,AtomicTblExpression)>
+    fn get_with_extra_data<'binder>(&'binder self, bound: &TblPropositionBoundAtomExistsAtLocation) -> HashSet<(&'binder Self::Value,TblExpressionAtom)>
         { self.atom_value_bounds.get_with_extra_data(bound) }
 }
 impl <T: Hash + Eq + Clone> GetBinder<TblPropositionBoundAtomExactValue> for TblPropositionBinder<T> {
@@ -91,9 +91,9 @@ impl <T: Hash + Eq + Clone> InsertBinder<TblFastConstructInsertionBoundsForProp>
     }
 }
 
-impl <C: CompoundTblExpression, T: Hash + Eq + Clone> GetBinderForPropIdenticalToProp<TblProposition<C>> for TblPropositionBinder<T>
+impl <C: TblExpressionCompound, T: Hash + Eq + Clone> GetBinderForPropIdenticalToProp<TblProposition<C>> for TblPropositionBinder<T>
     { type DefaultGetBoundsForPropIdenticalToProp<'prop> = TblFastConstructGetBoundsForPropIdenticalToProp where C: 'prop; }
-impl <'prop, C: 'prop + CompoundTblExpression, T: Hash + Eq + Clone> InsertBinderForProp<'prop, TblProposition<C>> for TblPropositionBinder<T>
+impl <'prop, C: 'prop + TblExpressionCompound, T: Hash + Eq + Clone> InsertBinderForProp<'prop, TblProposition<C>> for TblPropositionBinder<T>
     { type DefaultInsertionBounds = TblFastConstructInsertionBoundsForProp; }
 
 pub (crate) fn get_helper<'a,K1: Hash + Eq + Clone,K2: Hash + Eq,V: Hash + Eq>(map: &'a HashMap<K1,MultiMap<K2,V>>, key1: &K1, key2: &K2) -> HashSet<&'a V> {

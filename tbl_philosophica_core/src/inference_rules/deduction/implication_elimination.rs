@@ -1,12 +1,12 @@
 use proof_calculus::{structures::propositions::{ParentOfAssumptions as _, ParentOfExplicitConclusions}, verification::validity::assertions::as_sized_slice};
-use tbl_proof_calculus::{structures::{expressions::{TblExpression, compound::CompoundTblExpression}, proof_calculus_derived::aliases::inferences::{TblInference, TblInferenceRule}}, proofs::assertions::{assert_expression_value, assert_expression_value_equality, expression_as_sized_slice_in_inference}};
+use tbl_proof_calculus::{expressions::TblExpressionLength, proofs::assertions::{assert_expression_value, assert_expression_value_equality, expression_as_sized_slice_in_inference}, structures::{expressions::{TblExpression, compound::CompoundTblExpression}, proof_calculus_derived::aliases::inferences::{TblInference, TblInferenceRule}}};
 
 use crate::structures::atoms::PhilosophicaInferenceAtoms;
 
 #[derive(Clone)]
 pub enum ImplicationEliminationError<C: CompoundTblExpression> {
     WrongAssumptionCount(usize),
-    ImplicationWrongSize(Option<usize>),
+    ImplicationWrongLength(TblExpressionLength),
     ImplicationWrongHead(TblExpression<C>),
     AntecedentInequal(TblExpression<C>,TblExpression<C>),
     ConsequentInequal(TblExpression<C>,TblExpression<C>)
@@ -23,7 +23,7 @@ pub fn verify_implication_elimination<'a,C: CompoundTblExpression, Rule: TblInfe
 
     // Throw an error if the implication does not contain three expressions
     let [implication_head, antecedent, consequent] = *expression_as_sized_slice_in_inference(&assumption_right)
-        .map_err(|e| ImplicationEliminationError::ImplicationWrongSize(e.get_actual_length()))?;
+        .map_err(|e| ImplicationEliminationError::ImplicationWrongLength(e.get_actual_length()))?;
     // Throw errors if the values of the inference components are incorrect
     assert_expression_value(&implication_head, &PhilosophicaInferenceAtoms::Implication.into())
         .map_err(|e| ImplicationEliminationError::ImplicationWrongHead(e.into_expression()))?;

@@ -13,7 +13,7 @@ pub enum PhilosophicaInferenceRule {
     ImplicationElimination,
     UniversalSubstitution,
     // Verbatim rules
-    AtomicityAssertion,
+    UnitarityAssertion,
     AtomDifferentiation,
     TupleAppendation,
 }
@@ -22,7 +22,7 @@ pub enum PhilosophicaInferenceErr<C: CompoundTblExpression> {
     ConjunctionIntroduction(ConjunctionIntroductionError<C>),
     ImplicationElimination(ImplicationEliminationError<C>),
     UniversalSubstitution(UniversalSubstitutionError<C>),
-    AtomicityAssertion(AtomicityAssertionError<C>),
+    UnitarityAssertion(UnitarityAssertionError<C>),
     AtomDifferentiation(AtomDifferentiationError<C>),
     TupleAppendation(TupleAppendationError<C>),
 }
@@ -38,8 +38,8 @@ impl <C: CompoundTblExpression> ValidatableInferenceRule<TblProposition<C>> for 
                 .map_err(|e| PhilosophicaInferenceErr::ImplicationElimination(e)),
             PhilosophicaInferenceRule::UniversalSubstitution => verify_universal_substitution(inference)
                 .map_err(|e| PhilosophicaInferenceErr::UniversalSubstitution(e)),
-            PhilosophicaInferenceRule::AtomicityAssertion => verify_atomicity_assertion(inference)
-                .map_err(|e| PhilosophicaInferenceErr::AtomicityAssertion(e)),
+            PhilosophicaInferenceRule::UnitarityAssertion => verify_unitarity_assertion(inference)
+                .map_err(|e| PhilosophicaInferenceErr::UnitarityAssertion(e)),
             PhilosophicaInferenceRule::AtomDifferentiation => verify_atom_differentiation(inference)
                 .map_err(|e| PhilosophicaInferenceErr::AtomDifferentiation(e)),
             PhilosophicaInferenceRule::TupleAppendation => verify_tuple_appendation(inference)

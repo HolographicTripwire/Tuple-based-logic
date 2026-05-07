@@ -2,7 +2,7 @@ use std::collections::{HashMap, HashSet};
 
 use proof_calculus::{propositions::types::unassigned::binding::bounds::GetBoundsForUpropsEquivalentToUprop, utils::collections::binding::{binders::{Binder, GetBinder}, bounds::{GetBounds, UniqueGetBounds}}};
 
-use crate::{expressions::{paths::TblSubexpressionInExpressionPath, types::{assigned::binding::bounds::{TblExpressionBoundAtomExactValue, TblExpressionBoundCompoundExactLength, TblExpressionBoundValueDuplicated}, unassigned::{UnassignedTblExpression, at_path_enum::UnassignedTblExpressionAtPathEnum, binding::bounds::{UnassignedTblExpressionBoundVariableExistsAtLocation, UnassignedTblExpressionEquivalenceBound}, compound::UnassignedCompoundTblExpression, subexpressions::iterators::depth_first::counterclockwise::CounterclockwiseDepthFirstLocatedUnassignedTblSubexpressionIterator, variable::TblExpressionVariable}}}, proof_calculus_derived::aliases::propositions::types::UnassignedTblProposition};
+use crate::{expressions::{paths::TblSubexpressionInExpressionPath, types::{assigned::binding::bounds::{TblExpressionBoundAtomExactValue, TblExpressionBoundCompoundExactLength, TblExpressionBoundValueDuplicated}, unassigned::{UnassignedTblExpression, at_path_enum::UnassignedTblExpressionAtPathEnum, binding::bounds::{UnassignedTblExpressionBoundVariableExistsAtLocation, UnassignedTblExpressionEquivalenceBound}, compound::UnassignedTblExpressionCompound, subexpressions::iterators::depth_first::counterclockwise::CounterclockwiseDepthFirstLocatedUnassignedTblSubexpressionIterator, variable::TblExpressionVariable}}}, proof_calculus_derived::aliases::propositions::types::UnassignedTblProposition};
 
 #[derive(Clone,PartialEq,Eq,Hash,Debug)]
 pub struct TblFastConstructGetBoundsForUexprsEquivalentToUexpr(Box<[UnassignedTblExpressionEquivalenceBound]>);
@@ -13,13 +13,13 @@ impl <B: GetBinder<UnassignedTblExpressionEquivalenceBound>> GetBounds<B> for Tb
         { binder.get_intersection(self.0.iter()) }
 }
 impl <B: GetBinder<UnassignedTblExpressionEquivalenceBound>> UniqueGetBounds<B> for TblFastConstructGetBoundsForUexprsEquivalentToUexpr {}
-impl <'prop,C: 'prop + UnassignedCompoundTblExpression, B: GetBinder<UnassignedTblExpressionEquivalenceBound>> GetBoundsForUpropsEquivalentToUprop<'prop,UnassignedTblProposition<C>,B> for TblFastConstructGetBoundsForUexprsEquivalentToUexpr {}
-impl <'a, C: UnassignedCompoundTblExpression> From<&'a UnassignedTblExpression<C>> for TblFastConstructGetBoundsForUpropsEquivalentToUprop {
+impl <'prop,C: 'prop + UnassignedTblExpressionCompound, B: GetBinder<UnassignedTblExpressionEquivalenceBound>> GetBoundsForUpropsEquivalentToUprop<'prop,UnassignedTblProposition<C>,B> for TblFastConstructGetBoundsForUexprsEquivalentToUexpr {}
+impl <'a, C: UnassignedTblExpressionCompound> From<&'a UnassignedTblExpression<C>> for TblFastConstructGetBoundsForUpropsEquivalentToUprop {
     fn from(expr: &'a UnassignedTblExpression<C>) -> Self {
         let mut first_var_instances: HashMap<TblExpressionVariable, TblSubexpressionInExpressionPath> = HashMap::new();
         let mut bounds = Vec::new();
         for expr in CounterclockwiseDepthFirstLocatedUnassignedTblSubexpressionIterator::new(expr) { match expr.into() {
-            UnassignedTblExpressionAtPathEnum::Atomic(atom) =>
+            UnassignedTblExpressionAtPathEnum::Atom(atom) =>
                 bounds.push(TblExpressionBoundAtomExactValue::new(atom.path, *atom.obj).into()),
             UnassignedTblExpressionAtPathEnum::Variable(variable) => {
                 match first_var_instances.get(variable.obj) {

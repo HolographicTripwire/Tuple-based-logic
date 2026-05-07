@@ -1,13 +1,13 @@
 use proof_calculus::{propositions::types::assigned::binding::bounds::InsertBoundsForProp, utils::collections::{binding::binders::InsertBinder, maps::multimap::MultiMap}};
 
-use crate::expressions::types::assigned::{TblExpression, at_path_enum::TblExpressionAtPathEnum, binding::bounds::{TblExpressionBoundAtomExactValue, TblExpressionBoundCompoundExactLength, TblExpressionBoundValueDuplicated, TblExpressionInsertionBound}, compound::CompoundTblExpression, subexpressions::iterators::depth_first::counterclockwise::CounterclockwiseDepthFirstLocatedTblSubexpressionIterator};
+use crate::expressions::types::assigned::{TblExpression, at_path_enum::TblExpressionAtPathEnum, binding::bounds::{TblExpressionBoundAtomExactValue, TblExpressionBoundCompoundExactLength, TblExpressionBoundValueDuplicated, TblExpressionInsertionBound}, compound::TblExpressionCompound, subexpressions::iterators::depth_first::counterclockwise::CounterclockwiseDepthFirstLocatedTblSubexpressionIterator};
 
 #[derive(Clone,PartialEq,Eq,Hash,Debug)]
 pub struct TblFastConstructInsertionBoundsForExpr(Box<[TblExpressionInsertionBound]>);
 pub type TblFastConstructInsertionBoundsForProp = TblFastConstructInsertionBoundsForExpr;
-impl <'prop,C: 'prop + CompoundTblExpression,B:InsertBinder<Self>> InsertBoundsForProp<'prop,TblExpression<C>,B> for TblFastConstructInsertionBoundsForProp {}
+impl <'prop,C: 'prop + TblExpressionCompound,B:InsertBinder<Self>> InsertBoundsForProp<'prop,TblExpression<C>,B> for TblFastConstructInsertionBoundsForProp {}
 
-impl <'a, C: CompoundTblExpression> From<&'a TblExpression<C>> for TblFastConstructInsertionBoundsForExpr {
+impl <'a, C: TblExpressionCompound> From<&'a TblExpression<C>> for TblFastConstructInsertionBoundsForExpr {
     fn from(expr: &'a TblExpression<C>) -> Self {
         // Initialise dups
         let mut dup_atoms = MultiMap::new();
@@ -16,7 +16,7 @@ impl <'a, C: CompoundTblExpression> From<&'a TblExpression<C>> for TblFastConstr
         let mut bounds: Vec<_> = CounterclockwiseDepthFirstLocatedTblSubexpressionIterator::new(expr)
             .map(|v| { 
                 match v.into() {
-                    TblExpressionAtPathEnum::Atomic(atom) => {
+                    TblExpressionAtPathEnum::Atom(atom) => {
                         dup_atoms.insert(atom.obj, atom.path.clone());
                         TblExpressionBoundAtomExactValue::new(atom.path, *atom.obj).into()
                     },

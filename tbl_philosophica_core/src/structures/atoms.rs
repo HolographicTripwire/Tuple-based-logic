@@ -15,7 +15,7 @@ pub enum PhilosophicaInferenceAtoms {
     // Verbatim
     Verbatim,
     Concatenate,
-    Atomic,
+    Unitary,
 }
 
 impl Into<AtomicTblExpression> for PhilosophicaInferenceAtoms {
@@ -33,7 +33,7 @@ impl Into<AtomicTblExpression> for PhilosophicaInferenceAtoms {
             // Verbatim
             PhilosophicaInferenceAtoms::Verbatim => 5,
             PhilosophicaInferenceAtoms::Concatenate => 6,
-            PhilosophicaInferenceAtoms::Atomic => 7,
+            PhilosophicaInferenceAtoms::Unitary => 7,
         })
     }
 }

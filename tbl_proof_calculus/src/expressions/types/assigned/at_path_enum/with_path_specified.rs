@@ -1,4 +1,4 @@
-use crate::expressions::{paths::TblSubexpressionInExpressionPath, types::assigned::{at_path_enum::{OwnedTblExpressionAtPathEnum, TblExpressionAtPathEnum}, compound::CompoundTblExpression}};
+use crate::expressions::{paths::TblSubexpressionInExpressionPath, types::assigned::{at_path_enum::{OwnedTblExpressionAtPathEnum, TblExpressionAtPathEnum}, compound::TblExpressionCompound}};
 
-pub type TblSubexpressionInExpressionEnum<'a,C: CompoundTblExpression> = TblExpressionAtPathEnum<'a,C,TblSubexpressionInExpressionPath>;
-pub type OwnedTblSubexpressionInExpressionEnum<C: CompoundTblExpression> = OwnedTblExpressionAtPathEnum<C,TblSubexpressionInExpressionPath>;
+pub type TblSubexpressionInExpressionEnum<'a,C: TblExpressionCompound> = TblExpressionAtPathEnum<'a,C,TblSubexpressionInExpressionPath>;
+pub type OwnedTblSubexpressionInExpressionEnum<C: TblExpressionCompound> = OwnedTblExpressionAtPathEnum<C,TblSubexpressionInExpressionPath>;

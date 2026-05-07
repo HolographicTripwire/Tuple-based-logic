@@ -3,7 +3,7 @@ use std::fmt::Display;
 use path_lib::obj_at_path::{ObjAtPath, OwnedObjAtPath};
 use proof_calculus::{propositions::types::assigned::paths::PropositionInSequentialProofStepPath, proofs::sequential::subproofs::SequentialProofInProofPath};
 
-use crate::expressions::{paths::TblSubexpressionInExpressionPath, types::assigned::{TblExpression, atomic::AtomicTblExpression, compound::CompoundTblExpression}};
+use crate::expressions::{paths::TblSubexpressionInExpressionPath, types::assigned::{TblExpression, atom::TblExpressionAtom, compound::TblExpressionCompound}};
 
 #[derive(Clone,PartialEq,Eq,Debug)]
 pub struct ExpressionInProofPath{
@@ -18,14 +18,14 @@ impl Display for ExpressionInProofPath {
     }
 }
 
-pub type AtomicTblExpressionInProof<'a> = ObjAtPath<'a,AtomicTblExpression,ExpressionInProofPath>;
-pub type OwnedAtomicTblExpressionInProof = OwnedObjAtPath<AtomicTblExpression,ExpressionInProofPath>;
+pub type TblExpressionAtomInProof<'a> = ObjAtPath<'a,TblExpressionAtom,ExpressionInProofPath>;
+pub type OwnedTblExpressionAtomInProof = OwnedObjAtPath<TblExpressionAtom,ExpressionInProofPath>;
 
-pub type CompoundTblExpressionInProof<'a,C: CompoundTblExpression> = ObjAtPath<'a,C,ExpressionInProofPath>;
-pub type OwnedTblCompoundExpressionInProof<C: CompoundTblExpression> = OwnedObjAtPath<C,ExpressionInProofPath>;
+pub type TblExpressionCompoundInProof<'a,C: TblExpressionCompound> = ObjAtPath<'a,C,ExpressionInProofPath>;
+pub type OwnedTblExpressionCompoundInProof<C: TblExpressionCompound> = OwnedObjAtPath<C,ExpressionInProofPath>;
 
-pub type TblExpressionInProof<'a,C: CompoundTblExpression> = ObjAtPath<'a,TblExpression<C>,ExpressionInProofPath>;
-pub type TblOwnedExpressionInProof<C: CompoundTblExpression> = OwnedObjAtPath<TblExpression<C>,ExpressionInProofPath>;
+pub type TblExpressionInProof<'a,C: TblExpressionCompound> = ObjAtPath<'a,TblExpression<C>,ExpressionInProofPath>;
+pub type TblOwnedExpressionInProof<C: TblExpressionCompound> = OwnedObjAtPath<TblExpression<C>,ExpressionInProofPath>;
 
 mod from {
     use crate::{expressions::{paths::immediate::ImmediateTblSubexpressionInExpressionPath}, proof_calculus_derived::path_composites::PropositionInProofPath};

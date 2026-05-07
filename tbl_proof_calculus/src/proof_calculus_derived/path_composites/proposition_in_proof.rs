@@ -3,7 +3,7 @@ use std::fmt::Display;
 use path_lib::obj_at_path::{ObjAtPath, OwnedObjAtPath};
 use proof_calculus::{propositions::types::assigned::paths::PropositionInSequentialProofStepPath, proofs::sequential::subproofs::SequentialProofInProofPath};
 
-use crate::expressions::types::assigned::compound::CompoundTblExpression;
+use crate::expressions::types::assigned::compound::TblExpressionCompound;
 
 #[derive(Clone,PartialEq,Eq,Debug)]
 pub struct PropositionInProofPath {
@@ -19,8 +19,8 @@ impl Display for PropositionInProofPath {
     }
 }
 
-pub type TblPropositionInProof<'a,C: CompoundTblExpression> = ObjAtPath<'a,C,PropositionInProofPath>;
-pub type OwnedTblPropositionInProof<C: CompoundTblExpression> = OwnedObjAtPath<C,PropositionInProofPath>;
+pub type TblPropositionInProof<'a,C: TblExpressionCompound> = ObjAtPath<'a,C,PropositionInProofPath>;
+pub type OwnedTblPropositionInProof<C: TblExpressionCompound> = OwnedObjAtPath<C,PropositionInProofPath>;
 
 mod from {
     

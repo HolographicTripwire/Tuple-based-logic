@@ -1,17 +1,17 @@
-use crate::expressions::types::assigned::{compound::CompoundTblExpression, OwnedTblExpressionAtPath, TblExpressionAtPath};
+use crate::expressions::types::assigned::{OwnedTblExpressionAtPath, TblExpressionAtPath, at_path_enum::TblExpressionAtPathEnum, atom::TblExpressionAtomAtPath, compound::{TblExpressionCompound, TblExpressionCompoundAtPath}};
 
-pub struct ExpressionAtomicityInequalityError<C: CompoundTblExpression, Path> {
-    pub expr1: OwnedTblExpressionAtPath<C, Path>,
-    pub expr2: OwnedTblExpressionAtPath<C, Path>,
+pub enum ExpressionAtomicityInequalityError<C: TblExpressionCompound, Path> {
+    BothAtoms(OwnedAtomicTblExpressionAtPath<C,Path>, OwnedAtomicTblExpressionAtPath<C,Path>),
+    BothCompounds(OwnedCompoundTblExpressionAtPath<C,Path>, OwnedCompoundTblExpressionAtPath<C,Path>)
 }
 
 /// Check that the provided [Expressions](ExpressionInInference) have inequal atomicity, returning an error otherwise
-pub fn assert_expression_atomicity_inequality<'a,C: CompoundTblExpression,Path:Clone>(expr1: &TblExpressionAtPath<C, Path>, expr2: &TblExpressionAtPath<C,Path>) -> Result<(), ExpressionAtomicityInequalityError<C,Path>> {
-    let first_atomicity = expr1.obj.is_atom();
-    let second_atomicity = expr2.obj.is_atom();
-    if first_atomicity == second_atomicity { Ok(()) }
-    else { Err(ExpressionAtomicityInequalityError{
-        expr1: expr1.clone().into(), 
-        expr2: expr2.clone().into()
-    }) }
+pub fn assert_expression_atomicity_inequality<'a,C: TblExpressionCompound,Path:Clone>(expr1: &TblExpressionAtPath<C, Path>, expr2: &TblExpressionAtPath<C,Path>) -> Result<(), ExpressionAtomicityInequalityError<C,Path>> {
+    match (expr1.into(), expr2.into()) {
+        (TblExpressionAtPathEnum::Atom(atom1), TblExpressionAtPathEnum::Atom(atom2))
+            => { Err(ExpressionAtomicityInequalityError::BothAtoms(atom1.into(), atom2.into())) },
+        (TblExpressionAtPathEnum::Compound(compound1), TblExpressionAtPathEnum::Compound(compound2))
+            => { Err(ExpressionAtomicityInequalityError::BothCompounds(compound1.into(), compound2.into())) },
+        _ => Ok(())
+    }
 }

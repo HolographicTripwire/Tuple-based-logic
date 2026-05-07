@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use itertools::Itertools;
 use proof_calculus::{propositions::assignments::{PartialPropositionalAssignmentConstructor, PropositionalAssignmentConstructor}, utils::{collections::maps::{KeyConflictError, dense_usize_map::DenseUsizeMap}, traits::{combinable::TryCombine, try_from_iter::TryFromIterator}}};
 
-use crate::{expressions::{assignments::implementations::{dense::{DensePartialTblExpressionAssignment, DensePartialTblPropositionAssignment, DenseTblExpressionAssignment, DenseTblPropositionAssignment}, sparse::SparsePartialTblPropositionAssignment}, paths::TblSubexpressionInExpressionPath, types::{assigned::{TblExpression, compound::CompoundTblExpression, subexpressions::ParentOfSubexpressions}, unassigned::{compound::UnassignedCompoundTblExpression, subexpressions::ParentOfUnassignedSubexpressions, variable::TblExpressionVariable}}}, proof_calculus_derived::aliases::propositions::types::{TblProposition, UnassignedTblProposition}};
+use crate::{expressions::{assignments::implementations::{dense::{DensePartialTblExpressionAssignment, DensePartialTblPropositionAssignment, DenseTblExpressionAssignment, DenseTblPropositionAssignment}, sparse::SparsePartialTblPropositionAssignment}, paths::TblSubexpressionInExpressionPath, types::{assigned::{TblExpression, compound::TblExpressionCompound, subexpressions::ParentOfSubexpressions}, unassigned::{compound::UnassignedTblExpressionCompound, subexpressions::ParentOfUnassignedSubexpressions, variable::TblExpressionVariable}}}, proof_calculus_derived::aliases::propositions::types::{TblProposition, UnassignedTblProposition}};
 
 pub struct DenseTblExpressionAssignmentConstructor(DenseUsizeMap<TblExpressionVariable,TblSubexpressionInExpressionPath>);
 pub type DenseTblPropositionAssignmentConstructor = DenseTblExpressionAssignmentConstructor;
@@ -23,7 +23,7 @@ impl TryCombine for DenseTblExpressionAssignmentConstructor {
         
 }
 
-impl <UC: UnassignedCompoundTblExpression, C: CompoundTblExpression + FromIterator<TblExpression<C>>> PropositionalAssignmentConstructor<UnassignedTblProposition<UC>, TblProposition<C>, DenseTblPropositionAssignment<C>> for DenseTblExpressionAssignmentConstructor {
+impl <UC: UnassignedTblExpressionCompound, C: TblExpressionCompound + FromIterator<TblExpression<C>>> PropositionalAssignmentConstructor<UnassignedTblProposition<UC>, TblProposition<C>, DenseTblPropositionAssignment<C>> for DenseTblExpressionAssignmentConstructor {
     type Error = ();
     fn try_construct(&self, prop: &TblProposition<C>) -> Result<DenseTblPropositionAssignment<C>,()> {
         let inner =self.0
@@ -52,7 +52,7 @@ impl TryCombine for DensePartialTblExpressionAssignmentConstructor {
         { Ok(Self(DenseUsizeMap::merge_without_conflicts(assignments.into_iter().map(|v| v.0))?)) }
 }
 
-impl <'assignment,'from: 'from2, 'from2, FromUcompound: 'from + UnassignedCompoundTblExpression, ToUcompound: 'assignment + for<'a> From<&'a FromUcompound> + From<&'assignment ToUcompound> + UnassignedCompoundTblExpression>
+impl <'assignment,'from: 'from2, 'from2, FromUcompound: 'from + UnassignedTblExpressionCompound, ToUcompound: 'assignment + for<'a> From<&'a FromUcompound> + From<&'assignment ToUcompound> + UnassignedTblExpressionCompound>
 PartialPropositionalAssignmentConstructor<'assignment,'from2,UnassignedTblProposition<FromUcompound>,UnassignedTblProposition<ToUcompound>, DensePartialTblPropositionAssignment<ToUcompound>>
 for DenseTblExpressionAssignmentConstructor {
     type Error = ();
@@ -65,7 +65,7 @@ for DenseTblExpressionAssignmentConstructor {
         Ok(DensePartialTblExpressionAssignment(inner))
     }
 }
-impl <'assignment,'from: 'from2,'from2, FromUcompound: 'from + UnassignedCompoundTblExpression, ToUcompound: 'assignment + for<'a> From<&'a FromUcompound> + From<&'assignment ToUcompound> + UnassignedCompoundTblExpression>
+impl <'assignment,'from: 'from2,'from2, FromUcompound: 'from + UnassignedTblExpressionCompound, ToUcompound: 'assignment + for<'a> From<&'a FromUcompound> + From<&'assignment ToUcompound> + UnassignedTblExpressionCompound>
 PartialPropositionalAssignmentConstructor<'assignment,'from2,UnassignedTblProposition<FromUcompound>,UnassignedTblProposition<ToUcompound>, SparsePartialTblPropositionAssignment<ToUcompound>>
 for DenseTblExpressionAssignmentConstructor {
     type Error = ();

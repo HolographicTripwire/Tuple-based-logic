@@ -1,5 +1,5 @@
 use proof_calculus::{structures::propositions::{ParentOfAssumptions, ParentOfExplicitConclusions}, verification::validity::assertions::as_sized_slice};
-use tbl_proof_calculus::{structures::{expressions::{TblExpression, compound::CompoundTblExpression}, proof_calculus_derived::aliases::inferences::{TblInference, TblInferenceRule}}, proofs::assertions::{assert_expression_value, assert_fixed_length_expression_value_equality, expression_as_sized_slice_in_inference, expression_as_slice_in_inference}};
+use tbl_proof_calculus::{expressions::TblExpressionLength, proofs::assertions::{assert_expression_value, assert_fixed_length_expression_value_equality, expression_as_sized_slice_in_inference, expression_as_slice_in_inference}, structures::{expressions::{TblExpression, compound::CompoundTblExpression}, proof_calculus_derived::aliases::inferences::{TblInference, TblInferenceRule}}};
 
 use crate::{inference_rules::verbatim::unwrap_verbatim_expression, structures::atoms::PhilosophicaInferenceAtoms};
 
@@ -7,20 +7,20 @@ use crate::{inference_rules::verbatim::unwrap_verbatim_expression, structures::a
 #[derive(Clone)]
 pub enum TupleAppendationError<C:CompoundTblExpression> {
     WrongAssumptionCount(usize),
-    IdentityWrongSize(Option<usize>),
+    IdentityWrongSize(TblExpressionLength),
     IdentityWrongHead(TblExpression<C>),
-    AppendationWrongSize(Option<usize>),
+    AppendationWrongSize(TblExpressionLength),
     AppendationWrongHead(TblExpression<C>),
     PreAppendNotVerbatim(TblExpression<C>),
     ToAppendNotVerbatim(TblExpression<C>),
     PostAppendVerbatim(TblExpression<C>),
-    PreAppendAtomic,
-    PostAppendAtomic,
+    PreAppendUnitary,
+    PostAppendUnitary,
     PostAppendNotLengthSuccessorOfPreAppend(usize, usize),
     AppendedNotToAppend(TblExpression<C>, TblExpression<C>)
 }
 
-/// Verify that the assumptions and the conclusion form a valid instance of atomicity assertion ("Verbatim((v1,v2,v3,...,vn,vm)) = Append(Verbatim((v1,v2,v3,...,vn)),Verbatim((vm)))" for any (v1,v2,v3,...,vn) and vm)
+/// Verify that the assumptions and the conclusion form a valid instance of tuple appendation ("Verbatim((v1,v2,v3,...,vn,vm)) = Append(Verbatim((v1,v2,v3,...,vn)),Verbatim((vm)))" for any (v1,v2,v3,...,vn) and vm)
 pub fn verify_tuple_appendation<C: CompoundTblExpression, Rule: TblInferenceRule<C>>(inference: &TblInference<C,Rule>) -> Result<(),TupleAppendationError<C>> {
     // Throw an error if there is not exactly one conclusion
     let [conclusion] = as_sized_slice(inference.get_located_explicit_conclusions())
@@ -50,9 +50,9 @@ pub fn verify_tuple_appendation<C: CompoundTblExpression, Rule: TblInferenceRule
     
     // Convert append_to and appended to vecs
     let pre_append_vec = expression_as_slice_in_inference(&pre_append)
-        .map_err(|_| TupleAppendationError::PreAppendAtomic)?;
+        .map_err(|_| TupleAppendationError::PreAppendUnitary)?;
     let post_append_vec = expression_as_slice_in_inference(&post_append)
-        .map_err(|_| TupleAppendationError::PostAppendAtomic)?;
+        .map_err(|_| TupleAppendationError::PostAppendUnitary)?;
     
     // Check that appended has one more element than eppend_to
     let pre_append_length = pre_append_vec.len();

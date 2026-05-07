@@ -3,7 +3,7 @@ use std::fmt::Display;
 use path_lib::obj_at_path::{ObjAtPath, OwnedObjAtPath};
 use proof_calculus::propositions::types::assigned::paths::PropositionInSequentialProofStepPath;
 
-use crate::expressions::{paths::TblSubexpressionInExpressionPath, types::assigned::{TblExpression, atomic::AtomicTblExpression, compound::CompoundTblExpression}};
+use crate::expressions::{paths::TblSubexpressionInExpressionPath, types::assigned::{TblExpression, atom::TblExpressionAtom, compound::TblExpressionCompound}};
 
 #[derive(Clone,PartialEq,Eq,Debug)]
 pub struct TblExpressionInInferencePath {
@@ -15,14 +15,14 @@ impl Display for TblExpressionInInferencePath {
         write!(f,"{}{}",self.proposition_path,self.subexpression_path)
     }
 }
-pub type AtomicTblExpressionInInference<'a> = ObjAtPath<'a,AtomicTblExpression,TblExpressionInInferencePath>;
-pub type OwnedAtomicTblExpressionInInference = OwnedObjAtPath<AtomicTblExpression,TblExpressionInInferencePath>;
+pub type AtomicTblExpressionInInference<'a> = ObjAtPath<'a,TblExpressionAtom,TblExpressionInInferencePath>;
+pub type OwnedAtomicTblExpressionInInference = OwnedObjAtPath<TblExpressionAtom,TblExpressionInInferencePath>;
 
-pub type CompoundTblExpressionInInference<'a,C: CompoundTblExpression> = ObjAtPath<'a,C,TblExpressionInInferencePath>;
-pub type OwnedCompoundTblExpressionInInference<C: CompoundTblExpression> = OwnedObjAtPath<C,TblExpressionInInferencePath>;
+pub type CompoundTblExpressionInInference<'a,C: TblExpressionCompound> = ObjAtPath<'a,C,TblExpressionInInferencePath>;
+pub type OwnedCompoundTblExpressionInInference<C: TblExpressionCompound> = OwnedObjAtPath<C,TblExpressionInInferencePath>;
 
-pub type TblExpressionInInference<'a,C: CompoundTblExpression> = ObjAtPath<'a,TblExpression<C>,TblExpressionInInferencePath>;
-pub type OwnedTblExpressionInInference<C: CompoundTblExpression> = OwnedObjAtPath<TblExpression<C>,TblExpressionInInferencePath>;
+pub type TblExpressionInInference<'a,C: TblExpressionCompound> = ObjAtPath<'a,TblExpression<C>,TblExpressionInInferencePath>;
+pub type OwnedTblExpressionInInference<C: TblExpressionCompound> = OwnedObjAtPath<TblExpression<C>,TblExpressionInInferencePath>;
 
 mod from {
     use proof_calculus::propositions::types::assigned::paths::{AssumptionInSequentialProofStepPath, ExplicitConclusionInSequentialProofStepPath};

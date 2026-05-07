@@ -1,12 +1,12 @@
 use proof_calculus::{structures::propositions::{ParentOfAssumptions as _, ParentOfExplicitConclusions}, verification::validity::assertions::as_sized_slice};
-use tbl_proof_calculus::{structures::{expressions::{TblExpression, compound::CompoundTblExpression}, proof_calculus_derived::{aliases::inferences::{TblInference, TblInferenceRule}, path_composites::{OwnedTblExpressionInInference, TblExpressionInInference}}}, proofs::assertions::{assert_expression_value, assert_fixed_length_expression_length_equality, assert_fixed_length_expression_value_equality, expression_as_sized_slice_in_inference, expression_into_slice}};
+use tbl_proof_calculus::{expressions::TblExpressionLength, proofs::assertions::{assert_expression_value, assert_fixed_length_expression_length_equality, assert_fixed_length_expression_value_equality, expression_as_sized_slice_in_inference, expression_into_slice}, structures::{expressions::{TblExpression, compound::CompoundTblExpression}, proof_calculus_derived::{aliases::inferences::{TblInference, TblInferenceRule}, path_composites::{OwnedTblExpressionInInference, TblExpressionInInference}}}};
 
 use crate::structures::atoms::PhilosophicaInferenceAtoms;
 
 #[derive(Clone)]
 pub enum UniversalSubstitutionError<C: CompoundTblExpression> {
     WrongAssumptionCount(usize),
-    SubstitutionWrongSize(Option<usize>),
+    SubstitutionWrongLength(TblExpressionLength),
     SubtitutionWrongHead(TblExpression<C>),
     SubstitutionComparisonError(SubstitutionComparisonError<C>),
 }
@@ -22,7 +22,7 @@ pub fn verify_universal_substitution<'a,C: CompoundTblExpression, Rule: TblInfer
 
     // Throw an error if there are not three expressions in the conclusion
     let [substitution_head, expr_to_replace, expr_to_replace_within] = *expression_as_sized_slice_in_inference(&substitution)
-        .map_err(|e| UniversalSubstitutionError::SubstitutionWrongSize(e.get_actual_length()))?;
+        .map_err(|e| UniversalSubstitutionError::SubstitutionWrongLength(e.get_actual_length()))?;
     // Throw an error if the head of the substitution is incorrect
     assert_expression_value(&substitution_head, &PhilosophicaInferenceAtoms::UniversalQuantifier.into())
         .map_err(|e| UniversalSubstitutionError::SubtitutionWrongHead(e.into_expression()))?;

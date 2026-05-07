@@ -1,19 +1,19 @@
-use crate::expressions::types::assigned::{TblExpression, TblExpressionAtPath, atomic::{AtomicTblExpression, AtomicTblExpressionAtPath}, compound::CompoundTblExpression};
+use crate::expressions::types::assigned::{TblExpression, TblExpressionAtPath, atom::{TblExpressionAtom, TblExpressionAtomAtPath}, compound::TblExpressionCompound};
 
 pub mod depth_first;
 
-trait TblExpressionIterator<'a,C: 'a + CompoundTblExpression>: Sized + Iterator<Item = &'a TblExpression<C>> {
-    fn filter_atoms(self) -> impl Iterator<Item = AtomicTblExpression> { self.filter_map(|expr| match expr {
-        TblExpression::Atomic(atom) => Some(*atom),
+trait TblExpressionIterator<'a,C: 'a + TblExpressionCompound>: Sized + Iterator<Item = &'a TblExpression<C>> {
+    fn filter_atoms(self) -> impl Iterator<Item = TblExpressionAtom> { self.filter_map(|expr| match expr {
+        TblExpression::Atom(atom) => Some(*atom),
         TblExpression::Compound(_) => None,
     })}
 }
-impl <'a,C: 'a + CompoundTblExpression,I: Iterator<Item = &'a TblExpression<C>>> TblExpressionIterator<'a,C> for I {}
+impl <'a,C: 'a + TblExpressionCompound,I: Iterator<Item = &'a TblExpression<C>>> TblExpressionIterator<'a,C> for I {}
 
-trait TblExpressionAtPathIterator<'a,C: 'a + CompoundTblExpression,Path>: Sized + Iterator<Item = TblExpressionAtPath<'a,C,Path>> {
-    fn filter_atoms(self) -> impl Iterator<Item = AtomicTblExpressionAtPath<'a,Path>> { self.filter_map(|expr| match expr.obj {
-        TblExpression::Atomic(atom) => Some(AtomicTblExpressionAtPath { obj: atom, path: expr.path }),
+trait TblExpressionAtPathIterator<'a,C: 'a + TblExpressionCompound,Path>: Sized + Iterator<Item = TblExpressionAtPath<'a,C,Path>> {
+    fn filter_atoms(self) -> impl Iterator<Item = TblExpressionAtomAtPath<'a,Path>> { self.filter_map(|expr| match expr.obj {
+        TblExpression::Atom(atom) => Some(TblExpressionAtomAtPath { obj: atom, path: expr.path }),
         TblExpression::Compound(_) => None,
     })}
 }
-impl <'a,C: 'a + CompoundTblExpression,Path,I: Iterator<Item = TblExpressionAtPath<'a,C,Path>>> TblExpressionAtPathIterator<'a,C,Path> for I {}
+impl <'a,C: 'a + TblExpressionCompound,Path,I: Iterator<Item = TblExpressionAtPath<'a,C,Path>>> TblExpressionAtPathIterator<'a,C,Path> for I {}

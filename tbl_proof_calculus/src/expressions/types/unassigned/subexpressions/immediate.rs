@@ -1,10 +1,10 @@
 use path_lib::obj_at_path::{ObjAtPath, OwnedObjAtPath};
 use path_lib_proc_macros::generate_parent_of_children_trait;
 
-use crate::expressions::{paths::immediate::ImmediateTblSubexpressionInExpressionPath, types::{assigned::{TblExpression, at_path_enum::{OwnedTblExpressionAtPathEnum, TblExpressionAtPathEnum}}, unassigned::{UnassignedTblExpression, compound::UnassignedCompoundTblExpression}}};
+use crate::expressions::{paths::immediate::ImmediateTblSubexpressionInExpressionPath, types::{assigned::{TblExpression, at_path_enum::{OwnedTblExpressionAtPathEnum, TblExpressionAtPathEnum}}, unassigned::{UnassignedTblExpression, compound::UnassignedTblExpressionCompound}}};
 
 generate_parent_of_children_trait!{
-    UnassignedTblExpression<C>, ImmediateTblSubexpressionInExpressionPath, (C: UnassignedCompoundTblExpression),
+    UnassignedTblExpression<C>, ImmediateTblSubexpressionInExpressionPath, (C: UnassignedTblExpressionCompound),
     "immediate_subexpression", "immediate_subexpressions", "ImmediateUnassignedSubexpressions"
 }
 pub type ImmediateSubexpressionInExpression<'a,C> = ObjAtPath<'a,TblExpression<C>,ImmediateTblSubexpressionInExpressionPath>;

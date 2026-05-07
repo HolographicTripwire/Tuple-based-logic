@@ -1,11 +1,11 @@
 
-use crate::expressions::types::assigned::{TblExpression, atomic::AtomicTblExpression, compound::CompoundTblExpression, OwnedTblExpressionAtPath, TblExpressionAtPath};
+use crate::expressions::types::assigned::{TblExpression, atom::TblExpressionAtom, compound::TblExpressionCompound, OwnedTblExpressionAtPath, TblExpressionAtPath};
 
-pub struct ExpressionValueEqualityError<C: CompoundTblExpression, Path> {
+pub struct ExpressionValueEqualityError<C: TblExpressionCompound, Path> {
     pub expressions: Box<[OwnedTblExpressionAtPath<C,Path>]>
 }
 /// Check that the provided [Expressions](OwnedExpressionInProof) have equal value, returning an error otherwise
-pub fn assert_expression_value_equality<'a,C:CompoundTblExpression,Path:Clone>(exprs: &[&'a TblExpressionAtPath<'a,C,Path>]) -> Result<TblExpression<C>, ExpressionValueEqualityError<C,Path>> {
+pub fn assert_expression_value_equality<'a,C:TblExpressionCompound,Path:Clone>(exprs: &[&'a TblExpressionAtPath<'a,C,Path>]) -> Result<TblExpression<C>, ExpressionValueEqualityError<C,Path>> {
     let mut iter = exprs.iter().map(|o| o.obj );
     let first_value = iter.next().expect("Cannot check value equality for zero expressions");
     for nth_value in iter {
@@ -16,13 +16,13 @@ pub fn assert_expression_value_equality<'a,C:CompoundTblExpression,Path:Clone>(e
     Ok(first_value.clone())
 }
 
-pub struct FixedLengthExpressionValueEqualityError<const N: usize,C: CompoundTblExpression,Path> {
+pub struct FixedLengthExpressionValueEqualityError<const N: usize,C: TblExpressionCompound,Path> {
     pub expressions: [OwnedTblExpressionAtPath<C,Path>; N]
 }
 /// Check that the provided [Expressions](ExpressionInInference) have equal length, returning an error otherwise
-pub fn assert_fixed_length_expression_value_equality<'a,const N: usize,C:CompoundTblExpression,Path:Clone>(exprs: &[&'a TblExpressionAtPath<'a,C,Path>; N]) -> Result<TblExpression<C>, FixedLengthExpressionValueEqualityError<N,C,Path>> {
+pub fn assert_fixed_length_expression_value_equality<'a,const N: usize,C:TblExpressionCompound,Path:Clone>(exprs: &[&'a TblExpressionAtPath<'a,C,Path>; N]) -> Result<TblExpression<C>, FixedLengthExpressionValueEqualityError<N,C,Path>> {
     if N == 0 { panic!("Cannot check value equality for zero expressions") } 
-    let mut output = [&TblExpression::Atomic(AtomicTblExpression(0)); N];  // Initialize the output array
+    let mut output = [&TblExpression::Atom(TblExpressionAtom(0)); N];  // Initialize the output array
     for i in 0..N {
         output[i] = exprs[i].obj;
         // Throw error if atomicities are not equal

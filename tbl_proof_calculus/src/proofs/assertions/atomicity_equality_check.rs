@@ -1,12 +1,12 @@
-use crate::expressions::types::assigned::{compound::CompoundTblExpression, OwnedTblExpressionAtPath, TblExpressionAtPath};
+use crate::expressions::types::assigned::{compound::TblExpressionCompound, OwnedTblExpressionAtPath, TblExpressionAtPath};
 
-pub struct ExpressionAtomicityEqualityError<C: CompoundTblExpression,Path> {
+pub struct ExpressionAtomicityEqualityError<C: TblExpressionCompound,Path> {
     pub expressions: Box<[OwnedTblExpressionAtPath<C,Path>]>
 }
 /// Check that the provided [Expressions](ExpressionInInference) have equal atomicity, returning an error otherwise
-pub fn assert_expression_atomicity_equality<'a,C: CompoundTblExpression,Path:Clone>(exprs: &[&'a TblExpressionAtPath<'a,C,Path>]) -> Result<bool, ExpressionAtomicityEqualityError<C,Path>> {
+pub fn assert_expression_atomicity_equality<'a,C: TblExpressionCompound,Path:Clone>(exprs: &[&'a TblExpressionAtPath<'a,C,Path>]) -> Result<bool, ExpressionAtomicityEqualityError<C,Path>> {
     let mut iter = exprs.iter().map(|o| o.obj.is_atom());
-    let first_atomicity = iter.next().expect("Cannot check atomicity equality for zero expressions");
+    let first_atomicity = iter.next().expect("Cannot check unitarity equality for zero expressions");
     for nth_atomicity in iter {
         if nth_atomicity != first_atomicity { return Err(ExpressionAtomicityEqualityError{
             expressions: exprs.into_iter().map(|x| (*x).clone().into()).collect()
@@ -15,12 +15,12 @@ pub fn assert_expression_atomicity_equality<'a,C: CompoundTblExpression,Path:Clo
     Ok(first_atomicity)
 }
 
-pub struct FixedLengthExpressionAtomicityEqualityError<const N: usize,C: CompoundTblExpression,Path> {
+pub struct FixedLengthExpressionAtomicityEqualityError<const N: usize,C: TblExpressionCompound,Path> {
     pub expressions: [OwnedTblExpressionAtPath<C,Path>; N]
 }
-/// Check that the provided [Expressions](ExpressionInInference) have equal atomicity, returning an error otherwise
+/// Check that the provided [Expressions](ExpressionInInference) have equal unitarity, returning an error otherwise
 pub fn assert_fixed_length_expression_atomicity_equality<'a,const N: usize,C,Path>(exprs: &[&'a TblExpressionAtPath<'a,C,Path>; N]) -> Result<bool, FixedLengthExpressionAtomicityEqualityError<N,C,Path>> where
-C: CompoundTblExpression, Path: Clone {
+C: TblExpressionCompound, Path: Clone {
     if N == 0 { panic!("Cannot check atomicity equality for zero expressions") } 
     let mut output = [false; N];  // Initialize the output array
     for i in 0..N {

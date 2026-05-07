@@ -1,7 +1,7 @@
 use proof_calculus::utils::collections::binding::bounds::GetBound;
 use ref_cast::RefCast;
 
-use crate::expressions::{paths::TblSubexpressionInExpressionPath, types::assigned::atomic::AtomicTblExpression};
+use crate::expressions::{paths::TblSubexpressionInExpressionPath, types::assigned::atom::TblExpressionAtom};
 
 #[derive(Default,Clone,PartialEq,Eq,Debug,Hash,RefCast)]
 #[repr(transparent)]
@@ -11,6 +11,6 @@ pub struct TblExpressionBoundAtomExistsAtLocation {
 impl TblExpressionBoundAtomExistsAtLocation {
     pub fn new(path: TblSubexpressionInExpressionPath) -> Self { Self { path } }
 }
-impl GetBound for TblExpressionBoundAtomExistsAtLocation { type ExtraReturnData = AtomicTblExpression; }
+impl GetBound for TblExpressionBoundAtomExistsAtLocation { type ExtraReturnData = TblExpressionAtom; }
 
 pub type TblPropositionBoundAtomExistsAtLocation = TblExpressionBoundAtomExistsAtLocation;

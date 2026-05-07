@@ -3,7 +3,7 @@ use std::{collections::HashSet, hash::Hash};
 use proof_calculus::{propositions::types::unassigned::binding::binders::{GetBinderForUpropIdenticalToUprop, InsertBinderForUprop}, utils::collections::{binding::binders::{Binder, GetBinder, InsertBinder}, sets::hashset::transform_hashset}};
 use ref_cast::RefCast;
 
-use crate::{expressions::types::{assigned::{atomic::AtomicTblExpression, binding::{binders::{atom_value::TblExpressionBinderAtomExactValue, compound_length::TblExpressionBinderCompoundExactLength, value_duplication::TblExpressionBinderValueDuplication}, bounds::{TblPropositionBoundAtomExactValue, TblPropositionBoundCompoundExactLength}}}, unassigned::{binding::{binders::variable_value::TblExpressionBinderVariableExactValue, bounds::{AtomOrVariableOrCompoundLength, UnassignedTblExpressionBoundAtomExistsAtLocation, UnassignedTblExpressionBoundCompoundExistsAtLocation, UnassignedTblExpressionBoundVariableExistsAtLocation, UnassignedTblExpressionInsertionBound, UnassignedTblPropositionBoundAtomExactValue, UnassignedTblPropositionBoundAtomExistsAtLocation, UnassignedTblPropositionBoundCompoundExactLength, UnassignedTblPropositionBoundCompoundExistsAtLocation, UnassignedTblPropositionBoundExpressionExistsAtLocation, UnassignedTblPropositionBoundValueDuplicated, UnassignedTblPropositionBoundVariableExactValue, UnassignedTblPropositionBoundVariableExistsAtLocation, UnassignedTblPropositionIdentityBound}, operation_bounds::{get_identical_to_uprop::fast_construct::TblFastConstructGetBoundsForUpropIdenticalToUprop, insert::TblFastConstructInsertionBoundsForUprop}}, compound::UnassignedCompoundTblExpression, variable::TblExpressionVariable}}, proof_calculus_derived::aliases::propositions::types::UnassignedTblProposition};
+use crate::{expressions::types::{assigned::{atom::TblExpressionAtom, binding::{binders::{atom_value::TblExpressionBinderAtomExactValue, compound_length::TblExpressionBinderCompoundExactLength, value_duplication::TblExpressionBinderValueDuplication}, bounds::{TblPropositionBoundAtomExactValue, TblPropositionBoundCompoundExactLength}}}, unassigned::{binding::{binders::variable_value::TblExpressionBinderVariableExactValue, bounds::{AtomOrVariableOrCompoundLength, UnassignedTblExpressionBoundAtomExistsAtLocation, UnassignedTblExpressionBoundCompoundExistsAtLocation, UnassignedTblExpressionBoundVariableExistsAtLocation, UnassignedTblExpressionInsertionBound, UnassignedTblPropositionBoundAtomExactValue, UnassignedTblPropositionBoundAtomExistsAtLocation, UnassignedTblPropositionBoundCompoundExactLength, UnassignedTblPropositionBoundCompoundExistsAtLocation, UnassignedTblPropositionBoundExpressionExistsAtLocation, UnassignedTblPropositionBoundValueDuplicated, UnassignedTblPropositionBoundVariableExactValue, UnassignedTblPropositionBoundVariableExistsAtLocation, UnassignedTblPropositionIdentityBound}, operation_bounds::{get_identical_to_uprop::fast_construct::TblFastConstructGetBoundsForUpropIdenticalToUprop, insert::TblFastConstructInsertionBoundsForUprop}}, compound::UnassignedTblExpressionCompound, variable::TblExpressionVariable}}, proof_calculus_derived::aliases::propositions::types::UnassignedTblProposition};
 
 pub mod variable_value;
 
@@ -22,7 +22,7 @@ impl <T: Hash + Eq + Clone> Binder for UnassignedTblPropositionBinder<T> {
 impl <T: Hash + Eq + Clone> GetBinder<UnassignedTblPropositionBoundAtomExistsAtLocation> for UnassignedTblPropositionBinder<T> {
     fn get<'binder>(&'binder self, bound: &UnassignedTblPropositionBoundAtomExistsAtLocation) -> HashSet<&'binder Self::Value>
         { self.atom_value_bounds.get(bound) }    
-    fn get_with_extra_data<'binder>(&'binder self, bound: &UnassignedTblPropositionBoundAtomExistsAtLocation) -> HashSet<(&'binder Self::Value,AtomicTblExpression)>
+    fn get_with_extra_data<'binder>(&'binder self, bound: &UnassignedTblPropositionBoundAtomExistsAtLocation) -> HashSet<(&'binder Self::Value,TblExpressionAtom)>
         { self.atom_value_bounds.get_with_extra_data(bound) }
 }
 impl <T: Hash + Eq + Clone> GetBinder<UnassignedTblPropositionBoundAtomExactValue> for UnassignedTblPropositionBinder<T> {
@@ -109,7 +109,7 @@ impl <T: Hash + Eq + Clone> InsertBinder<TblFastConstructInsertionBoundsForUprop
     }
 }
 
-impl <C: UnassignedCompoundTblExpression, T: Hash + Eq + Clone> GetBinderForUpropIdenticalToUprop<UnassignedTblProposition<C>> for UnassignedTblPropositionBinder<T>
+impl <C: UnassignedTblExpressionCompound, T: Hash + Eq + Clone> GetBinderForUpropIdenticalToUprop<UnassignedTblProposition<C>> for UnassignedTblPropositionBinder<T>
     { type DefaultGetBoundsForPropIdenticalToProp<'prop> = TblFastConstructGetBoundsForUpropIdenticalToUprop where C: 'prop; }
-impl <'prop, C: 'prop + UnassignedCompoundTblExpression, T: Hash + Eq + Clone> InsertBinderForUprop<'prop, UnassignedTblProposition<C>> for UnassignedTblPropositionBinder<T>
+impl <'prop, C: 'prop + UnassignedTblExpressionCompound, T: Hash + Eq + Clone> InsertBinderForUprop<'prop, UnassignedTblProposition<C>> for UnassignedTblPropositionBinder<T>
     { type DefaultInsertionBounds = TblFastConstructInsertionBoundsForUprop; }

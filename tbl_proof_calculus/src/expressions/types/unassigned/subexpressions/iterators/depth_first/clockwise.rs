@@ -1,11 +1,11 @@
 use itertools::Itertools;
 
-use crate::expressions::types::unassigned::{UnassignedTblExpression, at_path_enum::UnassignedTblExpressionAtPathEnum, compound::UnassignedCompoundTblExpression, subexpressions::{UnassignedTblSubexpressionInExpression, immediate::LocatedParentOfImmediateUnassignedSubexpressions, iterators::depth_first::{DepthFirstLocatedUnassignedTblSubexpressionIterator, DepthFirstUnassignedTblSubexpressionIterator}}};
+use crate::expressions::types::unassigned::{UnassignedTblExpression, at_path_enum::UnassignedTblExpressionAtPathEnum, compound::UnassignedTblExpressionCompound, subexpressions::{UnassignedTblSubexpressionInExpression, immediate::LocatedParentOfImmediateUnassignedSubexpressions, iterators::depth_first::{DepthFirstLocatedUnassignedTblSubexpressionIterator, DepthFirstUnassignedTblSubexpressionIterator}}};
 
-pub struct ClockwiseDepthFirstUnassignedTblSubexpressionIterator<'a,C: UnassignedCompoundTblExpression>(
+pub struct ClockwiseDepthFirstUnassignedTblSubexpressionIterator<'a,C: UnassignedTblExpressionCompound>(
     DepthFirstUnassignedTblSubexpressionIterator<'a,C,Vec<&'a UnassignedTblExpression<C>>,fn(&'a UnassignedTblExpression<C>) -> Vec<&'a UnassignedTblExpression<C>>>
 );
-impl <'a, C: UnassignedCompoundTblExpression> ClockwiseDepthFirstUnassignedTblSubexpressionIterator<'a,C> {
+impl <'a, C: UnassignedTblExpressionCompound> ClockwiseDepthFirstUnassignedTblSubexpressionIterator<'a,C> {
     pub fn new(expr: &'a UnassignedTblExpression<C>) -> ClockwiseDepthFirstUnassignedTblSubexpressionIterator<'a, C>
         { ClockwiseDepthFirstUnassignedTblSubexpressionIterator(DepthFirstUnassignedTblSubexpressionIterator::new(expr, Self::expansion_helper)) }
     
@@ -15,15 +15,15 @@ impl <'a, C: UnassignedCompoundTblExpression> ClockwiseDepthFirstUnassignedTblSu
         } else { vec![] }
     }
 }
-impl <'a, C: UnassignedCompoundTblExpression> Iterator for ClockwiseDepthFirstUnassignedTblSubexpressionIterator<'a,C> {
+impl <'a, C: UnassignedTblExpressionCompound> Iterator for ClockwiseDepthFirstUnassignedTblSubexpressionIterator<'a,C> {
     type Item = &'a UnassignedTblExpression<C>;
     fn next(&mut self) -> Option<Self::Item> { self.0.next() }
 }
 
-pub struct ClockwiseDepthFirstLocatedUnassignedTblSubexpressionIterator<'a,C: UnassignedCompoundTblExpression>(
+pub struct ClockwiseDepthFirstLocatedUnassignedTblSubexpressionIterator<'a,C: UnassignedTblExpressionCompound>(
     DepthFirstLocatedUnassignedTblSubexpressionIterator<'a,C,Vec<UnassignedTblSubexpressionInExpression<'a,C>>,fn(UnassignedTblSubexpressionInExpression<'a,C>) -> Vec<UnassignedTblSubexpressionInExpression<'a,C>>>
 );
-impl <'a, C: UnassignedCompoundTblExpression> ClockwiseDepthFirstLocatedUnassignedTblSubexpressionIterator<'a,C> {
+impl <'a, C: UnassignedTblExpressionCompound> ClockwiseDepthFirstLocatedUnassignedTblSubexpressionIterator<'a,C> {
     pub fn new(expr: &'a UnassignedTblExpression<C>) -> ClockwiseDepthFirstLocatedUnassignedTblSubexpressionIterator<'a, C> {
         ClockwiseDepthFirstLocatedUnassignedTblSubexpressionIterator(DepthFirstLocatedUnassignedTblSubexpressionIterator::new(expr, Self::expansion_helper))
     }
@@ -34,7 +34,7 @@ impl <'a, C: UnassignedCompoundTblExpression> ClockwiseDepthFirstLocatedUnassign
         } else { vec![] }
     }
 }
-impl <'a, C: UnassignedCompoundTblExpression> Iterator for ClockwiseDepthFirstLocatedUnassignedTblSubexpressionIterator<'a,C> {
+impl <'a, C: UnassignedTblExpressionCompound> Iterator for ClockwiseDepthFirstLocatedUnassignedTblSubexpressionIterator<'a,C> {
     type Item = UnassignedTblSubexpressionInExpression<'a,C>;
     fn next(&mut self) -> Option<Self::Item> { self.0.next() }
 }

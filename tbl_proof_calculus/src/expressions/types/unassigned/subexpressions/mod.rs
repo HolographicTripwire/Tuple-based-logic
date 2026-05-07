@@ -1,13 +1,13 @@
 use path_lib::{obj_at_path::{ObjAtPath, OwnedObjAtPath}};
 use path_lib_proc_macros::generate_parent_of_children_trait;
 
-use crate::expressions::{paths::TblSubexpressionInExpressionPath, types::unassigned::{UnassignedTblExpression, compound::UnassignedCompoundTblExpression}};
+use crate::expressions::{paths::TblSubexpressionInExpressionPath, types::unassigned::{UnassignedTblExpression, compound::UnassignedTblExpressionCompound}};
 
 pub mod immediate;
 pub mod iterators;
 
 generate_parent_of_children_trait!{
-    UnassignedTblExpression<C>, TblSubexpressionInExpressionPath, (C: UnassignedCompoundTblExpression),
+    UnassignedTblExpression<C>, TblSubexpressionInExpressionPath, (C: UnassignedTblExpressionCompound),
     "subexpression", "subexpressions", "UnassignedSubexpressions"
 }
 

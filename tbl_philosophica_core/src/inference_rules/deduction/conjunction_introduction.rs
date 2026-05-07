@@ -1,12 +1,12 @@
 use proof_calculus::{structures::propositions::{ParentOfAssumptions, ParentOfExplicitConclusions}, verification::validity::assertions::as_sized_slice};
-use tbl_proof_calculus::{structures::{expressions::{TblExpression, compound::CompoundTblExpression}, proof_calculus_derived::aliases::inferences::{TblInference, TblInferenceRule}}, proofs::assertions::{assert_expression_value, assert_fixed_length_expression_value_equality, expression_as_sized_slice_in_inference}};
+use tbl_proof_calculus::{expressions::TblExpressionLength, proofs::assertions::{assert_expression_value, assert_fixed_length_expression_value_equality, expression_as_sized_slice_in_inference}, structures::{expressions::{TblExpression, compound::CompoundTblExpression}, proof_calculus_derived::aliases::inferences::{TblInference, TblInferenceRule}}};
 
 use crate::structures::atoms::PhilosophicaInferenceAtoms;
 
 #[derive(Clone)]
 pub enum ConjunctionIntroductionError<C: CompoundTblExpression> {
     WrongAssumptionCount(usize),
-    ConjunctionWrongSize(Option<usize>),
+    ConjunctionWrongLength(TblExpressionLength),
     ConjunctionWrongHead(TblExpression<C>),
     LeftSideInequal(TblExpression<C>,TblExpression<C>),
     RightSideInequal(TblExpression<C>,TblExpression<C>)
@@ -23,7 +23,7 @@ pub fn validate_conjunction_introduction<'a,C: CompoundTblExpression, Rule: TblI
 
     // Throw an error if there are not three expressions in the conclusion
     let [conjunction_head, conjunction_left, conjunction_right] = *expression_as_sized_slice_in_inference(&conclusion)
-        .map_err(|e| ConjunctionIntroductionError::ConjunctionWrongSize(e.get_actual_length()))?;
+        .map_err(|e| ConjunctionIntroductionError::ConjunctionWrongLength(e.get_actual_length()))?;
     // Throw errors if the values of the inference components are incorrect
     assert_expression_value(&conjunction_head, &PhilosophicaInferenceAtoms::Conjunction.into())
         .map_err(|e| ConjunctionIntroductionError::ConjunctionWrongHead(e.into_expression()))?;

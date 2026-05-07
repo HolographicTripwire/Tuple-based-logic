@@ -1,14 +1,14 @@
 use proof_calculus::utils::collections::binding::bounds::GetBound;
 
-use crate::expressions::{paths::TblSubexpressionInExpressionPath, types::assigned::atomic::AtomicTblExpression};
+use crate::expressions::{paths::TblSubexpressionInExpressionPath, types::assigned::atom::TblExpressionAtom};
 
 #[derive(Clone,PartialEq,Eq,Debug,Hash)]
 pub struct TblExpressionBoundAtomExactValue {
     pub path: TblSubexpressionInExpressionPath,
-    pub value: AtomicTblExpression
+    pub value: TblExpressionAtom
 }
 impl TblExpressionBoundAtomExactValue {
-    pub fn new(path: TblSubexpressionInExpressionPath, value: AtomicTblExpression) -> Self
+    pub fn new(path: TblSubexpressionInExpressionPath, value: TblExpressionAtom) -> Self
         { Self { path, value } }
 }
 impl GetBound for TblExpressionBoundAtomExactValue { type ExtraReturnData = (); }
