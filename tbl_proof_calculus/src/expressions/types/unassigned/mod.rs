@@ -67,22 +67,6 @@ impl <C: UnassignedTblExpressionCompound> UnassignedTblExpression<C> {
         _ => None,
     }}
 }
-impl <C: UnassignedTblExpressionCompound> UnassignedProposition for UnassignedTblProposition<C> {
-    type DefaultPartialAssignment<'slf>;
-    type DefaultNormalisation;
-
-    fn partial_assign<'slf, PartialAssignment: proof_calculus::propositions::assignments::PartialPropositionalAssignment<'slf,'slf,Self,Self>>(self, assignment: &PartialAssignment) -> Self {
-        todo!()
-    }
-
-    fn partial_reverse_assign<'slf>(&self, assigned: &Self) -> Result<Self::DefaultPartialAssignment<'slf>,()> {
-        todo!()
-    }
-
-    fn normalise(self) -> Self::DefaultNormalisation {
-        todo!()
-    }
-}
 
 impl <C: UnassignedTblExpressionCompound> TryInto<TblExpressionAtom> for UnassignedTblExpression<C> {
     type Error = ();

@@ -1,14 +1,14 @@
-use crate::propositions::{types::{assigned::Proposition, normalised_unassigned::NormalisedUnassignedProposition}, assignments::{PartialPropositionalAssignment, PropositionalAssignment}};
+use crate::propositions::{types::{assigned::Proposition, normalised_unassigned::NormalisedUnassignedProposition}, assignments::{PropositionalAssignment}};
 use std::hash::Hash;
 
 pub mod binding;
 
 pub trait UnassignedProposition: Clone + PartialEq + Eq + Hash {
-    type DefaultPartialAssignment<'slf>: PartialPropositionalAssignment<'slf,'slf,Self,Self>;
+    // type DefaultPartialAssignment<'slf>: PartialPropositionalAssignment<'slf,'slf,Self,Self>;
     type DefaultNormalisation: NormalisedUnassignedProposition;
 
-    fn partial_assign<'slf, PartialAssignment: PartialPropositionalAssignment<'slf,'slf,Self,Self>>(self, assignment: &PartialAssignment) -> Self;
-    fn partial_reverse_assign<'slf>(&self, assigned: &Self) -> Result<Self::DefaultPartialAssignment<'slf>,()>;
+    // fn partial_assign<'slf, PartialAssignment: PartialPropositionalAssignment<'slf,'slf,Self,Self>>(self, assignment: &PartialAssignment) -> Self;
+    // fn partial_reverse_assign<'slf>(&self, assigned: &Self) -> Result<Self::DefaultPartialAssignment<'slf>,()>;
 
     fn normalise(self) -> Self::DefaultNormalisation;
 }

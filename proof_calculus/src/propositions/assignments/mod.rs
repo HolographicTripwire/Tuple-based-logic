@@ -1,19 +1,24 @@
 use crate::{propositions::types::{assigned::Proposition,unassigned::UnassignedProposition}, utils::traits::combinable::TryCombine};
 
-pub trait PropositionalAssignment<FromUprop: UnassignedProposition,ToProp: Proposition>: TryCombine {
-    fn assign_to(&self, uprop: &FromUprop) -> Result<ToProp,()>;
+pub trait PropositionalAssignment<PreAssignmentUprop: UnassignedProposition, PostAssignmentProp: Proposition>: TryCombine {
+    type AssignmentError;
+    type ReverseAssignmentError;
+    fn assign(&self, pre_assignment_uprop: &PreAssignmentUprop) -> Result<PostAssignmentProp,Self::AssignmentError>;
+    fn reverse_assign(pre_assignment_uprop: &PreAssignmentUprop, post_assignment_prop: &PostAssignmentProp) -> Result<Self,Self::ReverseAssignmentError>;
 }
 
-pub trait PropositionalAssignmentConstructor<FromUprop: UnassignedProposition, ToProp: Proposition, Assignment: PropositionalAssignment<FromUprop,ToProp>>: Sized {
+pub trait PropositionalAssignmentConstructor<PreAssignmentUprop: UnassignedProposition, PostAssignmentProp: Proposition, Assignment: PropositionalAssignment<PreAssignmentUprop,PostAssignmentProp>>: Sized {
     type Error;
-    fn try_construct(&self, prop: &ToProp) -> Result<Assignment,Self::Error>;
+    fn try_construct(&self, post_assignment_prop: &PostAssignmentProp) -> Result<Assignment,Self::Error>;
 }
 
-
-pub trait PartialPropositionalAssignment<'assignment,'from,FromUprop: UnassignedProposition, ToUprop: UnassignedProposition>: TryCombine {
-    fn assign_to(&'assignment self, uprop: &'from FromUprop) -> ToUprop;
+pub trait PartialPropositionalAssignment<PreAssignmentUprop: UnassignedProposition,PostAssignmentProp: UnassignedProposition>: TryCombine {
+    type AssignmentError;
+    type ReverseAssignmentError;
+    fn assign(&self, pre_assignment_uprop: &PreAssignmentUprop) -> Result<PostAssignmentProp,Self::AssignmentError>;
+    fn reverse_assign(pre_assignment_uprop: &PreAssignmentUprop, post_assignment_prop: &PostAssignmentProp) -> Result<Self,Self::ReverseAssignmentError>;
 }
-pub trait PartialPropositionalAssignmentConstructor<'assignment, 'from, FromUprop: UnassignedProposition, ToUprop: UnassignedProposition, Assignment: PartialPropositionalAssignment<'assignment,'from,FromUprop,ToUprop>>: Sized {
+pub trait PartialPropositionalAssignmentConstructor<PreAssignmentUprop: UnassignedProposition,PostAssignmentProp: UnassignedProposition, Assignment: PartialPropositionalAssignment<PreAssignmentUprop,PostAssignmentProp>>: Sized {
     type Error;
-    fn try_construct(&self, prop: &FromUprop) -> Result<Assignment,Self::Error>;
+    fn try_construct(&self, post_assignment_uprop: &PostAssignmentProp) -> Result<Assignment,Self::Error>;
 }

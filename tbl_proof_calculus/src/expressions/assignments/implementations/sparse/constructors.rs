@@ -3,12 +3,13 @@ use std::collections::HashMap;
 use itertools::Itertools;
 use proof_calculus::{propositions::assignments::{PartialPropositionalAssignmentConstructor, PropositionalAssignmentConstructor}, utils::{collections::maps::{KeyConflictError, conflictless_hashmap::{ConflictlessHashMap}}, traits::{combinable::TryCombine, try_from_iter::TryFromIterator}}};
 
-use crate::{expressions::{assignments::implementations::{dense::DensePartialTblPropositionAssignment, sparse::{SparsePartialTblExpressionAssignment, SparsePartialTblPropositionAssignment, SparseTblExpressionAssignment, SparseTblPropositionAssignment}}, paths::TblSubexpressionInExpressionPath, types::{assigned::{TblExpression, compound::TblExpressionCompound, subexpressions::ParentOfSubexpressions}, unassigned::{compound::UnassignedTblExpressionCompound, subexpressions::ParentOfUnassignedSubexpressions, variable::TblExpressionVariable}}}, proof_calculus_derived::aliases::propositions::types::{TblProposition, UnassignedTblProposition}};
+use crate::{expressions::{assignments::implementations::{dense::DensePartialTblPropositionAssignment, sparse::{SparsePartialTblExpressionAssignment, SparsePartialTblPropositionAssignment, SparseTblExpressionAssignment, SparseTblPropositionAssignment}}, paths::TblSubexpressionInExpressionPath, types::{assigned::{TblExpression, compound::TblExpressionCompound, subexpressions::ParentOfSubexpressions}, unassigned::{UnassignedTblExpression, compound::UnassignedTblExpressionCompound, subexpressions::ParentOfUnassignedSubexpressions, variable::TblExpressionVariable}}}, proof_calculus_derived::aliases::propositions::types::{TblProposition, UnassignedTblProposition}};
 
-#[derive(Clone,PartialEq,Eq,Debug,Default)]
+#[derive(Clone,PartialEq,Eq,Debug)]
 pub struct SparseTblExpressionAssignmentConstructor(pub ConflictlessHashMap<TblExpressionVariable,TblSubexpressionInExpressionPath>);
 pub type SparseTblPropositionAssignmentConstructor = SparseTblExpressionAssignmentConstructor;
 
+impl Default for SparseTblExpressionAssignmentConstructor { fn default() -> Self { Self(Default::default()) } }
 impl From<HashMap<TblExpressionVariable,TblSubexpressionInExpressionPath>> for SparseTblExpressionAssignmentConstructor
     { fn from(map: HashMap<TblExpressionVariable,TblSubexpressionInExpressionPath>) -> Self { Self(ConflictlessHashMap::from(map)) } }
 impl Into<HashMap<TblExpressionVariable,TblSubexpressionInExpressionPath>> for SparseTblExpressionAssignmentConstructor
@@ -23,11 +24,16 @@ impl TryFromIterator<(TblExpressionVariable,TblSubexpressionInExpressionPath)> f
         { Ok(Self(ConflictlessHashMap::combine(assignments.into_iter().map(|v| v.0))?)) }
 }
 
-impl <UC: UnassignedTblExpressionCompound, C: TblExpressionCompound + FromIterator<TblExpression<C>>> PropositionalAssignmentConstructor<UnassignedTblProposition<UC>, TblProposition<C>, SparseTblPropositionAssignment<C>> for SparseTblExpressionAssignmentConstructor {
+impl <
+    C: TblExpressionCompound + for<'a> From<&'a PostAssignmentCompound>,
+    PreAssignmentUcompound: UnassignedTblExpressionCompound,
+    PostAssignmentCompound: TblExpressionCompound + for<'a> From<&'a C> + FromIterator<TblExpression<PostAssignmentCompound>>
+> PropositionalAssignmentConstructor<UnassignedTblProposition<PreAssignmentUcompound>, TblProposition<PostAssignmentCompound>, SparseTblPropositionAssignment<C>>
+for SparseTblExpressionAssignmentConstructor {
     type Error = ();
-    fn try_construct(&self, prop: &TblProposition<C>) -> Result<SparseTblPropositionAssignment<C>,()> {
+    fn try_construct(&self, prop: &TblProposition<PostAssignmentCompound>) -> Result<SparseTblExpressionAssignment<C>, ()> {
         let inner: HashMap<_,_> =self.0.iter()
-            .map(|(variable,path)| Ok((*variable,prop.get_subexpression_owned(&path)?.clone())))
+            .map(|(variable,path)| Ok((*variable,prop.get_subexpression(&path)?.into())))
             .try_collect()
             .map_err(|_: ()|())?;
         Ok(SparseTblExpressionAssignment(inner.into()))
@@ -37,6 +43,7 @@ impl <UC: UnassignedTblExpressionCompound, C: TblExpressionCompound + FromIterat
 pub struct SparsePartialTblExpressionAssignmentConstructor(pub ConflictlessHashMap<TblExpressionVariable,TblSubexpressionInExpressionPath>);
 pub type PartiaPartiallSparseTblPropositionAssignmentConstructor = SparseTblExpressionAssignmentConstructor;
 
+impl Default for SparsePartialTblExpressionAssignmentConstructor { fn default() -> Self { Self(Default::default()) } }
 impl From<HashMap<TblExpressionVariable,TblSubexpressionInExpressionPath>> for SparsePartialTblExpressionAssignmentConstructor
     { fn from(map: HashMap<TblExpressionVariable,TblSubexpressionInExpressionPath>) -> Self { Self(ConflictlessHashMap::from(map)) } }
 impl Into<HashMap<TblExpressionVariable,TblSubexpressionInExpressionPath>> for SparsePartialTblExpressionAssignmentConstructor
@@ -51,14 +58,14 @@ impl TryFromIterator<(TblExpressionVariable,TblSubexpressionInExpressionPath)> f
         { Ok(Self(ConflictlessHashMap::combine(assignments.into_iter().map(|v| v.0))?)) }
 }
 
-impl <'assignment,'from: 'from2, 'from2, FromUcompound: 'from + UnassignedTblExpressionCompound, ToUcompound: 'assignment + for<'a> From<&'a FromUcompound> + From<&'assignment ToUcompound> + UnassignedTblExpressionCompound>
-PartialPropositionalAssignmentConstructor<'assignment,'from2,UnassignedTblProposition<FromUcompound>,UnassignedTblProposition<ToUcompound>, SparsePartialTblPropositionAssignment<ToUcompound>>
+impl <PreAssignmentUcompound: UnassignedTblExpressionCompound, PostAssignmentUcompound: for<'a> From<&'a PreAssignmentUcompound> + for<'a> From<&'a PostAssignmentUcompound> + UnassignedTblExpressionCompound>
+PartialPropositionalAssignmentConstructor<UnassignedTblProposition<PreAssignmentUcompound>,UnassignedTblProposition<PostAssignmentUcompound>, SparsePartialTblPropositionAssignment<PostAssignmentUcompound>>
 for SparseTblExpressionAssignmentConstructor {
     type Error = ();
-    fn try_construct(&self, prop: &UnassignedTblProposition<FromUcompound>) -> Result<SparsePartialTblPropositionAssignment<ToUcompound>,()> {
+    fn try_construct(&self, prop: &UnassignedTblExpression<PostAssignmentUcompound>) -> Result<SparsePartialTblPropositionAssignment<PostAssignmentUcompound>,()> {
         let inner: HashMap<_,_> =self.0.iter()
             .map(|(variable,path)| Ok((*variable,match prop.get_subexpression_owned(&path) {
-                Ok(uexpr) => uexpr.transmute_compound(),
+                Ok(uexpr) => uexpr.into(),
                 Err(err) => return Err(err),
             })))
             .try_collect()
@@ -66,14 +73,14 @@ for SparseTblExpressionAssignmentConstructor {
         Ok(SparsePartialTblExpressionAssignment(inner.into()))
     }
 }
-impl <'assignment,'from: 'from2, 'from2, FromUcompound: 'from + UnassignedTblExpressionCompound, ToUcompound: 'assignment + for<'a> From<&'a FromUcompound> + From<&'assignment ToUcompound> + UnassignedTblExpressionCompound>
-PartialPropositionalAssignmentConstructor<'assignment,'from2,UnassignedTblProposition<FromUcompound>,UnassignedTblProposition<ToUcompound>, DensePartialTblPropositionAssignment<ToUcompound>>
+impl <PreAssignmentUcompound: UnassignedTblExpressionCompound, PostAssignmentUcompound: for<'a> From<&'a PreAssignmentUcompound> + for<'a> From<&'a PostAssignmentUcompound> + UnassignedTblExpressionCompound>
+PartialPropositionalAssignmentConstructor<UnassignedTblProposition<PreAssignmentUcompound>,UnassignedTblProposition<PostAssignmentUcompound>, DensePartialTblPropositionAssignment<PostAssignmentUcompound>>
 for SparseTblExpressionAssignmentConstructor {
     type Error = ();
-    fn try_construct(&self, prop: &UnassignedTblProposition<FromUcompound>) -> Result<DensePartialTblPropositionAssignment<ToUcompound>,()> {
+    fn try_construct(&self, prop: &UnassignedTblProposition<PostAssignmentUcompound>) -> Result<DensePartialTblPropositionAssignment<PostAssignmentUcompound>,()> {
         let values: Vec<_>= self.0.iter()
             .map(|(variable,path)| Ok((*variable,match prop.get_subexpression_owned(path) {
-                Ok(uexpr) => uexpr.transmute_compound(),
+                Ok(uexpr) => uexpr.into(),
                 Err(err) => return Err(err),
             })))
             .try_collect()?;

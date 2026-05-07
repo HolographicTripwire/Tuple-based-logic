@@ -1,5 +1,4 @@
-use itertools::Itertools;
-use proof_calculus::{propositions::assignments::{PartialPropositionalAssignment, PropositionalAssignment}, utils::{collections::maps::{KeyConflictError, dense_usize_map::DenseUsizeMap}, traits::{combinable::{TryCombine}, try_from_iter::TryFromIterator}}};
+use proof_calculus::utils::{collections::maps::{KeyConflictError, dense_usize_map::DenseUsizeMap}, traits::{combinable::{TryCombine}, try_from_iter::TryFromIterator}};
 
 use crate::expressions::{types::{assigned::{TblExpression, compound::TblExpressionCompound}, unassigned::{UnassignedTblExpression, compound::UnassignedTblExpressionCompound, variable::TblExpressionVariable}}};
 
@@ -25,21 +24,28 @@ impl <C: TblExpressionCompound> TryCombine for DenseTblExpressionAssignment<C> {
     fn combine<I: IntoIterator<Item = Self>>(assignments: I) -> Result<Self,Self::CombinationError>
         { Ok(Self(DenseUsizeMap::merge_without_conflicts(assignments.into_iter().map(|v| v.0))?)) }
 }
-impl <C: TblExpressionCompound + FromIterator<TblExpression<C>>, UC: UnassignedTblExpressionCompound> PropositionalAssignment<UnassignedTblExpression<UC>,TblExpression<C>> for DenseTblExpressionAssignment<C> {
-    fn assign_to(&self, uprop: &UnassignedTblExpression<UC>) -> Result<TblExpression<C>,()> {
-        match uprop {
-            UnassignedTblExpression::Atom(atom) => Ok(TblExpression::Atom(*atom)),
-            UnassignedTblExpression::Variable(variable) => match self.0.get(variable) {
-                Some(expr) => Ok(expr.clone()),
-                None => Err(()),
-            }, UnassignedTblExpression::Compound(compound) => Ok(TblExpression::Compound(
-                compound.get_immediate_subexpressions().into_iter()
-                    .map(|uexpr| self.assign_to(uexpr) )
-                    .try_collect()?
-            ))
-        }
-    }
-}
+// impl <C: TblExpressionCompound + FromIterator<TblExpression<C>>, UC: UnassignedTblExpressionCompound>
+// PropositionalAssignment<UnassignedTblExpression<UC>,TblExpression<C>>
+// for DenseTblExpressionAssignment<C> {
+//     type AssignmentError = ();
+//     type ReverseAssignmentError = ();
+//     fn assign(&self, uprop: &UnassignedTblExpression<UC>) -> Result<TblExpression<C>,Self::AssignmentError> {
+//         match uprop {
+//             UnassignedTblExpression::Atom(atom) => Ok(TblExpression::Atom(*atom)),
+//             UnassignedTblExpression::Variable(variable) => match self.0.get(variable) {
+//                 Some(expr) => Ok(expr.clone()),
+//                 None => Err(()),
+//             }, UnassignedTblExpression::Compound(compound) => Ok(TblExpression::Compound(
+//                 compound.get_immediate_subexpressions().into_iter()
+//                     .map(|uexpr| self.assign(uexpr) )
+//                     .try_collect()?
+//             ))
+//         }
+//     }
+//     fn reverse_assign(from: &UnassignedTblExpression<UC>, to: &TblExpression<C>) -> Result<Self,Self::ReverseAssignmentError> {
+//         todo!()
+//     }
+// }
 
 #[derive(Clone,PartialEq,Eq,Debug)]
 pub struct DensePartialTblExpressionAssignment<UC: UnassignedTblExpressionCompound>(DenseUsizeMap<TblExpressionVariable,UnassignedTblExpression<UC>>);
@@ -60,18 +66,25 @@ impl <UC: UnassignedTblExpressionCompound> TryCombine for DensePartialTblExpress
     type CombinationError = KeyConflictError<TblExpressionVariable,UnassignedTblExpression<UC>>;
     fn combine<I: IntoIterator<Item = Self>>(assignments: I) -> Result<Self,Self::CombinationError>
         { Ok(Self(DenseUsizeMap::merge_without_conflicts(assignments.into_iter().map(|v| v.0))?)) }
-}
-impl <'slf, 'from, SelfUcompound: 'slf + UnassignedTblExpressionCompound, FromUcompound: 'from + UnassignedTblExpressionCompound, ToUcompound: From<&'slf SelfUcompound> + From<&'from FromUcompound> + UnassignedTblExpressionCompound>
-PartialPropositionalAssignment<'slf,'from,UnassignedTblExpression<FromUcompound>,UnassignedTblExpression<ToUcompound>>
-for DensePartialTblExpressionAssignment<SelfUcompound> {
-    fn assign_to(&'slf self, uprop: &'from UnassignedTblExpression<FromUcompound>) -> UnassignedTblExpression<ToUcompound> {
-        match uprop {
-            UnassignedTblExpression::Variable(variable) => match self.0.get(variable) {
-                Some(uexpr) => uexpr.transmute_compound(),
-                None => UnassignedTblExpression::Variable(*variable),
-            },
-            other => other.transmute_compound(),
-        }
-    }
-}
+} 
+// impl <
+//     FromUcompound: UnassignedTblExpressionCompound,
+//     ToUcompound: for<'a> From<&'a SelfUcompound> + for<'a> From<&'a FromUcompound> + UnassignedTblExpressionCompound,
+//     SelfUcompound: UnassignedTblExpressionCompound
+// > PartialPropositionalAssignment<UnassignedTblExpression<FromUcompound>,UnassignedTblExpression<ToUcompound>>
+// for DensePartialTblExpressionAssignment<SelfUcompound> {
+//     type AssignmentError = Infallible;
+//     type ReverseAssignmentError = ();
+//     fn assign(&self, subsuming_uprop: &UnassignedTblExpression<FromUcompound>) -> Result<UnassignedTblExpression<ToUcompound>,Self::AssignmentError> {
+//         Ok(match subsuming_uprop {
+//             UnassignedTblExpression::Variable(variable) => match self.0.get(variable) {
+//                 Some(uexpr) => uexpr.into(),
+//                 None => UnassignedTblExpression::Variable(*variable),
+//             }, other => other.into(),
+//         })
+//     }
+//     fn reverse_assign(subsuming_uprop: &UnassignedTblExpression<FromUcompound>, subsumed_uprop: &UnassignedTblExpression<ToUcompound>) -> Result<Self,Self::ReverseAssignmentError> {
+//         todo!()
+//     }
+// }
 // TODO: consider performance implications of having a From<Vec> implementation for these to leverage From<Vec> of underlying DenseUsizeMap

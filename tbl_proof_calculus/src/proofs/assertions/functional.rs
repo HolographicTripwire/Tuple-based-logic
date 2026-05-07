@@ -1,11 +1,11 @@
 use itertools::Either;
 use path_lib::obj_at_path::ObjAtPath;
 
-use crate::{expressions::{paths::immediate::ImmediateTblSubexpressionInExpressionPath, types::assigned::{OwnedTblExpressionAtPath, TblExpression, TblExpressionAtPath, compound::TblExpressionCompound}}, proofs::assertions::{ExpressionLengthCheckError, ExpressionValueCheckError, assert_expression_value, expression_as_slice}};
+use crate::{expressions::{paths::immediate::ImmediateTblSubexpressionInExpressionPath, types::assigned::{OwnedTblExpressionAtPath, TblExpression, TblExpressionAtPath, compound::TblExpressionCompound}}, proofs::assertions::{ExpressionCheckInatomicError, ExpressionLengthCheckError, ExpressionValueCheckError, assert_expression_value, expression_as_slice}};
 
 #[derive(Clone)]
-pub enum UnwrapInvocationExpressionError<C1: TblExpressionCompound, Path, Path2, C2: TblExpressionCompound> {
-    ExpressionUnitary(OwnedTblExpressionAtPath<C1, Path>),
+pub enum UnwrapInvocationExpressionError<C1: TblExpressionCompound, Path: Clone, Path2, C2: TblExpressionCompound> {
+    ExpressionUnitary(ExpressionCheckInatomicError<Path>),
     NoFirstElement(OwnedTblExpressionAtPath<C1, Path>),
     WrongHead(ExpressionValueCheckError<C1, Path2, C2>)
 }
@@ -17,7 +17,7 @@ C2: TblExpressionCompound + PartialEq<C1>,
 Path: Clone,
 Path2: Clone + From<(Path,ImmediateTblSubexpressionInExpressionPath)> {
     let vec: Box<[ObjAtPath<'_, TblExpression<C1>, Path2>]> = expression_as_slice(invocation)
-        .map_err(|e| UnwrapInvocationExpressionError::ExpressionUnitary(e.expression))?;
+        .map_err(|e| UnwrapInvocationExpressionError::ExpressionUnitary(e))?;
     let (head, tail) = vec.split_first().ok_or(UnwrapInvocationExpressionError::NoFirstElement(invocation.clone().into()))?;
     assert_expression_value(head, expected_head)
         .map_err(|e| UnwrapInvocationExpressionError::WrongHead(e))?;

@@ -1,9 +1,15 @@
 use path_lib::{obj_at_path::{ObjAtPath, OwnedObjAtPath}};
 use path_lib_proc_macros::generate_parent_of_children_trait;
 
-use crate::expressions::{paths::{TblSubexpressionInExpressionPath, immediate::ImmediateTblSubexpressionInExpressionPath}, types::assigned::{TblExpression, at_path_enum::{OwnedTblExpressionAtPathEnum, TblExpressionAtPathEnum}, compound::TblExpressionCompound}};
+use crate::expressions::{paths::{TblSubexpressionInExpressionPath, immediate::ImmediateTblSubexpressionInExpressionPath}, types::assigned::{TblExpression, at_path_enum::{OwnedTblExpressionAtPathEnum, TblExpressionAtPathEnum}, atom::TblExpressionAtom, compound::TblExpressionCompound}};
 
 pub mod iterators;
+
+pub type TblExpressionAtomInExpression<'a> = ObjAtPath<'a,TblExpressionAtom,TblSubexpressionInExpressionPath>;
+pub type OwnedTblExpressionAtomInExpression = OwnedObjAtPath<TblExpressionAtom,TblSubexpressionInExpressionPath>;
+
+pub type TblExpressionCompoundInExpression<'a,C: TblExpressionCompound> = ObjAtPath<'a,C,TblSubexpressionInExpressionPath>;
+pub type OwnedTblExpressionCompoundInExpression<C: TblExpressionCompound> = OwnedObjAtPath<C,TblSubexpressionInExpressionPath>;
 
 generate_parent_of_children_trait!{
     TblExpression<C>, ImmediateTblSubexpressionInExpressionPath, (C: TblExpressionCompound),
