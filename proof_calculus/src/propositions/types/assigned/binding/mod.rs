@@ -1,2 +1,2 @@
-pub mod bounds;
 pub mod binders;
+pub mod bounds;

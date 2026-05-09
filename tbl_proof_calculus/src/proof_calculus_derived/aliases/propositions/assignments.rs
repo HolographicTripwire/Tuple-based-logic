@@ -1,9 +1,23 @@
-use proof_calculus::propositions::assignments::{PartialPropositionalAssignment, PropositionalAssignment};
+use proof_calculus::propositions::assignments::{
+    PartialPropositionalAssignment, PropositionalAssignment,
+};
 use trait_aliases::trait_aliases;
 
-use crate::{expressions::types::unassigned::compound::UnassignedTblExpressionCompound, proof_calculus_derived::aliases::propositions::types::UnassignedTblProposition};
+use crate::{
+    expressions::types::{
+        assigned::compound::TblExpressionCompound,
+        unassigned::compound::UnassignedTblExpressionCompound,
+    },
+    proof_calculus_derived::aliases::propositions::types::{
+        TblProposition, UnassignedTblProposition,
+    },
+};
 
-trait_aliases!{
-    pub trait TblPropositionalAssignment<C: UnassignedTblExpressionCompound> = PropositionalAssignment<UnassignedTblProposition<C>>;
-    pub trait PartialTblPropositionalAssignment<C: UnassignedTblExpressionCompound> = PartialPropositionalAssignment<UnassignedTblProposition<C>>;
+trait_aliases! {
+    pub trait TblPropositionalAssignment
+    <PreAssignmentUcompound: UnassignedTblExpressionCompound, PostAssignmentCompound: TblExpressionCompound>
+    = PropositionalAssignment<UnassignedTblProposition<PreAssignmentUcompound>,TblProposition<PostAssignmentCompound>>;
+    pub trait PartialTblPropositionalAssignment
+    <PreAssignmentUcompound: UnassignedTblExpressionCompound, PostAssignmentUcompound: UnassignedTblExpressionCompound>
+    = PartialPropositionalAssignment<UnassignedTblProposition<PreAssignmentUcompound>,UnassignedTblProposition<PostAssignmentUcompound>>;
 }

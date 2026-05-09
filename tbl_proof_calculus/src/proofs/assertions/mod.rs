@@ -1,19 +1,20 @@
 mod atomicity_check;
 mod atomicity_equality_check;
 mod atomicity_inequality_check;
+mod functional;
 mod length_check;
 mod length_equality_check;
 mod length_inequality_check;
 mod value_check;
 mod value_equality_check;
 mod value_inequality_check;
-mod functional;
 
 use std::fmt::Display;
 
 pub use atomicity_check::*;
 pub use atomicity_equality_check::*;
 pub use atomicity_inequality_check::*;
+pub use functional::*;
 pub use length_check::*;
 pub use length_equality_check::*;
 pub use length_inequality_check::*;
@@ -21,35 +22,61 @@ use path_lib::obj_at_path::OwnedObjAtPath;
 pub use value_check::*;
 pub use value_equality_check::*;
 pub use value_inequality_check::*;
-pub use functional::*;
 
-use crate::{expressions::{paths::{TblSubexpressionInExpressionPath, immediate::ImmediateTblSubexpressionInExpressionPath}, types::assigned::{OwnedTblExpressionAtPath, TblExpression, TblExpressionAtPath, compound::TblExpressionCompound, subexpressions::LocatedParentOfImmediateSubexpressions}}, proof_calculus_derived::path_composites::{TblExpressionInInference, TblExpressionInInferencePath}};
+use crate::{
+    expressions::{
+        paths::{
+            TblSubexpressionInExpressionPath, immediate::ImmediateTblSubexpressionInExpressionPath,
+        },
+        types::assigned::{
+            OwnedTblExpressionAtPath, TblExpression, TblExpressionAtPath,
+            compound::TblExpressionCompound,
+            subexpressions::LocatedParentOfImmediateSubexpressions,
+        },
+    },
+    proof_calculus_derived::path_composites::{
+        TblExpressionInInference, TblExpressionInInferencePath,
+    },
+};
 
 pub struct ExpressionSubpathError<C: TblExpressionCompound, ParentPath> {
     pub subpath: TblSubexpressionInExpressionPath,
-    pub expression: OwnedTblExpressionAtPath<C,ParentPath>
+    pub expression: OwnedTblExpressionAtPath<C, ParentPath>,
 }
 
-pub fn format_expression_subpath_error<C:TblExpressionCompound,Path:Display>(err: ExpressionSubpathError<C,Path>) -> String {
-    format!("Expression at {path} has no subexpression at subpath {subpath}",
-        path=err.expression.path,
-        subpath=err.subpath
+pub fn format_expression_subpath_error<C: TblExpressionCompound, Path: Display>(
+    err: ExpressionSubpathError<C, Path>,
+) -> String {
+    format!(
+        "Expression at {path} has no subexpression at subpath {subpath}",
+        path = err.expression.path,
+        subpath = err.subpath
     )
 }
 
-pub fn expression_subexpression<'a,C:TblExpressionCompound,ParentPath:Clone,JoinedPath: From<(ParentPath,TblSubexpressionInExpressionPath)>>(expression: &'a TblExpressionAtPath<'a,C,ParentPath>, subpath: TblSubexpressionInExpressionPath) -> Result<TblExpressionAtPath<'a,C,JoinedPath>,ExpressionSubpathError<C,ParentPath>> {
+pub fn expression_subexpression<
+    'a,
+    C: TblExpressionCompound,
+    ParentPath: Clone,
+    JoinedPath: From<(ParentPath, TblSubexpressionInExpressionPath)>,
+>(
+    expression: &'a TblExpressionAtPath<'a, C, ParentPath>,
+    subpath: TblSubexpressionInExpressionPath,
+) -> Result<TblExpressionAtPath<'a, C, JoinedPath>, ExpressionSubpathError<C, ParentPath>> {
     let result = match expression.obj {
         TblExpression::Atom(_) => None,
-        TblExpression::Compound(compound) => Some(compound.get_located_subexpression(subpath.clone())),
+        TblExpression::Compound(compound) => {
+            Some(compound.get_located_subexpression(subpath.clone()))
+        }
     };
     match result {
         Some(Ok(subexpression)) => Ok(subexpression.prepend_path_to_self(expression.path.clone())),
         None | Some(Err(_)) => Err(ExpressionSubpathError {
             subpath,
-            expression: expression.clone().into()
-        })
+            expression: expression.clone().into(),
+        }),
     }
-    /* 
+    /*
     TODO: Fix or delete
     let child: Result<ExpressionInProof, ()> = expression
         .get_located_child_owned(subpath)
@@ -68,61 +95,113 @@ pub fn expression_subexpression<'a,C:TblExpressionCompound,ParentPath:Clone,Join
      */
 }
 
-pub fn expression_as_slice_in_inference<'a,C:TblExpressionCompound,Path:Clone>(expression: &'a TblExpressionAtPath<'a,C,Path>)
--> Result<Box<[TblExpressionInInference<'a,C>]>,ExpressionCheckInatomicError<Path>> 
-where TblExpressionInInferencePath: From<(Path,ImmediateTblSubexpressionInExpressionPath)>
-    { expression_as_slice(expression) }
-pub fn expression_as_slice<'a,C:TblExpressionCompound,Path:'a + Clone, JoinedPath: From<(Path,ImmediateTblSubexpressionInExpressionPath)>>(expression: &'a TblExpressionAtPath<'a,C,Path>)
--> Result<Box<[TblExpressionAtPath<'a,C,JoinedPath>]>,ExpressionCheckInatomicError<Path>> {
-    if let TblExpression::Atom(atom) = expression.obj { Err(ExpressionCheckInatomicError(
-        OwnedObjAtPath { obj: *atom, path: expression.path.clone() }
-    ))} else {
-        Ok(expression.get_located_immediate_subexpressions()
+pub fn expression_as_slice_in_inference<'a, C: TblExpressionCompound, Path: Clone>(
+    expression: &'a TblExpressionAtPath<'a, C, Path>,
+) -> Result<Box<[TblExpressionInInference<'a, C>]>, ExpressionCheckInatomicError<Path>>
+where
+    TblExpressionInInferencePath: From<(Path, ImmediateTblSubexpressionInExpressionPath)>,
+{
+    expression_as_slice(expression)
+}
+pub fn expression_as_slice<
+    'a,
+    C: TblExpressionCompound,
+    Path: 'a + Clone,
+    JoinedPath: From<(Path, ImmediateTblSubexpressionInExpressionPath)>,
+>(
+    expression: &'a TblExpressionAtPath<'a, C, Path>,
+) -> Result<Box<[TblExpressionAtPath<'a, C, JoinedPath>]>, ExpressionCheckInatomicError<Path>> {
+    if let TblExpression::Atom(atom) = expression.obj {
+        Err(ExpressionCheckInatomicError(OwnedObjAtPath {
+            obj: *atom,
+            path: expression.path.clone(),
+        }))
+    } else {
+        Ok(expression
+            .get_located_immediate_subexpressions()
             .into_iter()
             .map(|obj| obj.into())
             .collect())
     }
 }
 
-pub fn expression_into_slice_in_inference<'a,C:TblExpressionCompound,Path:'a + Clone>(expression: TblExpressionAtPath<'a,C,Path>)
--> Result<Box<[TblExpressionInInference<'a,C>]>,ExpressionCheckInatomicError<Path>>
-where TblExpressionInInferencePath: From<(Path,ImmediateTblSubexpressionInExpressionPath)>
-    { expression_into_slice(expression) }
-pub fn expression_into_slice<'a,C:TblExpressionCompound,Path:'a + Clone,JoinedPath: From<(Path,ImmediateTblSubexpressionInExpressionPath)>>(expression: TblExpressionAtPath<'a,C,Path>)
--> Result<Box<[TblExpressionAtPath<'a,C,JoinedPath>]>,ExpressionCheckInatomicError<Path>> {
-    if let TblExpression::Atom(atom) = expression.obj { Err(ExpressionCheckInatomicError(
-        OwnedObjAtPath { obj: *atom, path: expression.path }
-    ))} else {
-        Ok(expression.into_located_immediate_subexpressions()
+pub fn expression_into_slice_in_inference<'a, C: TblExpressionCompound, Path: 'a + Clone>(
+    expression: TblExpressionAtPath<'a, C, Path>,
+) -> Result<Box<[TblExpressionInInference<'a, C>]>, ExpressionCheckInatomicError<Path>>
+where
+    TblExpressionInInferencePath: From<(Path, ImmediateTblSubexpressionInExpressionPath)>,
+{
+    expression_into_slice(expression)
+}
+pub fn expression_into_slice<
+    'a,
+    C: TblExpressionCompound,
+    Path: 'a + Clone,
+    JoinedPath: From<(Path, ImmediateTblSubexpressionInExpressionPath)>,
+>(
+    expression: TblExpressionAtPath<'a, C, Path>,
+) -> Result<Box<[TblExpressionAtPath<'a, C, JoinedPath>]>, ExpressionCheckInatomicError<Path>> {
+    if let TblExpression::Atom(atom) = expression.obj {
+        Err(ExpressionCheckInatomicError(OwnedObjAtPath {
+            obj: *atom,
+            path: expression.path,
+        }))
+    } else {
+        Ok(expression
+            .into_located_immediate_subexpressions()
             .into_iter()
-            .collect()
-        )
+            .collect())
     }
 }
 
-pub fn expression_as_sized_slice_in_inference<'a,const EXPECTED_SIZE: usize,C:TblExpressionCompound,Path: Clone>(expression: &'a TblExpressionAtPath<'a,C,Path>) -> Result<Box<[TblExpressionInInference<'a,C>; EXPECTED_SIZE]>,ExpressionLengthCheckError<C,Path>> where TblExpressionInInferencePath: From<(Path,ImmediateTblSubexpressionInExpressionPath)>
-    { expression_as_sized_slice(expression) }
-pub fn expression_as_sized_slice<'a,const EXPECTED_SIZE: usize,C:TblExpressionCompound,Path:Clone,JoinedPath: From<(Path,ImmediateTblSubexpressionInExpressionPath)>>(expression: &'a TblExpressionAtPath<'a,C,Path>) -> Result<Box<[TblExpressionAtPath<'a,C,JoinedPath>; EXPECTED_SIZE]>,ExpressionLengthCheckError<C,Path>> {
+pub fn expression_as_sized_slice_in_inference<
+    'a,
+    const EXPECTED_SIZE: usize,
+    C: TblExpressionCompound,
+    Path: Clone,
+>(
+    expression: &'a TblExpressionAtPath<'a, C, Path>,
+) -> Result<
+    Box<[TblExpressionInInference<'a, C>; EXPECTED_SIZE]>,
+    ExpressionLengthCheckError<C, Path>,
+>
+where
+    TblExpressionInInferencePath: From<(Path, ImmediateTblSubexpressionInExpressionPath)>,
+{
+    expression_as_sized_slice(expression)
+}
+pub fn expression_as_sized_slice<
+    'a,
+    const EXPECTED_SIZE: usize,
+    C: TblExpressionCompound,
+    Path: Clone,
+    JoinedPath: From<(Path, ImmediateTblSubexpressionInExpressionPath)>,
+>(
+    expression: &'a TblExpressionAtPath<'a, C, Path>,
+) -> Result<
+    Box<[TblExpressionAtPath<'a, C, JoinedPath>; EXPECTED_SIZE]>,
+    ExpressionLengthCheckError<C, Path>,
+> {
     Ok(expression_as_slice(expression)
-        .map_err(|_| ExpressionLengthCheckError{
-            expected_length: EXPECTED_SIZE, 
-            expression: expression.clone().into()
+        .map_err(|_| ExpressionLengthCheckError {
+            expected_length: EXPECTED_SIZE,
+            expression: expression.clone().into(),
         })?
         .try_into()
-        .map_err(|_| ExpressionLengthCheckError{
-            expected_length: EXPECTED_SIZE, 
-            expression: expression.clone().into()
+        .map_err(|_| ExpressionLengthCheckError {
+            expected_length: EXPECTED_SIZE,
+            expression: expression.clone().into(),
         })?)
 }
 // pub fn expression_into_sized_slice<'a,const EXPECTED_SIZE: usize,C:CompoundTblExpression,Path:Clone + From<(Path,ImmediateSubexpressionInExpressionPath)>>(expression: TblExpressionAtPath<'a,C,Path>) -> Result<Box<[TblExpressionAtPath<'a,C,Path>; EXPECTED_SIZE]>,ExpressionLengthCheckError<C,Path>> {
 //     Ok(expression_into_slice(expression.clone())
 //         .map_err(|_| ExpressionLengthCheckError{
-//             expected_length: EXPECTED_SIZE, 
+//             expected_length: EXPECTED_SIZE,
 //             expression: expression.clone().into()
 //         })?
 //         .try_into()
 //         .map_err(|_| ExpressionLengthCheckError{
-//             expected_length: EXPECTED_SIZE, 
+//             expected_length: EXPECTED_SIZE,
 //             expression: expression.clone().into()
 //         })?)
 // }

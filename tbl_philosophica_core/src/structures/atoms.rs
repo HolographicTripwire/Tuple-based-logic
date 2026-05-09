@@ -1,8 +1,10 @@
 use enum_iterator::Sequence;
-use tbl_proof_calculus::expressions::assigned::{TblExpression, atomic::AtomicTblExpression, compound::CompoundTblExpression};
+use tbl_proof_calculus::expressions::assigned::{
+    TblExpression, atomic::AtomicTblExpression, compound::CompoundTblExpression,
+};
 
 /// Atoms which are built in to Tuple-Based Logic, and will appear in all axiomatic systems in Tuple-Based Logic
-#[derive(Clone,Sequence)]
+#[derive(Clone, Sequence)]
 pub enum PhilosophicaInferenceAtoms {
     // Deduction
     Conjunction,
@@ -38,11 +40,11 @@ impl Into<AtomicTblExpression> for PhilosophicaInferenceAtoms {
     }
 }
 
-impl <C: CompoundTblExpression> Into<TblExpression<C>> for PhilosophicaInferenceAtoms {
-    fn into(self) -> TblExpression<C>
-        { AtomicTblExpression::from(self.into()).into() }
+impl<C: CompoundTblExpression> Into<TblExpression<C>> for PhilosophicaInferenceAtoms {
+    fn into(self) -> TblExpression<C> {
+        AtomicTblExpression::from(self.into()).into()
+    }
 }
-
 
 #[cfg(test)]
 mod tests {
@@ -53,13 +55,16 @@ mod tests {
 
     #[test]
     fn test_differentiation_of_builtins() {
-        let builtins  = all::<PhilosophicaInferenceAtoms>().collect_vec();
+        let builtins = all::<PhilosophicaInferenceAtoms>().collect_vec();
         for (i, ix) in builtins.iter().enumerate() {
             for (j, jx) in builtins.iter().enumerate() {
                 let ia: AtomicTblExpression = (*ix).clone().into();
                 let ja: AtomicTblExpression = (*jx).clone().into();
-                if i==j { assert_eq!(ia,ja) }
-                else { assert_ne!(ia,ja) }
+                if i == j {
+                    assert_eq!(ia, ja)
+                } else {
+                    assert_ne!(ia, ja)
+                }
             }
         }
     }

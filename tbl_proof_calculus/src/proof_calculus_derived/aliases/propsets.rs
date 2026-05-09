@@ -2,6 +2,5 @@ use proof_calculus::propositions::types::assigned::collections::sets::implementa
 
 use crate::expressions::types::assigned::{TblExpression, compound::TblExpressionCompound};
 
-pub type HashTblPropSet1O<C:TblExpressionCompound> = HashPropSet1O<TblExpression<C>>;
+pub type HashTblPropSet1O<C: TblExpressionCompound> = HashPropSet1O<TblExpression<C>>;
 //pub type HashTblPropSet2O<C:CompoundTblExpression> = HashPropSet2O<TblExpression<C>>;
-

@@ -1,2 +1,2 @@
-pub mod tiny_immutable;
 pub mod hash;
+pub mod tiny_immutable;

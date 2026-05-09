@@ -1,49 +1,71 @@
 use std::sync::{Arc, LazyLock};
 
-use tbl_textualization::structures::{atoms::AtomStyle, expressions::{functional::SpecialCasesBuilder, raw::RawExpressionStyle, ExpressionStyle, SpecialCases}};
+use tbl_textualization::structures::{
+    atoms::AtomStyle,
+    expressions::{
+        ExpressionStyle, SpecialCases, functional::SpecialCasesBuilder, raw::RawExpressionStyle,
+    },
+};
 
 const RAW_EXPRESSION_STYLE: LazyLock<RawExpressionStyle> = LazyLock::new(|| {
     let atom_style = AtomStyle::from_strs("#");
     RawExpressionStyle::from_strs(atom_style, "(", ")", ", ")
 });
 
-const SPECIAL_CASES: LazyLock<SpecialCases> = LazyLock::new(|| SpecialCasesBuilder::new(RAW_EXPRESSION_STYLE.clone())
-    // Built in atoms
-    .add_variadic_atomic_infix_function(000,"∧", " ∧ ")  // Conjunction
-    .add_atomic_prefix_function(001, 1..1,"∀","∀")  // Universal quantiifer
-    .add_atomic_infix_function(002, 2..2, "→"," → ")  // Implication
-    .add_atomic_prefix_function(003,1..1, "¬","¬")  // Negation
-    .add_variadic_atomic_infix_function(004,"=", " = ")  // Identity
-    .add_variadic_atomic_outfix_function(005,"⟨⟩","⟨","⟩") // Verbatim
-    .add_variadic_atomic_infix_function(006,"⌢","⌢")  // Concatenation
-    .add_atomic_prefix_function(007,1..1, "⚛","⚛")  // Atomicity
-    // Non-built-in atoms
-    .build()
-);
+const SPECIAL_CASES: LazyLock<SpecialCases> = LazyLock::new(|| {
+    SpecialCasesBuilder::new(RAW_EXPRESSION_STYLE.clone())
+        // Built in atoms
+        .add_variadic_atomic_infix_function(000, "∧", " ∧ ") // Conjunction
+        .add_atomic_prefix_function(001, 1..1, "∀", "∀") // Universal quantiifer
+        .add_atomic_infix_function(002, 2..2, "→", " → ") // Implication
+        .add_atomic_prefix_function(003, 1..1, "¬", "¬") // Negation
+        .add_variadic_atomic_infix_function(004, "=", " = ") // Identity
+        .add_variadic_atomic_outfix_function(005, "⟨⟩", "⟨", "⟩") // Verbatim
+        .add_variadic_atomic_infix_function(006, "⌢", "⌢") // Concatenation
+        .add_atomic_prefix_function(007, 1..1, "⚛", "⚛") // Atomicity
+        // Non-built-in atoms
+        .build()
+});
 
 pub const EXPRESSION_STYLE: LazyLock<ExpressionStyle> = LazyLock::new(|| -> ExpressionStyle {
-    ExpressionStyle::new(RAW_EXPRESSION_STYLE.clone(), Arc::new(SPECIAL_CASES.clone()))
+    ExpressionStyle::new(
+        RAW_EXPRESSION_STYLE.clone(),
+        Arc::new(SPECIAL_CASES.clone()),
+    )
 });
 
 #[cfg(test)]
 mod tests {
-    use std::{collections::HashMap};
+    use std::collections::HashMap;
 
     use tbl_structures::{atomic::BuiltInAtom, expressions::TblExpression};
-    use tbl_textualization::{helpers::styles::Stylable, expressions::assigned::expression_parser};
+    use tbl_textualization::{expressions::assigned::expression_parser, helpers::styles::Stylable};
 
     use super::*;
 
-    static CONVERSIONS: LazyLock<HashMap<&str,TblExpression>> = LazyLock::new(|| -> HashMap<&str,TblExpression> { 
-        let conjunction = || TblExpression::from(BuiltInAtom::Conjunction);
-        let implication = || TblExpression::from(BuiltInAtom::Implication);
-        HashMap::from_iter(vec![
-            ("∧",conjunction()),
-            ("(∧)",TblExpression::Compound(vec![conjunction()])),
-            ("(∧, →)",TblExpression::Compound(vec![conjunction(),implication()])),
-            ("((∧), →)", TblExpression::from(vec![TblExpression::from(vec![conjunction()]),implication()])),
-        ].into_iter())
-    });
+    static CONVERSIONS: LazyLock<HashMap<&str, TblExpression>> =
+        LazyLock::new(|| -> HashMap<&str, TblExpression> {
+            let conjunction = || TblExpression::from(BuiltInAtom::Conjunction);
+            let implication = || TblExpression::from(BuiltInAtom::Implication);
+            HashMap::from_iter(
+                vec![
+                    ("∧", conjunction()),
+                    ("(∧)", TblExpression::Compound(vec![conjunction()])),
+                    (
+                        "(∧, →)",
+                        TblExpression::Compound(vec![conjunction(), implication()]),
+                    ),
+                    (
+                        "((∧), →)",
+                        TblExpression::from(vec![
+                            TblExpression::from(vec![conjunction()]),
+                            implication(),
+                        ]),
+                    ),
+                ]
+                .into_iter(),
+            )
+        });
 
     #[test]
     fn test_stringify_atom() {
@@ -52,7 +74,7 @@ mod tests {
         let expression = CONVERSIONS.get(str).unwrap();
         // Test stringification
         let expression_stringified = expression.styled(&EXPRESSION_STYLE.clone()).to_string();
-        assert_eq!(expression_stringified,str.to_string());
+        assert_eq!(expression_stringified, str.to_string());
     }
     #[test]
     fn test_destringify_atom() {
@@ -62,7 +84,7 @@ mod tests {
         // Test destringification
         let parser = expression_parser(EXPRESSION_STYLE.clone());
         let str_as_expression = parser.parse_unambiguous(str.chars());
-        assert_eq!(Ok(expression.clone()),str_as_expression);
+        assert_eq!(Ok(expression.clone()), str_as_expression);
     }
 
     #[test]
@@ -72,7 +94,7 @@ mod tests {
         let expression = CONVERSIONS.get(str).unwrap();
         // Test stringification
         let expression_stringified = expression.styled(&EXPRESSION_STYLE.clone()).to_string();
-        assert_eq!(expression_stringified,str.to_string());
+        assert_eq!(expression_stringified, str.to_string());
     }
     #[test]
     fn test_destringify_unary_tuple() {
@@ -82,7 +104,7 @@ mod tests {
         // Test destringification
         let parser = expression_parser(EXPRESSION_STYLE.clone());
         let str_as_expression = parser.parse_unambiguous(str.chars());
-        assert_eq!(Ok(expression.clone()),str_as_expression);
+        assert_eq!(Ok(expression.clone()), str_as_expression);
     }
 
     #[test]
@@ -92,7 +114,7 @@ mod tests {
         let expression = CONVERSIONS.get(str).unwrap();
         // Test stringification
         let expression_stringified = expression.styled(&EXPRESSION_STYLE.clone()).to_string();
-        assert_eq!(expression_stringified,str.to_string());
+        assert_eq!(expression_stringified, str.to_string());
     }
     #[test]
     fn test_destringify_binary_tuple() {
@@ -102,7 +124,7 @@ mod tests {
         // Test destringification
         let parser = expression_parser(EXPRESSION_STYLE.clone());
         let str_as_expression = parser.parse_unambiguous(str.chars());
-        assert_eq!(Ok(expression.clone()),str_as_expression);
+        assert_eq!(Ok(expression.clone()), str_as_expression);
     }
 
     #[test]
@@ -112,7 +134,7 @@ mod tests {
         let expression = CONVERSIONS.get(str).unwrap();
         // Test stringification
         let expression_stringified = expression.styled(&EXPRESSION_STYLE.clone()).to_string();
-        assert_eq!(expression_stringified,str.to_string());
+        assert_eq!(expression_stringified, str.to_string());
     }
     #[test]
     fn test_destringify_nested_tuple() {
@@ -122,6 +144,6 @@ mod tests {
         // Test destringification
         let parser = expression_parser(EXPRESSION_STYLE.clone());
         let str_as_expression = parser.parse_unambiguous(str.chars());
-        assert_eq!(Ok(expression.clone()),str_as_expression);
+        assert_eq!(Ok(expression.clone()), str_as_expression);
     }
 }

@@ -1,31 +1,50 @@
-use path_lib::{obj_at_path::{ObjAtPath, OwnedObjAtPath}};
+use path_lib::obj_at_path::{ObjAtPath, OwnedObjAtPath};
 use path_lib_proc_macros::generate_parent_of_children_trait;
 
-use crate::expressions::{paths::{TblSubexpressionInExpressionPath, immediate::ImmediateTblSubexpressionInExpressionPath}, types::assigned::{TblExpression, at_path_enum::{OwnedTblExpressionAtPathEnum, TblExpressionAtPathEnum}, atom::TblExpressionAtom, compound::TblExpressionCompound}};
+use crate::expressions::{
+    paths::{
+        TblSubexpressionInExpressionPath, immediate::ImmediateTblSubexpressionInExpressionPath,
+    },
+    types::assigned::{
+        TblExpression,
+        at_path_enum::{OwnedTblExpressionAtPathEnum, TblExpressionAtPathEnum},
+        atom::TblExpressionAtom,
+        compound::TblExpressionCompound,
+    },
+};
 
 pub mod iterators;
 
-pub type TblExpressionAtomInExpression<'a> = ObjAtPath<'a,TblExpressionAtom,TblSubexpressionInExpressionPath>;
-pub type OwnedTblExpressionAtomInExpression = OwnedObjAtPath<TblExpressionAtom,TblSubexpressionInExpressionPath>;
+pub type TblExpressionAtomInExpression<'a> =
+    ObjAtPath<'a, TblExpressionAtom, TblSubexpressionInExpressionPath>;
+pub type OwnedTblExpressionAtomInExpression =
+    OwnedObjAtPath<TblExpressionAtom, TblSubexpressionInExpressionPath>;
 
-pub type TblExpressionCompoundInExpression<'a,C: TblExpressionCompound> = ObjAtPath<'a,C,TblSubexpressionInExpressionPath>;
-pub type OwnedTblExpressionCompoundInExpression<C: TblExpressionCompound> = OwnedObjAtPath<C,TblSubexpressionInExpressionPath>;
+pub type TblExpressionCompoundInExpression<'a, C: TblExpressionCompound> =
+    ObjAtPath<'a, C, TblSubexpressionInExpressionPath>;
+pub type OwnedTblExpressionCompoundInExpression<C: TblExpressionCompound> =
+    OwnedObjAtPath<C, TblSubexpressionInExpressionPath>;
 
-generate_parent_of_children_trait!{
+generate_parent_of_children_trait! {
     TblExpression<C>, ImmediateTblSubexpressionInExpressionPath, (C: TblExpressionCompound),
     "immediate_subexpression", "immediate_subexpressions", "ImmediateSubexpressions"
 }
-pub type ImmediateSubexpressionInExpression<'a,C> = ObjAtPath<'a,TblExpression<C>,ImmediateTblSubexpressionInExpressionPath>;
-pub type ImmediateSubexpressionInExpressionEnum<'a,C> = TblExpressionAtPathEnum<'a,C,ImmediateTblSubexpressionInExpressionPath>;
+pub type ImmediateSubexpressionInExpression<'a, C> =
+    ObjAtPath<'a, TblExpression<C>, ImmediateTblSubexpressionInExpressionPath>;
+pub type ImmediateSubexpressionInExpressionEnum<'a, C> =
+    TblExpressionAtPathEnum<'a, C, ImmediateTblSubexpressionInExpressionPath>;
 
-pub type OwnedImmediateSubexpressionInExpression<C> = OwnedObjAtPath<TblExpression<C>,ImmediateTblSubexpressionInExpressionPath>;
-pub type OwnedImmediateSubexpressionInExpressionEnum<C> = OwnedTblExpressionAtPathEnum<C,ImmediateTblSubexpressionInExpressionPath>;
+pub type OwnedImmediateSubexpressionInExpression<C> =
+    OwnedObjAtPath<TblExpression<C>, ImmediateTblSubexpressionInExpressionPath>;
+pub type OwnedImmediateSubexpressionInExpressionEnum<C> =
+    OwnedTblExpressionAtPathEnum<C, ImmediateTblSubexpressionInExpressionPath>;
 
-
-generate_parent_of_children_trait!{
+generate_parent_of_children_trait! {
     TblExpression<C>, TblSubexpressionInExpressionPath, (C: TblExpressionCompound),
     "subexpression", "subexpressions", "Subexpressions"
 }
 
-pub type TblSubexpressionInExpression<'a,C> = ObjAtPath<'a,TblExpression<C>,TblSubexpressionInExpressionPath>;
-pub type OwnedTblSubexpressionInExpression<C> = OwnedObjAtPath<TblExpression<C>,TblSubexpressionInExpressionPath>;
+pub type TblSubexpressionInExpression<'a, C> =
+    ObjAtPath<'a, TblExpression<C>, TblSubexpressionInExpressionPath>;
+pub type OwnedTblSubexpressionInExpression<C> =
+    OwnedObjAtPath<TblExpression<C>, TblSubexpressionInExpressionPath>;

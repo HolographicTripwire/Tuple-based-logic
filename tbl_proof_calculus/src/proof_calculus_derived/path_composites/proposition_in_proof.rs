@@ -1,33 +1,56 @@
 use std::fmt::Display;
 
 use path_lib::obj_at_path::{ObjAtPath, OwnedObjAtPath};
-use proof_calculus::{propositions::types::assigned::paths::PropositionInSequentialProofStepPath, proofs::sequential::subproofs::SequentialProofInProofPath};
+use proof_calculus::{
+    proofs::sequential::subproofs::SequentialProofInProofPath,
+    propositions::types::assigned::paths::PropositionInSequentialProofStepPath,
+};
 
 use crate::expressions::types::assigned::compound::TblExpressionCompound;
 
-#[derive(Clone,PartialEq,Eq,Debug)]
+#[derive(Clone, PartialEq, Eq, Debug)]
 pub struct PropositionInProofPath {
     pub step_path: SequentialProofInProofPath,
     pub proposition_path: PropositionInSequentialProofStepPath,
 }
 impl PropositionInProofPath {
-    pub fn new(step: SequentialProofInProofPath, proposition: PropositionInSequentialProofStepPath) -> Self { Self { step_path: step, proposition_path: proposition } }
+    pub fn new(
+        step: SequentialProofInProofPath,
+        proposition: PropositionInSequentialProofStepPath,
+    ) -> Self {
+        Self {
+            step_path: step,
+            proposition_path: proposition,
+        }
+    }
 }
 impl Display for PropositionInProofPath {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f,"{}{}",self.step_path,self.proposition_path)
+        write!(f, "{}{}", self.step_path, self.proposition_path)
     }
 }
 
-pub type TblPropositionInProof<'a,C: TblExpressionCompound> = ObjAtPath<'a,C,PropositionInProofPath>;
-pub type OwnedTblPropositionInProof<C: TblExpressionCompound> = OwnedObjAtPath<C,PropositionInProofPath>;
+pub type TblPropositionInProof<'a, C: TblExpressionCompound> =
+    ObjAtPath<'a, C, PropositionInProofPath>;
+pub type OwnedTblPropositionInProof<C: TblExpressionCompound> =
+    OwnedObjAtPath<C, PropositionInProofPath>;
 
 mod from {
-    
+
     use super::*;
 
-    impl From<(SequentialProofInProofPath,PropositionInSequentialProofStepPath)> for PropositionInProofPath {
-        fn from(pair: (SequentialProofInProofPath,PropositionInSequentialProofStepPath)) -> Self { 
+    impl
+        From<(
+            SequentialProofInProofPath,
+            PropositionInSequentialProofStepPath,
+        )> for PropositionInProofPath
+    {
+        fn from(
+            pair: (
+                SequentialProofInProofPath,
+                PropositionInSequentialProofStepPath,
+            ),
+        ) -> Self {
             Self::new(pair.0, pair.1)
         }
     }

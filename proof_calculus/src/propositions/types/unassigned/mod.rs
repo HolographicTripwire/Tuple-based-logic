@@ -1,4 +1,7 @@
-use crate::propositions::{types::{assigned::Proposition, normalised_unassigned::NormalisedUnassignedProposition}, assignments::{PropositionalAssignment}};
+use crate::propositions::{
+    assignments::PropositionalAssignment,
+    types::{assigned::Proposition, normalised_unassigned::NormalisedUnassignedProposition},
+};
 use std::hash::Hash;
 
 pub mod binding;
@@ -13,7 +16,10 @@ pub trait UnassignedProposition: Clone + PartialEq + Eq + Hash {
     fn normalise(self) -> Self::DefaultNormalisation;
 }
 pub trait UnassignedPropositionForProp<Prop: Proposition>: UnassignedProposition {
-    type DefaultAssignment: PropositionalAssignment<Self,Prop>;
-    fn assign<Assignment: PropositionalAssignment<Self,Prop>>(&self, assignment: Assignment) -> Result<Prop,()>;
-    fn reverse_assign(&self, assigned: Prop) -> Result<Self::DefaultAssignment,()>;
+    type DefaultAssignment: PropositionalAssignment<Self, Prop>;
+    fn assign<Assignment: PropositionalAssignment<Self, Prop>>(
+        &self,
+        assignment: Assignment,
+    ) -> Result<Prop, ()>;
+    fn reverse_assign(&self, assigned: Prop) -> Result<Self::DefaultAssignment, ()>;
 }

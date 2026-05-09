@@ -7,11 +7,11 @@ mod atomic;
 pub use atomic::AtomicTblExpressionMap;
 
 pub struct TblExpressionMap<V> {
-    values: HashMap<RcTblExpression,V>,
-    tracker: TblExpressionBinder<RcTblExpression>
+    values: HashMap<RcTblExpression, V>,
+    tracker: TblExpressionBinder<RcTblExpression>,
 }
 
-impl <V> TblExpressionMap<V> {
+impl<V> TblExpressionMap<V> {
     // fn get_identical<C: CompoundTblExpression>(expr: TblExpression<C>) -> Option<RcCompoundTblExpression> {
 
     // }

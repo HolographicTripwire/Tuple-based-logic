@@ -6,25 +6,31 @@ use path_lib::obj_at_path::{ObjAtPath, OwnedObjAtPath};
 #[derive(Clone, Copy, PartialEq, Eq, Debug, Hash)]
 pub struct TblExpressionAtom(pub u16);
 impl TblExpressionAtom {
-    pub fn first() -> TblExpressionAtom { TblExpressionAtom(0) }
-    pub fn next(&self) -> TblExpressionAtom { TblExpressionAtom(self.0 + 1) }
+    pub fn first() -> TblExpressionAtom {
+        TblExpressionAtom(0)
+    }
+    pub fn next(&self) -> TblExpressionAtom {
+        TblExpressionAtom(self.0 + 1)
+    }
 }
 impl TryFrom<usize> for TblExpressionAtom {
     type Error = TryFromIntError;
-    fn try_from(value: usize) -> Result<Self, Self::Error>
-        { match u16::try_from(value) {
+    fn try_from(value: usize) -> Result<Self, Self::Error> {
+        match u16::try_from(value) {
             Ok(val) => Ok(Self(val)),
             Err(err) => Err(err),
-        }}
+        }
+    }
 }
 impl TryFrom<TblExpressionAtom> for usize {
     type Error = TryFromIntError;
-    fn try_from(value: TblExpressionAtom) -> Result<Self, Self::Error>
-        { Ok(usize::try_from(value.0)?) }
+    fn try_from(value: TblExpressionAtom) -> Result<Self, Self::Error> {
+        Ok(usize::try_from(value.0)?)
+    }
 }
 
-pub type TblExpressionAtomAtPath<'a,Path> = ObjAtPath<'a,TblExpressionAtom,Path>;
-pub type OwnedTblExpressionAtomAtPath<Path> = OwnedObjAtPath<TblExpressionAtom,Path>;
+pub type TblExpressionAtomAtPath<'a, Path> = ObjAtPath<'a, TblExpressionAtom, Path>;
+pub type OwnedTblExpressionAtomAtPath<Path> = OwnedObjAtPath<TblExpressionAtom, Path>;
 
 #[cfg(test)]
 mod tests {

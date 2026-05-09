@@ -2,28 +2,35 @@ use std::sync::{Arc, LazyLock};
 
 pub const EXPRESSION_STYLE: LazyLock<ExpressionStyle> = LazyLock::new(|| -> ExpressionStyle {
     let atom_style = AtomStyle::from_strs("#");
-    let raw_expression_style  = RawExpressionStyle::from_strs(atom_style, "(", ")", ",");
+    let raw_expression_style = RawExpressionStyle::from_strs(atom_style, "(", ")", ",");
     let special_cases = SpecialCasesBuilder::new(raw_expression_style.clone()).build();
     ExpressionStyle::new(raw_expression_style, Arc::new(special_cases))
 });
 
 #[cfg(test)]
 mod tests {
-    use std::{collections::HashMap};
+    use std::collections::HashMap;
 
     use tbl_proof_calculus::expressions::assigned::TblExpression;
 
     use super::*;
 
-    static CONVERSIONS: LazyLock<HashMap<&str,TblExpression>> = LazyLock::new(|| -> HashMap<&str,TblExpression> { 
-        let atom = |u: usize| { TblExpression::from(AtomicExpression::try_from(u).unwrap()) };
-        HashMap::from_iter(vec![
-            ("#0",atom(0)),
-            ("(#0)",TblExpression::Compound(vec![atom(0)])),
-            ("(#0, #1)",TblExpression::Compound(vec![atom(0),atom(1)])),
-            ("((#0), #1)", TblExpression::from(vec![TblExpression::from(vec![atom(0)]),atom(1)])),
-        ].into_iter())
-    });
+    static CONVERSIONS: LazyLock<HashMap<&str, TblExpression>> =
+        LazyLock::new(|| -> HashMap<&str, TblExpression> {
+            let atom = |u: usize| TblExpression::from(AtomicExpression::try_from(u).unwrap());
+            HashMap::from_iter(
+                vec![
+                    ("#0", atom(0)),
+                    ("(#0)", TblExpression::Compound(vec![atom(0)])),
+                    ("(#0, #1)", TblExpression::Compound(vec![atom(0), atom(1)])),
+                    (
+                        "((#0), #1)",
+                        TblExpression::from(vec![TblExpression::from(vec![atom(0)]), atom(1)]),
+                    ),
+                ]
+                .into_iter(),
+            )
+        });
 
     #[test]
     fn test_stringify_atom() {
@@ -32,7 +39,7 @@ mod tests {
         let expression = CONVERSIONS.get(str).unwrap();
         // Test stringification
         let expression_stringified = expression.styled(&EXPRESSION_STYLE.clone()).to_string();
-        assert_eq!(expression_stringified,str.to_string());
+        assert_eq!(expression_stringified, str.to_string());
     }
     #[test]
     fn test_destringify_atom() {
@@ -42,7 +49,7 @@ mod tests {
         // Test destringification
         let parser = expression_parser(EXPRESSION_STYLE.clone());
         let str_as_expression = parser.parse_unambiguous(str.chars());
-        assert_eq!(Ok(expression.clone()),str_as_expression);
+        assert_eq!(Ok(expression.clone()), str_as_expression);
     }
 
     #[test]
@@ -52,7 +59,7 @@ mod tests {
         let expression = CONVERSIONS.get(str).unwrap();
         // Test stringification
         let expression_stringified = expression.styled(&EXPRESSION_STYLE.clone()).to_string();
-        assert_eq!(expression_stringified,str.to_string());
+        assert_eq!(expression_stringified, str.to_string());
     }
     #[test]
     fn test_destringify_unary_tuple() {
@@ -62,7 +69,7 @@ mod tests {
         // Test destringification
         let parser = expression_parser(EXPRESSION_STYLE.clone());
         let str_as_expression = parser.parse_unambiguous(str.chars());
-        assert_eq!(Ok(expression.clone()),str_as_expression);
+        assert_eq!(Ok(expression.clone()), str_as_expression);
     }
 
     #[test]
@@ -72,7 +79,7 @@ mod tests {
         let expression = CONVERSIONS.get(str).unwrap();
         // Test stringification
         let expression_stringified = expression.styled(&EXPRESSION_STYLE.clone()).to_string();
-        assert_eq!(expression_stringified,str.to_string());
+        assert_eq!(expression_stringified, str.to_string());
     }
     #[test]
     fn test_destringify_binary_tuple() {
@@ -82,7 +89,7 @@ mod tests {
         // Test destringification
         let parser = expression_parser(EXPRESSION_STYLE.clone());
         let str_as_expression = parser.parse_unambiguous(str.chars());
-        assert_eq!(Ok(expression.clone()),str_as_expression);
+        assert_eq!(Ok(expression.clone()), str_as_expression);
     }
 
     #[test]
@@ -92,7 +99,7 @@ mod tests {
         let expression = CONVERSIONS.get(str).unwrap();
         // Test stringification
         let expression_stringified = expression.styled(&EXPRESSION_STYLE.clone()).to_string();
-        assert_eq!(expression_stringified,str.to_string());
+        assert_eq!(expression_stringified, str.to_string());
     }
     #[test]
     fn test_destringify_nested_tuple() {
@@ -102,6 +109,6 @@ mod tests {
         // Test destringification
         let parser = expression_parser(EXPRESSION_STYLE.clone());
         let str_as_expression = parser.parse_unambiguous(str.chars());
-        assert_eq!(Ok(expression.clone()),str_as_expression);
+        assert_eq!(Ok(expression.clone()), str_as_expression);
     }
 }

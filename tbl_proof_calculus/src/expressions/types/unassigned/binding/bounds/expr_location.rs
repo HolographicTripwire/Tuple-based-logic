@@ -1,16 +1,27 @@
 use proof_calculus::utils::collections::binding::bounds::GetBound;
 use ref_cast::RefCast;
 
-use crate::expressions::{paths::TblSubexpressionInExpressionPath, types::{assigned::atom::TblExpressionAtom, unassigned::{AtomOrVariableOrCompoundLength, variable::TblExpressionVariable}}};
+use crate::expressions::{
+    paths::TblSubexpressionInExpressionPath,
+    types::{
+        assigned::atom::TblExpressionAtom,
+        unassigned::{AtomOrVariableOrCompoundLength, variable::TblExpressionVariable},
+    },
+};
 
-#[derive(Default,Clone,PartialEq,Eq,Debug,Hash,RefCast)]
+#[derive(Default, Clone, PartialEq, Eq, Debug, Hash, RefCast)]
 #[repr(transparent)]
 pub struct UnassignedTblExpressionBoundExpressionExistsAtLocation {
-    pub path: TblSubexpressionInExpressionPath
+    pub path: TblSubexpressionInExpressionPath,
 }
 impl UnassignedTblExpressionBoundExpressionExistsAtLocation {
-    pub fn new(path: TblSubexpressionInExpressionPath) -> Self { Self { path } }
+    pub fn new(path: TblSubexpressionInExpressionPath) -> Self {
+        Self { path }
+    }
 }
-impl GetBound for UnassignedTblExpressionBoundExpressionExistsAtLocation { type ExtraReturnData = AtomOrVariableOrCompoundLength; }
+impl GetBound for UnassignedTblExpressionBoundExpressionExistsAtLocation {
+    type ExtraReturnData = AtomOrVariableOrCompoundLength;
+}
 
-pub type UnassignedTblPropositionBoundExpressionExistsAtLocation = UnassignedTblExpressionBoundExpressionExistsAtLocation;
+pub type UnassignedTblPropositionBoundExpressionExistsAtLocation =
+    UnassignedTblExpressionBoundExpressionExistsAtLocation;

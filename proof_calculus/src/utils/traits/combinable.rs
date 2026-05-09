@@ -3,5 +3,7 @@ pub trait Combine: Sized {
 }
 pub trait TryCombine: Sized {
     type CombinationError;
-    fn try_combine<I: IntoIterator<Item = Self>>(to_combine: I) -> Result<Self,Self::CombinationError>;
+    fn try_combine<I: IntoIterator<Item = Self>>(
+        to_combine: I,
+    ) -> Result<Self, Self::CombinationError>;
 }

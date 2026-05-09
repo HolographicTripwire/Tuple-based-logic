@@ -1,4 +1,4 @@
-pub mod iterators;
-pub mod sets;
-pub mod maps;
 pub mod binding;
+pub mod iterators;
+pub mod maps;
+pub mod sets;

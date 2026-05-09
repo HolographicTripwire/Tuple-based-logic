@@ -1,35 +1,55 @@
-use crate::expressions::{TblExpressionLength, types::assigned::{OwnedTblExpressionAtPath, TblExpressionAtPath, compound::TblExpressionCompound}};
+use crate::expressions::{
+    TblExpressionLength,
+    types::assigned::{
+        OwnedTblExpressionAtPath, TblExpressionAtPath, compound::TblExpressionCompound,
+    },
+};
 
 pub struct ExpressionLengthEqualityError<C: TblExpressionCompound, Path> {
-    pub expressions: Box<[OwnedTblExpressionAtPath<C,Path>]>
+    pub expressions: Box<[OwnedTblExpressionAtPath<C, Path>]>,
 }
 /// Check that the provided [Expressions](ExpressionInInference) have equal length, returning an error otherwise
-pub fn assert_expression_length_equality<'a,C: TblExpressionCompound, Path: Clone>(exprs: &[&'a TblExpressionAtPath<'a,C,Path>]) -> Result<TblExpressionLength, ExpressionLengthEqualityError<C,Path>> {
-    let mut iter = exprs.iter().map(|o| o.obj.len() );
-    let first_length = iter.next().expect("Cannot check length equality for zero expressions");
+pub fn assert_expression_length_equality<'a, C: TblExpressionCompound, Path: Clone>(
+    exprs: &[&'a TblExpressionAtPath<'a, C, Path>],
+) -> Result<TblExpressionLength, ExpressionLengthEqualityError<C, Path>> {
+    let mut iter = exprs.iter().map(|o| o.obj.len());
+    let first_length = iter
+        .next()
+        .expect("Cannot check length equality for zero expressions");
     for nth_length in iter {
-        if nth_length != first_length { return Err(ExpressionLengthEqualityError {
-            expressions: exprs.into_iter().map(|x| (*x).clone().into()).collect()
-        }) }
+        if nth_length != first_length {
+            return Err(ExpressionLengthEqualityError {
+                expressions: exprs.into_iter().map(|x| (*x).clone().into()).collect(),
+            });
+        }
     }
     Ok(first_length)
 }
 
-pub struct FixedLengthExpressionLengthEqualityError<const N: usize,C: TblExpressionCompound,Path> {
-    pub expressions: [OwnedTblExpressionAtPath<C,Path>; N]
+pub struct FixedLengthExpressionLengthEqualityError<const N: usize, C: TblExpressionCompound, Path>
+{
+    pub expressions: [OwnedTblExpressionAtPath<C, Path>; N],
 }
 /// Check that the provided [Expressions](ExpressionInInference) have equal length, returning an error otherwise
-pub fn assert_fixed_length_expression_length_equality<'a,const N: usize,C: TblExpressionCompound,Path: Clone>(exprs: &[&'a TblExpressionAtPath<'a,C,Path>; N])
--> Result<TblExpressionLength, FixedLengthExpressionLengthEqualityError<N,C,Path>> {
-    if N == 0 { panic!("Cannot check length equality for zero expressions") } 
-    let mut output = [TblExpressionLength::Unit; N];  // Initialize the output array
+pub fn assert_fixed_length_expression_length_equality<
+    'a,
+    const N: usize,
+    C: TblExpressionCompound,
+    Path: Clone,
+>(
+    exprs: &[&'a TblExpressionAtPath<'a, C, Path>; N],
+) -> Result<TblExpressionLength, FixedLengthExpressionLengthEqualityError<N, C, Path>> {
+    if N == 0 {
+        panic!("Cannot check length equality for zero expressions")
+    }
+    let mut output = [TblExpressionLength::Unit; N]; // Initialize the output array
     for i in 0..N {
         output[i] = exprs[i].obj.len();
         // Throw error if atomicities are not equal
         if output[i] != output[0] {
-            return Err(FixedLengthExpressionLengthEqualityError{
-                expressions: exprs.clone().map(|x| (*x).clone().into())
-            })
+            return Err(FixedLengthExpressionLengthEqualityError {
+                expressions: exprs.clone().map(|x| (*x).clone().into()),
+            });
         }
     }
     Ok(output[0])
