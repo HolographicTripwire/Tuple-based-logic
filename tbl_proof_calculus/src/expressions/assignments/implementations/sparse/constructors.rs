@@ -21,13 +21,13 @@ impl TryFromIterator<(TblExpressionVariable,TblSubexpressionInExpressionPath)> f
 } impl TryCombine for SparseTblExpressionAssignmentConstructor {
     type CombinationError = KeyConflictError<TblExpressionVariable,TblSubexpressionInExpressionPath>;
     fn try_combine<I: IntoIterator<Item = Self>>(assignments: I) -> Result<Self,Self::CombinationError>
-        { Ok(Self(ConflictlessHashMap::combine(assignments.into_iter().map(|v| v.0))?)) }
+        { Ok(Self(ConflictlessHashMap::try_combine(assignments.into_iter().map(|v| v.0))?)) }
 }
 
 impl <
     C: TblExpressionCompound + for<'a> From<&'a PostAssignmentCompound>,
     PreAssignmentUcompound: UnassignedTblExpressionCompound,
-    PostAssignmentCompound: TblExpressionCompound + for<'a> From<&'a C> + FromIterator<TblExpression<PostAssignmentCompound>>
+    PostAssignmentCompound: TblExpressionCompound + for<'a> From<&'a C> + for<'a> From<&'a PreAssignmentUcompound> + FromIterator<TblExpression<PostAssignmentCompound>>
 > PropositionalAssignmentConstructor<UnassignedTblProposition<PreAssignmentUcompound>, TblProposition<PostAssignmentCompound>, SparseTblPropositionAssignment<C>>
 for SparseTblExpressionAssignmentConstructor {
     type Error = ();
@@ -55,16 +55,18 @@ impl TryFromIterator<(TblExpressionVariable,TblSubexpressionInExpressionPath)> f
 } impl TryCombine for SparsePartialTblExpressionAssignmentConstructor {
     type CombinationError = KeyConflictError<TblExpressionVariable,TblSubexpressionInExpressionPath>;
     fn try_combine<I: IntoIterator<Item = Self>>(assignments: I) -> Result<Self,Self::CombinationError>
-        { Ok(Self(ConflictlessHashMap::combine(assignments.into_iter().map(|v| v.0))?)) }
+        { Ok(Self(ConflictlessHashMap::try_combine(assignments.into_iter().map(|v| v.0))?)) }
 }
 
-impl <PreAssignmentUcompound: UnassignedTblExpressionCompound, PostAssignmentUcompound: for<'a> From<&'a PreAssignmentUcompound> + for<'a> From<&'a PostAssignmentUcompound> + UnassignedTblExpressionCompound>
-PartialPropositionalAssignmentConstructor<UnassignedTblProposition<PreAssignmentUcompound>,UnassignedTblProposition<PostAssignmentUcompound>, SparsePartialTblPropositionAssignment<PostAssignmentUcompound>>
+impl <
+    PreAssignmentUcompound: UnassignedTblExpressionCompound,
+    PostAssignmentUcompound: UnassignedTblExpressionCompound + for<'a> From<&'a PreAssignmentUcompound> + for<'a> From<&'a PostAssignmentUcompound> + FromIterator<UnassignedTblExpression<PostAssignmentUcompound>>
+> PartialPropositionalAssignmentConstructor<UnassignedTblProposition<PreAssignmentUcompound>,UnassignedTblProposition<PostAssignmentUcompound>, SparsePartialTblPropositionAssignment<PostAssignmentUcompound>>
 for SparseTblExpressionAssignmentConstructor {
     type Error = ();
-    fn try_construct(&self, prop: &UnassignedTblExpression<PostAssignmentUcompound>) -> Result<SparsePartialTblPropositionAssignment<PostAssignmentUcompound>,()> {
+    fn try_construct(&self, prop: &UnassignedTblExpression<PostAssignmentUcompound>) -> Result<SparsePartialTblExpressionAssignment<PostAssignmentUcompound>, ()> {
         let inner: HashMap<_,_> =self.0.iter()
-            .map(|(variable,path)| Ok((*variable,match prop.get_subexpression_owned(&path) {
+            .map(|(variable,path)| Ok((*variable,match prop.get_subexpression(&path) {
                 Ok(uexpr) => uexpr.into(),
                 Err(err) => return Err(err),
             })))
@@ -73,13 +75,15 @@ for SparseTblExpressionAssignmentConstructor {
         Ok(SparsePartialTblExpressionAssignment(inner.into()))
     }
 }
-impl <PreAssignmentUcompound: UnassignedTblExpressionCompound, PostAssignmentUcompound: for<'a> From<&'a PreAssignmentUcompound> + for<'a> From<&'a PostAssignmentUcompound> + UnassignedTblExpressionCompound>
-PartialPropositionalAssignmentConstructor<UnassignedTblProposition<PreAssignmentUcompound>,UnassignedTblProposition<PostAssignmentUcompound>, DensePartialTblPropositionAssignment<PostAssignmentUcompound>>
+impl <
+    PreAssignmentUcompound: UnassignedTblExpressionCompound,
+    PostAssignmentUcompound: UnassignedTblExpressionCompound + for<'a> From<&'a PreAssignmentUcompound> + for<'a> From<&'a PostAssignmentUcompound> + FromIterator<UnassignedTblExpression<PostAssignmentUcompound>>
+> PartialPropositionalAssignmentConstructor<UnassignedTblProposition<PreAssignmentUcompound>,UnassignedTblProposition<PostAssignmentUcompound>, DensePartialTblPropositionAssignment<PostAssignmentUcompound>>
 for SparseTblExpressionAssignmentConstructor {
     type Error = ();
     fn try_construct(&self, prop: &UnassignedTblProposition<PostAssignmentUcompound>) -> Result<DensePartialTblPropositionAssignment<PostAssignmentUcompound>,()> {
         let values: Vec<_>= self.0.iter()
-            .map(|(variable,path)| Ok((*variable,match prop.get_subexpression_owned(path) {
+            .map(|(variable,path)| Ok((*variable,match prop.get_subexpression(path) {
                 Ok(uexpr) => uexpr.into(),
                 Err(err) => return Err(err),
             })))

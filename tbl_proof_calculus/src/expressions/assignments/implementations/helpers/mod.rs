@@ -3,8 +3,6 @@ use proof_calculus::utils::collections::maps::conflictless::KeyConflictError;
 
 use crate::expressions::{assignments::errors::{assignment::TblAssignmentError, partial_assignment::TblPartialAssignmentError, partial_reverse_assignment::{TblPartialReverseAssignmentError, TblPartialReverseAssignmentVariableConflictError}, reverse_assignment::{TblReverseAssignmentError, TblReverseAssignmentVariableConflictError}}, paths::{TblSubexpressionInExpressionPath, immediate::ImmediateTblSubexpressionInExpressionPath}, types::{assigned::{TblExpression, compound::TblExpressionCompound}, unassigned::{UnassignedTblExpression, compound::UnassignedTblExpressionCompound, variable::TblExpressionVariable}}};
 
-pub mod constructors;
-
 pub trait TblAssignmentHelper<C: TblExpressionCompound>: Default {
     fn get(&self, var: &TblExpressionVariable) -> Option<&TblExpression<C>>;
     fn insert(&mut self, var: TblExpressionVariable, expr: TblExpression<C>) -> Result<(),KeyConflictError<TblExpressionVariable,TblExpression<C>>>;

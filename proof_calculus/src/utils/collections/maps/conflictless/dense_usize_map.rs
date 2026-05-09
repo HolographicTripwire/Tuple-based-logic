@@ -10,6 +10,7 @@ impl <K: Clone + Eq + Hash + Into<usize>, V: PartialEq<V>> ConflictlessDenseUsiz
     pub fn get(&self, key: &K) -> Option<&V> { self.0.get(key) }
     pub fn get_mut(&mut self, key: &K) -> Option<&mut V> { self.0.get_mut(key) }
 
+    pub fn iter(&self) -> impl Iterator<Item=(K,&V)> { self.0.iter() }
     pub fn from_iter_unchecked<I: IntoIterator<Item = (K,V)>>(pairs: I) -> Self { Self(DenseUsizeMap::from_iter(pairs)) }
 
     pub fn insert(&mut self, key: K, value: V) -> Result<(),KeyConflictError<K,V>> {
@@ -25,7 +26,12 @@ impl <K: Clone + Eq + Hash + Into<usize>, V: PartialEq<V>> ConflictlessDenseUsiz
                 else { Ok(()) }
             }, None => Ok(()),
         }
-    } 
+    }
+
+    pub fn transform_values<V2: PartialEq<V2>, F: Fn(&V) -> V2>(&self, transformer: F) -> ConflictlessDenseUsizeMap<K,V2>
+        { ConflictlessDenseUsizeMap(self.0.transform_values(transformer)) }
+    pub fn try_transform_values<Err,V2: PartialEq<V2>, F: Fn(&V) -> Result<V2,Err>>(&self, transformer: F) -> Result<ConflictlessDenseUsizeMap<K,V2>,(K,Err)>
+        where K: From<usize> { Ok(ConflictlessDenseUsizeMap(self.0.try_transform_values(transformer)?)) }
 }
 
 impl <K: Clone + Eq + Hash + Into<usize>, V: PartialEq<V>> Default for ConflictlessDenseUsizeMap<K,V>
