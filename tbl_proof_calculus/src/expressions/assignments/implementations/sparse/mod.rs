@@ -1,8 +1,8 @@
-use std::{collections::HashMap, convert::Infallible};
+use std::collections::HashMap;
 
-use proof_calculus::{propositions::assignments::{PartialPropositionalAssignment, PropositionalAssignment}, utils::{collections::maps::{KeyConflictError, conflictless_hashmap::ConflictlessHashMap}, traits::{combinable::TryCombine, try_from_iter::TryFromIterator}}};
+use proof_calculus::{propositions::assignments::{PartialPropositionalAssignment, PropositionalAssignment}, utils::{collections::maps::conflictless::{KeyConflictError, hashmap::ConflictlessHashMap}, traits::{combinable::TryCombine, try_from_iter::TryFromIterator}}};
 
-use crate::expressions::{assignments::{errors::{assignment::TblAssignmentError, reverse_assignment::TblReverseAssignmentError}, implementations::TblAssignmentHelper}, types::{assigned::{TblExpression, compound::TblExpressionCompound}, unassigned::{UnassignedTblExpression, compound::UnassignedTblExpressionCompound, variable::TblExpressionVariable}}};
+use crate::expressions::{assignments::{errors::{assignment::TblAssignmentError, partial_assignment::TblPartialAssignmentError, partial_reverse_assignment::TblPartialReverseAssignmentError, reverse_assignment::TblReverseAssignmentError}, implementations::helpers::{TblAssignmentHelper, TblPartialAssignmentHelper}}, types::{assigned::{TblExpression, compound::TblExpressionCompound}, unassigned::{UnassignedTblExpression, compound::UnassignedTblExpressionCompound, variable::TblExpressionVariable}}};
 
 pub mod constructors;
 
@@ -25,38 +25,9 @@ for SparseTblExpressionAssignment<C> {
         { Ok(Self(ConflictlessHashMap::try_from_iter(iter.into_iter())?)) }
 } impl <C: TblExpressionCompound> TryCombine for SparseTblExpressionAssignment<C> {
     type CombinationError = KeyConflictError<TblExpressionVariable,TblExpression<C>>;
-    fn combine<I: IntoIterator<Item = Self>>(assignments: I) -> Result<Self,Self::CombinationError>
-        { Ok(Self(ConflictlessHashMap::combine(assignments.into_iter().map(|v| v.0))?)) }
+    fn try_combine<I: IntoIterator<Item = Self>>(assignments: I) -> Result<Self,Self::CombinationError>
+        { Ok(Self(ConflictlessHashMap::try_combine(assignments.into_iter().map(|v| v.0))?)) }
 }
-
-// impl <
-//     C: TblExpressionCompound + for<'a> From<&'a PostAssignmentCompound>,
-//     PreAssignmentUcompound: UnassignedTblExpressionCompound,
-//     PostAssignmentCompound: TblExpressionCompound + for<'a> From<&'a C> + FromIterator<TblExpression<PostAssignmentCompound>>
-// > PropositionalAssignment<UnassignedTblExpression<PreAssignmentUcompound>,TblExpression<PostAssignmentCompound>>
-// for SparseTblExpressionAssignment<C> {
-//     type AssignmentError = TblExpressionVariable;
-//     type ReverseAssignmentError = TblReverseAssignmentError<C>;
-//     fn assign(&self, subsuming_uprop: &UnassignedTblExpression<PreAssignmentUcompound>) -> Result<TblExpression<PostAssignmentCompound>,Self::AssignmentError> {
-//         match subsuming_uprop {
-//             UnassignedTblExpression::Atom(atom) => Ok(TblExpression::Atom(*atom)),
-//             UnassignedTblExpression::Variable(variable) => match self.0.get(variable) {
-//                 Some(expr) => Ok(expr.into()),
-//                 None => Err(*variable),
-//             }, UnassignedTblExpression::Compound(compound) => Ok(TblExpression::Compound(
-//                 compound.get_immediate_subexpressions().into_iter()
-//                     .map(|uexpr| self.assign(uexpr) )
-//                     .try_collect()?
-//             ))
-//         }
-//     }
-//     fn reverse_assign(pre_assignment_uprop: &UnassignedTblExpression<PreAssignmentUcompound>, post_assignment_prop: &TblExpression<PostAssignmentCompound>) -> Result<Self,Self::ReverseAssignmentError> {
-//         let mut assignments = Self::default();
-//         let mut path = TblSubexpressionInExpressionPath::default();
-//         Self::reverse_assign_helper(pre_assignment_uprop, post_assignment_prop, &mut assignments, &mut path)
-//             .map(|_| assignments)
-//     }
-// }
 
 impl <C: TblExpressionCompound> TblAssignmentHelper<C> for SparseTblExpressionAssignment<C> {
     fn get(&self, var: &TblExpressionVariable) -> Option<&TblExpression<C>>
@@ -78,6 +49,10 @@ for SparseTblExpressionAssignment<C> {
         { Self::reverse_assign_helper::<PreAssignmentUcompound,PostAssignmentCompound>(pre_assignment_uprop, post_assignment_prop) }
 }
 
+
+
+
+
 #[derive(Clone,PartialEq,Eq,Debug)]
 pub struct SparsePartialTblExpressionAssignment<PostAssignmentUcompound: UnassignedTblExpressionCompound>(pub ConflictlessHashMap<TblExpressionVariable, UnassignedTblExpression<PostAssignmentUcompound>>);
 pub type SparsePartialTblPropositionAssignment<PostAssignmentUcompound: TblExpressionCompound> = SparsePartialTblExpressionAssignment<PostAssignmentUcompound>;
@@ -97,27 +72,26 @@ for SparsePartialTblExpressionAssignment<PostAssignmentUcompound> {
         { Ok(Self(ConflictlessHashMap::try_from_iter(iter.into_iter())?)) }
 } impl <PostAssignmentUcompound: UnassignedTblExpressionCompound> TryCombine for SparsePartialTblExpressionAssignment<PostAssignmentUcompound> {
     type CombinationError = KeyConflictError<TblExpressionVariable,UnassignedTblExpression<PostAssignmentUcompound>>;
-    fn combine<I: IntoIterator<Item = Self>>(assignments: I) -> Result<Self,Self::CombinationError>
-        { Ok(Self(ConflictlessHashMap::combine(assignments.into_iter().map(|v| v.0))?)) }
+    fn try_combine<I: IntoIterator<Item = Self>>(assignments: I) -> Result<Self,Self::CombinationError>
+        { Ok(Self(ConflictlessHashMap::try_combine(assignments.into_iter().map(|v| v.0))?)) }
 }
 
+impl <Uc: UnassignedTblExpressionCompound> TblPartialAssignmentHelper<Uc> for SparsePartialTblExpressionAssignment<Uc> {
+    fn get(&self, var: &TblExpressionVariable) -> Option<&UnassignedTblExpression<Uc>>
+        { self.0.get(var) }
+    fn insert(&mut self, var: TblExpressionVariable, expr: UnassignedTblExpression<Uc>) -> Result<(),KeyConflictError<TblExpressionVariable,UnassignedTblExpression<Uc>>>
+        { self.0.insert(var, expr) }
+}
 impl <
-    SelfUcompound: UnassignedTblExpressionCompound,
+    Uc: UnassignedTblExpressionCompound + for<'a> From<&'a PostAssignmentUcompound>,
     PreAssignmentUcompound: UnassignedTblExpressionCompound,
-    PostAssignmentUcompound: for<'a> From<&'a SelfUcompound> + for<'a> From<&'a PreAssignmentUcompound> + UnassignedTblExpressionCompound
+    PostAssignmentUcompound: UnassignedTblExpressionCompound + for<'a> From<&'a Uc> + for<'a> From<&'a PreAssignmentUcompound> + FromIterator<UnassignedTblExpression<PostAssignmentUcompound>>
 > PartialPropositionalAssignment<UnassignedTblExpression<PreAssignmentUcompound>,UnassignedTblExpression<PostAssignmentUcompound>>
-for SparsePartialTblExpressionAssignment<SelfUcompound> {
-    type AssignmentError = Infallible;
-    type ReverseAssignmentError = ();
-    fn assign(&self, subsuming_uprop: &UnassignedTblExpression<PreAssignmentUcompound>) -> Result<UnassignedTblExpression<PostAssignmentUcompound>,Self::AssignmentError> {
-        Ok(match subsuming_uprop {
-            UnassignedTblExpression::Variable(variable) => match self.0.get(variable) {
-                Some(uexpr) => uexpr.into(),
-                None => UnassignedTblExpression::Variable(*variable),
-            }, other => other.into(),
-        })
-    }
-    fn reverse_assign(from: &UnassignedTblExpression<PreAssignmentUcompound>, to: &UnassignedTblExpression<PostAssignmentUcompound>) -> Result<Self,Self::ReverseAssignmentError> {
-        todo!()
-    }
+for SparsePartialTblExpressionAssignment<Uc> {
+    type AssignmentError = TblPartialAssignmentError;
+    type ReverseAssignmentError = TblPartialReverseAssignmentError<Uc>;
+    fn assign(&self, unassigned: &UnassignedTblExpression<PreAssignmentUcompound>) -> Result<UnassignedTblExpression<PostAssignmentUcompound>,Self::AssignmentError>
+        { self.partial_assign_helper(unassigned) }
+    fn reverse_assign(unassigned: &UnassignedTblExpression<PreAssignmentUcompound>, assigned: &UnassignedTblExpression<PostAssignmentUcompound>) -> Result<Self,Self::ReverseAssignmentError>
+        { Self::partial_reverse_assign_helper(unassigned, assigned) }
 }

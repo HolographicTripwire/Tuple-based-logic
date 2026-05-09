@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
 use itertools::Itertools;
-use proof_calculus::{propositions::assignments::{PartialPropositionalAssignmentConstructor, PropositionalAssignmentConstructor}, utils::{collections::maps::{KeyConflictError, conflictless_hashmap::{ConflictlessHashMap}}, traits::{combinable::TryCombine, try_from_iter::TryFromIterator}}};
+use proof_calculus::{propositions::assignments::{PartialPropositionalAssignmentConstructor, PropositionalAssignmentConstructor}, utils::{collections::maps::conflictless::{KeyConflictError, hashmap::ConflictlessHashMap}, traits::{combinable::TryCombine, try_from_iter::TryFromIterator}}};
 
 use crate::{expressions::{assignments::implementations::{dense::DensePartialTblPropositionAssignment, sparse::{SparsePartialTblExpressionAssignment, SparsePartialTblPropositionAssignment, SparseTblExpressionAssignment, SparseTblPropositionAssignment}}, paths::TblSubexpressionInExpressionPath, types::{assigned::{TblExpression, compound::TblExpressionCompound, subexpressions::ParentOfSubexpressions}, unassigned::{UnassignedTblExpression, compound::UnassignedTblExpressionCompound, subexpressions::ParentOfUnassignedSubexpressions, variable::TblExpressionVariable}}}, proof_calculus_derived::aliases::propositions::types::{TblProposition, UnassignedTblProposition}};
 
@@ -20,7 +20,7 @@ impl TryFromIterator<(TblExpressionVariable,TblSubexpressionInExpressionPath)> f
         { Ok(Self(ConflictlessHashMap::try_from_iter(iter.into_iter())?)) }
 } impl TryCombine for SparseTblExpressionAssignmentConstructor {
     type CombinationError = KeyConflictError<TblExpressionVariable,TblSubexpressionInExpressionPath>;
-    fn combine<I: IntoIterator<Item = Self>>(assignments: I) -> Result<Self,Self::CombinationError>
+    fn try_combine<I: IntoIterator<Item = Self>>(assignments: I) -> Result<Self,Self::CombinationError>
         { Ok(Self(ConflictlessHashMap::combine(assignments.into_iter().map(|v| v.0))?)) }
 }
 
@@ -54,7 +54,7 @@ impl TryFromIterator<(TblExpressionVariable,TblSubexpressionInExpressionPath)> f
         { Ok(Self(ConflictlessHashMap::try_from_iter(iter.into_iter())?)) }
 } impl TryCombine for SparsePartialTblExpressionAssignmentConstructor {
     type CombinationError = KeyConflictError<TblExpressionVariable,TblSubexpressionInExpressionPath>;
-    fn combine<I: IntoIterator<Item = Self>>(assignments: I) -> Result<Self,Self::CombinationError>
+    fn try_combine<I: IntoIterator<Item = Self>>(assignments: I) -> Result<Self,Self::CombinationError>
         { Ok(Self(ConflictlessHashMap::combine(assignments.into_iter().map(|v| v.0))?)) }
 }
 
