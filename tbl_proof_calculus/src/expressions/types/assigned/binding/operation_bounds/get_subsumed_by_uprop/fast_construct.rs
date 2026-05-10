@@ -15,7 +15,7 @@ use proof_calculus::{
 
 use crate::{
     expressions::{
-        assignments::implementations::sparse::constructors::SparseTblExpressionAssignmentConstructor,
+        assignments::implementations::btree::constructors::BTreeTblExpressionAssignmentConstructor,
         paths::TblSubexpressionInExpressionPath,
         types::{
             assigned::{
@@ -43,7 +43,7 @@ use crate::{
 #[derive(Clone, PartialEq, Eq, Debug)]
 pub struct TblFastConstructGetBoundsForExprsSubsumedByUexpr {
     get_bounds: Box<[TblExpressionInsertionBound]>,
-    assignment_constructor: Rc<SparseTblExpressionAssignmentConstructor>,
+    assignment_constructor: Rc<BTreeTblExpressionAssignmentConstructor>,
 }
 pub type TblFastConstructGetBoundsForPropsSubsumedByUprop =
     TblFastConstructGetBoundsForExprsSubsumedByUexpr;
@@ -82,10 +82,10 @@ impl<
         B,
     > for TblFastConstructGetBoundsForPropsSubsumedByUprop
 where
-    SparseTblExpressionAssignmentConstructor:
+    BTreeTblExpressionAssignmentConstructor:
         TblPropositionalAssignmentConstructor<ElemUcompound, MapCompound, Assignment>,
 {
-    type ElemToMapConstructor = Rc<SparseTblExpressionAssignmentConstructor>;
+    type ElemToMapConstructor = Rc<BTreeTblExpressionAssignmentConstructor>;
     fn get_from_with_elem_to_map_constructors<'binder>(
         &self,
         binder: &'binder B,
@@ -144,7 +144,7 @@ impl TblFastConstructGetBoundsForExprsSubsumedByUexpr {
     pub fn get_bounds(&self) -> &Box<[TblExpressionInsertionBound]> {
         &self.get_bounds
     }
-    pub fn assignment_constructor(&self) -> &SparseTblExpressionAssignmentConstructor {
+    pub fn assignment_constructor(&self) -> &BTreeTblExpressionAssignmentConstructor {
         &self.assignment_constructor
     }
 }

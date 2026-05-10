@@ -1,5 +1,5 @@
 use path_lib::obj_at_path::{ObjAtPath, OwnedObjAtPath};
-use proof_calculus::utils::collections::maps::trait_implementations::KeyConflictError;
+use proof_calculus::utils::collections::maps::KeyConflictError;
 
 use crate::expressions::{
     paths::TblSubexpressionInExpressionPath,

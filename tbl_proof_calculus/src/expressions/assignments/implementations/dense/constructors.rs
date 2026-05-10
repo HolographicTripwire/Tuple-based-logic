@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::collections::{BTreeMap};
 
 use itertools::Itertools;
 use proof_calculus::{
@@ -6,21 +6,23 @@ use proof_calculus::{
         PartialPropositionalAssignmentConstructor, PropositionalAssignmentConstructor,
     },
     utils::{
-        collections::maps::trait_implementations::{
-            KeyConflictError, dense_usize_map::ConflictlessDenseUsizeMap,
+        collections::maps::{KeyConflictError, dense_usize_map::DenseUsizeMap},
+        traits::{
+            combinable::TryCombine,
+            map::{Map, MapWithTransformableValues, MapWithoutConflicts},
+            try_from_iter::TryFromIterator,
         },
-        traits::{combinable::TryCombine, try_from_iter::TryFromIterator},
     },
 };
 
 use crate::{
     expressions::{
         assignments::implementations::{
+            btree::BTreeTblPartialPropositionAssignment,
             dense::{
-                DensePartialTblExpressionAssignment, DensePartialTblPropositionAssignment,
-                DenseTblExpressionAssignment, DenseTblPropositionAssignment,
+                DenseTblExpressionAssignment, DenseTblPartialExpressionAssignment,
+                DenseTblPartialPropositionAssignment, DenseTblPropositionAssignment,
             },
-            sparse::SparsePartialTblPropositionAssignment,
         },
         paths::TblSubexpressionInExpressionPath,
         types::{
@@ -39,8 +41,9 @@ use crate::{
     },
 };
 
+#[derive(Clone, PartialEq, Eq, Debug)]
 pub struct DenseTblExpressionAssignmentConstructor(
-    ConflictlessDenseUsizeMap<TblExpressionVariable, TblSubexpressionInExpressionPath>,
+    DenseUsizeMap<TblExpressionVariable, TblSubexpressionInExpressionPath>,
 );
 pub type DenseTblPropositionAssignmentConstructor = DenseTblExpressionAssignmentConstructor;
 
@@ -58,9 +61,7 @@ impl TryFromIterator<(TblExpressionVariable, TblSubexpressionInExpressionPath)>
     >(
         iter: T,
     ) -> Result<Self, Self::Error> {
-        Ok(Self(ConflictlessDenseUsizeMap::try_from_iter(
-            iter.into_iter(),
-        )?))
+        Ok(Self(DenseUsizeMap::try_from_iter_conflictless(iter)?))
     }
 }
 impl TryCombine for DenseTblExpressionAssignmentConstructor {
@@ -69,7 +70,7 @@ impl TryCombine for DenseTblExpressionAssignmentConstructor {
     fn try_combine<I: IntoIterator<Item = Self>>(
         assignments: I,
     ) -> Result<Self, Self::CombinationError> {
-        Ok(Self(ConflictlessDenseUsizeMap::try_combine(
+        Ok(Self(DenseUsizeMap::try_combine_conflictless(
             assignments.into_iter().map(|v| v.0),
         )?))
     }
@@ -96,25 +97,24 @@ impl<
     ) -> Result<DenseTblPropositionAssignment<C>, ()> {
         let inner = self
             .0
-            .try_transform_values(|path| Ok(prop.get_subexpression(path)?.into()))
+            .try_with_values_transformed(|path| Ok(prop.get_subexpression(path)?.into()))
             .map_err(|(_, _): (TblExpressionVariable, ())| ());
         Ok(DenseTblExpressionAssignment(inner?))
     }
 }
 
-pub struct DensePartialTblExpressionAssignmentConstructor(
-    ConflictlessDenseUsizeMap<TblExpressionVariable, TblSubexpressionInExpressionPath>,
+pub struct DenseTblPartialExpressionAssignmentConstructor(
+    DenseUsizeMap<TblExpressionVariable, TblSubexpressionInExpressionPath>,
 );
-pub type PartiaPartiallDenseTblPropositionAssignmentConstructor =
-    DenseTblExpressionAssignmentConstructor;
+pub type DenseTblPartiallPropositionAssignmentConstructor = DenseTblExpressionAssignmentConstructor;
 
-impl Default for DensePartialTblExpressionAssignmentConstructor {
+impl Default for DenseTblPartialExpressionAssignmentConstructor {
     fn default() -> Self {
         Self(Default::default())
     }
 }
 impl TryFromIterator<(TblExpressionVariable, TblSubexpressionInExpressionPath)>
-    for DensePartialTblExpressionAssignmentConstructor
+    for DenseTblPartialExpressionAssignmentConstructor
 {
     type Error = KeyConflictError<TblExpressionVariable, TblSubexpressionInExpressionPath>;
     fn try_from_iter<
@@ -122,18 +122,18 @@ impl TryFromIterator<(TblExpressionVariable, TblSubexpressionInExpressionPath)>
     >(
         iter: T,
     ) -> Result<Self, Self::Error> {
-        Ok(Self(ConflictlessDenseUsizeMap::try_from_iter(
+        Ok(Self(DenseUsizeMap::try_from_iter_conflictless(
             iter.into_iter(),
         )?))
     }
 }
-impl TryCombine for DensePartialTblExpressionAssignmentConstructor {
+impl TryCombine for DenseTblPartialExpressionAssignmentConstructor {
     type CombinationError =
         KeyConflictError<TblExpressionVariable, TblSubexpressionInExpressionPath>;
     fn try_combine<I: IntoIterator<Item = Self>>(
         assignments: I,
     ) -> Result<Self, Self::CombinationError> {
-        Ok(Self(ConflictlessDenseUsizeMap::try_combine(
+        Ok(Self(DenseUsizeMap::try_combine_conflictless(
             assignments.into_iter().map(|v| v.0),
         )?))
     }
@@ -149,22 +149,22 @@ impl<
     PartialPropositionalAssignmentConstructor<
         UnassignedTblProposition<PreAssignmentUcompound>,
         UnassignedTblProposition<PostAssignmentUcompound>,
-        DensePartialTblPropositionAssignment<PostAssignmentUcompound>,
+        DenseTblPartialPropositionAssignment<PostAssignmentUcompound>,
     > for DenseTblExpressionAssignmentConstructor
 {
     type Error = ();
     fn try_construct(
         &self,
         prop: &UnassignedTblProposition<PostAssignmentUcompound>,
-    ) -> Result<DensePartialTblPropositionAssignment<PostAssignmentUcompound>, ()> {
+    ) -> Result<DenseTblPartialPropositionAssignment<PostAssignmentUcompound>, ()> {
         let inner = self
             .0
-            .try_transform_values(|path| match prop.get_subexpression(path) {
+            .try_with_values_transformed(|path| match prop.get_subexpression(path) {
                 Ok(uexpr) => Ok(uexpr.into()),
                 Err(err) => Err(err),
             })
             .map_err(|err| err.1)?;
-        Ok(DensePartialTblExpressionAssignment(inner))
+        Ok(DenseTblPartialExpressionAssignment(inner))
     }
 }
 impl<
@@ -177,20 +177,20 @@ impl<
     PartialPropositionalAssignmentConstructor<
         UnassignedTblProposition<PreAssignmentUcompound>,
         UnassignedTblProposition<PostAssignmentUcompound>,
-        SparsePartialTblPropositionAssignment<PostAssignmentUcompound>,
+        BTreeTblPartialPropositionAssignment<PostAssignmentUcompound>,
     > for DenseTblExpressionAssignmentConstructor
 {
     type Error = ();
     fn try_construct(
         &self,
         prop: &UnassignedTblProposition<PostAssignmentUcompound>,
-    ) -> Result<SparsePartialTblPropositionAssignment<PostAssignmentUcompound>, ()> {
-        let values: HashMap<_, _> = self
+    ) -> Result<BTreeTblPartialPropositionAssignment<PostAssignmentUcompound>, ()> {
+        let values: BTreeMap<_, _> = self
             .0
             .iter()
             .map(|(variable, path)| {
                 Ok((
-                    variable,
+                    *variable,
                     match prop.get_subexpression_owned(path) {
                         Ok(uexpr) => uexpr.into(),
                         Err(e) => return Err(e),
@@ -198,6 +198,6 @@ impl<
                 ))
             })
             .try_collect()?;
-        Ok(SparsePartialTblPropositionAssignment::from(values))
+        Ok(BTreeTblPartialPropositionAssignment::from(values))
     }
 }

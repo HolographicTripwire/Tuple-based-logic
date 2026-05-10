@@ -4,8 +4,8 @@ use path_lib::obj_at_path::{ObjAtPath, OwnedObjAtPath};
 use proof_calculus::utils::traits::combinable::TryCombine;
 
 use crate::expressions::{
-    assignments::implementations::sparse::{
-        SparsePartialTblExpressionAssignment, SparseTblExpressionAssignment,
+    assignments::implementations::btree::{
+        BTreeTblExpressionAssignment, BTreeTblPartialExpressionAssignment,
     },
     types::{
         assigned::{TblExpression, compound::TblExpressionCompound},
@@ -44,12 +44,12 @@ pub trait UnassignedTblExpressionCompound:
     fn construct_sparse_assignment<C: TblExpressionCompound>(
         &self,
         assigned: &C,
-    ) -> Result<SparseTblExpressionAssignment<C>, ()> {
+    ) -> Result<BTreeTblExpressionAssignment<C>, ()> {
     }
     fn construct_partial_assignment<UC: UnassignedTblExpressionCompound>(
         &self,
         assigned: &UC,
-    ) -> Result<SparsePartialTblExpressionAssignment<Self>, ()> {
+    ) -> Result<BTreeTblPartialExpressionAssignment<Self>, ()> {
         if self.len() != assigned.len() {
             return Err(());
         }

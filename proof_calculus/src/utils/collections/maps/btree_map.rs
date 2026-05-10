@@ -88,7 +88,7 @@ impl<K: Ord + Clone, V: PartialEq<V>> MapWithoutConflicts<K, V> for BTreeMap<K, 
         Ok(map1)
     }
 
-    fn try_from_iter_without_conflicts<T: IntoIterator<Item = (K, V)>>(
+    fn try_from_iter_conflictless<T: IntoIterator<Item = (K, V)>>(
         iter: T,
     ) -> Result<Self, KeyConflictError<K, V>> {
         let mut map = BTreeMap::new();

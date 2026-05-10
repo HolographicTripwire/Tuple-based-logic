@@ -2,7 +2,7 @@ use std::ops::Deref;
 
 use path_lib::obj_at_path::{ObjAtPath, OwnedObjAtPath};
 
-#[derive(Clone, Copy, PartialEq, Eq, Debug, Hash)]
+#[derive(Clone, Copy, PartialEq, Eq, Debug, Hash, PartialOrd, Ord)]
 pub struct TblExpressionVariable(pub usize);
 impl TblExpressionVariable {
     pub fn first() -> Self {

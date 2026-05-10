@@ -1,10 +1,12 @@
 use proof_calculus::{
     propositions::assignments::{PartialPropositionalAssignment, PropositionalAssignment},
     utils::{
-        collections::maps::trait_implementations::{
-            KeyConflictError, dense_usize_map::ConflictlessDenseUsizeMap,
+        collections::maps::{KeyConflictError, dense_usize_map::DenseUsizeMap},
+        traits::{
+            combinable::TryCombine,
+            map::{Map, MapWithoutConflicts},
+            try_from_iter::TryFromIterator,
         },
-        traits::{combinable::TryCombine, try_from_iter::TryFromIterator},
     },
 };
 
@@ -30,7 +32,7 @@ pub mod constructors;
 
 #[derive(Clone, PartialEq, Eq, Debug)]
 pub struct DenseTblExpressionAssignment<C: TblExpressionCompound>(
-    pub ConflictlessDenseUsizeMap<TblExpressionVariable, TblExpression<C>>,
+    pub DenseUsizeMap<TblExpressionVariable, TblExpression<C>>,
 );
 pub type DenseTblPropositionAssignment<C: TblExpressionCompound> = DenseTblExpressionAssignment<C>;
 impl<C: TblExpressionCompound> DenseTblExpressionAssignment<C> {
@@ -39,7 +41,7 @@ impl<C: TblExpressionCompound> DenseTblExpressionAssignment<C> {
     >(
         iter: T,
     ) -> Self {
-        Self(ConflictlessDenseUsizeMap::from_iter_unchecked(iter))
+        Self(DenseUsizeMap::from_iter(iter))
     }
 }
 impl<C: TblExpressionCompound> Default for DenseTblExpressionAssignment<C> {
@@ -54,7 +56,7 @@ impl<C: TblExpressionCompound> TryFromIterator<(TblExpressionVariable, TblExpres
     fn try_from_iter<T: IntoIterator<Item = (TblExpressionVariable, TblExpression<C>)>>(
         iter: T,
     ) -> Result<Self, Self::Error> {
-        Ok(Self(ConflictlessDenseUsizeMap::try_from_iter(
+        Ok(Self(DenseUsizeMap::try_from_iter_conflictless(
             iter.into_iter(),
         )?))
     }
@@ -64,7 +66,7 @@ impl<C: TblExpressionCompound> TryCombine for DenseTblExpressionAssignment<C> {
     fn try_combine<I: IntoIterator<Item = Self>>(
         assignments: I,
     ) -> Result<Self, Self::CombinationError> {
-        Ok(Self(ConflictlessDenseUsizeMap::try_combine(
+        Ok(Self(DenseUsizeMap::try_combine_conflictless(
             assignments.into_iter().map(|v| v.0),
         )?))
     }
@@ -78,7 +80,7 @@ impl<C: TblExpressionCompound> TblAssignmentHelper<C> for DenseTblExpressionAssi
         var: TblExpressionVariable,
         expr: TblExpression<C>,
     ) -> Result<(), KeyConflictError<TblExpressionVariable, TblExpression<C>>> {
-        self.0.insert(var, expr)
+        self.0.insert_conflictless(var, expr)
     }
 }
 impl<
@@ -114,28 +116,28 @@ impl<
 }
 
 #[derive(Clone, PartialEq, Eq, Debug)]
-pub struct DensePartialTblExpressionAssignment<UC: UnassignedTblExpressionCompound>(
-    pub ConflictlessDenseUsizeMap<TblExpressionVariable, UnassignedTblExpression<UC>>,
+pub struct DenseTblPartialExpressionAssignment<UC: UnassignedTblExpressionCompound>(
+    pub DenseUsizeMap<TblExpressionVariable, UnassignedTblExpression<UC>>,
 );
-pub type DensePartialTblPropositionAssignment<UC: TblExpressionCompound> =
-    DensePartialTblExpressionAssignment<UC>;
-impl<UC: UnassignedTblExpressionCompound> DensePartialTblExpressionAssignment<UC> {
+pub type DenseTblPartialPropositionAssignment<UC: TblExpressionCompound> =
+    DenseTblPartialExpressionAssignment<UC>;
+impl<UC: UnassignedTblExpressionCompound> DenseTblPartialExpressionAssignment<UC> {
     pub fn from_iter_unchecked<
         T: IntoIterator<Item = (TblExpressionVariable, UnassignedTblExpression<UC>)>,
     >(
         iter: T,
     ) -> Self {
-        Self(ConflictlessDenseUsizeMap::from_iter_unchecked(iter))
+        Self(DenseUsizeMap::from_iter(iter))
     }
 }
-impl<UC: UnassignedTblExpressionCompound> Default for DensePartialTblExpressionAssignment<UC> {
+impl<UC: UnassignedTblExpressionCompound> Default for DenseTblPartialExpressionAssignment<UC> {
     fn default() -> Self {
         Self(Default::default())
     }
 }
 impl<UC: UnassignedTblExpressionCompound>
     TryFromIterator<(TblExpressionVariable, UnassignedTblExpression<UC>)>
-    for DensePartialTblExpressionAssignment<UC>
+    for DenseTblPartialExpressionAssignment<UC>
 {
     type Error = KeyConflictError<TblExpressionVariable, UnassignedTblExpression<UC>>;
     fn try_from_iter<
@@ -143,24 +145,24 @@ impl<UC: UnassignedTblExpressionCompound>
     >(
         iter: T,
     ) -> Result<Self, Self::Error> {
-        Ok(Self(ConflictlessDenseUsizeMap::try_from_iter(
+        Ok(Self(DenseUsizeMap::try_from_iter_conflictless(
             iter.into_iter(),
         )?))
     }
 }
-impl<UC: UnassignedTblExpressionCompound> TryCombine for DensePartialTblExpressionAssignment<UC> {
+impl<UC: UnassignedTblExpressionCompound> TryCombine for DenseTblPartialExpressionAssignment<UC> {
     type CombinationError = KeyConflictError<TblExpressionVariable, UnassignedTblExpression<UC>>;
     fn try_combine<I: IntoIterator<Item = Self>>(
         assignments: I,
     ) -> Result<Self, Self::CombinationError> {
-        Ok(Self(ConflictlessDenseUsizeMap::try_combine(
+        Ok(Self(DenseUsizeMap::try_combine_conflictless(
             assignments.into_iter().map(|v| v.0),
         )?))
     }
 }
 
 impl<Uc: UnassignedTblExpressionCompound> TblPartialAssignmentHelper<Uc>
-    for DensePartialTblExpressionAssignment<Uc>
+    for DenseTblPartialExpressionAssignment<Uc>
 {
     fn get(&self, var: &TblExpressionVariable) -> Option<&UnassignedTblExpression<Uc>> {
         self.0.get(var)
@@ -170,7 +172,7 @@ impl<Uc: UnassignedTblExpressionCompound> TblPartialAssignmentHelper<Uc>
         var: TblExpressionVariable,
         expr: UnassignedTblExpression<Uc>,
     ) -> Result<(), KeyConflictError<TblExpressionVariable, UnassignedTblExpression<Uc>>> {
-        self.0.insert(var, expr)
+        self.0.insert_conflictless(var, expr)
     }
 }
 impl<
@@ -184,7 +186,7 @@ impl<
     PartialPropositionalAssignment<
         UnassignedTblExpression<PreAssignmentUcompound>,
         UnassignedTblExpression<PostAssignmentUcompound>,
-    > for DensePartialTblExpressionAssignment<Uc>
+    > for DenseTblPartialExpressionAssignment<Uc>
 {
     type AssignmentError = TblPartialAssignmentError;
     type ReverseAssignmentError = TblPartialReverseAssignmentError<Uc>;

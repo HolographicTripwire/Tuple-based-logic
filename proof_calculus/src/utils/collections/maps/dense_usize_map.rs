@@ -1,8 +1,17 @@
-use std::{collections::HashSet, hash::Hash};
+use std::{
+    collections::{HashMap, HashSet},
+    hash::Hash,
+};
 
 use itertools::Itertools;
 
-use crate::utils::traits::map::{Map, MapWithTransformableValues, MapWithoutConflicts};
+use crate::utils::{
+    collections::{iterators::split_into_max_by_key, maps::KeyConflictError},
+    traits::map::{
+        Map, MapWithTransformableValues, MapWithoutConflicts,
+        UNASSIGNED_JUST_INSERTED_VALUE_EXCEPTION,
+    },
+};
 
 #[derive(Clone, PartialEq, Eq, Debug)]
 pub struct DenseUsizeMap<K: Clone + Eq + Hash + Into<usize>, V> {
@@ -28,6 +37,26 @@ impl<K: Clone + Eq + Hash + Into<usize>, V> DenseUsizeMap<K, V> {
         &self.assigned
     }
 }
+impl<K: Clone + Eq + Hash + Into<usize>, V: PartialEq<V>> DenseUsizeMap<K, V> {
+    fn try_from_vec_without_conflicts(pairs: Vec<(K, V)>) -> Result<Self, KeyConflictError<K, V>> {
+        match pairs
+            .iter()
+            .map(|(key, _value)| key.clone())
+            .max_by_key(|k| <K as Into<usize>>::into(k.clone()))
+        {
+            Some(items) => {
+                let mut values: Vec<Option<V>> = (0..items.into()).map(|_| None).collect();
+                let assigned = pairs.iter().map(|(key, _value)| key.clone()).collect();
+                for (key, value) in pairs {
+                    insert_within_bounds_into_vec_without_conflicts(&mut values, key, value)?
+                }
+                Ok(DenseUsizeMap { assigned, values })
+            }
+            None => Ok(Self::default()),
+        }
+    }
+}
+
 impl<K: Clone + Eq + Hash + Into<usize>, V> Map<K, V> for DenseUsizeMap<K, V> {
     fn get(&self, key: &K) -> Option<&V> {
         match self.values.get(key.clone().into()) {
@@ -77,25 +106,60 @@ impl<K: Clone + Eq + Hash + Into<usize>, V> Map<K, V> for DenseUsizeMap<K, V> {
         }
     }
 }
-impl<K: Clone + Eq + Hash + Into<usize>,V: PartialEq<V>> MapWithoutConflicts<K,V> for DenseUsizeMap<K,V> {
+impl<K: Clone + Eq + Hash + Into<usize>, V: PartialEq<V>> MapWithoutConflicts<K, V>
+    for DenseUsizeMap<K, V>
+{
     fn insert_conflictless(&mut self, key: K, value: V) -> Result<(), super::KeyConflictError<K, V>>
     where
-        V: PartialEq<V> {
-        
+        V: PartialEq<V>,
+    {
+        match self.insert(key.clone(), value) {
+            Some(old_value) => {
+                let new_value = self
+                    .values
+                    .get_mut(key.clone().into())
+                    .expect(UNASSIGNED_JUST_INSERTED_VALUE_EXCEPTION);
+                // A value was just inserted, so panic if it's no longer there
+                debug_assert!(
+                    new_value.is_some(),
+                    "{}",
+                    UNASSIGNED_JUST_INSERTED_VALUE_EXCEPTION
+                );
+                // Check if the value is the same as it was before, and return Err() containing the conflict otherwise
+                if let Some(new_value) = new_value.take_if(|v| v == &old_value) {
+                    Err(KeyConflictError::new(key.clone(), old_value, new_value))
+                } else {
+                    Ok(())
+                }
+            }
+            None => Ok(()),
+        }
     }
 
     fn try_combine_conflictless<I: IntoIterator<Item = Self>>(
         maps: I,
     ) -> Result<Self, super::KeyConflictError<K, V>> {
-        todo!()
+        // Use the largest map as a starting point
+        let (mut largest, remaining) = match split_into_max_by_key(maps, |m| m.values.len()) {
+            Some(v) => v,
+            None => return Ok(Self::default()),
+        };
+        // Fill the largest map with values from the smaller maps
+        for map in remaining {
+            for (key, value) in map {
+                insert_within_bounds_into_vec_without_conflicts(&mut largest.values, key, value)?;
+            }
+        }
+        // Return the modified largest map
+        Ok(largest)
     }
 
-    fn try_from_iter_without_conflicts<T: IntoIterator<Item = (K, V)>>(
-        iter: T,
+    fn try_from_iter_conflictless<I: IntoIterator<Item = (K, V)>>(
+        iter: I,
     ) -> Result<Self, super::KeyConflictError<K, V>> {
-        todo!()
+        Self::try_from_vec_without_conflicts(iter.into_iter().collect_vec())
     }
-} 
+}
 impl<K: Clone + Eq + Hash + Into<usize> + From<usize>, V1, V2> MapWithTransformableValues<K, V1, V2>
     for DenseUsizeMap<K, V1>
 {
@@ -179,5 +243,48 @@ impl<K: Clone + Eq + Hash + Into<usize>, V> IntoIterator for DenseUsizeMap<K, V>
             })
             .collect_vec()
             .into_iter()
+    }
+}
+impl<K: Clone + Eq + Hash + Into<usize>, V> From<HashMap<K, V>> for DenseUsizeMap<K, V> {
+    fn from(map: HashMap<K, V>) -> Self {
+        Self::from_iter(map.into_iter())
+    }
+}
+
+fn insert_within_bounds_into_vec_without_conflicts<
+    K: Clone + Eq + Hash + Into<usize>,
+    V: PartialEq<V>,
+>(
+    values: &mut Vec<Option<V>>,
+    key: K,
+    value: V,
+) -> Result<(), KeyConflictError<K, V>> {
+    // Insert the value
+    match std::mem::replace(
+        values
+            .get_mut(key.clone().into())
+            .expect(KEYSET_VALUE_OUT_OF_BOUNDS_EXCEPTION),
+        Some(value),
+    ) {
+        // If there was already a value there
+        Some(old_value) => {
+            // A value was just inserted, so panic if it's no longer there
+            let new_value = match values.get_mut(key.clone().into()) {
+                Some(v) => v,
+                _ => panic!("{}", UNASSIGNED_JUST_INSERTED_VALUE_EXCEPTION),
+            };
+            debug_assert!(
+                new_value.is_some(),
+                "{}",
+                UNASSIGNED_JUST_INSERTED_VALUE_EXCEPTION
+            );
+            // Check if the value is the same as it was before, and return Err() containing the conflict otherwise
+            if let Some(new_value) = new_value.take_if(|v| v == &old_value) {
+                Err(KeyConflictError::new(key, old_value, new_value))
+            } else {
+                Ok(())
+            }
+        }
+        None => Ok(()),
     }
 }

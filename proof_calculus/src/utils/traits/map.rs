@@ -47,7 +47,7 @@ pub trait MapWithoutConflicts<K, V: PartialEq<V>>: Sized + Map<K, V> {
         maps: I,
     ) -> Result<Self, KeyConflictError<K, V>>;
 
-    fn try_from_iter_without_conflicts<T: IntoIterator<Item = (K, V)>>(
+    fn try_from_iter_conflictless<T: IntoIterator<Item = (K, V)>>(
         iter: T,
     ) -> Result<Self, KeyConflictError<K, V>>;
 }

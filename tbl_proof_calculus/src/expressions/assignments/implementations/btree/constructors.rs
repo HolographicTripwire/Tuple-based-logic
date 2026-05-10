@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::collections::{BTreeMap};
 
 use itertools::Itertools;
 use proof_calculus::{
@@ -6,21 +6,21 @@ use proof_calculus::{
         PartialPropositionalAssignmentConstructor, PropositionalAssignmentConstructor,
     },
     utils::{
-        collections::maps::trait_implementations::{
-            KeyConflictError, hashmap::ConflictlessHashMap,
+        collections::maps::KeyConflictError,
+        traits::{
+            combinable::TryCombine, map::MapWithoutConflicts, try_from_iter::TryFromIterator,
         },
-        traits::{combinable::TryCombine, try_from_iter::TryFromIterator},
     },
 };
 
 use crate::{
     expressions::{
         assignments::implementations::{
-            dense::DensePartialTblPropositionAssignment,
-            sparse::{
-                SparsePartialTblExpressionAssignment, SparsePartialTblPropositionAssignment,
-                SparseTblExpressionAssignment, SparseTblPropositionAssignment,
+            btree::{
+                BTreeTblExpressionAssignment, BTreeTblPartialExpressionAssignment,
+                BTreeTblPartialPropositionAssignment, BTreeTblPropositionAssignment,
             },
+            dense::DenseTblPartialPropositionAssignment,
         },
         paths::TblSubexpressionInExpressionPath,
         types::{
@@ -39,33 +39,33 @@ use crate::{
     },
 };
 
-#[derive(Clone, PartialEq, Eq, Debug)]
-pub struct SparseTblExpressionAssignmentConstructor(
-    pub ConflictlessHashMap<TblExpressionVariable, TblSubexpressionInExpressionPath>,
+#[derive(Clone, PartialEq, Eq, Debug, Hash)]
+pub struct BTreeTblExpressionAssignmentConstructor(
+    BTreeMap<TblExpressionVariable, TblSubexpressionInExpressionPath>,
 );
-pub type SparseTblPropositionAssignmentConstructor = SparseTblExpressionAssignmentConstructor;
+pub type BTreeTblPropositionAssignmentConstructor = BTreeTblExpressionAssignmentConstructor;
 
-impl Default for SparseTblExpressionAssignmentConstructor {
+impl Default for BTreeTblExpressionAssignmentConstructor {
     fn default() -> Self {
         Self(Default::default())
     }
 }
-impl From<HashMap<TblExpressionVariable, TblSubexpressionInExpressionPath>>
-    for SparseTblExpressionAssignmentConstructor
+impl From<BTreeMap<TblExpressionVariable, TblSubexpressionInExpressionPath>>
+    for BTreeTblExpressionAssignmentConstructor
 {
-    fn from(map: HashMap<TblExpressionVariable, TblSubexpressionInExpressionPath>) -> Self {
-        Self(ConflictlessHashMap::from(map))
+    fn from(map: BTreeMap<TblExpressionVariable, TblSubexpressionInExpressionPath>) -> Self {
+        Self(BTreeMap::from(map))
     }
 }
-impl Into<HashMap<TblExpressionVariable, TblSubexpressionInExpressionPath>>
-    for SparseTblExpressionAssignmentConstructor
+impl Into<BTreeMap<TblExpressionVariable, TblSubexpressionInExpressionPath>>
+    for BTreeTblExpressionAssignmentConstructor
 {
-    fn into(self) -> HashMap<TblExpressionVariable, TblSubexpressionInExpressionPath> {
+    fn into(self) -> BTreeMap<TblExpressionVariable, TblSubexpressionInExpressionPath> {
         self.0.into()
     }
 }
 impl TryFromIterator<(TblExpressionVariable, TblSubexpressionInExpressionPath)>
-    for SparseTblExpressionAssignmentConstructor
+    for BTreeTblExpressionAssignmentConstructor
 {
     type Error = KeyConflictError<TblExpressionVariable, TblSubexpressionInExpressionPath>;
     fn try_from_iter<
@@ -73,16 +73,18 @@ impl TryFromIterator<(TblExpressionVariable, TblSubexpressionInExpressionPath)>
     >(
         iter: T,
     ) -> Result<Self, Self::Error> {
-        Ok(Self(ConflictlessHashMap::try_from_iter(iter.into_iter())?))
+        Ok(Self(BTreeMap::try_from_iter_conflictless(
+            iter.into_iter(),
+        )?))
     }
 }
-impl TryCombine for SparseTblExpressionAssignmentConstructor {
+impl TryCombine for BTreeTblExpressionAssignmentConstructor {
     type CombinationError =
         KeyConflictError<TblExpressionVariable, TblSubexpressionInExpressionPath>;
     fn try_combine<I: IntoIterator<Item = Self>>(
         assignments: I,
     ) -> Result<Self, Self::CombinationError> {
-        Ok(Self(ConflictlessHashMap::try_combine(
+        Ok(Self(BTreeMap::try_combine_conflictless(
             assignments.into_iter().map(|v| v.0),
         )?))
     }
@@ -99,51 +101,51 @@ impl<
     PropositionalAssignmentConstructor<
         UnassignedTblProposition<PreAssignmentUcompound>,
         TblProposition<PostAssignmentCompound>,
-        SparseTblPropositionAssignment<C>,
-    > for SparseTblExpressionAssignmentConstructor
+        BTreeTblPropositionAssignment<C>,
+    > for BTreeTblExpressionAssignmentConstructor
 {
     type Error = ();
     fn try_construct(
         &self,
         prop: &TblProposition<PostAssignmentCompound>,
-    ) -> Result<SparseTblExpressionAssignment<C>, ()> {
-        let inner: HashMap<_, _> = self
+    ) -> Result<BTreeTblExpressionAssignment<C>, ()> {
+        let inner: BTreeMap<_, _> = self
             .0
             .iter()
             .map(|(variable, path)| Ok((*variable, prop.get_subexpression(&path)?.into())))
             .try_collect()
             .map_err(|_: ()| ())?;
-        Ok(SparseTblExpressionAssignment(inner.into()))
+        Ok(BTreeTblExpressionAssignment(inner.into()))
     }
 }
 
-pub struct SparsePartialTblExpressionAssignmentConstructor(
-    pub ConflictlessHashMap<TblExpressionVariable, TblSubexpressionInExpressionPath>,
+#[derive(Clone, PartialEq, Eq, Debug, Hash)]
+pub struct BTreeTblPartialExpressionAssignmentConstructor(
+    BTreeMap<TblExpressionVariable, TblSubexpressionInExpressionPath>,
 );
-pub type PartiaPartiallSparseTblPropositionAssignmentConstructor =
-    SparseTblExpressionAssignmentConstructor;
+pub type BTreeTblPartiallPropositionAssignmentConstructor = BTreeTblExpressionAssignmentConstructor;
 
-impl Default for SparsePartialTblExpressionAssignmentConstructor {
+impl Default for BTreeTblPartialExpressionAssignmentConstructor {
     fn default() -> Self {
         Self(Default::default())
     }
 }
-impl From<HashMap<TblExpressionVariable, TblSubexpressionInExpressionPath>>
-    for SparsePartialTblExpressionAssignmentConstructor
+impl From<BTreeMap<TblExpressionVariable, TblSubexpressionInExpressionPath>>
+    for BTreeTblPartialExpressionAssignmentConstructor
 {
-    fn from(map: HashMap<TblExpressionVariable, TblSubexpressionInExpressionPath>) -> Self {
-        Self(ConflictlessHashMap::from(map))
+    fn from(map: BTreeMap<TblExpressionVariable, TblSubexpressionInExpressionPath>) -> Self {
+        Self(BTreeMap::from(map))
     }
 }
-impl Into<HashMap<TblExpressionVariable, TblSubexpressionInExpressionPath>>
-    for SparsePartialTblExpressionAssignmentConstructor
+impl Into<BTreeMap<TblExpressionVariable, TblSubexpressionInExpressionPath>>
+    for BTreeTblPartialExpressionAssignmentConstructor
 {
-    fn into(self) -> HashMap<TblExpressionVariable, TblSubexpressionInExpressionPath> {
+    fn into(self) -> BTreeMap<TblExpressionVariable, TblSubexpressionInExpressionPath> {
         self.0.into()
     }
 }
 impl TryFromIterator<(TblExpressionVariable, TblSubexpressionInExpressionPath)>
-    for SparsePartialTblExpressionAssignmentConstructor
+    for BTreeTblPartialExpressionAssignmentConstructor
 {
     type Error = KeyConflictError<TblExpressionVariable, TblSubexpressionInExpressionPath>;
     fn try_from_iter<
@@ -151,16 +153,18 @@ impl TryFromIterator<(TblExpressionVariable, TblSubexpressionInExpressionPath)>
     >(
         iter: T,
     ) -> Result<Self, Self::Error> {
-        Ok(Self(ConflictlessHashMap::try_from_iter(iter.into_iter())?))
+        Ok(Self(BTreeMap::try_from_iter_conflictless(
+            iter.into_iter(),
+        )?))
     }
 }
-impl TryCombine for SparsePartialTblExpressionAssignmentConstructor {
+impl TryCombine for BTreeTblPartialExpressionAssignmentConstructor {
     type CombinationError =
         KeyConflictError<TblExpressionVariable, TblSubexpressionInExpressionPath>;
     fn try_combine<I: IntoIterator<Item = Self>>(
         assignments: I,
     ) -> Result<Self, Self::CombinationError> {
-        Ok(Self(ConflictlessHashMap::try_combine(
+        Ok(Self(BTreeMap::try_combine_conflictless(
             assignments.into_iter().map(|v| v.0),
         )?))
     }
@@ -176,15 +180,15 @@ impl<
     PartialPropositionalAssignmentConstructor<
         UnassignedTblProposition<PreAssignmentUcompound>,
         UnassignedTblProposition<PostAssignmentUcompound>,
-        SparsePartialTblPropositionAssignment<PostAssignmentUcompound>,
-    > for SparseTblExpressionAssignmentConstructor
+        BTreeTblPartialPropositionAssignment<PostAssignmentUcompound>,
+    > for BTreeTblExpressionAssignmentConstructor
 {
     type Error = ();
     fn try_construct(
         &self,
         prop: &UnassignedTblExpression<PostAssignmentUcompound>,
-    ) -> Result<SparsePartialTblExpressionAssignment<PostAssignmentUcompound>, ()> {
-        let inner: HashMap<_, _> = self
+    ) -> Result<BTreeTblPartialExpressionAssignment<PostAssignmentUcompound>, ()> {
+        let inner: BTreeMap<_, _> = self
             .0
             .iter()
             .map(|(variable, path)| {
@@ -198,7 +202,7 @@ impl<
             })
             .try_collect()
             .map_err(|_: ()| ())?;
-        Ok(SparsePartialTblExpressionAssignment(inner.into()))
+        Ok(BTreeTblPartialExpressionAssignment(inner))
     }
 }
 impl<
@@ -211,14 +215,14 @@ impl<
     PartialPropositionalAssignmentConstructor<
         UnassignedTblProposition<PreAssignmentUcompound>,
         UnassignedTblProposition<PostAssignmentUcompound>,
-        DensePartialTblPropositionAssignment<PostAssignmentUcompound>,
-    > for SparseTblExpressionAssignmentConstructor
+        DenseTblPartialPropositionAssignment<PostAssignmentUcompound>,
+    > for BTreeTblExpressionAssignmentConstructor
 {
     type Error = ();
     fn try_construct(
         &self,
         prop: &UnassignedTblProposition<PostAssignmentUcompound>,
-    ) -> Result<DensePartialTblPropositionAssignment<PostAssignmentUcompound>, ()> {
+    ) -> Result<DenseTblPartialPropositionAssignment<PostAssignmentUcompound>, ()> {
         let values: Vec<_> = self
             .0
             .iter()
@@ -232,7 +236,7 @@ impl<
                 ))
             })
             .try_collect()?;
-        Ok(DensePartialTblPropositionAssignment::from_iter_unchecked(
+        Ok(DenseTblPartialPropositionAssignment::from_iter_unchecked(
             values,
         ))
     }

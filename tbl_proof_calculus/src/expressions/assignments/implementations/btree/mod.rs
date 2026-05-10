@@ -1,12 +1,12 @@
-use std::collections::HashMap;
+use std::collections::BTreeMap;
 
 use proof_calculus::{
     propositions::assignments::{PartialPropositionalAssignment, PropositionalAssignment},
     utils::{
-        collections::maps::trait_implementations::{
-            KeyConflictError, hashmap::ConflictlessHashMap,
+        collections::maps::KeyConflictError,
+        traits::{
+            combinable::TryCombine, map::MapWithoutConflicts, try_from_iter::TryFromIterator,
         },
-        traits::{combinable::TryCombine, try_from_iter::TryFromIterator},
     },
 };
 
@@ -30,54 +30,55 @@ use crate::expressions::{
 
 pub mod constructors;
 
-#[derive(Clone, PartialEq, Eq, Debug)]
-pub struct SparseTblExpressionAssignment<C: TblExpressionCompound>(
-    pub ConflictlessHashMap<TblExpressionVariable, TblExpression<C>>,
+#[derive(Clone, PartialEq, Eq, Debug, Hash)]
+pub struct BTreeTblExpressionAssignment<C: TblExpressionCompound>(
+    pub BTreeMap<TblExpressionVariable, TblExpression<C>>,
 );
-pub type SparseTblPropositionAssignment<C: TblExpressionCompound> =
-    SparseTblExpressionAssignment<C>;
+pub type BTreeTblPropositionAssignment<C: TblExpressionCompound> = BTreeTblExpressionAssignment<C>;
 
-impl<C: TblExpressionCompound> Default for SparseTblExpressionAssignment<C> {
+impl<C: TblExpressionCompound> Default for BTreeTblExpressionAssignment<C> {
     fn default() -> Self {
         Self(Default::default())
     }
 }
-impl<C: TblExpressionCompound> From<HashMap<TblExpressionVariable, TblExpression<C>>>
-    for SparseTblExpressionAssignment<C>
+impl<C: TblExpressionCompound> From<BTreeMap<TblExpressionVariable, TblExpression<C>>>
+    for BTreeTblExpressionAssignment<C>
 {
-    fn from(map: HashMap<TblExpressionVariable, TblExpression<C>>) -> Self {
-        Self(ConflictlessHashMap::from(map))
+    fn from(map: BTreeMap<TblExpressionVariable, TblExpression<C>>) -> Self {
+        Self(BTreeMap::from(map))
     }
 }
-impl<C: TblExpressionCompound> Into<HashMap<TblExpressionVariable, TblExpression<C>>>
-    for SparseTblExpressionAssignment<C>
+impl<C: TblExpressionCompound> Into<BTreeMap<TblExpressionVariable, TblExpression<C>>>
+    for BTreeTblExpressionAssignment<C>
 {
-    fn into(self) -> HashMap<TblExpressionVariable, TblExpression<C>> {
+    fn into(self) -> BTreeMap<TblExpressionVariable, TblExpression<C>> {
         self.0.into()
     }
 }
 impl<C: TblExpressionCompound> TryFromIterator<(TblExpressionVariable, TblExpression<C>)>
-    for SparseTblExpressionAssignment<C>
+    for BTreeTblExpressionAssignment<C>
 {
     type Error = KeyConflictError<TblExpressionVariable, TblExpression<C>>;
     fn try_from_iter<T: IntoIterator<Item = (TblExpressionVariable, TblExpression<C>)>>(
         iter: T,
     ) -> Result<Self, Self::Error> {
-        Ok(Self(ConflictlessHashMap::try_from_iter(iter.into_iter())?))
+        Ok(Self(BTreeMap::try_from_iter_conflictless(
+            iter.into_iter(),
+        )?))
     }
 }
-impl<C: TblExpressionCompound> TryCombine for SparseTblExpressionAssignment<C> {
+impl<C: TblExpressionCompound> TryCombine for BTreeTblExpressionAssignment<C> {
     type CombinationError = KeyConflictError<TblExpressionVariable, TblExpression<C>>;
     fn try_combine<I: IntoIterator<Item = Self>>(
         assignments: I,
     ) -> Result<Self, Self::CombinationError> {
-        Ok(Self(ConflictlessHashMap::try_combine(
+        Ok(Self(BTreeMap::try_combine_conflictless(
             assignments.into_iter().map(|v| v.0),
         )?))
     }
 }
 
-impl<C: TblExpressionCompound> TblAssignmentHelper<C> for SparseTblExpressionAssignment<C> {
+impl<C: TblExpressionCompound> TblAssignmentHelper<C> for BTreeTblExpressionAssignment<C> {
     fn get(&self, var: &TblExpressionVariable) -> Option<&TblExpression<C>> {
         self.0.get(var)
     }
@@ -86,7 +87,7 @@ impl<C: TblExpressionCompound> TblAssignmentHelper<C> for SparseTblExpressionAss
         var: TblExpressionVariable,
         expr: TblExpression<C>,
     ) -> Result<(), KeyConflictError<TblExpressionVariable, TblExpression<C>>> {
-        self.0.insert(var, expr)
+        self.0.insert_conflictless(var, expr)
     }
 }
 impl<
@@ -100,7 +101,7 @@ impl<
     PropositionalAssignment<
         UnassignedTblExpression<PreAssignmentUcompound>,
         TblExpression<PostAssignmentCompound>,
-    > for SparseTblExpressionAssignment<C>
+    > for BTreeTblExpressionAssignment<C>
 {
     type AssignmentError = TblAssignmentError;
     type ReverseAssignmentError = TblReverseAssignmentError<C>;
@@ -121,45 +122,45 @@ impl<
     }
 }
 
-#[derive(Clone, PartialEq, Eq, Debug)]
-pub struct SparsePartialTblExpressionAssignment<
+#[derive(Clone, PartialEq, Eq, Debug, Hash)]
+pub struct BTreeTblPartialExpressionAssignment<
     PostAssignmentUcompound: UnassignedTblExpressionCompound,
->(pub ConflictlessHashMap<TblExpressionVariable, UnassignedTblExpression<PostAssignmentUcompound>>);
-pub type SparsePartialTblPropositionAssignment<PostAssignmentUcompound: TblExpressionCompound> =
-    SparsePartialTblExpressionAssignment<PostAssignmentUcompound>;
+>(pub BTreeMap<TblExpressionVariable, UnassignedTblExpression<PostAssignmentUcompound>>);
+pub type BTreeTblPartialPropositionAssignment<PostAssignmentUcompound: TblExpressionCompound> =
+    BTreeTblPartialExpressionAssignment<PostAssignmentUcompound>;
 
 impl<PostAssignmentUcompound: UnassignedTblExpressionCompound> Default
-    for SparsePartialTblExpressionAssignment<PostAssignmentUcompound>
+    for BTreeTblPartialExpressionAssignment<PostAssignmentUcompound>
 {
     fn default() -> Self {
         Self(Default::default())
     }
 }
 impl<PostAssignmentUcompound: UnassignedTblExpressionCompound>
-    From<HashMap<TblExpressionVariable, UnassignedTblExpression<PostAssignmentUcompound>>>
-    for SparsePartialTblExpressionAssignment<PostAssignmentUcompound>
+    From<BTreeMap<TblExpressionVariable, UnassignedTblExpression<PostAssignmentUcompound>>>
+    for BTreeTblPartialExpressionAssignment<PostAssignmentUcompound>
 {
     fn from(
-        map: HashMap<TblExpressionVariable, UnassignedTblExpression<PostAssignmentUcompound>>,
+        map: BTreeMap<TblExpressionVariable, UnassignedTblExpression<PostAssignmentUcompound>>,
     ) -> Self {
-        Self(ConflictlessHashMap::from(map))
+        Self(map)
     }
 }
 impl<PostAssignmentUcompound: UnassignedTblExpressionCompound>
-    Into<HashMap<TblExpressionVariable, UnassignedTblExpression<PostAssignmentUcompound>>>
-    for SparsePartialTblExpressionAssignment<PostAssignmentUcompound>
+    Into<BTreeMap<TblExpressionVariable, UnassignedTblExpression<PostAssignmentUcompound>>>
+    for BTreeTblPartialExpressionAssignment<PostAssignmentUcompound>
 {
     fn into(
         self,
-    ) -> HashMap<TblExpressionVariable, UnassignedTblExpression<PostAssignmentUcompound>> {
-        self.0.into()
+    ) -> BTreeMap<TblExpressionVariable, UnassignedTblExpression<PostAssignmentUcompound>> {
+        self.0
     }
 }
 impl<PostAssignmentUcompound: UnassignedTblExpressionCompound>
     TryFromIterator<(
         TblExpressionVariable,
         UnassignedTblExpression<PostAssignmentUcompound>,
-    )> for SparsePartialTblExpressionAssignment<PostAssignmentUcompound>
+    )> for BTreeTblPartialExpressionAssignment<PostAssignmentUcompound>
 {
     type Error =
         KeyConflictError<TblExpressionVariable, UnassignedTblExpression<PostAssignmentUcompound>>;
@@ -173,25 +174,27 @@ impl<PostAssignmentUcompound: UnassignedTblExpressionCompound>
     >(
         iter: T,
     ) -> Result<Self, Self::Error> {
-        Ok(Self(ConflictlessHashMap::try_from_iter(iter.into_iter())?))
+        Ok(Self(BTreeMap::try_from_iter_conflictless(
+            iter.into_iter(),
+        )?))
     }
 }
 impl<PostAssignmentUcompound: UnassignedTblExpressionCompound> TryCombine
-    for SparsePartialTblExpressionAssignment<PostAssignmentUcompound>
+    for BTreeTblPartialExpressionAssignment<PostAssignmentUcompound>
 {
     type CombinationError =
         KeyConflictError<TblExpressionVariable, UnassignedTblExpression<PostAssignmentUcompound>>;
     fn try_combine<I: IntoIterator<Item = Self>>(
         assignments: I,
     ) -> Result<Self, Self::CombinationError> {
-        Ok(Self(ConflictlessHashMap::try_combine(
+        Ok(Self(BTreeMap::try_combine_conflictless(
             assignments.into_iter().map(|v| v.0),
         )?))
     }
 }
 
 impl<Uc: UnassignedTblExpressionCompound> TblPartialAssignmentHelper<Uc>
-    for SparsePartialTblExpressionAssignment<Uc>
+    for BTreeTblPartialExpressionAssignment<Uc>
 {
     fn get(&self, var: &TblExpressionVariable) -> Option<&UnassignedTblExpression<Uc>> {
         self.0.get(var)
@@ -201,7 +204,7 @@ impl<Uc: UnassignedTblExpressionCompound> TblPartialAssignmentHelper<Uc>
         var: TblExpressionVariable,
         expr: UnassignedTblExpression<Uc>,
     ) -> Result<(), KeyConflictError<TblExpressionVariable, UnassignedTblExpression<Uc>>> {
-        self.0.insert(var, expr)
+        self.0.insert_conflictless(var, expr)
     }
 }
 impl<
@@ -215,7 +218,7 @@ impl<
     PartialPropositionalAssignment<
         UnassignedTblExpression<PreAssignmentUcompound>,
         UnassignedTblExpression<PostAssignmentUcompound>,
-    > for SparsePartialTblExpressionAssignment<Uc>
+    > for BTreeTblPartialExpressionAssignment<Uc>
 {
     type AssignmentError = TblPartialAssignmentError;
     type ReverseAssignmentError = TblPartialReverseAssignmentError<Uc>;

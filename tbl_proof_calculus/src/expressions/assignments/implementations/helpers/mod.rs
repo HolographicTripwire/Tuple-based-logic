@@ -1,5 +1,5 @@
 use itertools::Itertools;
-use proof_calculus::utils::collections::maps::trait_implementations::KeyConflictError;
+use proof_calculus::utils::collections::maps::KeyConflictError;
 
 use crate::expressions::{
     assignments::errors::{
