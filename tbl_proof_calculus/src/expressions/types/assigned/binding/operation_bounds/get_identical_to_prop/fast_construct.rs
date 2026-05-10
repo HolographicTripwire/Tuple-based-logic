@@ -19,7 +19,7 @@ use crate::{
         compound::TblExpressionCompound,
         subexpressions::iterators::depth_first::counterclockwise::CounterclockwiseDepthFirstLocatedTblSubexpressionIterator,
     },
-    proof_calculus_derived::aliases::propositions::types::TblProposition,
+    proof_calculus_derived::aliases::propositions::types::assigned::TblProposition,
 };
 
 /// [PropositionIdentityBounds] for [TblProposition] which is fast to construct

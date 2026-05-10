@@ -3,7 +3,9 @@ use std::collections::HashMap;
 use proof_calculus::{
     propositions::assignments::{PartialPropositionalAssignment, PropositionalAssignment},
     utils::{
-        collections::maps::conflictless::{KeyConflictError, hashmap::ConflictlessHashMap},
+        collections::maps::trait_implementations::{
+            KeyConflictError, hashmap::ConflictlessHashMap,
+        },
         traits::{combinable::TryCombine, try_from_iter::TryFromIterator},
     },
 };

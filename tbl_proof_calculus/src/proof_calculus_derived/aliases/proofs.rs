@@ -3,7 +3,7 @@ use trait_aliases::trait_aliases;
 
 use crate::{
     expressions::types::assigned::compound::TblExpressionCompound,
-    proof_calculus_derived::aliases::propositions::types::TblProposition,
+    proof_calculus_derived::aliases::propositions::types::assigned::TblProposition,
 };
 
 trait_aliases! {

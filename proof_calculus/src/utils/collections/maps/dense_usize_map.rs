@@ -2,6 +2,8 @@ use std::{collections::HashSet, hash::Hash};
 
 use itertools::Itertools;
 
+use crate::utils::traits::map::{Map, MapWithTransformableValues, MapWithoutConflicts};
+
 #[derive(Clone, PartialEq, Eq, Debug)]
 pub struct DenseUsizeMap<K: Clone + Eq + Hash + Into<usize>, V> {
     assigned: HashSet<K>, // Keeps track of what entries are actually assigned a value. Used for iteration
@@ -20,36 +22,26 @@ pub(super) const KEYSET_VALUE_OUT_OF_BOUNDS_EXCEPTION: &str =
     "DenseUsizeMap's 'assigned' keyset included an out-of-bounds key";
 pub(super) const KEYSET_VALUE_UNASSIGNED_EXCEPTION: &str =
     "DenseUsizeMap's 'assigned' keyset included an unassigned key";
-pub(super) const UNASSIGNED_JUST_INSERTED_VALUE_EXCEPTION: &str = "A value was just inserted into DenseUsizeMap at a particular key, yet the key remains unassigned";
 
 impl<K: Clone + Eq + Hash + Into<usize>, V> DenseUsizeMap<K, V> {
-    pub(super) fn new_unchecked(assigned: HashSet<K>, values: Vec<Option<V>>) -> Self {
-        Self { assigned, values }
-    }
-    pub(super) fn inner_vec(&mut self) -> &mut Vec<Option<V>> {
-        &mut self.values
-    }
-    pub(super) fn inner_set(&mut self) -> &mut HashSet<K> {
-        &mut self.assigned
-    }
-
     pub fn keys(&self) -> &HashSet<K> {
         &self.assigned
     }
-
-    pub fn get(&self, key: &K) -> Option<&V> {
+}
+impl<K: Clone + Eq + Hash + Into<usize>, V> Map<K, V> for DenseUsizeMap<K, V> {
+    fn get(&self, key: &K) -> Option<&V> {
         match self.values.get(key.clone().into()) {
             Some(Some(v)) => Some(v),
             _ => None,
         }
     }
-    pub fn get_mut(&mut self, key: &K) -> Option<&mut V> {
+    fn get_mut(&mut self, key: &K) -> Option<&mut V> {
         match self.values.get_mut(key.clone().into()) {
             Some(Some(v)) => Some(v),
             _ => None,
         }
     }
-    pub fn insert(&mut self, key: K, value: V) -> Option<V> {
+    fn insert(&mut self, key: K, value: V) -> Option<V> {
         match self.values.get_mut(key.clone().into()) {
             Some(v) => std::mem::replace(v, Some(value)),
             None => {
@@ -60,7 +52,22 @@ impl<K: Clone + Eq + Hash + Into<usize>, V> DenseUsizeMap<K, V> {
             }
         }
     }
-    pub fn remove(&mut self, key: K) -> Option<V> {
+
+    fn iter<'a>(&'a self) -> impl Iterator<Item = (&'a K, &'a V)>
+    where
+        K: 'a,
+        V: 'a,
+    {
+        self.assigned
+            .iter()
+            .map(|key| match self.values.get(key.clone().into()) {
+                Some(Some(v)) => (key, v),
+                Some(None) => panic!("{}", KEYSET_VALUE_UNASSIGNED_EXCEPTION),
+                None => panic!("{}", KEYSET_VALUE_OUT_OF_BOUNDS_EXCEPTION),
+            })
+    }
+
+    fn remove(&mut self, key: &K) -> Option<V> {
         match self.values.get_mut(key.clone().into()) {
             Some(v) => {
                 self.assigned.remove(&key);
@@ -69,18 +76,31 @@ impl<K: Clone + Eq + Hash + Into<usize>, V> DenseUsizeMap<K, V> {
             None => None,
         }
     }
-
-    pub fn iter(&self) -> impl Iterator<Item = (K, &V)> {
-        self.assigned
-            .iter()
-            .map(|key| match self.values.get(key.clone().into()) {
-                Some(Some(v)) => (key.clone(), v),
-                Some(None) => panic!("{}", KEYSET_VALUE_UNASSIGNED_EXCEPTION),
-                None => panic!("{}", KEYSET_VALUE_OUT_OF_BOUNDS_EXCEPTION),
-            })
+}
+impl<K: Clone + Eq + Hash + Into<usize>,V: PartialEq<V>> MapWithoutConflicts<K,V> for DenseUsizeMap<K,V> {
+    fn insert_conflictless(&mut self, key: K, value: V) -> Result<(), super::KeyConflictError<K, V>>
+    where
+        V: PartialEq<V> {
+        
     }
 
-    pub fn transform_values<V2, F: Fn(&V) -> V2>(&self, transformer: F) -> DenseUsizeMap<K, V2> {
+    fn try_combine_conflictless<I: IntoIterator<Item = Self>>(
+        maps: I,
+    ) -> Result<Self, super::KeyConflictError<K, V>> {
+        todo!()
+    }
+
+    fn try_from_iter_without_conflicts<T: IntoIterator<Item = (K, V)>>(
+        iter: T,
+    ) -> Result<Self, super::KeyConflictError<K, V>> {
+        todo!()
+    }
+} 
+impl<K: Clone + Eq + Hash + Into<usize> + From<usize>, V1, V2> MapWithTransformableValues<K, V1, V2>
+    for DenseUsizeMap<K, V1>
+{
+    type SelfTransformed = DenseUsizeMap<K, V2>;
+    fn with_values_transformed<F: Fn(&V1) -> V2>(&self, transformer: F) -> DenseUsizeMap<K, V2> {
         DenseUsizeMap {
             assigned: self.assigned.clone(),
             values: self
@@ -93,13 +113,10 @@ impl<K: Clone + Eq + Hash + Into<usize>, V> DenseUsizeMap<K, V> {
                 .collect(),
         }
     }
-    pub fn try_transform_values<Err, V2, F: Fn(&V) -> Result<V2, Err>>(
+    fn try_with_values_transformed<Err, F: Fn(&V1) -> Result<V2, Err>>(
         &self,
         transformer: F,
-    ) -> Result<DenseUsizeMap<K, V2>, (K, Err)>
-    where
-        K: From<usize>,
-    {
+    ) -> Result<DenseUsizeMap<K, V2>, (K, Err)> {
         Ok(DenseUsizeMap {
             assigned: self.assigned.clone(),
             values: self
@@ -116,6 +133,7 @@ impl<K: Clone + Eq + Hash + Into<usize>, V> DenseUsizeMap<K, V> {
         })
     }
 }
+
 impl<K: Clone + Eq + Hash + Into<usize>, V> FromIterator<(K, V)> for DenseUsizeMap<K, V> {
     fn from_iter<T: IntoIterator<Item = (K, V)>>(pairs: T) -> Self {
         // Get the largest key

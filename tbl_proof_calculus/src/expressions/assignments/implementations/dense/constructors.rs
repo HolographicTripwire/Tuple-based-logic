@@ -6,7 +6,7 @@ use proof_calculus::{
         PartialPropositionalAssignmentConstructor, PropositionalAssignmentConstructor,
     },
     utils::{
-        collections::maps::conflictless::{
+        collections::maps::trait_implementations::{
             KeyConflictError, dense_usize_map::ConflictlessDenseUsizeMap,
         },
         traits::{combinable::TryCombine, try_from_iter::TryFromIterator},
@@ -35,7 +35,7 @@ use crate::{
         },
     },
     proof_calculus_derived::aliases::propositions::types::{
-        TblProposition, UnassignedTblProposition,
+        assigned::TblProposition, unassigned::UnassignedTblProposition,
     },
 };
 

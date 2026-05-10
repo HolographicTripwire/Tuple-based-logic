@@ -54,7 +54,7 @@ use crate::{
             variable::TblExpressionVariable,
         },
     },
-    proof_calculus_derived::aliases::propositions::types::UnassignedTblProposition,
+    proof_calculus_derived::aliases::propositions::types::unassigned::UnassignedTblProposition,
 };
 
 pub mod variable_value;

@@ -29,7 +29,7 @@ use crate::{
             },
         },
     },
-    proof_calculus_derived::aliases::propositions::types::UnassignedTblProposition,
+    proof_calculus_derived::aliases::propositions::types::unassigned::UnassignedTblProposition,
 };
 
 #[derive(Clone, PartialEq, Eq, Hash, Debug)]

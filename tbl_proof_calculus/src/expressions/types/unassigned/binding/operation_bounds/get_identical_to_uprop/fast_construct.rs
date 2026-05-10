@@ -16,7 +16,7 @@ use crate::{
             subexpressions::iterators::depth_first::counterclockwise::CounterclockwiseDepthFirstLocatedUnassignedTblSubexpressionIterator,
         },
     },
-    proof_calculus_derived::aliases::propositions::types::UnassignedTblProposition,
+    proof_calculus_derived::aliases::propositions::types::unassigned::UnassignedTblProposition,
 };
 use proof_calculus::{
     propositions::types::unassigned::binding::bounds::GetBoundsForUpropIdenticalToUprop,

@@ -41,7 +41,7 @@ use crate::{
         },
         compound::TblExpressionCompound,
     },
-    proof_calculus_derived::aliases::propositions::types::TblProposition,
+    proof_calculus_derived::aliases::propositions::types::assigned::TblProposition,
 };
 
 pub mod atom_value;

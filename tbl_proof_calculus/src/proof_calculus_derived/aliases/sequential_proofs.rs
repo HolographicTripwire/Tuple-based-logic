@@ -3,7 +3,7 @@ use proof_calculus::proofs::sequential::SequentialProof;
 use crate::{
     expressions::types::assigned::compound::TblExpressionCompound,
     proof_calculus_derived::aliases::{
-        inferences::TblInferenceRule, propositions::types::TblProposition,
+        inferences::TblInferenceRule, propositions::types::assigned::TblProposition,
     },
 };
 

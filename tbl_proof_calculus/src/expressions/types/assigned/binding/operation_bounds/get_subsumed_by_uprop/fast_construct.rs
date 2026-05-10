@@ -24,6 +24,7 @@ use crate::{
                     TblExpressionBoundAtomExactValue, TblExpressionBoundCompoundExactLength,
                     TblExpressionBoundValueDuplicated, TblExpressionInsertionBound,
                 },
+                compound::TblExpressionCompound,
             },
             unassigned::{
                 UnassignedTblExpression, at_path_enum::UnassignedTblExpressionAtPathEnum,
@@ -34,7 +35,8 @@ use crate::{
         },
     },
     proof_calculus_derived::aliases::propositions::{
-        assignments::TblPropositionalAssignment, types::UnassignedTblProposition,
+        assignments::{TblPropositionalAssignment, TblPropositionalAssignmentConstructor},
+        types::unassigned::UnassignedTblProposition,
     },
 };
 
@@ -59,25 +61,29 @@ impl<B: GetBinder<TblExpressionInsertionBound>> UniqueGetBounds<B>
 }
 impl<
     'elem,
-    ElementCompound: 'elem + UnassignedTblExpressionCompound,
+    ElemCompound: 'elem + UnassignedTblExpressionCompound,
     B: GetBinder<TblExpressionInsertionBound>,
-> GetBoundsForPropsSubsumedByUprop<'elem, UnassignedTblProposition<ElementCompound>, B>
+> GetBoundsForPropsSubsumedByUprop<'elem, UnassignedTblProposition<ElemCompound>, B>
     for TblFastConstructGetBoundsForPropsSubsumedByUprop
 {
 }
 impl<
     'elem,
-    MapUcompound: UnassignedTblExpressionCompound,
-    ElementCompound: 'elem + UnassignedTblExpressionCompound,
+    MapCompound: TblExpressionCompound,
+    ElemUcompound: 'elem + UnassignedTblExpressionCompound,
+    Assignment: TblPropositionalAssignment<ElemUcompound, MapCompound>,
     B: GetBinder<TblExpressionInsertionBound>,
-    Assignment: TblPropositionalAssignment<MapUcompound, ElementCompound>,
 >
     GetBoundsForConstructiblePropsSubsumedByUprop<
         'elem,
-        UnassignedTblExpression<MapUcompound>,
-        TblExpression<ElementCompound>,
+        TblExpression<MapCompound>,
+        UnassignedTblExpression<ElemUcompound>,
         Assignment,
+        B,
     > for TblFastConstructGetBoundsForPropsSubsumedByUprop
+where
+    SparseTblExpressionAssignmentConstructor:
+        TblPropositionalAssignmentConstructor<ElemUcompound, MapCompound, Assignment>,
 {
     type ElemToMapConstructor = Rc<SparseTblExpressionAssignmentConstructor>;
     fn get_from_with_elem_to_map_constructors<'binder>(
@@ -129,7 +135,7 @@ impl<'a, C: UnassignedTblExpressionCompound> From<&'a UnassignedTblExpression<C>
                 .collect();
         Self {
             get_bounds,
-            assignment_constructor: first_var_instances.into(),
+            assignment_constructor: Rc::new(first_var_instances.into()),
         }
     }
 }

@@ -1,16 +1,12 @@
 use std::ops::Deref;
 
 use crate::{
-    propositions::types::{assigned::Proposition, unassigned::UnassignedProposition},
-    utils::traits::combinable::TryCombine,
+    propositions::types::unassigned::UnassignedProposition, utils::traits::combinable::TryCombine,
 };
 
-mod partial;
-pub use partial::{PartialPropositionalAssignment, PartialPropositionalAssignmentConstructor};
-
-pub trait PropositionalAssignment<
+pub trait PartialPropositionalAssignment<
     PreAssignmentUprop: UnassignedProposition,
-    PostAssignmentProp: Proposition,
+    PostAssignmentProp: UnassignedProposition,
 >: TryCombine
 {
     type AssignmentError;
@@ -24,32 +20,31 @@ pub trait PropositionalAssignment<
         post_assignment_prop: &PostAssignmentProp,
     ) -> Result<Self, Self::ReverseAssignmentError>;
 }
-
-pub trait PropositionalAssignmentConstructor<
+pub trait PartialPropositionalAssignmentConstructor<
     PreAssignmentUprop: UnassignedProposition,
-    PostAssignmentProp: Proposition,
-    Assignment: PropositionalAssignment<PreAssignmentUprop, PostAssignmentProp>,
+    PostAssignmentProp: UnassignedProposition,
+    Assignment: PartialPropositionalAssignment<PreAssignmentUprop, PostAssignmentProp>,
 >: Sized
 {
     type Error;
     fn try_construct(
         &self,
-        post_assignment_prop: &PostAssignmentProp,
+        post_assignment_uprop: &PostAssignmentProp,
     ) -> Result<Assignment, Self::Error>;
 }
 impl<
     PreAssignmentUprop: UnassignedProposition,
-    PostAssignmentProp: Proposition,
-    Assignment: PropositionalAssignment<PreAssignmentUprop, PostAssignmentProp>,
-    AssignmentConstructor: PropositionalAssignmentConstructor<PreAssignmentUprop, PostAssignmentProp, Assignment>,
+    PostAssignmentUprop: UnassignedProposition,
+    Assignment: PartialPropositionalAssignment<PreAssignmentUprop, PostAssignmentUprop>,
+    AssignmentConstructor: PartialPropositionalAssignmentConstructor<PreAssignmentUprop, PostAssignmentUprop, Assignment>,
     DerefAssignmentConstructor: Deref<Target = AssignmentConstructor>,
-> PropositionalAssignmentConstructor<PreAssignmentUprop, PostAssignmentProp, Assignment>
+> PartialPropositionalAssignmentConstructor<PreAssignmentUprop, PostAssignmentUprop, Assignment>
     for DerefAssignmentConstructor
 {
     type Error = AssignmentConstructor::Error;
     fn try_construct(
         &self,
-        post_assignment_prop: &PostAssignmentProp,
+        post_assignment_prop: &PostAssignmentUprop,
     ) -> Result<Assignment, Self::Error> {
         (**self).try_construct(post_assignment_prop)
     }

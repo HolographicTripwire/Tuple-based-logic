@@ -1,7 +1,7 @@
 use proof_calculus::{
     propositions::assignments::{PartialPropositionalAssignment, PropositionalAssignment},
     utils::{
-        collections::maps::conflictless::{
+        collections::maps::trait_implementations::{
             KeyConflictError, dense_usize_map::ConflictlessDenseUsizeMap,
         },
         traits::{combinable::TryCombine, try_from_iter::TryFromIterator},

@@ -14,7 +14,7 @@ use crate::{
         },
         unassigned::compound::UnassignedTblExpressionCompound,
     },
-    proof_calculus_derived::aliases::propositions::types::UnassignedTblProposition,
+    proof_calculus_derived::aliases::propositions::types::unassigned::UnassignedTblProposition,
 };
 
 pub type TblFastConstructGetBoundsForUexprsSubsumedByUexpr =
@@ -22,8 +22,11 @@ pub type TblFastConstructGetBoundsForUexprsSubsumedByUexpr =
 pub type TblFastConstructGetBoundsForUpropsSubsumedByUprop =
     TblFastConstructGetBoundsForPropsSubsumedByUprop;
 
-impl<'prop, C: 'prop + UnassignedTblExpressionCompound, B: GetBinder<TblExpressionInsertionBound>>
-    GetBoundsForUpropsSubsumedByUprop<'prop, UnassignedTblProposition<C>, B>
+impl<
+    'elem,
+    ElemUcompound: 'elem + UnassignedTblExpressionCompound,
+    B: GetBinder<TblExpressionInsertionBound>,
+> GetBoundsForUpropsSubsumedByUprop<'elem, UnassignedTblProposition<ElemUcompound>, B>
     for TblFastConstructGetBoundsForUexprsSubsumedByUexpr
 {
 }
