@@ -17,6 +17,7 @@ use ref_cast::RefCast;
 
 use crate::{
     expressions::types::assigned::{
+        AtomOrCompoundLength,
         atom::TblExpressionAtom,
         binding::{
             binders::{
@@ -25,8 +26,7 @@ use crate::{
                 value_duplication::TblExpressionBinderValueDuplication,
             },
             bounds::{
-                AtomOrCompoundLength, TblExpressionBoundAtomExistsAtLocation,
-                TblExpressionBoundCompoundExistsAtLocation,
+                TblExpressionBoundAtomExistsAtLocation, TblExpressionBoundCompoundExistsAtLocation,
                 TblExpressionBoundExpressionExistsAtLocation, TblExpressionIdentityBound,
                 TblExpressionInsertionBound, TblPropositionBoundAtomExactValue,
                 TblPropositionBoundAtomExistsAtLocation, TblPropositionBoundCompoundExactLength,
@@ -173,8 +173,10 @@ impl<T: Hash + Eq + Clone> GetBinder<TblPropositionBoundValueDuplicated>
     ) -> HashSet<&'binder Self::Value> {
         self.duplicate_value_bounds.get(&key)
     }
-    fn get_with_extra_data<'binder>(&'binder self, bound: &TblPropositionBoundValueDuplicated) -> HashSet<(&'binder Self::Value,<TblPropositionBoundValueDuplicated as proof_calculus::utils::collections::binding::bounds::GetBound>::ExtraReturnData)>
-        {
+    fn get_with_extra_data<'binder>(&'binder self, bound: &TblPropositionBoundValueDuplicated) -> HashSet<(
+        &'binder Self::Value,
+        <TblPropositionBoundValueDuplicated as proof_calculus::utils::collections::binding::bounds::GetBound>::ExtraReturnData
+    )>{
         self.duplicate_value_bounds.get_with_extra_data(bound)
     }
 }
@@ -188,8 +190,10 @@ impl<T: Hash + Eq + Clone> GetBinder<TblPropositionIdentityBound> for TblProposi
             TblExpressionIdentityBound::CompoundLength(compound_bound) => self.get(compound_bound),
         }
     }
-    fn get_with_extra_data<'binder>(&'binder self, bound: &TblPropositionIdentityBound) -> HashSet<(&'binder Self::Value,<TblPropositionIdentityBound as proof_calculus::utils::collections::binding::bounds::GetBound>::ExtraReturnData)>
-        {
+    fn get_with_extra_data<'binder>(&'binder self, bound: &TblPropositionIdentityBound) -> HashSet<(
+        &'binder Self::Value,
+        <TblPropositionIdentityBound as proof_calculus::utils::collections::binding::bounds::GetBound>::ExtraReturnData
+    )>{
         transform_hashset(self.get(bound), |v| (v, ()))
     }
 }

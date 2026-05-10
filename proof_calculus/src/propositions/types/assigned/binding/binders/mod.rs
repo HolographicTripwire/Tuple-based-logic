@@ -21,6 +21,7 @@ pub trait GetBinderForPropIdenticalToProp<ElemProp: Proposition>: Binder {
     type DefaultGetBoundsForPropIdenticalToProp<'elem>: GetBoundsForPropIdenticalToProp<'elem, ElemProp, Self>
     where
         ElemProp: 'elem;
+
     fn get_identical_to<'prop, 'binder>(
         &'binder self,
         prop: &'prop ElemProp,
@@ -34,6 +35,7 @@ pub trait GetBinderForPropsSubsumedByUprop<SubsumerElemUprop: UnassignedProposit
     type DefaultGetBoundsForPropsSubsumedByUprop<'elem>: GetBoundsForPropsSubsumedByUprop<'elem, SubsumerElemUprop, Self>
     where
         SubsumerElemUprop: 'elem;
+
     fn get_subsumed_by<'prop, 'binder>(
         &'binder self,
         element: &'prop SubsumerElemUprop,

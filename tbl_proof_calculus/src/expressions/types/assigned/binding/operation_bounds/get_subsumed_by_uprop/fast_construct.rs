@@ -18,9 +18,12 @@ use crate::{
         assignments::implementations::sparse::constructors::SparseTblExpressionAssignmentConstructor,
         paths::TblSubexpressionInExpressionPath,
         types::{
-            assigned::binding::bounds::{
-                TblExpressionBoundAtomExactValue, TblExpressionBoundCompoundExactLength,
-                TblExpressionBoundValueDuplicated, TblExpressionInsertionBound,
+            assigned::{
+                TblExpression,
+                binding::bounds::{
+                    TblExpressionBoundAtomExactValue, TblExpressionBoundCompoundExactLength,
+                    TblExpressionBoundValueDuplicated, TblExpressionInsertionBound,
+                },
             },
             unassigned::{
                 UnassignedTblExpression, at_path_enum::UnassignedTblExpressionAtPathEnum,

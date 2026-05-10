@@ -32,9 +32,9 @@ pub trait GetBoundsForConstructibleUpropsEquivalentToUprop<
     'elem,
     MapUprop: UnassignedProposition,
     ElemUprop: 'elem + UnassignedProposition,
-    B: Binder,
     ElemToMapAssignment: PartialPropositionalAssignment<ElemUprop, MapUprop>,
     MapToElemAssignment: PartialPropositionalAssignment<MapUprop, ElemUprop>,
+    B: Binder,
 >: GetBoundsForUpropsEquivalentToUprop<'elem, ElemUprop, B>
 {
     type ElemToMapConstructor: PartialPropositionalAssignmentConstructor<ElemUprop, MapUprop, ElemToMapAssignment>;
@@ -57,8 +57,8 @@ pub trait GetBoundsForConstructibleUpropsSubsumingProp<
     'elem,
     MapUprop: UnassignedProposition,
     ElemProp: 'elem + Proposition,
-    B: Binder,
     MapToElemAssignment: PropositionalAssignment<MapUprop, ElemProp>,
+    B: Binder,
 >: GetBoundsForUpropsSubsumingProp<'elem, ElemProp, B>
 {
     type MapToElemConstructor: PropositionalAssignmentConstructor<MapUprop, ElemProp, MapToElemAssignment>;
@@ -75,12 +75,12 @@ pub trait GetBoundsForUpropsSubsumingUprop<
 >: GetBounds<B> + From<&'elem ElemUprop>
 {
 }
-pub trait GetBoundsForConstructibleUpropsSubsumingByUprop<
+pub trait GetBoundsForConstructibleUpropsSubsumingUprop<
     'elem,
     MapUprop: UnassignedProposition,
     ElemUprop: 'elem + UnassignedProposition,
-    B: Binder,
     MapToElemAssignment: PartialPropositionalAssignment<MapUprop, ElemUprop>,
+    B: Binder,
 >: GetBoundsForUpropsSubsumingUprop<'elem, ElemUprop, B>
 {
     type MapToElemConstructor: PartialPropositionalAssignmentConstructor<MapUprop, ElemUprop, MapToElemAssignment>;

@@ -9,7 +9,7 @@ use crate::{
         unassigned::compound::UnassignedTblExpressionCompound,
     },
     proof_calculus_derived::aliases::propositions::types::{
-        TblProposition, UnassignedTblProposition,
+        assigned::TblProposition, unassigned::UnassignedTblProposition,
     },
 };
 
