@@ -1,2 +1,2 @@
-pub mod errors;
-pub mod implementations;
+pub mod full;
+pub mod partial;

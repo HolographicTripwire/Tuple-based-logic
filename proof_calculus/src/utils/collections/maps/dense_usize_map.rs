@@ -26,6 +26,12 @@ impl<K: Clone + Eq + Hash + Into<usize>, V> Default for DenseUsizeMap<K, V> {
         }
     }
 }
+impl<K: Clone + Eq + Hash + Into<usize>, V: Hash> Hash for DenseUsizeMap<K, V> {
+    fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
+        // Do not need to hash self.assigned as any two correctly-constructed DenseUsizeMaps with the same self.values will have the same self.assigned
+        self.values.hash(state);
+    }
+}
 
 pub(super) const KEYSET_VALUE_OUT_OF_BOUNDS_EXCEPTION: &str =
     "DenseUsizeMap's 'assigned' keyset included an out-of-bounds key";

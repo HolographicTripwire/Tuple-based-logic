@@ -8,7 +8,7 @@ pub trait Map<K, V> {
     fn get_mut(&mut self, key: &K) -> Option<&mut V>;
 
     fn insert(&mut self, key: K, value: V) -> Option<V>;
-    fn remove(&mut self, k: &K) -> Option<V>;
+    fn remove(&mut self, key: &K) -> Option<V>;
 
     fn iter<'a>(&'a self) -> impl Iterator<Item = (&'a K, &'a V)>
     where

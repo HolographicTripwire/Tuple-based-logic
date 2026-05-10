@@ -1,25 +1,12 @@
-use std::collections::HashSet;
-
-use proof_calculus::{
-    propositions::types::assigned::binding::bounds::GetBoundsForPropIdenticalToProp,
-    utils::collections::binding::{
-        binders::{Binder, GetBinder},
-        bounds::{GetBounds, UniqueGetBounds},
+use crate::expressions::types::assigned::{
+    TblExpression,
+    at_path_enum::TblExpressionAtPathEnum,
+    binding::bounds::{
+        TblExpressionBoundAtomExactValue, TblExpressionBoundCompoundExactLength,
+        TblExpressionIdentityBound,
     },
-};
-
-use crate::{
-    expressions::types::assigned::{
-        TblExpression,
-        at_path_enum::TblExpressionAtPathEnum,
-        binding::bounds::{
-            TblExpressionBoundAtomExactValue, TblExpressionBoundCompoundExactLength,
-            TblExpressionIdentityBound, TblPropositionIdentityBound,
-        },
-        compound::TblExpressionCompound,
-        subexpressions::iterators::depth_first::counterclockwise::CounterclockwiseDepthFirstLocatedTblSubexpressionIterator,
-    },
-    proof_calculus_derived::aliases::propositions::types::assigned::TblProposition,
+    compound::TblExpressionCompound,
+    subexpressions::iterators::depth_first::counterclockwise::CounterclockwiseDepthFirstLocatedTblSubexpressionIterator,
 };
 
 /// [PropositionIdentityBounds] for [TblProposition] which is fast to construct
@@ -28,23 +15,7 @@ use crate::{
 pub struct TblFastConstructGetBoundsForExprIdenticalToExpr(Box<[TblExpressionIdentityBound]>);
 pub type TblFastConstructGetBoundsForPropIdenticalToProp =
     TblFastConstructGetBoundsForExprIdenticalToExpr;
-
-impl<B: GetBinder<TblExpressionIdentityBound>> GetBounds<B>
-    for TblFastConstructGetBoundsForExprIdenticalToExpr
-{
-    fn get_from<'binder>(&self, binder: &'binder B) -> HashSet<&'binder <B as Binder>::Value> {
-        binder.get_intersection(self.0.iter())
-    }
-}
-impl<B: GetBinder<TblPropositionIdentityBound>> UniqueGetBounds<B>
-    for TblFastConstructGetBoundsForExprIdenticalToExpr
-{
-}
-impl<'prop, C: 'prop + TblExpressionCompound, B: GetBinder<TblPropositionIdentityBound>>
-    GetBoundsForPropIdenticalToProp<'prop, TblProposition<C>, B>
-    for TblFastConstructGetBoundsForExprIdenticalToExpr
-{
-}
+// Construction
 impl<'a, C: TblExpressionCompound> From<&'a TblExpression<C>>
     for TblFastConstructGetBoundsForPropIdenticalToProp
 {
@@ -63,9 +34,57 @@ impl<'a, C: TblExpressionCompound> From<&'a TblExpression<C>>
         Self(bounds)
     }
 }
+mod retrieval {
+    use std::collections::HashSet;
 
-impl TblFastConstructGetBoundsForExprIdenticalToExpr {
-    pub fn bounds(&self) -> &Box<[TblExpressionIdentityBound]> {
-        &self.0
+    use proof_calculus::utils::collections::binding::{
+        binders::{Binder, GetBinder},
+        bounds::{GetBounds, UniqueGetBounds},
+    };
+
+    use crate::expressions::types::assigned::binding::{
+        bounds::{TblExpressionIdentityBound, TblPropositionIdentityBound},
+        operation_bounds::get_identical_to_prop::fast_construct::TblFastConstructGetBoundsForExprIdenticalToExpr,
+    };
+
+    impl<B: GetBinder<TblExpressionIdentityBound>> GetBounds<B>
+        for TblFastConstructGetBoundsForExprIdenticalToExpr
+    {
+        fn get_from<'binder>(&self, binder: &'binder B) -> HashSet<&'binder <B as Binder>::Value> {
+            binder.get_intersection(self.0.iter())
+        }
+    }
+    impl<B: GetBinder<TblPropositionIdentityBound>> UniqueGetBounds<B>
+        for TblFastConstructGetBoundsForExprIdenticalToExpr
+    {
     }
 }
+mod operational_retrieval {
+    use proof_calculus::{
+        propositions::types::assigned::binding::bounds::GetBoundsForPropIdenticalToProp,
+        utils::collections::binding::binders::GetBinder,
+    };
+
+    use crate::{
+        expressions::types::assigned::{
+            binding::{
+                bounds::TblPropositionIdentityBound,
+                operation_bounds::get_identical_to_prop::fast_construct::TblFastConstructGetBoundsForExprIdenticalToExpr,
+            },
+            compound::TblExpressionCompound,
+        },
+        proof_calculus_derived::aliases::propositions::types::assigned::TblProposition,
+    };
+
+    impl<'prop, C: 'prop + TblExpressionCompound, B: GetBinder<TblPropositionIdentityBound>>
+        GetBoundsForPropIdenticalToProp<'prop, TblProposition<C>, B>
+        for TblFastConstructGetBoundsForExprIdenticalToExpr
+    {
+    }
+}
+
+// impl TblFastConstructGetBoundsForExprIdenticalToExpr {
+//     pub fn bounds(&self) -> &Box<[TblExpressionIdentityBound]> {
+//         &self.0
+//     }
+// }
