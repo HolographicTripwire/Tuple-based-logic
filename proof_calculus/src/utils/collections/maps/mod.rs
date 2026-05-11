@@ -2,6 +2,9 @@ pub mod btree_map;
 pub mod dense_usize_map;
 pub mod hashmap;
 pub mod multimap;
+pub mod powerset_map;
+
+pub mod allocators;
 // mod trait_implementations;
 
 pub struct KeyConflictError<K, V: PartialEq<V>> {

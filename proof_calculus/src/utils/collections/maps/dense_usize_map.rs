@@ -42,6 +42,9 @@ impl<K: Clone + Eq + Hash + Into<usize>, V> DenseUsizeMap<K, V> {
     pub fn keys(&self) -> &HashSet<K> {
         &self.assigned
     }
+    pub fn values(&self) -> &Vec<Option<V>> {
+        &self.values
+    }
 }
 impl<K: Clone + Eq + Hash + Into<usize>, V: PartialEq<V>> DenseUsizeMap<K, V> {
     fn try_from_vec_without_conflicts(pairs: Vec<(K, V)>) -> Result<Self, KeyConflictError<K, V>> {
